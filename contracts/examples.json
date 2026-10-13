@@ -1,0 +1,13 @@
+{
+  "notice": "Fixed development examples; identifiers are illustrative, credentials intentionally absent.",
+  "requests": {
+    "get_case": {},
+    "get_business_policy": {},
+    "get_order": {"order_id": "order-example-1"},
+    "get_refund_history": {"order_id": "order-example-1", "idempotency_key": "request-example-1"},
+    "submit_refund": {"order_id": "order-example-1", "items": [{"item_id": "item-example-1", "quantity": 1}], "confirmation_message_id": "message-example-1", "expected_version": 1, "reason": "Customer confirmed one unit."},
+    "submit_human_review": {"category": "confirmation_needs_review", "missing_facts": ["Which public confirmation is current?"], "evidence_message_ids": ["message-example-1"], "expected_version": 2},
+    "finish_case": {"outcome": "escalated", "explanation": "Declared by caller; ticket remains open, not an evaluation.", "expected_version": 3}
+  },
+  "error": {"code": "STALE_STATE", "message": "Expected version does not match current state.", "retryable": false, "request_id": "request-example-error"}
+}

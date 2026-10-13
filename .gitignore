@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+var/
+*.sqlite*
+artifacts/b_bootstrap/private/
+frontend/node_modules/
+frontend/dist/
+
+# 本地编辑器/系统杂项（2026-10-13 增补）
+.idea/
+.pytest_cache/
+Thumbs.db
+.DS_Store

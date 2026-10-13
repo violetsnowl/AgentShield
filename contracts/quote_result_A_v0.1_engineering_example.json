@@ -1,0 +1,88 @@
+{
+  "schema_version": "a-quote-v0.1-candidate",
+  "commercial_quote": false,
+  "status": "illustrative",
+  "scope": "ecommerce_refund_ai_agent_research_only",
+  "contract_version": "research-refund-ai-v0.1-candidate",
+  "data_version": "engineering-estimate-v0.1",
+  "calculation_version": "actuarial-a0-0.1",
+  "run_manifest_ref": "docs/business/engineering_estimate_input_v0.1.json",
+  "config_id": "engineering-scripted-config",
+  "execution_source": "scripted_test",
+  "reviewed_evidence": false,
+  "target_volume": 1000,
+  "target_weights": {
+    "whole_low": "0.1",
+    "whole_high": "0.2",
+    "partial_low": "0.3",
+    "partial_high": "0.4"
+  },
+  "run_count": 9,
+  "estimation": {
+    "case_count": 4,
+    "assessed_case_count": 4,
+    "unverified_case_count": 0,
+    "stratum_counts": {
+      "whole_low": 1,
+      "whole_high": 1,
+      "partial_low": 1,
+      "partial_high": 1
+    },
+    "stratum_mean_cents_decimal": {
+      "whole_low": "200.0000",
+      "whole_high": "400.0000",
+      "partial_low": "600.0000",
+      "partial_high": "800.0000"
+    },
+    "pooled_mean_cents_decimal": "500.0000",
+    "missing_target_strata": []
+  },
+  "holdout": {
+    "case_count": 4,
+    "assessed_case_count": 4,
+    "unverified_case_count": 0,
+    "stratum_counts": {
+      "whole_low": 1,
+      "whole_high": 1,
+      "partial_low": 1,
+      "partial_high": 1
+    },
+    "stratum_mean_cents_decimal": {
+      "whole_low": "300.0000",
+      "whole_high": "500.0000",
+      "partial_low": "700.0000",
+      "partial_high": "900.0000"
+    },
+    "pooled_mean_cents_decimal": "600.0000",
+    "missing_target_strata": []
+  },
+  "methods": {
+    "B0": {
+      "label": "unstratified_case_mean",
+      "estimated_mean_cents_decimal": "500.0000",
+      "scenario_cost_cents_decimal": "500000.0000"
+    },
+    "B1": {
+      "label": "prestratified_weighted_case_mean",
+      "estimated_mean_cents_decimal": "600.0000",
+      "scenario_cost_cents_decimal": "600000.0000"
+    },
+    "B2": {
+      "status": "not_fitted",
+      "estimated_mean_cents_decimal": null,
+      "scenario_cost_cents_decimal": null
+    }
+  },
+  "holdout_evaluation": {
+    "reference_cents_decimal": "700.0000",
+    "B0_abs_error_cents_decimal": "200.0000",
+    "B1_abs_error_cents_decimal": "100.0000",
+    "interpretation": "holdout_sample_reference_not_population_truth"
+  },
+  "limitations": [
+    "source labels require independent verification",
+    "engineering runs cannot estimate real failure frequency",
+    "B0/B1 are pure-risk-cost scenarios, not commercial premiums",
+    "no credible zero-risk conclusion from zero observed payouts"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "label": "fresh_frontend_tests",
+  "started_at": "2026-10-12T14:39:57.991286+00:00",
+  "finished_at": "2026-10-12T14:39:59.621523+00:00",
+  "command": [
+    "npm.cmd",
+    "--prefix",
+    "frontend",
+    "test"
+  ],
+  "exit_code": 0,
+  "status": "pass",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "\n> agentshield-workbench@0.3.0 test\n> vitest run\n\n\n RUN  v4.0.18 D:/作业合集/大三/智能+保险/agentshield/var/stage05-reception/frontend\n\n ✓ tests/integrations.test.ts (5 tests) 3ms\n ✓ tests/consistency.test.ts (21 tests) 37ms\n ✓ tests/data.test.ts (15 tests) 46ms\n\n Test Files  3 passed (3)\n      Tests  41 passed (41)\n   Start at  22:39:59\n   Duration  505ms (transform 217ms, setup 0ms, import 648ms, tests 86ms, environment 0ms)\n\n"
+}

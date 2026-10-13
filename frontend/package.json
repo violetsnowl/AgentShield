@@ -1,0 +1,28 @@
+{
+  "name": "agentshield-workbench",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "generate-validator": "node scripts/generate-validator.mjs",
+    "check-contract": "node scripts/generate-validator.mjs --check",
+    "build": "node scripts/generate-validator.mjs --check && tsc --noEmit && vite build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "ajv": "8.17.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "playwright-core": "1.62.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.4",
+    "vitest": "4.0.18"
+  }
+}

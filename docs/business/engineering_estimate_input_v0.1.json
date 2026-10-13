@@ -1,0 +1,23 @@
+{
+  "purpose": "engineering_formula_smoke_only_not_natural_insured_loss_frequency",
+  "quote_parameters": {
+    "config_id": "engineering-scripted-config",
+    "contract_version": "research-refund-ai-v0.1-candidate",
+    "data_version": "engineering-estimate-v0.1",
+    "run_manifest_ref": "docs/business/engineering_estimate_input_v0.1.json",
+    "target_weights": {"whole_low":"0.1","whole_high":"0.2","partial_low":"0.3","partial_high":"0.4"},
+    "target_volume": 1000,
+    "reviewed_evidence": false
+  },
+  "runs": [
+    {"run_id":"d1a","case_id":"dev-e1","parent_case_id":null,"config_id":"engineering-scripted-config","split":"estimation","stratum":"whole_low","claim_status":"assessed","payout_cents":100,"execution_source":"scripted_test"},
+    {"run_id":"d1b","case_id":"dev-e1","parent_case_id":null,"config_id":"engineering-scripted-config","split":"estimation","stratum":"whole_low","claim_status":"assessed","payout_cents":300,"execution_source":"scripted_test"},
+    {"run_id":"d2","case_id":"dev-e2","parent_case_id":null,"config_id":"engineering-scripted-config","split":"estimation","stratum":"whole_high","claim_status":"assessed","payout_cents":400,"execution_source":"scripted_test"},
+    {"run_id":"d3","case_id":"dev-e3","parent_case_id":null,"config_id":"engineering-scripted-config","split":"estimation","stratum":"partial_low","claim_status":"assessed","payout_cents":600,"execution_source":"scripted_test"},
+    {"run_id":"d4","case_id":"dev-e4","parent_case_id":null,"config_id":"engineering-scripted-config","split":"estimation","stratum":"partial_high","claim_status":"assessed","payout_cents":800,"execution_source":"scripted_test"},
+    {"run_id":"h1","case_id":"dev-h1","parent_case_id":null,"config_id":"engineering-scripted-config","split":"holdout","stratum":"whole_low","claim_status":"assessed","payout_cents":300,"execution_source":"scripted_test"},
+    {"run_id":"h2","case_id":"dev-h2","parent_case_id":null,"config_id":"engineering-scripted-config","split":"holdout","stratum":"whole_high","claim_status":"assessed","payout_cents":500,"execution_source":"scripted_test"},
+    {"run_id":"h3","case_id":"dev-h3","parent_case_id":null,"config_id":"engineering-scripted-config","split":"holdout","stratum":"partial_low","claim_status":"assessed","payout_cents":700,"execution_source":"scripted_test"},
+    {"run_id":"h4","case_id":"dev-h4","parent_case_id":null,"config_id":"engineering-scripted-config","split":"holdout","stratum":"partial_high","claim_status":"assessed","payout_cents":900,"execution_source":"scripted_test"}
+  ]
+}

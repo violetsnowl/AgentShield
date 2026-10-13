@@ -1,0 +1,16 @@
+{
+  "enable_paid_runs": false,
+  "implemented": [
+    "get_case",
+    "get_order",
+    "get_business_policy",
+    "get_refund_history",
+    "submit_refund",
+    "submit_human_review",
+    "finish_case"
+  ],
+  "max_cost": 0,
+  "planned": [],
+  "review_status": "candidate_pending_A_C_D_review",
+  "version": "bc-0.3-candidate"
+}

@@ -1,0 +1,284 @@
+{
+  "runtime_and_test_files": [
+    {
+      "path": "api/app.py",
+      "sha256": "bbe1f95cc62aae3ce42562d98489b6fd31a2ffc75eb9f82174cdbe7200b9f59b"
+    },
+    {
+      "path": "api/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "sandbox/fixture.py",
+      "sha256": "9ff3ec0066ae08c4483891067cac698a06743101ec44a33e0955d6c60ecece44"
+    },
+    {
+      "path": "sandbox/fixture_models.py",
+      "sha256": "2d3037bbbab5024d39ef8208029dc355791e4b8569d928d22c89f147e83390c3"
+    },
+    {
+      "path": "sandbox/store.py",
+      "sha256": "e4eccfee4c642157b13dd67cbcad4c6804c2f40045edc17196090874e520b5fd"
+    },
+    {
+      "path": "sandbox/__init__.py",
+      "sha256": "684fbb3ffa490400721eb158caeb9220aa8529e4826d3b672346acad626f9f1a"
+    },
+    {
+      "path": "sandbox/fixtures/dev-refund-v1.json",
+      "sha256": "40cdf29bbb69d92514b5044d822cd04e16e087a90591d5cbb588e6a1df0e7541"
+    },
+    {
+      "path": "sandbox/fixtures/dev-refund-v2.json",
+      "sha256": "3009f73810169e038742f39570035ec71b9ea21551510a10d2194f09a3a5c628"
+    },
+    {
+      "path": "workbench/app.py",
+      "sha256": "8bda93caa21efe2a2505f380eb3e2b08b9c9c2ce75d5f058b3d8e18441fcd279"
+    },
+    {
+      "path": "workbench/__init__.py",
+      "sha256": "9d3d1e114362b361e51bf21286582f6569504c5195e6da6650c5d95a55b17636"
+    },
+    {
+      "path": "migrations/001_initial.sql",
+      "sha256": "62f90a9c514875dc94c4fd3531157f9b36cabf9a8f564a119cc6eb01b1775b3b"
+    },
+    {
+      "path": "migrations/002_human_reviews.sql",
+      "sha256": "8250218dd82b71ba39f55237c1f65b359dede6d2519cc49c4739c977870cf9b9"
+    },
+    {
+      "path": "migrations/003_session_cases.sql",
+      "sha256": "94999e7bebf7340929a55df39670010f84288127ee8ce5fe71616f2ff5282f48"
+    },
+    {
+      "path": "contracts/bd_handoff_example_v0.1.json",
+      "sha256": "a2ad77f2b4332f6ac4f03c40c80a0ca1424cc610cc4af3c479e9b7310ef198a1"
+    },
+    {
+      "path": "contracts/case_examples.json",
+      "sha256": "aea3860f96bcc65b47ec8a7950ae7dd7ec05e0cdd9409763fcd91534cbcb2c20"
+    },
+    {
+      "path": "contracts/development_fixture.schema.json",
+      "sha256": "9d1878dd9f5fdfdbcdad016594d959d3e39b929168af7110fa608141bbb1f384"
+    },
+    {
+      "path": "contracts/evidence_example.json",
+      "sha256": "091c5a1807b1c2cfefbf83d15764aa37c424291f331cc892887215a31262497c"
+    },
+    {
+      "path": "contracts/examples.json",
+      "sha256": "be93110132b3897d76b0f1106a2792810d69f038c6802a993bc41a8aba7c1ca0"
+    },
+    {
+      "path": "contracts/fixture_registry.json",
+      "sha256": "21b585952cd0afe2776fcf6291a540cd4dadef32167aae19666750abb85d350e"
+    },
+    {
+      "path": "contracts/fixture_v2_evidence_example.json",
+      "sha256": "e1542d5431b393e539fbd21e1f5b1ec33ef4399015d08a1f554cb024f459ffbf"
+    },
+    {
+      "path": "contracts/implementation_status.json",
+      "sha256": "6b4ce2894d8919ae58edc638746394c9b8151d2b93fd7b342ade60c605d5adde"
+    },
+    {
+      "path": "contracts/models.py",
+      "sha256": "40632d1ee53c6076f2ff7d917f12d500a638f2184fc7cc94520f8008509912c3"
+    },
+    {
+      "path": "contracts/openapi.json",
+      "sha256": "97e68b32909443367897bc146b6858b34e557bd6e875ebe9f4fcc0ab854aa1fa"
+    },
+    {
+      "path": "contracts/response_examples.json",
+      "sha256": "eec045ed416074360449bda16747c130e8863b2cfc8ee72f3dca03844db84914"
+    },
+    {
+      "path": "contracts/schemas.json",
+      "sha256": "4c890104570edd5f16216a0db5a80f4a62d0014d0fa9b95f65570ef13a756024"
+    },
+    {
+      "path": "contracts/session_source_examples.json",
+      "sha256": "eda48c5cc61beaf771daf5817fa93121c5c41c061038446531934482a6994fd9"
+    },
+    {
+      "path": "contracts/tools.json",
+      "sha256": "86a6b067ce118563eee20eb8e0700772e48898088a1ac63b318533d81cd1d74c"
+    },
+    {
+      "path": "contracts/tool_event_examples.json",
+      "sha256": "fe9666f6eb09e5f11272a0152e950e12d3112ec4fceced550ff0c93cd76e6c0a"
+    },
+    {
+      "path": "contracts/workbench_examples.json",
+      "sha256": "dae62729caca16d00bf2d14b31423a1e4e3365f1259e5fe27d4d2c83e1b9f0e4"
+    },
+    {
+      "path": "contracts/__init__.py",
+      "sha256": "bce0d5a6f6985de5729d082a1326d8d96d7719aa8f34f823160d89c416d9436b"
+    },
+    {
+      "path": "frontend/src/api.ts",
+      "sha256": "9d96844934d3404f7c1e1b44f773276092b69b51d7e13b6283ccc8795b01b6d7"
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "sha256": "ea9497b845f25dd81725a18be35ea3290f42cb6aa940faefc852b70f8c89de32"
+    },
+    {
+      "path": "frontend/src/data.ts",
+      "sha256": "1fdba4b0cd8f20b0b7dbcf3d1780988831e479a3851404e424849ad9dadcc0b9"
+    },
+    {
+      "path": "frontend/src/integrations.ts",
+      "sha256": "d75ec55a53d2a6fd7d43def6a98af372234b0778181cea24c1c3bfc970260d01"
+    },
+    {
+      "path": "frontend/src/main.tsx",
+      "sha256": "bfa395715b1c127b8e177a75a5041bd699dd05f54bd12b37245e4fdd83bed9f1"
+    },
+    {
+      "path": "frontend/src/style.css",
+      "sha256": "05f23e1d561db51fd4659cbcf82c2cfae82b5fccbf1af67c1e326f666d70dc01"
+    },
+    {
+      "path": "frontend/src/vite-env.d.ts",
+      "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    },
+    {
+      "path": "frontend/src/generated/contract.ts",
+      "sha256": "f265b0e9f902dde890493b53677bd5612fd421dedc3906ec73c8fe830ca0aa01"
+    },
+    {
+      "path": "frontend/src/generated/evidence.schema.json",
+      "sha256": "4995c38203c951bcfaa170bcaafb468bc2e7e85aaa2c987527e03c2d45bac389"
+    },
+    {
+      "path": "frontend/src/generated/evidence.validator.cjs",
+      "sha256": "9e102663b21b0b464b308de4b401160f153c60a39a6be45dde9692238a07507d"
+    },
+    {
+      "path": "frontend/src/generated/evidence.validator.d.cts",
+      "sha256": "db935850560387ae73a01fee16f5e9d587616668e56928a176b274494e80dd0b"
+    },
+    {
+      "path": "frontend/tests/browser.mjs",
+      "sha256": "6cec7acc953fc39df98af7b7025f24bb5ce1631a2a1ca36a328eb4ae1d39416a"
+    },
+    {
+      "path": "frontend/tests/consistency.test.ts",
+      "sha256": "9091b2b37e801e2377f8a3e2b4eee1807138904073498b108208f71e8d4fac74"
+    },
+    {
+      "path": "frontend/tests/data.test.ts",
+      "sha256": "3f5df94115399d38fecd19b8ffc7c84249089904d8fc8cac24055065f0ee7c2e"
+    },
+    {
+      "path": "frontend/tests/integrations.test.ts",
+      "sha256": "b8570466db86b60ce30b80f14206b48ad34534b28af25160afb0f7cbd40662cb"
+    },
+    {
+      "path": "frontend/tests/stage04-browser.mjs",
+      "sha256": "fba236234f589bfdcc5e6a6a7899c92393341b7aedf8fb082c5d53cfec258411"
+    },
+    {
+      "path": "frontend/scripts/generate-validator.mjs",
+      "sha256": "cb3dd7a0ba1e29ba51df924ab19de7c6fe4da762dd4016e168ac5a5509ced778"
+    },
+    {
+      "path": "tests/test_backend.py",
+      "sha256": "700308545292c3fda93602fc9ca4871abbb000106a3e5e93c562fd5042fed61c"
+    },
+    {
+      "path": "tests/test_b_patch.py",
+      "sha256": "d85b0930b30425d33c0d34ff6616b5cf72cef89d1e50cffd5488c542d32c4cb9"
+    },
+    {
+      "path": "tests/test_case_fixture.py",
+      "sha256": "03bd2f75ef5b4a8f580f3069ede578c69df1d8bf42f376298f8340620d3f7541"
+    },
+    {
+      "path": "tests/test_contracts.py",
+      "sha256": "420c1ecc67f0cb96dc89847c4219cd5abd7d82f8cbea27bd2130cd8f6d2ee600"
+    },
+    {
+      "path": "tests/test_wire_consistency.py",
+      "sha256": "3e458835a8a9be6879048c7e420115d4a8b57afc2f310ff7237bf95a790e4485"
+    },
+    {
+      "path": "tests/test_workbench.py",
+      "sha256": "3c94c6ab326e18c15fd62d8b3c354e80324ebb8b6d0ec2b2831ef6bbc0cecc7f"
+    },
+    {
+      "path": "tests/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "scripts/bc_smoke_test.py",
+      "sha256": "7f127a0aef8eb1f55fa15b5014389bb0b20a14d37fb57b7fe7238b3ba6c63f02"
+    },
+    {
+      "path": "scripts/export_contracts.py",
+      "sha256": "6b189514e6482bef843a068d6c21ba9d6b86ce5748bd0b6a16428e3baef3e3be"
+    },
+    {
+      "path": "scripts/export_evidence.py",
+      "sha256": "0f281d1ed389b39a88559470147dc7941987fab1936d2fd8fcb53b0eca9bf4ac"
+    },
+    {
+      "path": "scripts/export_frontend_contract.py",
+      "sha256": "aad70d9d17e30bf8104bc2fd0664bd1dfec33fdc2e3de62fc3c232a5684c4340"
+    },
+    {
+      "path": "scripts/init_dev.py",
+      "sha256": "ba55a40403d3c63b953e0513b94890ecf7de07200c29349b61bb688a04e45978"
+    },
+    {
+      "path": "scripts/record_check.py",
+      "sha256": "7efe29f5b7890d82e11bf4cb2a15272d56f74541b258e2224fd52d5b172d13fd"
+    },
+    {
+      "path": "scripts/run_http_checks.py",
+      "sha256": "6bd46c2a47e7d4374c427ec5e0ffffe638f3c6e52113b111f07221c33e40fe2c"
+    },
+    {
+      "path": "scripts/run_workbench.py",
+      "sha256": "6fabce2bfa87687da8756bafc848e8b70a861480ef6121aeffe426b04a52d867"
+    },
+    {
+      "path": "scripts/run_workbench_checks.py",
+      "sha256": "e67d48863d0b3285d4889c535501e5534fda304ac64b61950d2d4023b5bebe0b"
+    },
+    {
+      "path": "scripts/stage04_checkpoint.py",
+      "sha256": "d92268fdb9c31ca0c12fd2e1adbdd4100ad9a3eeca17438d49705b00006be197"
+    },
+    {
+      "path": "scripts/stage05_handoff.py",
+      "sha256": "4913abfb854d02d71f7c6e1a6a68c17ecbfded9afa593a7ba63110a9fbb9ab36"
+    },
+    {
+      "path": "scripts/verify_delivery.py",
+      "sha256": "ffc26f5ee8afb559dc0fb4bb3b4f0404c2c89b8560ecd4d771b0c17d77f154a2"
+    },
+    {
+      "path": "scripts/verify_stage04_delivery.py",
+      "sha256": "c7257ba98754d7b7ab2f8b5d4e9a09b2a08af7c490d09c3bd746a62707aa1ff4"
+    },
+    {
+      "path": "scripts/verify_workbench_delivery.py",
+      "sha256": "8d2ba27146d011228bd064df6ff37a9293090198f78e2bb7dc518674be6f5944"
+    },
+    {
+      "path": "scripts/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "candidate_package_omission_fixed": "frontend/src/generated/evidence.validator.d.cts",
+  "same_machine": true,
+  "Python": "Original locked .venv reused after new pip TLS failure",
+  "Node": "Independent npm ci --offline --ignore-scripts completed"
+}

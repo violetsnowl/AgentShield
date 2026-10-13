@@ -1,0 +1,22 @@
+{
+  "label": "closeout_r2",
+  "started_at": "2026-10-12T14:51:22.785134+00:00",
+  "finished_at": "2026-10-12T14:51:23.273599+00:00",
+  "command": [
+    "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+    "-m",
+    "artifacts.pro_bd_sprint.05.support.verify_closeout"
+  ],
+  "exit_code": 0,
+  "status": "pass",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "{\"stage\": \"05\", \"after04_baseline_files\": 779, \"unchanged\": 775, \"changed_preexisting_files\": [\"docs/handoff/BD_to_A_C.md\", \"frontend/README.md\", \"NEXT_STEPS.md\", \"scripts/run_workbench_checks.py\"], \"B_frontend_runtime_contracts_migrations_unchanged\": true, \"prior_document_text_preserved\": true, \"readable_databases_hash_unchanged\": 2, \"tested_reception_runtime_and_test_files_identical\": 69, \"fresh_build_bit_identical\": true, \"scanned_slim_files_before_final_results\": 220, \"credential_scan_findings\": [], \"credential_scan_scope\": \"Text patterns + populated JSON credential fields; complements runtime-secret checks in browser suites, not proof about all unknown secret formats\", \"all_required_native_checks_exit_zero\": true, \"new_python_install\": \"failed_TLS_EOF_existing_locked_environment_reused\", \"second_machine\": false, \"different_operator\": false, \"A_C_acceptance\": \"pending\", \"model_calls\": 0, \"real_payment_calls\": 0}\n"
+}

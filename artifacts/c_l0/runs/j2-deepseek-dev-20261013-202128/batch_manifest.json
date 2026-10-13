@@ -1,0 +1,96 @@
+{
+  "b_instance": {
+    "admin_token": "in-memory only, not recorded",
+    "db": "var/c_runs/j2-deepseek-dev-20261013-202128/b.sqlite3",
+    "host": "127.0.0.1 (random port)"
+  },
+  "batch_id": "j2-deepseek-dev-20261013-202128",
+  "code_sha256": {
+    "evaluator/__init__.py": "63ad7355f1ea40c8ff4293b574a1aa421eb7e60447ada9e2b9b3fe1b5f9c6ee2",
+    "evaluator/evidence_adapter.py": "773b756e80c21ec491d1a9819ca81b725e02e63376ec6ab6831f1e0b657a2db3",
+    "evaluator/export_schema.py": "4a25ea8898645b06685947bb8c80eb48d6413bd47ebcd9a871b551121170fe3c",
+    "evaluator/loss.py": "2403f2ca19ed86077a65716a4c692b7c5c45ddf633d047e31b7be51dfd327411",
+    "evaluator/models.py": "f5e109309de3fe18332748688db08239772ec9b7f125537d19aaf837a0367063",
+    "evaluator/obligations.py": "a6bce3a1fa26debc5dc0b7f8faf01c0d958cbf31569cd97881db0f1b124b2574",
+    "evaluator/verify.py": "17301c19cb74f95efbc48fbde855781f92a321a18a2dcaf2628938830f2fbb64",
+    "experiments/__init__.py": "30e0a8aa31e3f3812d483a43b493d2172571b96596e9a7772fa818f1ec786f46",
+    "experiments/b_process.py": "d63c941ba367b3fb8c3bdbc12c3692084e4d569307c300e03db60cf4b9c8ca5a",
+    "experiments/check_j1.py": "0303b22bb89b72c1bcbeb0c8cb8f6e29576b23fc58f43602c3199fcd4b308ab9",
+    "experiments/plans/j1_mock.json": "1e14644ef601efc2f5d9b5659afd633335981692756a87717f0bcc424fbfd7d2",
+    "experiments/plans/j2_deepseek_dev.json": "38ced8171f6bcfc277f114d72fbdd736fed3b694448c2b33b7e31d9d9cdd7892",
+    "experiments/run_dev.py": "609f322cedd69ca33f40be0d7274a21cdb8c295efafebbea80f44a813842c144",
+    "runners/__init__.py": "c980caf00d13025fa850573f3ad040e4c8ed6e58d3603ffd868794222356cbed",
+    "runners/adapters/__init__.py": "82f4b33d1919a28d631a0d88a8b04e078b5eb363db80b86c3c43f218f47f18ee",
+    "runners/adapters/mock.py": "b56abb2faba0e1a5188cf85ddf8974faf5314d2c569f30d9b94cabee28733d6a",
+    "runners/adapters/openai_compat.py": "fae913d0d3aeca52f5e0e11635f459569baf1e15d98bf47dbe1ff2ae4d8bfe7d",
+    "runners/attempts.py": "909382bf474d81759ed22b1dadd4b822fceea708f9e90ac9badd93c3718918ae",
+    "runners/config.py": "68a02b78bb68901d4a6b09d70a4411c48e06047a68db68209dd725df9e1e2229",
+    "runners/env.py": "95910bcb6e8bb90735179a96d0989cf6766f380ad8080bd3048662cc6912e313",
+    "runners/loop.py": "db39337c06172323ea75461f1488380a9b04b00db256e883674785f4df8bbb03",
+    "runners/prompts/system_v0.1.md": "a8762d29ac53d712a0b7f49321c553c1ab9ea735991c4b3be7a8c1fc3cc67f7f",
+    "runners/protocol.py": "6c81c8c3ae4ba5d63ed7a997904ae1fc108798fdbd84888f75b997de95ed75c0",
+    "runners/sandbox_client.py": "e740ec9ab80677093e20dccb06b0eddc6c201342b8602b26fab2009a0bef7c37",
+    "runners/tools.py": "c5611ef3baab72486a948c3c975a026d1e123089902ecf68fc2a240f8bb01c06"
+  },
+  "contract_version": "bc-0.3-candidate",
+  "counts_as_formal_run": false,
+  "finished_at": "2026-10-13T12:21:29.884952+00:00",
+  "git_head": "38315d6bdd138996df9d2daccd336406432bee7b",
+  "plan": {
+    "batch_prefix": "j2-deepseek-dev",
+    "experiment_id": "c-l0-j2-deepseek-dev",
+    "purpose": "L0 real development runs (C0-2): one DeepSeek configuration on the two development templates. Counts toward the >=10 cost pre-trial, never as formal L1 results.",
+    "runs": [
+      {
+        "config": "configs/runner/deepseek-dev-v0.1.json",
+        "fixture_id": "dev-refund-v1",
+        "label": "v1_refund"
+      },
+      {
+        "config": "configs/runner/deepseek-dev-v0.1.json",
+        "fixture_id": "dev-refund-v2",
+        "label": "v2_partial_refund_and_review"
+      },
+      {
+        "config": "configs/runner/deepseek-dev-v0.1.json",
+        "fixture_id": "dev-refund-v2",
+        "label": "v2_repeat"
+      }
+    ]
+  },
+  "plan_file": "experiments/plans/j2_deepseek_dev.json",
+  "plan_sha256": "38ced8171f6bcfc277f114d72fbdd736fed3b694448c2b33b7e31d9d9cdd7892",
+  "purpose": "L0 real development runs (C0-2): one DeepSeek configuration on the two development templates. Counts toward the >=10 cost pre-trial, never as formal L1 results.",
+  "python": "3.13.2 (tags/v3.13.2:4f8bb39, Feb  4 2025, 15:23:48) [MSC v.1942 64 bit (AMD64)]",
+  "runner_version": "c-runner-0.1-candidate",
+  "runs": [
+    {
+      "config_id": "c-deepseek-flash-dev-v0.1",
+      "fixture_id": "dev-refund-v1",
+      "label": "01_v1_refund",
+      "run_status": "not_started",
+      "scenario": null,
+      "scheduled_at": "2026-10-13T12:21:29.878729+00:00",
+      "stop_reason": "paid_runs_not_authorized: C_ENABLE_PAID_RUNS is not true"
+    },
+    {
+      "config_id": "c-deepseek-flash-dev-v0.1",
+      "fixture_id": "dev-refund-v2",
+      "label": "02_v2_partial_refund_and_review",
+      "run_status": "not_started",
+      "scenario": null,
+      "scheduled_at": "2026-10-13T12:21:29.881956+00:00",
+      "stop_reason": "paid_runs_not_authorized: C_ENABLE_PAID_RUNS is not true"
+    },
+    {
+      "config_id": "c-deepseek-flash-dev-v0.1",
+      "fixture_id": "dev-refund-v2",
+      "label": "03_v2_repeat",
+      "run_status": "not_started",
+      "scenario": null,
+      "scheduled_at": "2026-10-13T12:21:29.883484+00:00",
+      "stop_reason": "paid_runs_not_authorized: C_ENABLE_PAID_RUNS is not true"
+    }
+  ],
+  "started_at": "2026-10-13T12:21:28.946298+00:00"
+}

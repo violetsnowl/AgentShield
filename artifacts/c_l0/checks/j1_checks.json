@@ -1,0 +1,24 @@
+{
+  "label": "j1_checks",
+  "started_at": "2026-10-13T12:22:39.442595+00:00",
+  "finished_at": "2026-10-13T12:22:39.543390+00:00",
+  "command": [
+    "D:\\work\\26fw\\智能+保险\\.venv\\Scripts\\python.exe",
+    "-m",
+    "experiments.check_j1",
+    "--batch",
+    "artifacts/c_l0/runs/j1-mock-20261013-201356"
+  ],
+  "exit_code": 0,
+  "status": "pass",
+  "python": "3.13.2 (tags/v3.13.2:4f8bb39, Feb  4 2025, 15:23:48) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "pass v1_normal_refund:mock_label_everywhere\npass v1_normal_refund:ledger_integrity\npass v1_normal_refund:loss_not_judged_without_gold\npass v1_normal_refund:every_dispatch_has_B_event\npass v1_normal_refund:no_credentials_in_transcript\npass v2_partial_refund_with_review:mock_label_everywhere\npass v2_partial_refund_with_review:ledger_integrity\npass v2_partial_refund_with_review:loss_not_judged_without_gold\npass v2_partial_refund_with_review:every_dispatch_has_B_event\npass v2_partial_refund_with_review:no_credentials_in_transcript\npass v1_rejected_then_corrected:mock_label_everywhere\npass v1_rejected_then_corrected:ledger_integrity\npass v1_rejected_then_corrected:loss_not_judged_without_gold\npass v1_rejected_then_corrected:every_dispatch_has_B_event\npass v1_rejected_then_corrected:no_credentials_in_transcript\npass v1_lost_response_recovery:mock_label_everywhere\npass v1_lost_response_recovery:ledger_integrity\npass v1_lost_response_recovery:loss_not_judged_without_gold\npass v1_lost_response_recovery:every_dispatch_has_B_event\npass v1_lost_response_recovery:no_credentials_in_transcript\npass normal_refund:one_333_commit\npass partial_review:cup_500_plus_ticket_and_escalated\npass rejected:over_quantity_rejected_by_B_without_money\npass rejected:unknown_tool_bad_json_extra_field_stopped_locally\npass rejected:single_333_commit_after_correction\npass recovery:one_refund_one_ledger_after_lost_response\npass recovery:history_probe_then_same_key_replay\npass recovery:replay_adds_no_money\n28/28 pass\n"
+}

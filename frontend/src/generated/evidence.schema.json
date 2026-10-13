@@ -1,0 +1,1530 @@
+{
+  "$defs": {
+    "CanonicalBusinessSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_version": {
+          "const": "business-initial-v1",
+          "default": "business-initial-v1",
+          "title": "Canonical Version",
+          "type": "string"
+        },
+        "environment_version": {
+          "const": "sandbox-rules-v1-development",
+          "default": "sandbox-rules-v1-development",
+          "title": "Environment Version",
+          "type": "string"
+        },
+        "business_time": {
+          "title": "Business Time",
+          "type": "string"
+        },
+        "case": {
+          "$ref": "#/$defs/CanonicalCase"
+        },
+        "orders": {
+          "items": {
+            "$ref": "#/$defs/Order"
+          },
+          "title": "Orders",
+          "type": "array"
+        },
+        "policy": {
+          "$ref": "#/$defs/Policy"
+        },
+        "merchant_balance_cents": {
+          "minimum": 0,
+          "title": "Merchant Balance Cents",
+          "type": "integer"
+        },
+        "customer_balance_cents": {
+          "minimum": 0,
+          "title": "Customer Balance Cents",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "business_time",
+        "case",
+        "orders",
+        "policy",
+        "merchant_balance_cents",
+        "customer_balance_cents"
+      ],
+      "title": "CanonicalBusinessSnapshot",
+      "type": "object"
+    },
+    "CanonicalCase": {
+      "additionalProperties": false,
+      "properties": {
+        "customer_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Customer Id",
+          "type": "string"
+        },
+        "request": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Request",
+          "type": "string"
+        },
+        "candidate_order_ids": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Candidate Order Ids",
+          "type": "array"
+        },
+        "messages": {
+          "items": {
+            "$ref": "#/$defs/Message"
+          },
+          "title": "Messages",
+          "type": "array"
+        },
+        "evidence_status": {
+          "const": "development_public_facts",
+          "default": "development_public_facts",
+          "title": "Evidence Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "customer_id",
+        "request",
+        "candidate_order_ids",
+        "messages"
+      ],
+      "title": "CanonicalCase",
+      "type": "object"
+    },
+    "Case": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "customer_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Customer Id",
+          "type": "string"
+        },
+        "request": {
+          "title": "Request",
+          "type": "string"
+        },
+        "candidate_order_ids": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Candidate Order Ids",
+          "type": "array"
+        },
+        "messages": {
+          "items": {
+            "$ref": "#/$defs/Message"
+          },
+          "title": "Messages",
+          "type": "array"
+        },
+        "evidence_status": {
+          "const": "development_public_facts",
+          "default": "development_public_facts",
+          "title": "Evidence Status",
+          "type": "string"
+        },
+        "sources": {
+          "$ref": "#/$defs/Sources"
+        }
+      },
+      "required": [
+        "case_id",
+        "customer_id",
+        "request",
+        "candidate_order_ids",
+        "messages",
+        "sources"
+      ],
+      "title": "Case",
+      "type": "object"
+    },
+    "CaseContext": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "source_case_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Source Case Id",
+          "type": "string"
+        },
+        "parent_case_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Parent Case Id"
+        },
+        "family_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Family Id",
+          "type": "string"
+        },
+        "identity_semantics": {
+          "const": "development_case_candidate",
+          "default": "development_case_candidate",
+          "title": "Identity Semantics",
+          "type": "string"
+        },
+        "fixture_id": {
+          "enum": [
+            "dev-refund-v1",
+            "dev-refund-v2"
+          ],
+          "title": "Fixture Id",
+          "type": "string"
+        },
+        "fixture_version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Fixture Version",
+          "type": "string"
+        },
+        "fixture_content_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Fixture Content Sha256",
+          "type": "string"
+        },
+        "fixture_source": {
+          "const": "development_only",
+          "default": "development_only",
+          "title": "Fixture Source",
+          "type": "string"
+        },
+        "review_status": {
+          "const": "pending_A_C_D_review",
+          "default": "pending_A_C_D_review",
+          "title": "Review Status",
+          "type": "string"
+        },
+        "policy_version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Policy Version",
+          "type": "string"
+        },
+        "environment_version": {
+          "const": "sandbox-rules-v1-development",
+          "default": "sandbox-rules-v1-development",
+          "title": "Environment Version",
+          "type": "string"
+        },
+        "object_mapping": {
+          "$ref": "#/$defs/ObjectMapping"
+        },
+        "canonical_initial": {
+          "$ref": "#/$defs/CanonicalBusinessSnapshot"
+        },
+        "business_initial_hash": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Business Initial Hash",
+          "type": "string"
+        },
+        "hash_algorithm": {
+          "const": "sha256-canonical-json-v1",
+          "default": "sha256-canonical-json-v1",
+          "title": "Hash Algorithm",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "source_case_id",
+        "parent_case_id",
+        "family_id",
+        "fixture_id",
+        "fixture_version",
+        "fixture_content_sha256",
+        "policy_version",
+        "object_mapping",
+        "canonical_initial",
+        "business_initial_hash"
+      ],
+      "title": "CaseContext",
+      "type": "object"
+    },
+    "CommittedLine": {
+      "additionalProperties": false,
+      "properties": {
+        "item_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Item Id",
+          "type": "string"
+        },
+        "quantity": {
+          "minimum": 1,
+          "title": "Quantity",
+          "type": "integer"
+        },
+        "amount_cents": {
+          "minimum": 0,
+          "title": "Amount Cents",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "item_id",
+        "quantity",
+        "amount_cents"
+      ],
+      "title": "CommittedLine",
+      "type": "object"
+    },
+    "Confirmation": {
+      "additionalProperties": false,
+      "properties": {
+        "order_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Order Id",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/RefundLine"
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "order_id",
+        "items"
+      ],
+      "title": "Confirmation",
+      "type": "object"
+    },
+    "Error": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable",
+        "request_id"
+      ],
+      "title": "Error",
+      "type": "object"
+    },
+    "HumanReviewTicket": {
+      "additionalProperties": false,
+      "properties": {
+        "ticket_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Ticket Id",
+          "type": "string"
+        },
+        "session_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "case_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "category": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "missing_facts": {
+          "items": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Missing Facts",
+          "type": "array"
+        },
+        "evidence_message_ids": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Evidence Message Ids",
+          "type": "array"
+        },
+        "status": {
+          "const": "open",
+          "default": "open",
+          "title": "Status",
+          "type": "string"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "call_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Call Id",
+          "type": "string"
+        },
+        "session_version_before": {
+          "minimum": 1,
+          "title": "Session Version Before",
+          "type": "integer"
+        },
+        "session_version_after": {
+          "minimum": 1,
+          "title": "Session Version After",
+          "type": "integer"
+        },
+        "sources": {
+          "$ref": "#/$defs/Sources"
+        }
+      },
+      "required": [
+        "ticket_id",
+        "session_id",
+        "case_id",
+        "category",
+        "missing_facts",
+        "evidence_message_ids",
+        "created_at",
+        "idempotency_key",
+        "call_id",
+        "session_version_before",
+        "session_version_after",
+        "sources"
+      ],
+      "title": "HumanReviewTicket",
+      "type": "object"
+    },
+    "Item": {
+      "additionalProperties": false,
+      "properties": {
+        "item_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Item Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "quantity": {
+          "minimum": 1,
+          "title": "Quantity",
+          "type": "integer"
+        },
+        "gross_cents": {
+          "minimum": 0,
+          "title": "Gross Cents",
+          "type": "integer"
+        },
+        "allocated_paid_cents": {
+          "minimum": 0,
+          "title": "Allocated Paid Cents",
+          "type": "integer"
+        },
+        "refunded_quantity": {
+          "minimum": 0,
+          "title": "Refunded Quantity",
+          "type": "integer"
+        },
+        "refundable_quantity": {
+          "minimum": 0,
+          "title": "Refundable Quantity",
+          "type": "integer"
+        },
+        "refunded_cents": {
+          "minimum": 0,
+          "title": "Refunded Cents",
+          "type": "integer"
+        },
+        "eligible": {
+          "title": "Eligible",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "item_id",
+        "name",
+        "quantity",
+        "gross_cents",
+        "allocated_paid_cents",
+        "refunded_quantity",
+        "refundable_quantity",
+        "refunded_cents",
+        "eligible"
+      ],
+      "title": "Item",
+      "type": "object"
+    },
+    "LedgerEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "entry_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Entry Id",
+          "type": "string"
+        },
+        "transaction_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Transaction Id",
+          "type": "string"
+        },
+        "session_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "order_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Order Id",
+          "type": "string"
+        },
+        "merchant_delta_cents": {
+          "title": "Merchant Delta Cents",
+          "type": "integer"
+        },
+        "customer_delta_cents": {
+          "title": "Customer Delta Cents",
+          "type": "integer"
+        },
+        "merchant_balance_cents": {
+          "minimum": 0,
+          "title": "Merchant Balance Cents",
+          "type": "integer"
+        },
+        "customer_balance_cents": {
+          "minimum": 0,
+          "title": "Customer Balance Cents",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "entry_id",
+        "transaction_id",
+        "session_id",
+        "order_id",
+        "merchant_delta_cents",
+        "customer_delta_cents",
+        "merchant_balance_cents",
+        "customer_balance_cents"
+      ],
+      "title": "LedgerEntry",
+      "type": "object"
+    },
+    "Message": {
+      "additionalProperties": false,
+      "properties": {
+        "message_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Message Id",
+          "type": "string"
+        },
+        "customer_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Customer Id",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "confirmation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Confirmation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "message_id",
+        "customer_id",
+        "text",
+        "confirmation"
+      ],
+      "title": "Message",
+      "type": "object"
+    },
+    "ObjectMapping": {
+      "additionalProperties": false,
+      "description": "Keys are stable template IDs; values are this session's IDs, never guessed from strings.",
+      "properties": {
+        "customers": {
+          "patternProperties": {
+            "^[A-Za-z0-9_.:-]+$": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "title": "Customers",
+          "type": "object"
+        },
+        "orders": {
+          "patternProperties": {
+            "^[A-Za-z0-9_.:-]+$": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "title": "Orders",
+          "type": "object"
+        },
+        "items": {
+          "patternProperties": {
+            "^[A-Za-z0-9_.:-]+$": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "title": "Items",
+          "type": "object"
+        },
+        "messages": {
+          "patternProperties": {
+            "^[A-Za-z0-9_.:-]+$": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "title": "Messages",
+          "type": "object"
+        }
+      },
+      "required": [
+        "customers",
+        "orders",
+        "items",
+        "messages"
+      ],
+      "title": "ObjectMapping",
+      "type": "object"
+    },
+    "Order": {
+      "additionalProperties": false,
+      "properties": {
+        "order_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Order Id",
+          "type": "string"
+        },
+        "tenant_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Tenant Id",
+          "type": "string"
+        },
+        "customer_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Customer Id",
+          "type": "string"
+        },
+        "currency": {
+          "const": "CNY",
+          "default": "CNY",
+          "title": "Currency",
+          "type": "string"
+        },
+        "original_channel": {
+          "const": "simulated_original",
+          "default": "simulated_original",
+          "title": "Original Channel",
+          "type": "string"
+        },
+        "paid_cents": {
+          "minimum": 0,
+          "title": "Paid Cents",
+          "type": "integer"
+        },
+        "refunded_cents": {
+          "minimum": 0,
+          "title": "Refunded Cents",
+          "type": "integer"
+        },
+        "remaining_cents": {
+          "minimum": 0,
+          "title": "Remaining Cents",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "paid",
+            "partially_refunded",
+            "refunded"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "allocation_version": {
+          "default": "largest-remainder-prefix-v1-development",
+          "title": "Allocation Version",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Item"
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "order_id",
+        "tenant_id",
+        "customer_id",
+        "paid_cents",
+        "refunded_cents",
+        "remaining_cents",
+        "status",
+        "version",
+        "items"
+      ],
+      "title": "Order",
+      "type": "object"
+    },
+    "Policy": {
+      "additionalProperties": false,
+      "properties": {
+        "policy_version": {
+          "default": "dev-policy-v1",
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Policy Version",
+          "type": "string"
+        },
+        "development_only": {
+          "const": true,
+          "default": true,
+          "title": "Development Only",
+          "type": "boolean"
+        },
+        "rules": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rules",
+          "type": "array"
+        },
+        "allocation_version": {
+          "default": "largest-remainder-prefix-v1-development",
+          "title": "Allocation Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rules"
+      ],
+      "title": "Policy",
+      "type": "object"
+    },
+    "Refund": {
+      "additionalProperties": false,
+      "properties": {
+        "transaction_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Transaction Id",
+          "type": "string"
+        },
+        "session_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "order_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Order Id",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/CommittedLine"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "amount_cents": {
+          "minimum": 0,
+          "title": "Amount Cents",
+          "type": "integer"
+        },
+        "channel": {
+          "const": "simulated_original",
+          "default": "simulated_original",
+          "title": "Channel",
+          "type": "string"
+        },
+        "confirmation_message_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Confirmation Message Id",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "call_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Call Id",
+          "type": "string"
+        },
+        "committed_at": {
+          "title": "Committed At",
+          "type": "string"
+        },
+        "order_version_before": {
+          "minimum": 1,
+          "title": "Order Version Before",
+          "type": "integer"
+        },
+        "order_version_after": {
+          "minimum": 1,
+          "title": "Order Version After",
+          "type": "integer"
+        },
+        "session_version_after": {
+          "minimum": 1,
+          "title": "Session Version After",
+          "type": "integer"
+        },
+        "status": {
+          "const": "committed",
+          "default": "committed",
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transaction_id",
+        "session_id",
+        "order_id",
+        "items",
+        "amount_cents",
+        "confirmation_message_id",
+        "idempotency_key",
+        "call_id",
+        "committed_at",
+        "order_version_before",
+        "order_version_after",
+        "session_version_after"
+      ],
+      "title": "Refund",
+      "type": "object"
+    },
+    "RefundLine": {
+      "additionalProperties": false,
+      "properties": {
+        "item_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Item Id",
+          "type": "string"
+        },
+        "quantity": {
+          "minimum": 1,
+          "title": "Quantity",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "item_id",
+        "quantity"
+      ],
+      "title": "RefundLine",
+      "type": "object"
+    },
+    "SessionStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "session_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "episode_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Episode Id",
+          "type": "string"
+        },
+        "case_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "tenant_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Tenant Id",
+          "type": "string"
+        },
+        "experiment_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Experiment Id",
+          "type": "string"
+        },
+        "config_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Config Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "finished"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "enum": [
+                "completed",
+                "no_action",
+                "escalated"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Outcome"
+        },
+        "explanation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Explanation"
+        },
+        "sources": {
+          "$ref": "#/$defs/Sources"
+        },
+        "contract_version": {
+          "default": "bc-0.3-candidate",
+          "title": "Contract Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "session_id",
+        "episode_id",
+        "case_id",
+        "tenant_id",
+        "experiment_id",
+        "config_id",
+        "status",
+        "version",
+        "outcome",
+        "explanation",
+        "sources"
+      ],
+      "title": "SessionStatus",
+      "type": "object"
+    },
+    "Snapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "session": {
+          "$ref": "#/$defs/SessionStatus"
+        },
+        "case": {
+          "$ref": "#/$defs/Case"
+        },
+        "orders": {
+          "items": {
+            "$ref": "#/$defs/Order"
+          },
+          "title": "Orders",
+          "type": "array"
+        },
+        "policy": {
+          "$ref": "#/$defs/Policy"
+        },
+        "merchant_balance_cents": {
+          "minimum": 0,
+          "title": "Merchant Balance Cents",
+          "type": "integer"
+        },
+        "customer_balance_cents": {
+          "minimum": 0,
+          "title": "Customer Balance Cents",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "session",
+        "case",
+        "orders",
+        "policy",
+        "merchant_balance_cents",
+        "customer_balance_cents"
+      ],
+      "title": "Snapshot",
+      "type": "object"
+    },
+    "Sources": {
+      "additionalProperties": false,
+      "properties": {
+        "fixture_source": {
+          "const": "development_only",
+          "default": "development_only",
+          "title": "Fixture Source",
+          "type": "string"
+        },
+        "execution_source": {
+          "default": "scripted_test",
+          "enum": [
+            "scripted_test",
+            "mock_agent",
+            "observed_agent_execution"
+          ],
+          "title": "Execution Source",
+          "type": "string"
+        },
+        "recovery_source": {
+          "const": "none",
+          "default": "none",
+          "title": "Recovery Source",
+          "type": "string"
+        },
+        "contract_source": {
+          "const": "candidate_pending_review",
+          "default": "candidate_pending_review",
+          "title": "Contract Source",
+          "type": "string"
+        },
+        "calculation_version": {
+          "default": "largest-remainder-prefix-v1-development",
+          "title": "Calculation Version",
+          "type": "string"
+        }
+      },
+      "title": "Sources",
+      "type": "object"
+    },
+    "ToolEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "request_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "experiment_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Experiment Id",
+          "type": "string"
+        },
+        "episode_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Episode Id",
+          "type": "string"
+        },
+        "case_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "session_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "config_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Config Id",
+          "type": "string"
+        },
+        "seq": {
+          "minimum": 1,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "recorded_at": {
+          "title": "Recorded At",
+          "type": "string"
+        },
+        "business_time": {
+          "title": "Business Time",
+          "type": "string"
+        },
+        "tool_name": {
+          "title": "Tool Name",
+          "type": "string"
+        },
+        "call_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Call Id"
+        },
+        "raw_arguments": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Raw Arguments"
+        },
+        "validated_arguments": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Validated Arguments"
+        },
+        "idempotency_key": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Idempotency Key"
+        },
+        "status": {
+          "enum": [
+            "succeeded",
+            "rejected",
+            "replayed",
+            "error"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "session_version_before": {
+          "minimum": 1,
+          "title": "Session Version Before",
+          "type": "integer"
+        },
+        "session_version_after": {
+          "minimum": 1,
+          "title": "Session Version After",
+          "type": "integer"
+        },
+        "order_version_before": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Order Version Before"
+        },
+        "order_version_after": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Order Version After"
+        },
+        "transaction_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Transaction Id"
+        },
+        "ticket_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ticket Id"
+        },
+        "committed_amount_cents": {
+          "minimum": 0,
+          "title": "Committed Amount Cents",
+          "type": "integer"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Result"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "client_receipt": {
+          "const": "unknown",
+          "default": "unknown",
+          "title": "Client Receipt",
+          "type": "string"
+        },
+        "sources": {
+          "$ref": "#/$defs/Sources"
+        }
+      },
+      "required": [
+        "event_id",
+        "request_id",
+        "experiment_id",
+        "episode_id",
+        "case_id",
+        "session_id",
+        "config_id",
+        "seq",
+        "recorded_at",
+        "business_time",
+        "tool_name",
+        "call_id",
+        "raw_arguments",
+        "validated_arguments",
+        "idempotency_key",
+        "status",
+        "session_version_before",
+        "session_version_after",
+        "order_version_before",
+        "order_version_after",
+        "transaction_id",
+        "committed_amount_cents",
+        "result",
+        "error",
+        "sources"
+      ],
+      "title": "ToolEvent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": {
+      "default": "bc-0.3-candidate",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "schema_version": {
+      "default": 3,
+      "enum": [
+        1,
+        2,
+        3
+      ],
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "exported_at": {
+      "title": "Exported At",
+      "type": "string"
+    },
+    "initial_snapshot": {
+      "$ref": "#/$defs/Snapshot"
+    },
+    "final_snapshot": {
+      "$ref": "#/$defs/Snapshot"
+    },
+    "refunds": {
+      "items": {
+        "$ref": "#/$defs/Refund"
+      },
+      "title": "Refunds",
+      "type": "array"
+    },
+    "ledger": {
+      "items": {
+        "$ref": "#/$defs/LedgerEntry"
+      },
+      "title": "Ledger",
+      "type": "array"
+    },
+    "events": {
+      "items": {
+        "$ref": "#/$defs/ToolEvent"
+      },
+      "title": "Events",
+      "type": "array"
+    },
+    "human_reviews": {
+      "items": {
+        "$ref": "#/$defs/HumanReviewTicket"
+      },
+      "title": "Human Reviews",
+      "type": "array"
+    },
+    "case_context_status": {
+      "default": "legacy_unavailable",
+      "enum": [
+        "recorded",
+        "legacy_unavailable"
+      ],
+      "title": "Case Context Status",
+      "type": "string"
+    },
+    "case_context": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CaseContext"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "policy": {
+      "$ref": "#/$defs/Policy"
+    },
+    "sources": {
+      "$ref": "#/$defs/Sources"
+    },
+    "receipt_semantics": {
+      "const": "server_commit_does_not_prove_client_receipt",
+      "default": "server_commit_does_not_prove_client_receipt",
+      "title": "Receipt Semantics",
+      "type": "string"
+    }
+  },
+  "required": [
+    "exported_at",
+    "initial_snapshot",
+    "final_snapshot",
+    "refunds",
+    "ledger",
+    "events",
+    "policy",
+    "sources"
+  ],
+  "title": "EvidenceBundle",
+  "type": "object"
+}

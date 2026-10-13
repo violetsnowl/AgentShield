@@ -1,0 +1,207 @@
+[
+  {
+    "event_id": "event-1cfe3cc52ac8411781c6472d0467eedf",
+    "request_id": "request-94484476fbbc461d8ac6eb9e70b9d97c",
+    "experiment_id": "development",
+    "episode_id": "episode-session-4d73e748dcff4923908758401ed26414",
+    "case_id": "dev-case-refund-v1",
+    "session_id": "session-4d73e748dcff4923908758401ed26414",
+    "config_id": "scripted-http-v1",
+    "seq": 4,
+    "recorded_at": "2026-10-12T10:03:22.719519+00:00",
+    "business_time": "2026-10-11T12:00:00+08:00",
+    "tool_name": "submit_refund",
+    "call_id": "invalid-call",
+    "raw_arguments": {
+      "confirmation_message_id": "message-session-4d73e748dcff4923908758401ed26414-1",
+      "expected_version": 1,
+      "items": [
+        {
+          "item_id": "item-session-4d73e748dcff4923908758401ed26414-1",
+          "quantity": 0
+        }
+      ],
+      "order_id": "order-session-4d73e748dcff4923908758401ed26414-1",
+      "reason": "scripted_test: one unit confirmed by public message"
+    },
+    "validated_arguments": null,
+    "idempotency_key": "refund-f87ca6d69461475397bbb96cc05304de",
+    "status": "rejected",
+    "session_version_before": 1,
+    "session_version_after": 1,
+    "order_version_before": null,
+    "order_version_after": null,
+    "transaction_id": null,
+    "ticket_id": null,
+    "committed_amount_cents": 0,
+    "result": null,
+    "error": {
+      "code": "INVALID_REQUEST",
+      "message": "Request fields or transport metadata failed validation.",
+      "retryable": false,
+      "request_id": "request-94484476fbbc461d8ac6eb9e70b9d97c"
+    },
+    "client_receipt": "unknown",
+    "sources": {
+      "fixture_source": "development_only",
+      "execution_source": "scripted_test",
+      "recovery_source": "none",
+      "contract_source": "candidate_pending_review",
+      "calculation_version": "largest-remainder-prefix-v1-development"
+    }
+  },
+  {
+    "event_id": "event-3ee7e24abedc46febf6144105639c001",
+    "request_id": "request-8cecf86834c841fba662838d7a49e4b4",
+    "experiment_id": "development",
+    "episode_id": "episode-session-4d73e748dcff4923908758401ed26414",
+    "case_id": "dev-case-refund-v1",
+    "session_id": "session-4d73e748dcff4923908758401ed26414",
+    "config_id": "scripted-http-v1",
+    "seq": 10,
+    "recorded_at": "2026-10-12T10:03:23.009906+00:00",
+    "business_time": "2026-10-11T12:00:00+08:00",
+    "tool_name": "submit_human_review",
+    "call_id": "call-21f8e553a51747e4a78f7fbd951b981c",
+    "raw_arguments": {
+      "category": "confirmation_needs_review",
+      "evidence_message_ids": [
+        "message-session-4d73e748dcff4923908758401ed26414-1"
+      ],
+      "expected_version": 2,
+      "missing_facts": [
+        "Which confirmation is current?"
+      ]
+    },
+    "validated_arguments": {
+      "category": "confirmation_needs_review",
+      "evidence_message_ids": [
+        "message-session-4d73e748dcff4923908758401ed26414-1"
+      ],
+      "expected_version": 2,
+      "missing_facts": [
+        "Which confirmation is current?"
+      ]
+    },
+    "idempotency_key": "review-d2faab7300094eb991ca3ca81f868651",
+    "status": "succeeded",
+    "session_version_before": 2,
+    "session_version_after": 3,
+    "order_version_before": null,
+    "order_version_after": null,
+    "transaction_id": null,
+    "ticket_id": "review-9f81bfa894c847c7be8e8e594fc53833",
+    "committed_amount_cents": 0,
+    "result": {
+      "call_id": "call-21f8e553a51747e4a78f7fbd951b981c",
+      "case_id": "dev-case-refund-v1",
+      "category": "confirmation_needs_review",
+      "created_at": "2026-10-12T10:03:23.009577+00:00",
+      "evidence_message_ids": [
+        "message-session-4d73e748dcff4923908758401ed26414-1"
+      ],
+      "idempotency_key": "review-d2faab7300094eb991ca3ca81f868651",
+      "missing_facts": [
+        "Which confirmation is current?"
+      ],
+      "session_id": "session-4d73e748dcff4923908758401ed26414",
+      "session_version_after": 3,
+      "session_version_before": 2,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "scripted_test",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "open",
+      "ticket_id": "review-9f81bfa894c847c7be8e8e594fc53833"
+    },
+    "error": null,
+    "client_receipt": "unknown",
+    "sources": {
+      "fixture_source": "development_only",
+      "execution_source": "scripted_test",
+      "recovery_source": "none",
+      "contract_source": "candidate_pending_review",
+      "calculation_version": "largest-remainder-prefix-v1-development"
+    }
+  },
+  {
+    "event_id": "event-013a4eefb68a4bd9adce810c65c2d573",
+    "request_id": "request-34101e67d4f743f2a6aac84fc0c5ee59",
+    "experiment_id": "development",
+    "episode_id": "episode-session-4d73e748dcff4923908758401ed26414",
+    "case_id": "dev-case-refund-v1",
+    "session_id": "session-4d73e748dcff4923908758401ed26414",
+    "config_id": "scripted-http-v1",
+    "seq": 11,
+    "recorded_at": "2026-10-12T10:03:23.021517+00:00",
+    "business_time": "2026-10-11T12:00:00+08:00",
+    "tool_name": "submit_human_review",
+    "call_id": "call-86a4c26a15b24bbdb1e723a4d8f2f676",
+    "raw_arguments": {
+      "category": "confirmation_needs_review",
+      "evidence_message_ids": [
+        "message-session-4d73e748dcff4923908758401ed26414-1"
+      ],
+      "expected_version": 2,
+      "missing_facts": [
+        "Which confirmation is current?"
+      ]
+    },
+    "validated_arguments": {
+      "category": "confirmation_needs_review",
+      "evidence_message_ids": [
+        "message-session-4d73e748dcff4923908758401ed26414-1"
+      ],
+      "expected_version": 2,
+      "missing_facts": [
+        "Which confirmation is current?"
+      ]
+    },
+    "idempotency_key": "review-d2faab7300094eb991ca3ca81f868651",
+    "status": "replayed",
+    "session_version_before": 3,
+    "session_version_after": 3,
+    "order_version_before": null,
+    "order_version_after": null,
+    "transaction_id": null,
+    "ticket_id": "review-9f81bfa894c847c7be8e8e594fc53833",
+    "committed_amount_cents": 0,
+    "result": {
+      "call_id": "call-21f8e553a51747e4a78f7fbd951b981c",
+      "case_id": "dev-case-refund-v1",
+      "category": "confirmation_needs_review",
+      "created_at": "2026-10-12T10:03:23.009577+00:00",
+      "evidence_message_ids": [
+        "message-session-4d73e748dcff4923908758401ed26414-1"
+      ],
+      "idempotency_key": "review-d2faab7300094eb991ca3ca81f868651",
+      "missing_facts": [
+        "Which confirmation is current?"
+      ],
+      "session_id": "session-4d73e748dcff4923908758401ed26414",
+      "session_version_after": 3,
+      "session_version_before": 2,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "scripted_test",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "open",
+      "ticket_id": "review-9f81bfa894c847c7be8e8e594fc53833"
+    },
+    "error": null,
+    "client_receipt": "unknown",
+    "sources": {
+      "fixture_source": "development_only",
+      "execution_source": "scripted_test",
+      "recovery_source": "none",
+      "contract_source": "candidate_pending_review",
+      "calculation_version": "largest-remainder-prefix-v1-development"
+    }
+  }
+]

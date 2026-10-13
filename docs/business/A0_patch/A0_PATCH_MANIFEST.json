@@ -1,0 +1,119 @@
+{
+  "patch_version": "AgentShield-A0-0.1",
+  "source_baseline": "BD Stage05 received ZIP",
+  "generated_by": "ChatGPT developer, not A/D signed",
+  "files": [
+    {
+      "path": "INSTALL_NOTES.txt",
+      "sha256": "a46bd7ef0afd5c7b8f1c5b5f81b86ff60e7efe9416ebf9bc391ac91f4d4eda9f",
+      "bytes": 659
+    },
+    {
+      "path": "README_A0_PYCHARM.md",
+      "sha256": "8150ecdf7160f918f65edb47ce9a61e92f5693f85950c625c97bfba8389f8c8d",
+      "bytes": 2364
+    },
+    {
+      "path": "TEST_LOG_ALL.txt",
+      "sha256": "680e8cb599d0a9961e005eb90e75dc26a553a03cd9642bedbef70c9f195688d2",
+      "bytes": 98
+    },
+    {
+      "path": "TEST_LOG_A_ONLY.txt",
+      "sha256": "f6e5a84fdee30b2c69ce83652e9da27da3ce15832bc62220f48b86ec1f3c64c4",
+      "bytes": 3026
+    },
+    {
+      "path": "actuarial/__init__.py",
+      "sha256": "6e96667fd9c82dc05e27012ef8010030112fb456aef2f0542f2c8e49fcc8600b",
+      "bytes": 287
+    },
+    {
+      "path": "actuarial/claims.py",
+      "sha256": "2f466cffab28f099e44dce7123f047129a4c3f3bb494ad4964e12a250e6f4f53",
+      "bytes": 2922
+    },
+    {
+      "path": "actuarial/contracts.py",
+      "sha256": "f9d36abd6bcc2237b249dc01e5178695e6d43723e6ec8a7e77fe03d7fe2d9fe9",
+      "bytes": 2024
+    },
+    {
+      "path": "actuarial/demo.py",
+      "sha256": "c9f35d6cabbc9b0420d7c388d02003ea1818f3e8f97420294941b6254393a4a3",
+      "bytes": 1368
+    },
+    {
+      "path": "actuarial/estimate.py",
+      "sha256": "7edce62afec9f811163085b2a7344863b842dc0d7a6728b3cef406463b8715db",
+      "bytes": 11215
+    },
+    {
+      "path": "configs/insurance/research_contract_v0.1.json",
+      "sha256": "5506b3ce2c800913f10f35d9531bdfa97a4c89362d4160a60618a72197241717",
+      "bytes": 765
+    },
+    {
+      "path": "contracts/quote_result_A_v0.1_candidate.schema.json",
+      "sha256": "60c6ab912a85140eeb59edc0c337e4dff0ce8bdb8606e11982e66f18a6e60008",
+      "bytes": 4179
+    },
+    {
+      "path": "contracts/quote_result_A_v0.1_engineering_example.json",
+      "sha256": "9a32ca2457139d5364354d8cc764ccde91eede4108747e5f8fd5abe1870cfef4",
+      "bytes": 2624
+    },
+    {
+      "path": "contracts/quote_result_A_v0.1_insufficient_example.json",
+      "sha256": "a9706292b9564a9661dc8f3e6cb9e1835290429da5d691117ea66c39df91ffcf",
+      "bytes": 2689
+    },
+    {
+      "path": "docs/business/A0_RECEIPT.md",
+      "sha256": "f6a66760b06b4ac35a7882072b0d02a1fa220486af55c26dbae0a9e037713556",
+      "bytes": 4131
+    },
+    {
+      "path": "docs/business/BD_A_review_v0.1.md",
+      "sha256": "dc5f26dba70863b731cc99c1ef5ab78d38dbf7c92de57485d3d1e695f98eb56c",
+      "bytes": 4920
+    },
+    {
+      "path": "docs/business/QuoteResult_A_v0.1_candidate.md",
+      "sha256": "0677d4e9fdd81efe7432e42ecfd763977c3e5ae529e45e27e63f316f5184bb48",
+      "bytes": 4531
+    },
+    {
+      "path": "docs/business/business_policy_A_candidate.md",
+      "sha256": "22697fd8c338e18703dd8fc8c51ec19e7092e8f54d76bc6771e3fade2cde7622",
+      "bytes": 3777
+    },
+    {
+      "path": "docs/business/engineering_claim_cases_v0.1.json",
+      "sha256": "c5854968795c7312ea453cdf46a4a6cc30983ecf16f1ac16405c4c76b2c3190c",
+      "bytes": 4558
+    },
+    {
+      "path": "docs/business/engineering_estimate_input_v0.1.json",
+      "sha256": "d18f861a54a99fb99b4d6909d7fc8267cba691b7179872f8eea117ee82fcbd70",
+      "bytes": 2572
+    },
+    {
+      "path": "tests/test_actuarial_cases.py",
+      "sha256": "2bd05b8eac43c9148f1cef07935524fa849120f233222865d6d56b46173195ee",
+      "bytes": 1723
+    },
+    {
+      "path": "tests/test_actuarial_claims.py",
+      "sha256": "3a7bd1fc8235b2f8d8034201bd04534bf1ae9db32ac6bb9a10590e957cd47c03",
+      "bytes": 4000
+    },
+    {
+      "path": "tests/test_actuarial_estimates.py",
+      "sha256": "5fb8ee8119c53f23432a35b81cddbafe280c2f569f0538728d50b05668db4a17",
+      "bytes": 6554
+    }
+  ],
+  "pre_existing_BD_files_modified": false,
+  "sensitive_material_included": false
+}

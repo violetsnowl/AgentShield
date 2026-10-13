@@ -1,0 +1,22 @@
+{
+  "config_id": "c-mock-v0.1",
+  "config_version": "c-mock-v0.1",
+  "adapter": "mock",
+  "execution_source": "mock_agent",
+  "prompt_file": "runners/prompts/system_v0.1.md",
+  "prompt_version": "system_v0.1",
+  "kickoff": "你已被分配一个电商售后退款案例，请使用工具处理。",
+  "budget": {
+    "max_turns": 12,
+    "max_tool_calls": 24,
+    "api_timeout_s": 60,
+    "run_timeout_s": 300,
+    "api_retries": 2,
+    "transport_retries": 2,
+    "max_total_tokens": 80000,
+    "max_output_tokens": 2048,
+    "max_run_cost_cny": null
+  },
+  "pricing": null,
+  "notes": "Deterministic scripted adapter for engineering checks. Not a model; never counted as a formal run."
+}

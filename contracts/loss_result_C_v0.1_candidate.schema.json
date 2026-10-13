@@ -1,0 +1,650 @@
+{
+  "$comment": "C candidate, pending A/D review. Integer cents; null means unknown, never zero.",
+  "$defs": {
+    "ActivityCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "human_review_tickets": {
+          "title": "Human Review Tickets",
+          "type": "integer"
+        },
+        "tool_events": {
+          "title": "Tool Events",
+          "type": "integer"
+        },
+        "write_error": {
+          "title": "Write Error",
+          "type": "integer"
+        },
+        "write_rejected": {
+          "title": "Write Rejected",
+          "type": "integer"
+        },
+        "write_replayed": {
+          "title": "Write Replayed",
+          "type": "integer"
+        },
+        "write_succeeded": {
+          "title": "Write Succeeded",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tool_events",
+        "write_succeeded",
+        "write_rejected",
+        "write_replayed",
+        "write_error",
+        "human_review_tickets"
+      ],
+      "title": "ActivityCounts",
+      "type": "object"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "amount_cents": {
+          "minimum": 0,
+          "title": "Amount Cents",
+          "type": "integer"
+        },
+        "event_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Event Id"
+        },
+        "event_seq": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Event Seq"
+        },
+        "transaction_id": {
+          "title": "Transaction Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transaction_id",
+        "event_seq",
+        "event_id",
+        "amount_cents"
+      ],
+      "title": "EvidenceRef",
+      "type": "object"
+    },
+    "LedgerChecks": {
+      "additionalProperties": false,
+      "properties": {
+        "balances_conserved": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Balances Conserved"
+        },
+        "duplicate_transactions": {
+          "title": "Duplicate Transactions",
+          "type": "integer"
+        },
+        "final_balances_reconcile": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Final Balances Reconcile"
+        },
+        "issues": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Issues",
+          "type": "array"
+        },
+        "lines_sum_to_refund": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Lines Sum To Refund"
+        },
+        "refunds_match_ledger": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Refunds Match Ledger"
+        }
+      },
+      "required": [
+        "refunds_match_ledger",
+        "lines_sum_to_refund",
+        "balances_conserved",
+        "final_balances_reconcile",
+        "duplicate_transactions"
+      ],
+      "title": "LedgerChecks",
+      "type": "object"
+    },
+    "ObligationLoss": {
+      "additionalProperties": false,
+      "properties": {
+        "committed_cents": {
+          "minimum": 0,
+          "title": "Committed Cents",
+          "type": "integer"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "extra_cents": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Extra Cents"
+        },
+        "item_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Item Id"
+        },
+        "legally_due_cents": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Legally Due Cents"
+        },
+        "order_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Order Id"
+        },
+        "ref": {
+          "title": "Ref",
+          "type": "string"
+        },
+        "template_item_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Template Item Id"
+        },
+        "template_order_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Template Order Id"
+        },
+        "underpaid_cents": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Underpaid Cents"
+        }
+      },
+      "required": [
+        "ref",
+        "template_order_id",
+        "template_item_id",
+        "order_id",
+        "item_id",
+        "legally_due_cents",
+        "committed_cents",
+        "extra_cents",
+        "underpaid_cents"
+      ],
+      "title": "ObligationLoss",
+      "type": "object"
+    },
+    "RunIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "business_initial_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Business Initial Hash"
+        },
+        "case_context_status": {
+          "enum": [
+            "recorded",
+            "legacy_unavailable",
+            "not_applicable"
+          ],
+          "title": "Case Context Status",
+          "type": "string"
+        },
+        "case_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Case Id"
+        },
+        "config_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Config Id"
+        },
+        "environment_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Environment Version"
+        },
+        "episode_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Episode Id"
+        },
+        "evidence_sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Evidence Sha256"
+        },
+        "execution_source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Execution Source"
+        },
+        "experiment_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Experiment Id"
+        },
+        "fixture_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fixture Id"
+        },
+        "fixture_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fixture Version"
+        },
+        "policy_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Policy Version"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Session Id"
+        },
+        "tenant_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tenant Id"
+        }
+      },
+      "required": [
+        "experiment_id",
+        "case_id",
+        "session_id",
+        "episode_id",
+        "config_id",
+        "tenant_id",
+        "execution_source",
+        "fixture_id",
+        "fixture_version",
+        "policy_version",
+        "environment_version",
+        "business_initial_hash",
+        "case_context_status",
+        "evidence_sha256"
+      ],
+      "title": "RunIdentity",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "activity": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ActivityCounts"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "commercial_quote": {
+      "const": false,
+      "default": false,
+      "title": "Commercial Quote",
+      "type": "boolean"
+    },
+    "computed_at": {
+      "title": "Computed At",
+      "type": "string"
+    },
+    "coverage_status_input": {
+      "enum": [
+        "covered",
+        "excluded",
+        "needs_review"
+      ],
+      "title": "Coverage Status Input",
+      "type": "string"
+    },
+    "horizon": {
+      "title": "Horizon",
+      "type": "string"
+    },
+    "identity": {
+      "$ref": "#/$defs/RunIdentity"
+    },
+    "ledger_checks": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LedgerChecks"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "loss_result_version": {
+      "const": "loss-result-c-0.1-candidate",
+      "default": "loss-result-c-0.1-candidate",
+      "title": "Loss Result Version",
+      "type": "string"
+    },
+    "loss_status": {
+      "enum": [
+        "verified",
+        "needs_review"
+      ],
+      "title": "Loss Status",
+      "type": "string"
+    },
+    "net_loss_cents": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Net Loss Cents"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "obligation_source": {
+      "enum": [
+        "obligation_spec",
+        "engineering_case",
+        "none"
+      ],
+      "title": "Obligation Source",
+      "type": "string"
+    },
+    "obligation_spec_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Obligation Spec Id"
+    },
+    "obligations": {
+      "items": {
+        "$ref": "#/$defs/ObligationLoss"
+      },
+      "title": "Obligations",
+      "type": "array"
+    },
+    "oracle_version": {
+      "title": "Oracle Version",
+      "type": "string"
+    },
+    "policy_compliance": {
+      "enum": [
+        "not_evaluated",
+        "within_allowed_outcomes",
+        "outside_allowed_outcomes"
+      ],
+      "title": "Policy Compliance",
+      "type": "string"
+    },
+    "task_outcome": {
+      "enum": [
+        "completed",
+        "no_action",
+        "escalated",
+        "not_finished",
+        "unknown"
+      ],
+      "title": "Task Outcome",
+      "type": "string"
+    },
+    "total_committed_cents": {
+      "minimum": 0,
+      "title": "Total Committed Cents",
+      "type": "integer"
+    },
+    "total_extra_cents": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Total Extra Cents"
+    },
+    "total_underpaid_cents": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Total Underpaid Cents"
+    },
+    "traceable_recovery_cents": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Traceable Recovery Cents"
+    },
+    "unknown_parts": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unknown Parts",
+      "type": "array"
+    }
+  },
+  "required": [
+    "oracle_version",
+    "computed_at",
+    "identity",
+    "obligation_source",
+    "obligation_spec_id",
+    "horizon",
+    "obligations",
+    "total_committed_cents",
+    "total_extra_cents",
+    "total_underpaid_cents",
+    "traceable_recovery_cents",
+    "net_loss_cents",
+    "task_outcome",
+    "policy_compliance",
+    "loss_status",
+    "coverage_status_input",
+    "ledger_checks",
+    "activity",
+    "unknown_parts"
+  ],
+  "title": "LossResult",
+  "type": "object"
+}

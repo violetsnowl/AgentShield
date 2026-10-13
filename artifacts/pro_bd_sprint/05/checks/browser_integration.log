@@ -1,0 +1,3 @@
+{"mode":"stage04_regression","checks":91,"observations":[{"scenario":"delayed-real-create-then-legal-v2-import","replay_preserved":true,"created_session":"session-68464b28db84487a9b65b1fdb0fd7264"},{"scenario":"refund-total","rejected":true},{"scenario":"ledger-delta","rejected":true},{"scenario":"missing-ledger","rejected":true},{"scenario":"transaction-link","rejected":true},{"scenario":"snapshot-case","rejected":true},{"scenario":"snapshot-tenant","rejected":true}],"errors":[]}
+
+{"real_B_HTTP": "pass", "two_fixtures": true, "browser_is_observer_only": true, "original_transactions_unchanged": true, "seeding_restart_idempotent": true, "model_calls": 0, "real_payment_calls": 0}

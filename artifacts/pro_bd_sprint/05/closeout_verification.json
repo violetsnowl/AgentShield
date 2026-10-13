@@ -1,0 +1,38 @@
+{
+  "stage": "05",
+  "after04_baseline_files": 779,
+  "unchanged": 775,
+  "changed_preexisting_files": [
+    "docs/handoff/BD_to_A_C.md",
+    "frontend/README.md",
+    "NEXT_STEPS.md",
+    "scripts/run_workbench_checks.py"
+  ],
+  "B_frontend_runtime_contracts_migrations_unchanged": true,
+  "prior_document_text_preserved": true,
+  "readable_databases_hash_unchanged": 2,
+  "unverified_database_paths": [
+    {
+      "path": "D:\\作业合集\\大三\\智能+保险\\agentshield\\var\\migration-v1-vm5ra8a8",
+      "error_type": "PermissionError",
+      "winerror": 5
+    },
+    {
+      "path": "D:\\作业合集\\大三\\智能+保险\\agentshield\\var\\tmpt1rn8dz0",
+      "error_type": "PermissionError",
+      "winerror": 5
+    }
+  ],
+  "tested_reception_runtime_and_test_files_identical": 69,
+  "fresh_build_bit_identical": true,
+  "scanned_slim_files_before_final_results": 220,
+  "credential_scan_findings": [],
+  "credential_scan_scope": "Text patterns + populated JSON credential fields; complements runtime-secret checks in browser suites, not proof about all unknown secret formats",
+  "all_required_native_checks_exit_zero": true,
+  "new_python_install": "failed_TLS_EOF_existing_locked_environment_reused",
+  "second_machine": false,
+  "different_operator": false,
+  "A_C_acceptance": "pending",
+  "model_calls": 0,
+  "real_payment_calls": 0
+}

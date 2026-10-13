@@ -1,0 +1,263 @@
+[
+  {
+    "function": {
+      "description": "Read public case and messages.",
+      "name": "get_case",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {},
+        "title": "Empty",
+        "type": "object"
+      }
+    },
+    "type": "function"
+  },
+  {
+    "function": {
+      "description": "Read one authorized order.",
+      "name": "get_order",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "order_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Order Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id"
+        ],
+        "title": "OrderRequest",
+        "type": "object"
+      }
+    },
+    "type": "function"
+  },
+  {
+    "function": {
+      "description": "Read fixed development business rules.",
+      "name": "get_business_policy",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {},
+        "title": "Empty",
+        "type": "object"
+      }
+    },
+    "type": "function"
+  },
+  {
+    "function": {
+      "description": "Read committed refunds and recover a request key.",
+      "name": "get_refund_history",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Idempotency Key"
+          },
+          "order_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Order Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id"
+        ],
+        "title": "HistoryRequest",
+        "type": "object"
+      }
+    },
+    "type": "function"
+  },
+  {
+    "function": {
+      "description": "Refund item quantities to the original simulated channel.",
+      "name": "submit_refund",
+      "parameters": {
+        "$defs": {
+          "RefundLine": {
+            "additionalProperties": false,
+            "properties": {
+              "item_id": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "title": "Item Id",
+                "type": "string"
+              },
+              "quantity": {
+                "minimum": 1,
+                "title": "Quantity",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "item_id",
+              "quantity"
+            ],
+            "title": "RefundLine",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "confirmation_message_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Confirmation Message Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "minimum": 1,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/RefundLine"
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "order_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id",
+          "items",
+          "confirmation_message_id",
+          "expected_version",
+          "reason"
+        ],
+        "title": "RefundRequest",
+        "type": "object"
+      }
+    },
+    "type": "function"
+  },
+  {
+    "function": {
+      "description": "Create an open review ticket from public evidence; no adjudication or money movement.",
+      "name": "submit_human_review",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Category",
+            "type": "string"
+          },
+          "evidence_message_ids": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Evidence Message Ids",
+            "type": "array"
+          },
+          "expected_version": {
+            "minimum": 1,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "missing_facts": {
+            "items": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Missing Facts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "category",
+          "missing_facts",
+          "evidence_message_ids",
+          "expected_version"
+        ],
+        "title": "HumanReviewRequest",
+        "type": "object"
+      }
+    },
+    "type": "function"
+  },
+  {
+    "function": {
+      "description": "Record a declared outcome without changing transactions.",
+      "name": "finish_case",
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "minimum": 1,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "explanation": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Explanation",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "completed",
+              "no_action",
+              "escalated"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "outcome",
+          "explanation",
+          "expected_version"
+        ],
+        "title": "FinishRequest",
+        "type": "object"
+      }
+    },
+    "type": "function"
+  }
+]

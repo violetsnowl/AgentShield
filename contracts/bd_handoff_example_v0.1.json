@@ -1,0 +1,29 @@
+{
+  "document_version": "bd-handoff-0.1-candidate",
+  "purpose": "actual_B_development_evidence_reference_not_A_C_wire_result",
+  "execution_source": "scripted_test",
+  "evidence_file": "artifacts/pro_bd_sprint/04/integration_browser_evidence_r2/dev-refund-v2_evidence.json",
+  "evidence_sha256": "27321cdc3c320428edd9433bba691ccc09e31fe016ff679f315d13b94bfb4a3a",
+  "identity": {
+    "case_id": "dev-case-refund-v2",
+    "session_id": "session-6d5bde9f51a1433f97291526e74f3c08",
+    "episode_id": "episode-session-6d5bde9f51a1433f97291526e74f3c08",
+    "config_id": "scripted-development-example",
+    "tenant_id": "workbench-development",
+    "experiment_id": "workbench-development"
+  },
+  "trace": {
+    "transaction_id": "refund-42dbe879321046109a7144f6b40d9930",
+    "order_id": "order-session-6d5bde9f51a1433f97291526e74f3c08-1",
+    "ledger_entry_id": "ledger-d6484c0ba9be4dba8bf20d3f6d733ae1",
+    "event_seqs": [
+      4,
+      5
+    ]
+  },
+  "LossResult": null,
+  "QuoteResult": null,
+  "result_contracts": "pending_owner_review",
+  "commercial_quote": false,
+  "model_calls": 0
+}

@@ -1,0 +1,31 @@
+
+> agentshield-workbench@0.3.0 test
+> vitest run
+
+
+ RUN  v4.0.18 D:/作业合集/大三/智能+保险/agentshield/frontend
+
+ ❯ tests/consistency.test.ts (0 test)
+ ❯ tests/integrations.test.ts (0 test)
+ ❯ tests/data.test.ts (0 test)
+
+ Test Files  3 failed (3)
+      Tests  no tests
+   Start at  22:32:26
+   Duration  250ms (transform 0ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/consistency.test.ts [ tests/consistency.test.ts ]
+Error: EPERM: operation not permitted, rename 'C:\Users\leo\AppData\Local\Packages\sandbox.{b5c12eec-80b6-4a3f-9f51-91fb4eab0857}\AC\Temp\bfuFcvY71PdYpOZk1uTcV\ssr\.tmp-1791815547014-exezzwfylcd' -> 'C:\Users\leo\AppData\Local\Packages\sandbox.{b5c12eec-80b6-4a3f-9f51-91fb4eab0857}\AC\Temp\bfuFcvY71PdYpOZk1uTcV\ssr\8358d1582cadf087f90cb1962dbb8cee33372fbd'
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/data.test.ts [ tests/data.test.ts ]
+Error: EPERM: operation not permitted, rename 'C:\Users\leo\AppData\Local\Packages\sandbox.{b5c12eec-80b6-4a3f-9f51-91fb4eab0857}\AC\Temp\bfuFcvY71PdYpOZk1uTcV\ssr\.tmp-1791815547017-y7ruo2xniar' -> 'C:\Users\leo\AppData\Local\Packages\sandbox.{b5c12eec-80b6-4a3f-9f51-91fb4eab0857}\AC\Temp\bfuFcvY71PdYpOZk1uTcV\ssr\4f311e7975cb25609d69cea75db7e7445d041664'
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/integrations.test.ts [ tests/integrations.test.ts ]
+Error: EPERM: operation not permitted, rename 'C:\Users\leo\AppData\Local\Packages\sandbox.{b5c12eec-80b6-4a3f-9f51-91fb4eab0857}\AC\Temp\bfuFcvY71PdYpOZk1uTcV\ssr\.tmp-1791815547011-cipo50e6js5' -> 'C:\Users\leo\AppData\Local\Packages\sandbox.{b5c12eec-80b6-4a3f-9f51-91fb4eab0857}\AC\Temp\bfuFcvY71PdYpOZk1uTcV\ssr\620b1d5ec92916add9fefc3fbfb8e3905f24e588'
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+

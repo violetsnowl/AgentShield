@@ -1,0 +1,3950 @@
+{
+  "components": {
+    "schemas": {
+      "CanonicalBusinessSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "business_time": {
+            "title": "Business Time",
+            "type": "string"
+          },
+          "canonical_version": {
+            "const": "business-initial-v1",
+            "default": "business-initial-v1",
+            "title": "Canonical Version",
+            "type": "string"
+          },
+          "case": {
+            "$ref": "#/components/schemas/CanonicalCase"
+          },
+          "customer_balance_cents": {
+            "minimum": 0.0,
+            "title": "Customer Balance Cents",
+            "type": "integer"
+          },
+          "environment_version": {
+            "const": "sandbox-rules-v1-development",
+            "default": "sandbox-rules-v1-development",
+            "title": "Environment Version",
+            "type": "string"
+          },
+          "merchant_balance_cents": {
+            "minimum": 0.0,
+            "title": "Merchant Balance Cents",
+            "type": "integer"
+          },
+          "orders": {
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            },
+            "title": "Orders",
+            "type": "array"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/Policy"
+          }
+        },
+        "required": [
+          "business_time",
+          "case",
+          "orders",
+          "policy",
+          "merchant_balance_cents",
+          "customer_balance_cents"
+        ],
+        "title": "CanonicalBusinessSnapshot",
+        "type": "object"
+      },
+      "CanonicalCase": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_order_ids": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            "title": "Candidate Order Ids",
+            "type": "array"
+          },
+          "customer_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "evidence_status": {
+            "const": "development_public_facts",
+            "default": "development_public_facts",
+            "title": "Evidence Status",
+            "type": "string"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "request": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Request",
+            "type": "string"
+          }
+        },
+        "required": [
+          "customer_id",
+          "request",
+          "candidate_order_ids",
+          "messages"
+        ],
+        "title": "CanonicalCase",
+        "type": "object"
+      },
+      "Case": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_order_ids": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            "title": "Candidate Order Ids",
+            "type": "array"
+          },
+          "case_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Case Id",
+            "type": "string"
+          },
+          "customer_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "evidence_status": {
+            "const": "development_public_facts",
+            "default": "development_public_facts",
+            "title": "Evidence Status",
+            "type": "string"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "request": {
+            "title": "Request",
+            "type": "string"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/Sources"
+          }
+        },
+        "required": [
+          "case_id",
+          "customer_id",
+          "request",
+          "candidate_order_ids",
+          "messages",
+          "sources"
+        ],
+        "title": "Case",
+        "type": "object"
+      },
+      "CaseContext": {
+        "additionalProperties": false,
+        "properties": {
+          "business_initial_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Business Initial Hash",
+            "type": "string"
+          },
+          "canonical_initial": {
+            "$ref": "#/components/schemas/CanonicalBusinessSnapshot"
+          },
+          "case_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Case Id",
+            "type": "string"
+          },
+          "environment_version": {
+            "const": "sandbox-rules-v1-development",
+            "default": "sandbox-rules-v1-development",
+            "title": "Environment Version",
+            "type": "string"
+          },
+          "family_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Family Id",
+            "type": "string"
+          },
+          "fixture_content_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Fixture Content Sha256",
+            "type": "string"
+          },
+          "fixture_id": {
+            "enum": [
+              "dev-refund-v1",
+              "dev-refund-v2"
+            ],
+            "title": "Fixture Id",
+            "type": "string"
+          },
+          "fixture_source": {
+            "const": "development_only",
+            "default": "development_only",
+            "title": "Fixture Source",
+            "type": "string"
+          },
+          "fixture_version": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Fixture Version",
+            "type": "string"
+          },
+          "hash_algorithm": {
+            "const": "sha256-canonical-json-v1",
+            "default": "sha256-canonical-json-v1",
+            "title": "Hash Algorithm",
+            "type": "string"
+          },
+          "identity_semantics": {
+            "const": "development_case_candidate",
+            "default": "development_case_candidate",
+            "title": "Identity Semantics",
+            "type": "string"
+          },
+          "object_mapping": {
+            "$ref": "#/components/schemas/ObjectMapping"
+          },
+          "parent_case_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Case Id"
+          },
+          "policy_version": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Policy Version",
+            "type": "string"
+          },
+          "review_status": {
+            "const": "pending_A_C_D_review",
+            "default": "pending_A_C_D_review",
+            "title": "Review Status",
+            "type": "string"
+          },
+          "source_case_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Source Case Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_id",
+          "source_case_id",
+          "parent_case_id",
+          "family_id",
+          "fixture_id",
+          "fixture_version",
+          "fixture_content_sha256",
+          "policy_version",
+          "object_mapping",
+          "canonical_initial",
+          "business_initial_hash"
+        ],
+        "title": "CaseContext",
+        "type": "object"
+      },
+      "CommittedLine": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_cents": {
+            "minimum": 0.0,
+            "title": "Amount Cents",
+            "type": "integer"
+          },
+          "item_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Item Id",
+            "type": "string"
+          },
+          "quantity": {
+            "minimum": 1.0,
+            "title": "Quantity",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item_id",
+          "quantity",
+          "amount_cents"
+        ],
+        "title": "CommittedLine",
+        "type": "object"
+      },
+      "Confirmation": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RefundLine"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "order_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Order Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id",
+          "items"
+        ],
+        "title": "Confirmation",
+        "type": "object"
+      },
+      "CreateSession": {
+        "additionalProperties": false,
+        "properties": {
+          "config_id": {
+            "default": "scripted-http-v1",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Config Id",
+            "type": "string"
+          },
+          "execution_source": {
+            "default": "scripted_test",
+            "enum": [
+              "scripted_test",
+              "mock_agent",
+              "observed_agent_execution"
+            ],
+            "title": "Execution Source",
+            "type": "string"
+          },
+          "experiment_id": {
+            "default": "development",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "fixture_id": {
+            "default": "dev-refund-v1",
+            "enum": [
+              "dev-refund-v1",
+              "dev-refund-v2"
+            ],
+            "title": "Fixture Id",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id"
+        ],
+        "title": "CreateSession",
+        "type": "object"
+      },
+      "CreatedSession": {
+        "additionalProperties": false,
+        "properties": {
+          "case_context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CaseContext"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "session": {
+            "$ref": "#/components/schemas/SessionStatus"
+          },
+          "session_token": {
+            "title": "Session Token",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "session",
+          "session_token"
+        ],
+        "title": "CreatedSession",
+        "type": "object"
+      },
+      "Empty": {
+        "additionalProperties": false,
+        "properties": {},
+        "title": "Empty",
+        "type": "object"
+      },
+      "Error": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "retryable": {
+            "title": "Retryable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "retryable",
+          "request_id"
+        ],
+        "title": "Error",
+        "type": "object"
+      },
+      "EventPage": {
+        "additionalProperties": false,
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ToolEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "last_seq": {
+            "title": "Last Seq",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "events",
+          "last_seq"
+        ],
+        "title": "EventPage",
+        "type": "object"
+      },
+      "EvidenceBundle": {
+        "additionalProperties": false,
+        "properties": {
+          "case_context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CaseContext"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "case_context_status": {
+            "default": "legacy_unavailable",
+            "enum": [
+              "recorded",
+              "legacy_unavailable"
+            ],
+            "title": "Case Context Status",
+            "type": "string"
+          },
+          "contract_version": {
+            "default": "bc-0.3-candidate",
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ToolEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "exported_at": {
+            "title": "Exported At",
+            "type": "string"
+          },
+          "final_snapshot": {
+            "$ref": "#/components/schemas/Snapshot"
+          },
+          "human_reviews": {
+            "items": {
+              "$ref": "#/components/schemas/HumanReviewTicket"
+            },
+            "title": "Human Reviews",
+            "type": "array"
+          },
+          "initial_snapshot": {
+            "$ref": "#/components/schemas/Snapshot"
+          },
+          "ledger": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerEntry"
+            },
+            "title": "Ledger",
+            "type": "array"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/Policy"
+          },
+          "receipt_semantics": {
+            "const": "server_commit_does_not_prove_client_receipt",
+            "default": "server_commit_does_not_prove_client_receipt",
+            "title": "Receipt Semantics",
+            "type": "string"
+          },
+          "refunds": {
+            "items": {
+              "$ref": "#/components/schemas/Refund"
+            },
+            "title": "Refunds",
+            "type": "array"
+          },
+          "schema_version": {
+            "default": 3,
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/Sources"
+          }
+        },
+        "required": [
+          "exported_at",
+          "initial_snapshot",
+          "final_snapshot",
+          "refunds",
+          "ledger",
+          "events",
+          "policy",
+          "sources"
+        ],
+        "title": "EvidenceBundle",
+        "type": "object"
+      },
+      "FinishRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "minimum": 1.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "explanation": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Explanation",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "completed",
+              "no_action",
+              "escalated"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "outcome",
+          "explanation",
+          "expected_version"
+        ],
+        "title": "FinishRequest",
+        "type": "object"
+      },
+      "FixtureCatalog": {
+        "additionalProperties": false,
+        "properties": {
+          "fixtures": {
+            "items": {
+              "$ref": "#/components/schemas/FixtureMetadata"
+            },
+            "title": "Fixtures",
+            "type": "array"
+          }
+        },
+        "required": [
+          "fixtures"
+        ],
+        "title": "FixtureCatalog",
+        "type": "object"
+      },
+      "FixtureMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "fixture_id": {
+            "enum": [
+              "dev-refund-v1",
+              "dev-refund-v2"
+            ],
+            "title": "Fixture Id",
+            "type": "string"
+          },
+          "fixture_source": {
+            "const": "development_only",
+            "title": "Fixture Source",
+            "type": "string"
+          },
+          "fixture_version": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Fixture Version",
+            "type": "string"
+          },
+          "policy_version": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Policy Version",
+            "type": "string"
+          },
+          "review_status": {
+            "const": "pending_A_C_D_review",
+            "title": "Review Status",
+            "type": "string"
+          },
+          "source_case_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Source Case Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fixture_id",
+          "fixture_version",
+          "source_case_id",
+          "policy_version",
+          "fixture_source",
+          "review_status"
+        ],
+        "title": "FixtureMetadata",
+        "type": "object"
+      },
+      "History": {
+        "additionalProperties": false,
+        "properties": {
+          "order_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "refunds": {
+            "items": {
+              "$ref": "#/components/schemas/Refund"
+            },
+            "title": "Refunds",
+            "type": "array"
+          },
+          "request_status": {
+            "enum": [
+              "committed",
+              "not_found",
+              "not_requested"
+            ],
+            "title": "Request Status",
+            "type": "string"
+          },
+          "requested_key": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Key"
+          },
+          "transaction_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Id"
+          }
+        },
+        "required": [
+          "order_id",
+          "refunds",
+          "requested_key",
+          "request_status",
+          "transaction_id"
+        ],
+        "title": "History",
+        "type": "object"
+      },
+      "HistoryRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idempotency Key"
+          },
+          "order_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Order Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id"
+        ],
+        "title": "HistoryRequest",
+        "type": "object"
+      },
+      "HumanReviewRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Category",
+            "type": "string"
+          },
+          "evidence_message_ids": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Evidence Message Ids",
+            "type": "array"
+          },
+          "expected_version": {
+            "minimum": 1.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "missing_facts": {
+            "items": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Missing Facts",
+            "type": "array"
+          }
+        },
+        "required": [
+          "category",
+          "missing_facts",
+          "evidence_message_ids",
+          "expected_version"
+        ],
+        "title": "HumanReviewRequest",
+        "type": "object"
+      },
+      "HumanReviewTicket": {
+        "additionalProperties": false,
+        "properties": {
+          "call_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Call Id",
+            "type": "string"
+          },
+          "case_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Case Id",
+            "type": "string"
+          },
+          "category": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Category",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "evidence_message_ids": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            "title": "Evidence Message Ids",
+            "type": "array"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "missing_facts": {
+            "items": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Missing Facts",
+            "type": "array"
+          },
+          "session_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "session_version_after": {
+            "minimum": 1.0,
+            "title": "Session Version After",
+            "type": "integer"
+          },
+          "session_version_before": {
+            "minimum": 1.0,
+            "title": "Session Version Before",
+            "type": "integer"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/Sources"
+          },
+          "status": {
+            "const": "open",
+            "default": "open",
+            "title": "Status",
+            "type": "string"
+          },
+          "ticket_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Ticket Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ticket_id",
+          "session_id",
+          "case_id",
+          "category",
+          "missing_facts",
+          "evidence_message_ids",
+          "created_at",
+          "idempotency_key",
+          "call_id",
+          "session_version_before",
+          "session_version_after",
+          "sources"
+        ],
+        "title": "HumanReviewTicket",
+        "type": "object"
+      },
+      "Item": {
+        "additionalProperties": false,
+        "properties": {
+          "allocated_paid_cents": {
+            "minimum": 0.0,
+            "title": "Allocated Paid Cents",
+            "type": "integer"
+          },
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "gross_cents": {
+            "minimum": 0.0,
+            "title": "Gross Cents",
+            "type": "integer"
+          },
+          "item_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Item Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "quantity": {
+            "minimum": 1.0,
+            "title": "Quantity",
+            "type": "integer"
+          },
+          "refundable_quantity": {
+            "minimum": 0.0,
+            "title": "Refundable Quantity",
+            "type": "integer"
+          },
+          "refunded_cents": {
+            "minimum": 0.0,
+            "title": "Refunded Cents",
+            "type": "integer"
+          },
+          "refunded_quantity": {
+            "minimum": 0.0,
+            "title": "Refunded Quantity",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item_id",
+          "name",
+          "quantity",
+          "gross_cents",
+          "allocated_paid_cents",
+          "refunded_quantity",
+          "refundable_quantity",
+          "refunded_cents",
+          "eligible"
+        ],
+        "title": "Item",
+        "type": "object"
+      },
+      "Ledger": {
+        "additionalProperties": false,
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerEntry"
+            },
+            "title": "Entries",
+            "type": "array"
+          }
+        },
+        "required": [
+          "entries"
+        ],
+        "title": "Ledger",
+        "type": "object"
+      },
+      "LedgerEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "customer_balance_cents": {
+            "minimum": 0.0,
+            "title": "Customer Balance Cents",
+            "type": "integer"
+          },
+          "customer_delta_cents": {
+            "title": "Customer Delta Cents",
+            "type": "integer"
+          },
+          "entry_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Entry Id",
+            "type": "string"
+          },
+          "merchant_balance_cents": {
+            "minimum": 0.0,
+            "title": "Merchant Balance Cents",
+            "type": "integer"
+          },
+          "merchant_delta_cents": {
+            "title": "Merchant Delta Cents",
+            "type": "integer"
+          },
+          "order_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "session_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "transaction_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Transaction Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entry_id",
+          "transaction_id",
+          "session_id",
+          "order_id",
+          "merchant_delta_cents",
+          "customer_delta_cents",
+          "merchant_balance_cents",
+          "customer_balance_cents"
+        ],
+        "title": "LedgerEntry",
+        "type": "object"
+      },
+      "Message": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Confirmation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "customer_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "message_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Message Id",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message_id",
+          "customer_id",
+          "text",
+          "confirmation"
+        ],
+        "title": "Message",
+        "type": "object"
+      },
+      "ObjectMapping": {
+        "additionalProperties": false,
+        "description": "Keys are stable template IDs; values are this session's IDs, never guessed from strings.",
+        "properties": {
+          "customers": {
+            "patternProperties": {
+              "^[A-Za-z0-9_.:-]+$": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "maxLength": 128,
+              "minLength": 1
+            },
+            "title": "Customers",
+            "type": "object"
+          },
+          "items": {
+            "patternProperties": {
+              "^[A-Za-z0-9_.:-]+$": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "maxLength": 128,
+              "minLength": 1
+            },
+            "title": "Items",
+            "type": "object"
+          },
+          "messages": {
+            "patternProperties": {
+              "^[A-Za-z0-9_.:-]+$": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "maxLength": 128,
+              "minLength": 1
+            },
+            "title": "Messages",
+            "type": "object"
+          },
+          "orders": {
+            "patternProperties": {
+              "^[A-Za-z0-9_.:-]+$": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "maxLength": 128,
+              "minLength": 1
+            },
+            "title": "Orders",
+            "type": "object"
+          }
+        },
+        "required": [
+          "customers",
+          "orders",
+          "items",
+          "messages"
+        ],
+        "title": "ObjectMapping",
+        "type": "object"
+      },
+      "Order": {
+        "additionalProperties": false,
+        "properties": {
+          "allocation_version": {
+            "default": "largest-remainder-prefix-v1-development",
+            "title": "Allocation Version",
+            "type": "string"
+          },
+          "currency": {
+            "const": "CNY",
+            "default": "CNY",
+            "title": "Currency",
+            "type": "string"
+          },
+          "customer_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "order_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "original_channel": {
+            "const": "simulated_original",
+            "default": "simulated_original",
+            "title": "Original Channel",
+            "type": "string"
+          },
+          "paid_cents": {
+            "minimum": 0.0,
+            "title": "Paid Cents",
+            "type": "integer"
+          },
+          "refunded_cents": {
+            "minimum": 0.0,
+            "title": "Refunded Cents",
+            "type": "integer"
+          },
+          "remaining_cents": {
+            "minimum": 0.0,
+            "title": "Remaining Cents",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "paid",
+              "partially_refunded",
+              "refunded"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "order_id",
+          "tenant_id",
+          "customer_id",
+          "paid_cents",
+          "refunded_cents",
+          "remaining_cents",
+          "status",
+          "version",
+          "items"
+        ],
+        "title": "Order",
+        "type": "object"
+      },
+      "OrderRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "order_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Order Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id"
+        ],
+        "title": "OrderRequest",
+        "type": "object"
+      },
+      "Policy": {
+        "additionalProperties": false,
+        "properties": {
+          "allocation_version": {
+            "default": "largest-remainder-prefix-v1-development",
+            "title": "Allocation Version",
+            "type": "string"
+          },
+          "development_only": {
+            "const": true,
+            "default": true,
+            "title": "Development Only",
+            "type": "boolean"
+          },
+          "policy_version": {
+            "default": "dev-policy-v1",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Policy Version",
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rules",
+            "type": "array"
+          }
+        },
+        "required": [
+          "rules"
+        ],
+        "title": "Policy",
+        "type": "object"
+      },
+      "Refund": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_cents": {
+            "minimum": 0.0,
+            "title": "Amount Cents",
+            "type": "integer"
+          },
+          "call_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Call Id",
+            "type": "string"
+          },
+          "channel": {
+            "const": "simulated_original",
+            "default": "simulated_original",
+            "title": "Channel",
+            "type": "string"
+          },
+          "committed_at": {
+            "title": "Committed At",
+            "type": "string"
+          },
+          "confirmation_message_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Confirmation Message Id",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CommittedLine"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "order_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "order_version_after": {
+            "minimum": 1.0,
+            "title": "Order Version After",
+            "type": "integer"
+          },
+          "order_version_before": {
+            "minimum": 1.0,
+            "title": "Order Version Before",
+            "type": "integer"
+          },
+          "session_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "session_version_after": {
+            "minimum": 1.0,
+            "title": "Session Version After",
+            "type": "integer"
+          },
+          "status": {
+            "const": "committed",
+            "default": "committed",
+            "title": "Status",
+            "type": "string"
+          },
+          "transaction_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Transaction Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_id",
+          "session_id",
+          "order_id",
+          "items",
+          "amount_cents",
+          "confirmation_message_id",
+          "idempotency_key",
+          "call_id",
+          "committed_at",
+          "order_version_before",
+          "order_version_after",
+          "session_version_after"
+        ],
+        "title": "Refund",
+        "type": "object"
+      },
+      "RefundLine": {
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Item Id",
+            "type": "string"
+          },
+          "quantity": {
+            "minimum": 1.0,
+            "title": "Quantity",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item_id",
+          "quantity"
+        ],
+        "title": "RefundLine",
+        "type": "object"
+      },
+      "RefundRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmation_message_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Confirmation Message Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "minimum": 1.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RefundLine"
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "order_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Order Id",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id",
+          "items",
+          "confirmation_message_id",
+          "expected_version",
+          "reason"
+        ],
+        "title": "RefundRequest",
+        "type": "object"
+      },
+      "SessionPage": {
+        "additionalProperties": false,
+        "properties": {
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          },
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/SessionStatus"
+            },
+            "title": "Sessions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "sessions",
+          "next_offset"
+        ],
+        "title": "SessionPage",
+        "type": "object"
+      },
+      "SessionStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "case_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Case Id",
+            "type": "string"
+          },
+          "config_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Config Id",
+            "type": "string"
+          },
+          "contract_version": {
+            "default": "bc-0.3-candidate",
+            "title": "Contract Version",
+            "type": "string"
+          },
+          "episode_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Episode Id",
+            "type": "string"
+          },
+          "experiment_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "completed",
+                  "no_action",
+                  "escalated"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          },
+          "session_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/Sources"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "finished"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "session_id",
+          "episode_id",
+          "case_id",
+          "tenant_id",
+          "experiment_id",
+          "config_id",
+          "status",
+          "version",
+          "outcome",
+          "explanation",
+          "sources"
+        ],
+        "title": "SessionStatus",
+        "type": "object"
+      },
+      "Snapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "$ref": "#/components/schemas/Case"
+          },
+          "customer_balance_cents": {
+            "minimum": 0.0,
+            "title": "Customer Balance Cents",
+            "type": "integer"
+          },
+          "merchant_balance_cents": {
+            "minimum": 0.0,
+            "title": "Merchant Balance Cents",
+            "type": "integer"
+          },
+          "orders": {
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            },
+            "title": "Orders",
+            "type": "array"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/Policy"
+          },
+          "session": {
+            "$ref": "#/components/schemas/SessionStatus"
+          }
+        },
+        "required": [
+          "session",
+          "case",
+          "orders",
+          "policy",
+          "merchant_balance_cents",
+          "customer_balance_cents"
+        ],
+        "title": "Snapshot",
+        "type": "object"
+      },
+      "Sources": {
+        "additionalProperties": false,
+        "properties": {
+          "calculation_version": {
+            "default": "largest-remainder-prefix-v1-development",
+            "title": "Calculation Version",
+            "type": "string"
+          },
+          "contract_source": {
+            "const": "candidate_pending_review",
+            "default": "candidate_pending_review",
+            "title": "Contract Source",
+            "type": "string"
+          },
+          "execution_source": {
+            "default": "scripted_test",
+            "enum": [
+              "scripted_test",
+              "mock_agent",
+              "observed_agent_execution"
+            ],
+            "title": "Execution Source",
+            "type": "string"
+          },
+          "fixture_source": {
+            "const": "development_only",
+            "default": "development_only",
+            "title": "Fixture Source",
+            "type": "string"
+          },
+          "recovery_source": {
+            "const": "none",
+            "default": "none",
+            "title": "Recovery Source",
+            "type": "string"
+          }
+        },
+        "title": "Sources",
+        "type": "object"
+      },
+      "ToolEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "business_time": {
+            "title": "Business Time",
+            "type": "string"
+          },
+          "call_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call Id"
+          },
+          "case_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Case Id",
+            "type": "string"
+          },
+          "client_receipt": {
+            "const": "unknown",
+            "default": "unknown",
+            "title": "Client Receipt",
+            "type": "string"
+          },
+          "committed_amount_cents": {
+            "minimum": 0.0,
+            "title": "Committed Amount Cents",
+            "type": "integer"
+          },
+          "config_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Config Id",
+            "type": "string"
+          },
+          "episode_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Episode Id",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Error"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "event_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "experiment_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Experiment Id",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idempotency Key"
+          },
+          "order_version_after": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Version After"
+          },
+          "order_version_before": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Version Before"
+          },
+          "raw_arguments": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Arguments"
+          },
+          "recorded_at": {
+            "title": "Recorded At",
+            "type": "string"
+          },
+          "request_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "session_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "session_version_after": {
+            "minimum": 1.0,
+            "title": "Session Version After",
+            "type": "integer"
+          },
+          "session_version_before": {
+            "minimum": 1.0,
+            "title": "Session Version Before",
+            "type": "integer"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/Sources"
+          },
+          "status": {
+            "enum": [
+              "succeeded",
+              "rejected",
+              "replayed",
+              "error"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "ticket_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Id"
+          },
+          "tool_name": {
+            "title": "Tool Name",
+            "type": "string"
+          },
+          "transaction_id": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Id"
+          },
+          "validated_arguments": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validated Arguments"
+          }
+        },
+        "required": [
+          "event_id",
+          "request_id",
+          "experiment_id",
+          "episode_id",
+          "case_id",
+          "session_id",
+          "config_id",
+          "seq",
+          "recorded_at",
+          "business_time",
+          "tool_name",
+          "call_id",
+          "raw_arguments",
+          "validated_arguments",
+          "idempotency_key",
+          "status",
+          "session_version_before",
+          "session_version_after",
+          "order_version_before",
+          "order_version_after",
+          "transaction_id",
+          "committed_amount_cents",
+          "result",
+          "error",
+          "sources"
+        ],
+        "title": "ToolEvent",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "development_only fixtures; seven tools; execution source is caller-declared, not model-run proof",
+    "title": "AgentShield B candidate sandbox",
+    "version": "bc-0.3-candidate"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/admin/fixtures": {
+      "get": {
+        "operationId": "fixtures_api_v1_admin_fixtures_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FixtureCatalog"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Fixtures"
+      }
+    },
+    "/api/v1/admin/sessions": {
+      "get": {
+        "operationId": "sessions_api_v1_admin_sessions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Sessions"
+      }
+    },
+    "/api/v1/admin/sessions/{session_id}/events": {
+      "get": {
+        "operationId": "events_api_v1_admin_sessions__session_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after_seq",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "After Seq",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 100,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Events"
+      }
+    },
+    "/api/v1/admin/sessions/{session_id}/evidence": {
+      "get": {
+        "operationId": "evidence_api_v1_admin_sessions__session_id__evidence_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceBundle"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Evidence"
+      }
+    },
+    "/api/v1/admin/sessions/{session_id}/ledger": {
+      "get": {
+        "operationId": "ledger_api_v1_admin_sessions__session_id__ledger_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ledger"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Ledger"
+      }
+    },
+    "/api/v1/sessions": {
+      "post": {
+        "operationId": "create_session_api_v1_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSession"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedSession"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Session"
+      }
+    },
+    "/api/v1/sessions/{session_id}/observation": {
+      "get": {
+        "operationId": "observation_api_v1_sessions__session_id__observation_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Case"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Observation"
+      }
+    },
+    "/api/v1/sessions/{session_id}/status": {
+      "get": {
+        "operationId": "status_api_v1_sessions__session_id__status_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Status"
+      }
+    },
+    "/api/v1/sessions/{session_id}/tools/finish_case": {
+      "post": {
+        "operationId": "finish_case",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Call-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Call-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinishRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Record a declared outcome without changing transactions."
+      }
+    },
+    "/api/v1/sessions/{session_id}/tools/get_business_policy": {
+      "post": {
+        "operationId": "get_business_policy",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Call-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Call-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Policy"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read fixed development business rules."
+      }
+    },
+    "/api/v1/sessions/{session_id}/tools/get_case": {
+      "post": {
+        "operationId": "get_case",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Call-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Call-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Case"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read public case and messages."
+      }
+    },
+    "/api/v1/sessions/{session_id}/tools/get_order": {
+      "post": {
+        "operationId": "get_order",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Call-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Call-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read one authorized order."
+      }
+    },
+    "/api/v1/sessions/{session_id}/tools/get_refund_history": {
+      "post": {
+        "operationId": "get_refund_history",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Call-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Call-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HistoryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/History"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read committed refunds and recover a request key."
+      }
+    },
+    "/api/v1/sessions/{session_id}/tools/submit_human_review": {
+      "post": {
+        "operationId": "submit_human_review",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Call-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Call-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HumanReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HumanReviewTicket"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create an open review ticket from public evidence; no adjudication or money movement."
+      }
+    },
+    "/api/v1/sessions/{session_id}/tools/submit_refund": {
+      "post": {
+        "operationId": "submit_refund",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Call-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Call-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Refund"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Refund item quantities to the original simulated channel."
+      }
+    }
+  }
+}

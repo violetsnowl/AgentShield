@@ -1,0 +1,70 @@
+[
+  {
+    "name": "fixed_tenant_cannot_be_overridden_by_query",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "all_fixed_tenant": true
+    }
+  },
+  {
+    "name": "no_tool_quote_or_generic_admin_proxy",
+    "pass": true,
+    "details": {
+      "statuses": [
+        404,
+        404,
+        404,
+        404
+      ],
+      "facts_unchanged": true
+    }
+  },
+  {
+    "name": "forbidden_browser_sources_cannot_create",
+    "pass": true,
+    "details": {
+      "statuses": [
+        403,
+        403,
+        403,
+        403
+      ],
+      "no_session_created": true
+    }
+  },
+  {
+    "name": "readonly_paths_keep_headers_and_funds",
+    "pass": true,
+    "details": {
+      "resources": [
+        "evidence",
+        "events",
+        "ledger"
+      ],
+      "no_B_credential_leak": true,
+      "facts_unchanged": true
+    }
+  },
+  {
+    "name": "cross_tenant_evidence_events_ledger_denied",
+    "pass": true,
+    "details": {
+      "statuses": [
+        404,
+        404,
+        404
+      ]
+    }
+  },
+  {
+    "name": "logout_revokes_cookie_server_side",
+    "pass": true,
+    "details": {
+      "revoked_cookie_status": 401,
+      "grant_reusable": false
+    }
+  }
+]
+D:\作业合集\大三\智能+保险\agentshield\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa

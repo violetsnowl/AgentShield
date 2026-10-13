@@ -1,0 +1,13 @@
+{
+  "command": [
+    "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+    "-m",
+    "venv",
+    "D:\\作业合集\\大三\\智能+保险\\agentshield\\var\\stage05-reception\\.venv"
+  ],
+  "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield\\var\\stage05-reception",
+  "started_at": "2026-10-12T14:36:57.810611+00:00",
+  "exit_code": 0,
+  "output": "",
+  "same_machine": true
+}

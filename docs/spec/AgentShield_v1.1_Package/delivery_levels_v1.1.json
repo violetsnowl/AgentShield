@@ -1,0 +1,233 @@
+{
+  "document_version": "V1.1",
+  "document_only": true,
+  "implementation_status": "not_verified",
+  "schedule_timezone": "Asia/Shanghai",
+  "user_provided_deadline": "2026-10-18T12:00:00+08:00",
+  "notes": [
+    "阈值仅为工程完成要求，不代表统计充分性或赛事官方标准。",
+    "真实运行、基线、Mock、预试、重试与回放分开计数。",
+    "环境扰动按case固定；改变环境种子后基线计数需同步修改。",
+    "所有级别正式交付均须通过适用的J4发布检查。"
+  ],
+  "profiles": {
+    "L0": {
+      "label": "连通验证",
+      "submittable_complete": false,
+      "development_cases": 12,
+      "real_development_smoke_runs": 3
+    },
+    "L1": {
+      "label": "最低完整交付",
+      "normal_cases": 24,
+      "stress_cases": 4,
+      "real_agent_configs": 1,
+      "repeats": 2,
+      "real_formal_episodes": 56,
+      "normal_real_episodes": 48,
+      "stress_real_episodes": 8,
+      "rule_baseline_runs": 28,
+      "normal_groups": 4,
+      "estimation_cases_per_group": 3,
+      "holdout_cases_per_group": 3
+    },
+    "L2": {
+      "label": "标准参赛版",
+      "normal_cases": 48,
+      "stress_cases": 12,
+      "real_agent_configs": 2,
+      "repeats": 2,
+      "real_formal_episodes": 240,
+      "normal_real_episodes": 192,
+      "stress_real_episodes": 48,
+      "rule_baseline_runs": 60,
+      "normal_groups": 4,
+      "estimation_cases_per_group": 6,
+      "holdout_cases_per_group": 6
+    },
+    "L3": {
+      "label": "可选增强",
+      "normal_cases": 96,
+      "stress_cases": 24,
+      "real_agent_configs": 2,
+      "repeats": 3,
+      "real_formal_episodes": 720,
+      "normal_real_episodes": 576,
+      "stress_real_episodes": 144,
+      "rule_baseline_runs": 120,
+      "normal_groups": 4,
+      "estimation_cases_per_group": 12,
+      "holdout_cases_per_group": 12,
+      "optional": true
+    }
+  },
+  "gates": {
+    "J0": "契约验收",
+    "J1": "Mock工程闭环",
+    "J2": "真实模型完整闭环",
+    "J3": "R01-R09通过且R10完整初版齐备；只称发布候选",
+    "J4": "R01-R10最终通过；确认正式交付版本"
+  },
+  "redlines": [
+    {
+      "id": "R01",
+      "status": "not_checked"
+    },
+    {
+      "id": "R02",
+      "status": "not_checked"
+    },
+    {
+      "id": "R03",
+      "status": "not_checked"
+    },
+    {
+      "id": "R04",
+      "status": "not_checked"
+    },
+    {
+      "id": "R05",
+      "status": "not_checked"
+    },
+    {
+      "id": "R06",
+      "status": "not_checked"
+    },
+    {
+      "id": "R07",
+      "status": "not_checked"
+    },
+    {
+      "id": "R08",
+      "status": "not_checked"
+    },
+    {
+      "id": "R09",
+      "status": "not_checked"
+    },
+    {
+      "id": "R10",
+      "status": "not_checked"
+    }
+  ],
+  "checks": [
+    {
+      "id": "Q01",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q02",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q03",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q04",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q05",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q06",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q07",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q08",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q09",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q10",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q11",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q12",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q13",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q14",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q15",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q16",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q17",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q18",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q19",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q20",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q21",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q22",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q23",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q24",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q25",
+      "status": "not_checked"
+    },
+    {
+      "id": "Q26",
+      "status": "not_checked"
+    }
+  ],
+  "paid_runs": {
+    "enable_paid_runs": false,
+    "max_cost": 0
+  },
+  "authoritative_module_owners": {
+    "business_and_insurance": "A",
+    "sandbox_and_http": "B",
+    "runner_and_independent_evaluator": "C",
+    "frontend_and_release_coordination": "D",
+    "gold_custody": [
+      "A",
+      "D"
+    ]
+  }
+}

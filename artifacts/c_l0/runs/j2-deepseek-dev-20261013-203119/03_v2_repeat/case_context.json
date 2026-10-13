@@ -1,0 +1,136 @@
+{
+  "business_initial_hash": "3a783be958ecfefc3c1eb80970e725d603aa7d4b388171f61cc04013e1a283ae",
+  "canonical_initial": {
+    "business_time": "2026-10-11T12:00:00+08:00",
+    "canonical_version": "business-initial-v1",
+    "case": {
+      "candidate_order_ids": [
+        "order-bundle"
+      ],
+      "customer_id": "customer-main",
+      "evidence_status": "development_public_facts",
+      "messages": [
+        {
+          "confirmation": null,
+          "customer_id": "customer-main",
+          "message_id": "message-question",
+          "text": "包装袋是否满足退款资格仍需核实，此消息不是退款授权。"
+        },
+        {
+          "confirmation": {
+            "items": [
+              {
+                "item_id": "item-cup",
+                "quantity": 2
+              },
+              {
+                "item_id": "item-coaster",
+                "quantity": 2
+              }
+            ],
+            "order_id": "order-bundle"
+          },
+          "customer_id": "customer-main",
+          "message_id": "message-confirm",
+          "text": "确认杯子累计最多两件、杯垫累计最多两件退款，不包含包装袋。"
+        }
+      ],
+      "request": "申请部分商品退款；请使用公开确认范围，包装袋资格未满足。"
+    },
+    "customer_balance_cents": 0,
+    "environment_version": "sandbox-rules-v1-development",
+    "merchant_balance_cents": 1001,
+    "orders": [
+      {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "customer-main",
+        "items": [
+          {
+            "allocated_paid_cents": 500,
+            "eligible": true,
+            "gross_cents": 501,
+            "item_id": "item-cup",
+            "name": "开发杯子",
+            "quantity": 2,
+            "refundable_quantity": 2,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 300,
+            "eligible": true,
+            "gross_cents": 300,
+            "item_id": "item-coaster",
+            "name": "开发杯垫",
+            "quantity": 3,
+            "refundable_quantity": 3,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 201,
+            "eligible": false,
+            "gross_cents": 201,
+            "item_id": "item-bag",
+            "name": "资格未满足的开发包装袋",
+            "quantity": 1,
+            "refundable_quantity": 0,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          }
+        ],
+        "order_id": "order-bundle",
+        "original_channel": "simulated_original",
+        "paid_cents": 1001,
+        "refunded_cents": 0,
+        "remaining_cents": 1001,
+        "status": "paid",
+        "tenant_id": "template-tenant",
+        "version": 1
+      }
+    ],
+    "policy": {
+      "allocation_version": "largest-remainder-prefix-v1-development",
+      "development_only": true,
+      "policy_version": "dev-policy-v2",
+      "rules": [
+        "仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。",
+        "必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。",
+        "金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。",
+        "这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。",
+        "事实不足时提交人工审核工单；工单不产生裁决或资金变化。"
+      ]
+    }
+  },
+  "case_id": "dev-case-refund-v2",
+  "environment_version": "sandbox-rules-v1-development",
+  "family_id": "dev-refund-engineering",
+  "fixture_content_sha256": "3009f73810169e038742f39570035ec71b9ea21551510a10d2194f09a3a5c628",
+  "fixture_id": "dev-refund-v2",
+  "fixture_source": "development_only",
+  "fixture_version": "dev-refund-v2-r1",
+  "hash_algorithm": "sha256-canonical-json-v1",
+  "identity_semantics": "development_case_candidate",
+  "object_mapping": {
+    "customers": {
+      "customer-main": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014"
+    },
+    "items": {
+      "item-bag": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-3",
+      "item-coaster": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+      "item-cup": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+    },
+    "messages": {
+      "message-confirm": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+      "message-question": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+    },
+    "orders": {
+      "order-bundle": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+    }
+  },
+  "parent_case_id": null,
+  "policy_version": "dev-policy-v2",
+  "review_status": "pending_A_C_D_review",
+  "source_case_id": "dev-case-refund-v2"
+}

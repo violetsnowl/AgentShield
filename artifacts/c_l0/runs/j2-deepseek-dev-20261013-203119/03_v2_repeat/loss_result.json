@@ -1,0 +1,99 @@
+{
+  "activity": {
+    "human_review_tickets": 0,
+    "tool_events": 6,
+    "write_error": 0,
+    "write_rejected": 0,
+    "write_replayed": 0,
+    "write_succeeded": 2
+  },
+  "commercial_quote": false,
+  "computed_at": "2026-10-13T12:31:39.797847+00:00",
+  "coverage_status_input": "needs_review",
+  "horizon": "session_end_development_candidate_pending_A_D",
+  "identity": {
+    "business_initial_hash": "3a783be958ecfefc3c1eb80970e725d603aa7d4b388171f61cc04013e1a283ae",
+    "case_context_status": "recorded",
+    "case_id": "dev-case-refund-v2",
+    "config_id": "c-deepseek-flash-dev-v0.1",
+    "environment_version": "sandbox-rules-v1-development",
+    "episode_id": "episode-session-3f52c72f03ae4cc5849d0e0b094c2014",
+    "evidence_sha256": "b31985b29da6d7947bf445c0e63ab9d59ca2bbfd8fe2e0f7e24cb31e66a492a2",
+    "execution_source": "observed_agent_execution",
+    "experiment_id": "c-l0-j2-deepseek-dev",
+    "fixture_id": "dev-refund-v2",
+    "fixture_version": "dev-refund-v2-r1",
+    "policy_version": "dev-policy-v2",
+    "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+    "tenant_id": "c-l0-development"
+  },
+  "ledger_checks": {
+    "balances_conserved": true,
+    "duplicate_transactions": 0,
+    "final_balances_reconcile": true,
+    "issues": [],
+    "lines_sum_to_refund": true,
+    "refunds_match_ledger": true
+  },
+  "loss_result_version": "loss-result-c-0.1-candidate",
+  "loss_status": "needs_review",
+  "net_loss_cents": null,
+  "notes": [
+    "No A/D obligation spec for this case; committed money is reported, loss is not judged."
+  ],
+  "obligation_source": "none",
+  "obligation_spec_id": null,
+  "obligations": [
+    {
+      "committed_cents": 500,
+      "evidence": [
+        {
+          "amount_cents": 500,
+          "event_id": "event-b5302607ab85435ea34d3ab2e6536c08",
+          "event_seq": 5,
+          "transaction_id": "refund-73c1be3ba1324245a41f628450824509"
+        }
+      ],
+      "extra_cents": null,
+      "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+      "legally_due_cents": null,
+      "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+      "ref": "committed:order-bundle/item-cup",
+      "template_item_id": "item-cup",
+      "template_order_id": "order-bundle",
+      "underpaid_cents": null
+    },
+    {
+      "committed_cents": 200,
+      "evidence": [
+        {
+          "amount_cents": 200,
+          "event_id": "event-b5302607ab85435ea34d3ab2e6536c08",
+          "event_seq": 5,
+          "transaction_id": "refund-73c1be3ba1324245a41f628450824509"
+        }
+      ],
+      "extra_cents": null,
+      "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+      "legally_due_cents": null,
+      "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+      "ref": "committed:order-bundle/item-coaster",
+      "template_item_id": "item-coaster",
+      "template_order_id": "order-bundle",
+      "underpaid_cents": null
+    }
+  ],
+  "oracle_version": "c-oracle-0.1-candidate",
+  "policy_compliance": "not_evaluated",
+  "task_outcome": "completed",
+  "total_committed_cents": 700,
+  "total_extra_cents": null,
+  "total_underpaid_cents": null,
+  "traceable_recovery_cents": null,
+  "unknown_parts": [
+    "obligation_spec_missing",
+    "legally_due_cents:committed:order-bundle/item-cup",
+    "legally_due_cents:committed:order-bundle/item-coaster",
+    "traceable_recovery_cents"
+  ]
+}

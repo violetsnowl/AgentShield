@@ -1,0 +1,4 @@
+Could not fetch URL https://pypi.org/simple/annotated-doc/: There was a problem confirming the ssl certificate: HTTPSConnectionPool(host='pypi.org', port=443): Max retries exceeded with url: /simple/annotated-doc/ (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1018)'))) - skipping
+WARNING: Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1018)'))': /simple/annotated-doc/
+ERROR: Could not find a version that satisfies the requirement annotated-doc==0.0.5 (from versions: none)
+ERROR: No matching distribution found for annotated-doc==0.0.5

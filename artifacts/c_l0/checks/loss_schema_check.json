@@ -1,0 +1,23 @@
+{
+  "label": "loss_schema_check",
+  "started_at": "2026-10-13T12:22:38.911124+00:00",
+  "finished_at": "2026-10-13T12:22:39.166137+00:00",
+  "command": [
+    "D:\\work\\26fw\\智能+保险\\.venv\\Scripts\\python.exe",
+    "-m",
+    "evaluator.export_schema",
+    "--check"
+  ],
+  "exit_code": 0,
+  "status": "pass",
+  "python": "3.13.2 (tags/v3.13.2:4f8bb39, Feb  4 2025, 15:23:48) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "LossResult schema matches evaluator/models.py\n"
+}

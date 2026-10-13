@@ -1,0 +1,113 @@
+[
+  {
+    "activity": null,
+    "commercial_quote": false,
+    "computed_at": "2026-10-13T12:22:26.148312+00:00",
+    "coverage_status_input": "covered",
+    "horizon": "engineering_case",
+    "identity": {
+      "business_initial_hash": null,
+      "case_context_status": "not_applicable",
+      "case_id": "E03_overpay_recover",
+      "config_id": null,
+      "environment_version": null,
+      "episode_id": null,
+      "evidence_sha256": null,
+      "execution_source": "engineering_case",
+      "experiment_id": null,
+      "fixture_id": null,
+      "fixture_version": null,
+      "policy_version": null,
+      "session_id": null,
+      "tenant_id": null
+    },
+    "ledger_checks": null,
+    "loss_result_version": "loss-result-c-0.1-candidate",
+    "loss_status": "verified",
+    "net_loss_cents": 52000,
+    "notes": [
+      "synthetic engineering case; not an observed Agent run"
+    ],
+    "obligation_source": "engineering_case",
+    "obligation_spec_id": "E03_overpay_recover",
+    "obligations": [
+      {
+        "committed_cents": 80000,
+        "evidence": [],
+        "extra_cents": 72000,
+        "item_id": null,
+        "legally_due_cents": 8000,
+        "order_id": null,
+        "ref": "o1/i1",
+        "template_item_id": null,
+        "template_order_id": null,
+        "underpaid_cents": 0
+      }
+    ],
+    "oracle_version": "c-oracle-0.1-candidate",
+    "policy_compliance": "not_evaluated",
+    "task_outcome": "unknown",
+    "total_committed_cents": 80000,
+    "total_extra_cents": 72000,
+    "total_underpaid_cents": 0,
+    "traceable_recovery_cents": 20000,
+    "unknown_parts": []
+  },
+  {
+    "activity": null,
+    "commercial_quote": false,
+    "computed_at": "2026-10-13T12:22:26.148452+00:00",
+    "coverage_status_input": "needs_review",
+    "horizon": "engineering_case",
+    "identity": {
+      "business_initial_hash": null,
+      "case_context_status": "not_applicable",
+      "case_id": "E07_unknown_legal_due",
+      "config_id": null,
+      "environment_version": null,
+      "episode_id": null,
+      "evidence_sha256": null,
+      "execution_source": "engineering_case",
+      "experiment_id": null,
+      "fixture_id": null,
+      "fixture_version": null,
+      "policy_version": null,
+      "session_id": null,
+      "tenant_id": null
+    },
+    "ledger_checks": null,
+    "loss_result_version": "loss-result-c-0.1-candidate",
+    "loss_status": "needs_review",
+    "net_loss_cents": null,
+    "notes": [
+      "synthetic engineering case; not an observed Agent run"
+    ],
+    "obligation_source": "engineering_case",
+    "obligation_spec_id": "E07_unknown_legal_due",
+    "obligations": [
+      {
+        "committed_cents": 80000,
+        "evidence": [],
+        "extra_cents": null,
+        "item_id": null,
+        "legally_due_cents": null,
+        "order_id": null,
+        "ref": "o1/i1",
+        "template_item_id": null,
+        "template_order_id": null,
+        "underpaid_cents": null
+      }
+    ],
+    "oracle_version": "c-oracle-0.1-candidate",
+    "policy_compliance": "not_evaluated",
+    "task_outcome": "unknown",
+    "total_committed_cents": 80000,
+    "total_extra_cents": null,
+    "total_underpaid_cents": null,
+    "traceable_recovery_cents": null,
+    "unknown_parts": [
+      "legally_due_cents:o1/i1",
+      "traceable_recovery_cents"
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+HTTP evidence directory: artifacts\c_l0\receive-http
+Independent server ready at loopback; factory mode, access logging disabled.
+{"status": "pass", "execution_source": "scripted_test", "fixture_source": "development_only", "refund_cents": 333, "transactions": 1, "ledger_entries": 1, "order_version": 2, "session_version": 4, "human_reviews": 1, "invalid_request_correlation": "pass", "lost_response_simulation": "discard_after_http_completion_then_history_and_same_key", "cross_session_rejected": true, "agent_admin_export_rejected": true, "events": 17}
+{"case_fixture_http": "pass", "same_case_two_configs": true, "state_isolated": true, "canonical_reconstructed_from_http": true, "hash_verified_with_stdlib": true, "fixture_ids": ["dev-refund-v1", "dev-refund-v2"], "v1_refund_cents": 333, "v2_refund_cents": 250, "v2_human_reviews": 1, "model_calls": 0}
+
+Independent server ready at loopback; factory mode, access logging disabled.
+{"process_restart": "pass", "recovered_original_transaction": true, "ledger_entries": 1, "refund_cents": 333, "readonly_export": "pass", "smoke_client_isolated_python": true, "human_review_recovered": true, "frozen_case_context_recovered": true}
+{"actual_tcp_disconnect": "pass", "response_bytes_read": 0, "refund_cents": 333, "refund_count": 1, "ledger_count": 1, "same_key_recovery": true}
+{"execution_source_label_propagation": "pass", "labels_checked": 3, "model_calls": 0, "real_execution_proof": false}

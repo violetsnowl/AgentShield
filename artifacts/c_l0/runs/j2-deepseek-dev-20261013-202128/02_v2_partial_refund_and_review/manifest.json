@@ -1,0 +1,9 @@
+{
+  "config_id": "c-deepseek-flash-dev-v0.1",
+  "fixture_id": "dev-refund-v2",
+  "label": "02_v2_partial_refund_and_review",
+  "run_status": "not_started",
+  "scenario": null,
+  "scheduled_at": "2026-10-13T12:21:29.881956+00:00",
+  "stop_reason": "paid_runs_not_authorized: C_ENABLE_PAID_RUNS is not true"
+}

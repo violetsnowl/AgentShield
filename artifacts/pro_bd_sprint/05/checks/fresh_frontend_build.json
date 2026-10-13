@@ -1,0 +1,24 @@
+{
+  "label": "fresh_frontend_build",
+  "started_at": "2026-10-12T14:39:55.094137+00:00",
+  "finished_at": "2026-10-12T14:39:57.090629+00:00",
+  "command": [
+    "npm.cmd",
+    "--prefix",
+    "frontend",
+    "run",
+    "build"
+  ],
+  "exit_code": 1,
+  "status": "fail",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "\n> agentshield-workbench@0.3.0 build\n> node scripts/generate-validator.mjs --check && tsc --noEmit && vite build\n\nBrowser validator matches the B schema; no runtime code generation.\nsrc/data.ts(1,22): error TS7016: Could not find a declaration file for module './generated/evidence.validator.cjs'. 'D:/作业合集/大三/智能+保险/agentshield/var/stage05-reception/frontend/src/generated/evidence.validator.cjs' implicitly has an 'any' type.\n"
+}

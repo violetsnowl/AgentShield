@@ -1,0 +1,3 @@
+{"adapter": {"faults": {}, "model": "mock-scripted", "paid": false, "provider": "mock", "scenario": "rejected_then_corrected"}, "attempt_seq": 1, "config_id": "c-mock-v0.1", "episode_id": "episode-session-72498793ac1c4ed0af1d95998b91e6e8", "injected_faults": {}, "kind": "episode_start", "recorded_at": "2026-10-13T12:11:13.393145+00:00", "session_id": "session-72498793ac1c4ed0af1d95998b91e6e8"}
+{"attempt_seq": 2, "kind": "model_request", "message_count": 2, "recorded_at": "2026-10-13T12:11:13.393523+00:00", "turn": 1}
+{"attempt_seq": 3, "error_type": "KeyError", "kind": "runner_exception", "recorded_at": "2026-10-13T12:11:13.393866+00:00"}

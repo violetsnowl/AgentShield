@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\作业合集\大三\智能+保险\agentshield\artifacts\pro_bd_sprint\05\support\verify_closeout.py", line 21, in <module>
+    assert z.read(name).decode("utf-8") in (root / name).read_text("utf-8"), name
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: frontend/README.md

@@ -1,0 +1,46 @@
+No broken requirements found.
+{
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "prefix": "D:\\\u4f5c\u4e1a\u5408\u96c6\\\u5927\u4e09\\\u667a\u80fd+\u4fdd\u9669\\agentshield\\.venv",
+  "packages": {
+    "annotated-doc": "0.0.5",
+    "annotated-types": "0.8.0",
+    "anyio": "4.15.1",
+    "attrs": "26.1.0",
+    "certifi": "2026.7.22",
+    "click": "8.5.0",
+    "fastapi": "0.136.0",
+    "h11": "0.16.0",
+    "httpcore": "1.0.9",
+    "httpx": "0.28.1",
+    "idna": "3.20",
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "pydantic": "2.13.3",
+    "pydantic_core": "2.46.3",
+    "referencing": "0.37.0",
+    "rpds-py": "2026.9.1",
+    "starlette": "1.7.0",
+    "typing-inspection": "0.4.4",
+    "typing_extensions": "4.16.0",
+    "uvicorn": "0.45.0"
+  },
+  "node": "v24.21.0",
+  "npm": "11.19.0",
+  "frontend_direct_packages": {
+    "ajv": "8.17.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "playwright-core": "1.62.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.4",
+    "vitest": "4.0.18"
+  },
+  "lock_sha256": {
+    "requirements.lock": "dc656653de7b86f9dde155a5532179d5028aa1551fcd62680ab8b36c40b6bda7",
+    "frontend/package-lock.json": "3da72fda2fc6b6fa9e4ab9913c2133081c9596f28237c6d1bf2edd0a6212274e"
+  }
+}

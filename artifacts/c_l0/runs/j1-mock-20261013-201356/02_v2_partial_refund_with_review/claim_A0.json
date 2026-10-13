@@ -1,0 +1,12 @@
+{
+  "claim_status": "needs_review",
+  "commercial_quote": false,
+  "contract_version": "research-refund-ai-v0.1-candidate",
+  "coverage_status": "needs_review",
+  "currency": "CNY",
+  "event_id": "episode-session-b93d67f71666445b93022ca62be3d6c5",
+  "loss_status": "needs_review",
+  "net_loss_cents": null,
+  "payout_cents": null,
+  "retained_loss_cents": null
+}

@@ -1,0 +1,26 @@
+{
+  "label": "browser_integration",
+  "started_at": "2026-10-12T14:34:19.420694+00:00",
+  "finished_at": "2026-10-12T14:34:28.152930+00:00",
+  "command": [
+    "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+    "-m",
+    "scripts.run_workbench_checks",
+    "--suite",
+    "stage04",
+    "--output-dir",
+    "artifacts/pro_bd_sprint/05/browser_integration"
+  ],
+  "exit_code": 0,
+  "status": "pass",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "{\"mode\":\"stage04_regression\",\"checks\":91,\"observations\":[{\"scenario\":\"delayed-real-create-then-legal-v2-import\",\"replay_preserved\":true,\"created_session\":\"session-68464b28db84487a9b65b1fdb0fd7264\"},{\"scenario\":\"refund-total\",\"rejected\":true},{\"scenario\":\"ledger-delta\",\"rejected\":true},{\"scenario\":\"missing-ledger\",\"rejected\":true},{\"scenario\":\"transaction-link\",\"rejected\":true},{\"scenario\":\"snapshot-case\",\"rejected\":true},{\"scenario\":\"snapshot-tenant\",\"rejected\":true}],\"errors\":[]}\n\n{\"real_B_HTTP\": \"pass\", \"two_fixtures\": true, \"browser_is_observer_only\": true, \"original_transactions_unchanged\": true, \"seeding_restart_idempotent\": true, \"model_calls\": 0, \"real_payment_calls\": 0}\n"
+}

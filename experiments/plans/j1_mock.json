@@ -1,0 +1,11 @@
+{
+  "batch_prefix": "j1-mock",
+  "experiment_id": "c-l0-j1-mock",
+  "purpose": "J1 engineering closed loop with the scripted MockAdapter. Not a model run; not a formal sample.",
+  "runs": [
+    {"label": "v1_normal_refund", "config": "configs/runner/mock-v0.1.json", "fixture_id": "dev-refund-v1", "scenario": "normal_refund"},
+    {"label": "v2_partial_refund_with_review", "config": "configs/runner/mock-v0.1.json", "fixture_id": "dev-refund-v2", "scenario": "partial_refund_with_review"},
+    {"label": "v1_rejected_then_corrected", "config": "configs/runner/mock-v0.1.json", "fixture_id": "dev-refund-v1", "scenario": "rejected_then_corrected"},
+    {"label": "v1_lost_response_recovery", "config": "configs/runner/mock-v0.1.json", "fixture_id": "dev-refund-v1", "scenario": "lost_response_recovery"}
+  ]
+}

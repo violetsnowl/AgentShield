@@ -1,0 +1,24 @@
+{
+  "label": "fresh_cli_startup_r3",
+  "started_at": "2026-10-12T14:46:42.743413+00:00",
+  "finished_at": "2026-10-12T14:46:52.609295+00:00",
+  "command": [
+    "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+    "-m",
+    "artifacts.pro_bd_sprint.05.support.check_startup",
+    "--output-dir",
+    "artifacts/pro_bd_sprint/05/fresh_browser_r3"
+  ],
+  "exit_code": 0,
+  "status": "pass",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "Development sessions seeded: 2; model/payment calls: 0\nWorkbench: http://127.0.0.1:50660 (local observer, one-hour access; Ctrl+C stops both services)\n{\"sessions\": [\"session-3619368ab7a241398a361b3db1b16cc4\", \"session-dbb7c5bd6e584114a9065427055c84ad\"], \"two_templates\": true, \"offline_loaded_page_schemas\": [1, 2, 3], \"browser\": \"155.0.4283.45\", \"index\": 0}\n\nDevelopment sessions seeded: 0; model/payment calls: 0\nWorkbench: http://127.0.0.1:53339 (local observer, one-hour access; Ctrl+C stops both services)\n{\"sessions\": [\"session-3619368ab7a241398a361b3db1b16cc4\", \"session-dbb7c5bd6e584114a9065427055c84ad\"], \"two_templates\": true, \"offline_loaded_page_schemas\": [1, 2, 3], \"browser\": \"155.0.4283.45\", \"index\": 1}\n\n{\"actual_CLI_startup\": true, \"restart_no_reseed\": true, \"same_machine\": true, \"different_operator\": false, \"model_calls\": 0, \"payment_calls\": 0}\n"
+}

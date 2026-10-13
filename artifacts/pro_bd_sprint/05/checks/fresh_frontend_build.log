@@ -1,0 +1,6 @@
+
+> agentshield-workbench@0.3.0 build
+> node scripts/generate-validator.mjs --check && tsc --noEmit && vite build
+
+Browser validator matches the B schema; no runtime code generation.
+src/data.ts(1,22): error TS7016: Could not find a declaration file for module './generated/evidence.validator.cjs'. 'D:/作业合集/大三/智能+保险/agentshield/var/stage05-reception/frontend/src/generated/evidence.validator.cjs' implicitly has an 'any' type.

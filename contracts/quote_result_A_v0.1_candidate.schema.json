@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agentshield:a:quote_result:v0.1-candidate",
+  "title": "AgentShield A0 QuoteResult research candidate (NOT frozen BD wire contract)",
+  "type": "object",
+  "required": ["schema_version","commercial_quote","status","scope","contract_version","data_version","calculation_version","run_manifest_ref","config_id","execution_source","reviewed_evidence","target_volume","target_weights","run_count","estimation","holdout","methods","holdout_evaluation","limitations"],
+  "properties": {
+    "schema_version": {"const":"a-quote-v0.1-candidate"},
+    "commercial_quote": {"const":false},
+    "status": {"enum":["illustrative","partial","insufficient_evidence","out_of_scope","invalid_input"]},
+    "scope":{"const":"ecommerce_refund_ai_agent_research_only"},
+    "contract_version":{"type":"string","minLength":1},
+    "data_version":{"type":"string","minLength":1},
+    "calculation_version":{"const":"actuarial-a0-0.1"},
+    "run_manifest_ref":{"type":"string","minLength":1},
+    "config_id":{"type":"string","minLength":1},
+    "execution_source":{"type":["string","null"],"enum":["scripted_test","mock_agent","observed_agent_execution","engineering_injection",null]},
+    "reviewed_evidence":{"type":"boolean"},
+    "target_volume":{"type":"integer","minimum":1},
+    "target_weights":{"type":"object","required":["whole_low","whole_high","partial_low","partial_high"],"additionalProperties":false,
+      "properties":{"whole_low":{"$ref":"#/$defs/decimalString"},"whole_high":{"$ref":"#/$defs/decimalString"},"partial_low":{"$ref":"#/$defs/decimalString"},"partial_high":{"$ref":"#/$defs/decimalString"}}},
+    "run_count":{"type":"integer","minimum":0},
+    "estimation":{"$ref":"#/$defs/stats"},
+    "holdout":{"$ref":"#/$defs/stats"},
+    "methods":{"type":"object","required":["B0","B1","B2"],"properties":{
+      "B0":{"$ref":"#/$defs/method"},"B1":{"$ref":"#/$defs/method"},
+      "B2":{"type":"object","required":["status","estimated_mean_cents_decimal","scenario_cost_cents_decimal"],"properties":{
+        "status":{"const":"not_fitted"},"estimated_mean_cents_decimal":{"type":"null"},"scenario_cost_cents_decimal":{"type":"null"}}}}},
+    "holdout_evaluation":{"type":"object","required":["reference_cents_decimal","B0_abs_error_cents_decimal","B1_abs_error_cents_decimal","interpretation"],
+      "properties":{"reference_cents_decimal":{"$ref":"#/$defs/nullableDecimal"},"B0_abs_error_cents_decimal":{"$ref":"#/$defs/nullableDecimal"},"B1_abs_error_cents_decimal":{"$ref":"#/$defs/nullableDecimal"},"interpretation":{"const":"holdout_sample_reference_not_population_truth"}}},
+    "limitations":{"type":"array","items":{"type":"string"}}
+  },
+  "additionalProperties":false,
+  "$defs":{
+    "decimalString":{"type":"string","pattern":"^(0|[1-9][0-9]*)(\\.[0-9]+)?$"},
+    "nullableDecimal":{"oneOf":[{"$ref":"#/$defs/decimalString"},{"type":"null"}]},
+    "method":{"type":"object","required":["label","estimated_mean_cents_decimal","scenario_cost_cents_decimal"],"properties":{
+      "label":{"type":"string"},"estimated_mean_cents_decimal":{"$ref":"#/$defs/nullableDecimal"},"scenario_cost_cents_decimal":{"$ref":"#/$defs/nullableDecimal"}},"additionalProperties":false},
+    "stats":{"type":"object","required":["case_count","assessed_case_count","unverified_case_count","stratum_counts","stratum_mean_cents_decimal","pooled_mean_cents_decimal","missing_target_strata"],"properties":{
+      "case_count":{"type":"integer","minimum":0},"assessed_case_count":{"type":"integer","minimum":0},"unverified_case_count":{"type":"integer","minimum":0},
+      "stratum_counts":{"type":"object","required":["whole_low","whole_high","partial_low","partial_high"],"additionalProperties":{"type":"integer","minimum":0}},
+      "stratum_mean_cents_decimal":{"type":"object","required":["whole_low","whole_high","partial_low","partial_high"],"additionalProperties":{"$ref":"#/$defs/nullableDecimal"}},
+      "pooled_mean_cents_decimal":{"$ref":"#/$defs/nullableDecimal"},
+      "missing_target_strata":{"type":"array","items":{"enum":["whole_low","whole_high","partial_low","partial_high"]}}
+    }}
+  }
+}

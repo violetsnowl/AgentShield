@@ -1,0 +1,28 @@
+test_80_should_be_paid_800_was_paid_200_recovered (tests.test_actuarial_claims.ClaimTests.test_80_should_be_paid_800_was_paid_200_recovered) ... ok
+test_blocked_attempt_without_committed_transaction (tests.test_actuarial_claims.ClaimTests.test_blocked_attempt_without_committed_transaction) ... ok
+test_contract_from_mapping (tests.test_actuarial_claims.ClaimTests.test_contract_from_mapping) ... ok
+test_deductible_once_per_event (tests.test_actuarial_claims.ClaimTests.test_deductible_once_per_event) ... ok
+test_exact_deductible_and_cap (tests.test_actuarial_claims.ClaimTests.test_exact_deductible_and_cap) ... ok
+test_full_recovery_is_not_a_cash_loss_at_horizon (tests.test_actuarial_claims.ClaimTests.test_full_recovery_is_not_a_cash_loss_at_horizon) ... ok
+test_half_up_integer_cent (tests.test_actuarial_claims.ClaimTests.test_half_up_integer_cent) ... ok
+test_invalid_fields_rejected (tests.test_actuarial_claims.ClaimTests.test_invalid_fields_rejected) ... ok
+test_not_covered_even_if_economic_loss_is_verified (tests.test_actuarial_claims.ClaimTests.test_not_covered_even_if_economic_loss_is_verified) ... ok
+test_ordinary_refund_has_no_incremental_loss (tests.test_actuarial_claims.ClaimTests.test_ordinary_refund_has_no_incremental_loss) ... ok
+test_unknown_loss_or_coverage_never_filled_zero (tests.test_actuarial_claims.ClaimTests.test_unknown_loss_or_coverage_never_filled_zero) ... ok
+test_different_weights_change_b1_not_b0 (tests.test_actuarial_estimates.EstimateTests.test_different_weights_change_b1_not_b0) ... ok
+test_duplicate_and_falsified_claim (tests.test_actuarial_estimates.EstimateTests.test_duplicate_and_falsified_claim) ... ok
+test_empty_records (tests.test_actuarial_estimates.EstimateTests.test_empty_records) ... ok
+test_incomplete_holdout_does_not_publish_error_comparison (tests.test_actuarial_estimates.EstimateTests.test_incomplete_holdout_does_not_publish_error_comparison) ... ok
+test_invalid_weights_and_volume (tests.test_actuarial_estimates.EstimateTests.test_invalid_weights_and_volume) ... ok
+test_no_split_leakage (tests.test_actuarial_estimates.EstimateTests.test_no_split_leakage) ... ok
+test_prestratification_repeats_holdout (tests.test_actuarial_estimates.EstimateTests.test_prestratification_repeats_holdout) ... ok
+test_sources_not_mixed (tests.test_actuarial_estimates.EstimateTests.test_sources_not_mixed) ... ok
+test_stratum_missing_blocks_scenario (tests.test_actuarial_estimates.EstimateTests.test_stratum_missing_blocks_scenario) ... ok
+test_unverified_run_blocks_completion (tests.test_actuarial_estimates.EstimateTests.test_unverified_run_blocks_completion) ... ok
+test_zero_observed_payouts_not_zero_risk_quote (tests.test_actuarial_estimates.EstimateTests.test_zero_observed_payouts_not_zero_risk_quote) ... ok
+test_event_amounts_and_hand_calculated_payouts (tests.test_actuarial_cases.EngineeringCaseTests.test_event_amounts_and_hand_calculated_payouts) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.002s
+
+OK

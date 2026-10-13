@@ -1,0 +1,24 @@
+{
+  "label": "http_native",
+  "started_at": "2026-10-12T14:33:43.070920+00:00",
+  "finished_at": "2026-10-12T14:33:47.353816+00:00",
+  "command": [
+    "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+    "-m",
+    "scripts.run_http_checks",
+    "--output-dir",
+    "artifacts/pro_bd_sprint/05/http_native_evidence"
+  ],
+  "exit_code": 0,
+  "status": "pass",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "HTTP evidence directory: artifacts\\pro_bd_sprint\\05\\http_native_evidence\nIndependent server ready at loopback; factory mode, access logging disabled.\n{\"status\": \"pass\", \"execution_source\": \"scripted_test\", \"fixture_source\": \"development_only\", \"refund_cents\": 333, \"transactions\": 1, \"ledger_entries\": 1, \"order_version\": 2, \"session_version\": 4, \"human_reviews\": 1, \"invalid_request_correlation\": \"pass\", \"lost_response_simulation\": \"discard_after_http_completion_then_history_and_same_key\", \"cross_session_rejected\": true, \"agent_admin_export_rejected\": true, \"events\": 17}\n{\"case_fixture_http\": \"pass\", \"same_case_two_configs\": true, \"state_isolated\": true, \"canonical_reconstructed_from_http\": true, \"hash_verified_with_stdlib\": true, \"fixture_ids\": [\"dev-refund-v1\", \"dev-refund-v2\"], \"v1_refund_cents\": 333, \"v2_refund_cents\": 250, \"v2_human_reviews\": 1, \"model_calls\": 0}\n\nIndependent server ready at loopback; factory mode, access logging disabled.\n{\"process_restart\": \"pass\", \"recovered_original_transaction\": true, \"ledger_entries\": 1, \"refund_cents\": 333, \"readonly_export\": \"pass\", \"smoke_client_isolated_python\": true, \"human_review_recovered\": true, \"frozen_case_context_recovered\": true}\n{\"actual_tcp_disconnect\": \"pass\", \"response_bytes_read\": 0, \"refund_cents\": 333, \"refund_count\": 1, \"ledger_count\": 1, \"same_key_recovery\": true}\n{\"execution_source_label_propagation\": \"pass\", \"labels_checked\": 3, \"model_calls\": 0, \"real_execution_proof\": false}\n"
+}

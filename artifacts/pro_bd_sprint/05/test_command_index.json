@@ -1,0 +1,424 @@
+[
+  {
+    "label": "backend",
+    "record": "artifacts/pro_bd_sprint/05/checks/backend.json",
+    "exit_code": 4294967295,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:32:25.147230+00:00"
+  },
+  {
+    "label": "backend_native",
+    "record": "artifacts/pro_bd_sprint/05/checks/backend_native.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:33:42.223507+00:00"
+  },
+  {
+    "label": "browser_integration",
+    "record": "artifacts/pro_bd_sprint/05/checks/browser_integration.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "scripts.run_workbench_checks",
+      "--suite",
+      "stage04",
+      "--output-dir",
+      "artifacts/pro_bd_sprint/05/browser_integration"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:34:19.420694+00:00"
+  },
+  {
+    "label": "browser_original",
+    "record": "artifacts/pro_bd_sprint/05/checks/browser_original.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "scripts.run_workbench_checks",
+      "--output-dir",
+      "artifacts/pro_bd_sprint/05/browser_original"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:34:27.536114+00:00"
+  },
+  {
+    "label": "closeout",
+    "record": "artifacts/pro_bd_sprint/05/checks/closeout.json",
+    "exit_code": 1,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "artifacts.pro_bd_sprint.05.support.verify_closeout"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:50:59.745114+00:00"
+  },
+  {
+    "label": "closeout_r2",
+    "record": "artifacts/pro_bd_sprint/05/checks/closeout_r2.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "artifacts.pro_bd_sprint.05.support.verify_closeout"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:51:22.785134+00:00"
+  },
+  {
+    "label": "contracts",
+    "record": "artifacts/pro_bd_sprint/05/checks/contracts.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "scripts.export_contracts",
+      "--with-openapi",
+      "--check"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:32:25.211798+00:00"
+  },
+  {
+    "label": "environment",
+    "record": "artifacts/pro_bd_sprint/05/checks/environment.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "artifacts/pro_bd_sprint/05/support/check_environment.py"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:38:26.806661+00:00"
+  },
+  {
+    "label": "fresh_backend_existing_python",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_backend_existing_python.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:39:53.619759+00:00"
+  },
+  {
+    "label": "fresh_cli_startup_existing_python",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_cli_startup_existing_python.json",
+    "exit_code": 1,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "artifacts.pro_bd_sprint.05.support.check_startup",
+      "--output-dir",
+      "artifacts/pro_bd_sprint/05/fresh_browser"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:41:06.627475+00:00"
+  },
+  {
+    "label": "fresh_cli_startup_r2",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_cli_startup_r2.json",
+    "exit_code": 1,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "artifacts.pro_bd_sprint.05.support.check_startup",
+      "--output-dir",
+      "artifacts/pro_bd_sprint/05/fresh_browser_r2"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:44:55.228031+00:00"
+  },
+  {
+    "label": "fresh_cli_startup_r3",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_cli_startup_r3.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "artifacts.pro_bd_sprint.05.support.check_startup",
+      "--output-dir",
+      "artifacts/pro_bd_sprint/05/fresh_browser_r3"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:46:42.743413+00:00"
+  },
+  {
+    "label": "fresh_contracts",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_contracts.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "scripts.export_contracts",
+      "--with-openapi",
+      "--check"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:47:29.964485+00:00"
+  },
+  {
+    "label": "fresh_environment_existing_python",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_environment_existing_python.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "artifacts/pro_bd_sprint/05/support/check_environment.py"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:47:49.778887+00:00"
+  },
+  {
+    "label": "fresh_frontend_build",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_frontend_build.json",
+    "exit_code": 1,
+    "command": [
+      "npm.cmd",
+      "--prefix",
+      "frontend",
+      "run",
+      "build"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:39:55.094137+00:00"
+  },
+  {
+    "label": "fresh_frontend_build_r2",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_frontend_build_r2.json",
+    "exit_code": 0,
+    "command": [
+      "npm.cmd",
+      "--prefix",
+      "frontend",
+      "run",
+      "build"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:40:35.520205+00:00"
+  },
+  {
+    "label": "fresh_frontend_contract",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_frontend_contract.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "scripts.export_frontend_contract",
+      "--check"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:47:29.961491+00:00"
+  },
+  {
+    "label": "fresh_frontend_tests",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_frontend_tests.json",
+    "exit_code": 0,
+    "command": [
+      "npm.cmd",
+      "--prefix",
+      "frontend",
+      "test"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:39:57.991286+00:00"
+  },
+  {
+    "label": "fresh_http_existing_python",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_http_existing_python.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "scripts.run_http_checks",
+      "--output-dir",
+      "artifacts/pro_bd_sprint/05/fresh_http"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:41:04.349022+00:00"
+  },
+  {
+    "label": "fresh_npm_offline",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_npm_offline.json",
+    "exit_code": 0,
+    "command": [
+      "npm.cmd",
+      "--prefix",
+      "frontend",
+      "ci",
+      "--offline",
+      "--ignore-scripts",
+      "--no-audit",
+      "--no-fund"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield\\var\\stage05-reception",
+    "started_at": "2026-10-12T14:37:01.100404+00:00"
+  },
+  {
+    "label": "fresh_pip_install",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_pip_install.json",
+    "exit_code": 1,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\var\\stage05-reception\\.venv\\Scripts\\python.exe",
+      "-m",
+      "pip",
+      "install",
+      "--disable-pip-version-check",
+      "--timeout",
+      "15",
+      "--retries",
+      "1",
+      "-r",
+      "requirements.lock"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield\\var\\stage05-reception",
+    "started_at": "2026-10-12T14:37:10.043431+00:00"
+  },
+  {
+    "label": "fresh_venv",
+    "record": "artifacts/pro_bd_sprint/05/checks/fresh_venv.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "venv",
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\var\\stage05-reception\\.venv"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield\\var\\stage05-reception",
+    "started_at": "2026-10-12T14:36:57.810611+00:00"
+  },
+  {
+    "label": "frontend_build",
+    "record": "artifacts/pro_bd_sprint/05/checks/frontend_build.json",
+    "exit_code": 0,
+    "command": [
+      "npm.cmd",
+      "--prefix",
+      "frontend",
+      "run",
+      "build"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:33:01.566079+00:00"
+  },
+  {
+    "label": "frontend_contract",
+    "record": "artifacts/pro_bd_sprint/05/checks/frontend_contract.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "scripts.export_frontend_contract",
+      "--check"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:32:25.188168+00:00"
+  },
+  {
+    "label": "frontend_tests",
+    "record": "artifacts/pro_bd_sprint/05/checks/frontend_tests.json",
+    "exit_code": 1,
+    "command": [
+      "npm.cmd",
+      "--prefix",
+      "frontend",
+      "test"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:32:25.145220+00:00"
+  },
+  {
+    "label": "frontend_tests_native",
+    "record": "artifacts/pro_bd_sprint/05/checks/frontend_tests_native.json",
+    "exit_code": 0,
+    "command": [
+      "npm.cmd",
+      "--prefix",
+      "frontend",
+      "test"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:32:53.927513+00:00"
+  },
+  {
+    "label": "frontend_types",
+    "record": "artifacts/pro_bd_sprint/05/checks/frontend_types.json",
+    "exit_code": 0,
+    "command": [
+      "npm.cmd",
+      "--prefix",
+      "frontend",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:39:48.058792+00:00"
+  },
+  {
+    "label": "http",
+    "record": "artifacts/pro_bd_sprint/05/checks/http.json",
+    "exit_code": 1,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "scripts.run_http_checks",
+      "--output-dir",
+      "artifacts/pro_bd_sprint/05/http_evidence"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:32:25.134591+00:00"
+  },
+  {
+    "label": "http_native",
+    "record": "artifacts/pro_bd_sprint/05/checks/http_native.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "-m",
+      "scripts.run_http_checks",
+      "--output-dir",
+      "artifacts/pro_bd_sprint/05/http_native_evidence"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:33:43.070920+00:00"
+  },
+  {
+    "label": "observer_security",
+    "record": "artifacts/pro_bd_sprint/05/checks/observer_security.json",
+    "exit_code": 0,
+    "command": [
+      "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+      "docs/audit/AgentShield_Stage03_Review_2026-10-12/observer_extra_probes.py",
+      "--project",
+      ".",
+      "--output",
+      "artifacts/pro_bd_sprint/05/observer_security.json"
+    ],
+    "cwd": "D:\\作业合集\\大三\\智能+保险\\agentshield",
+    "started_at": "2026-10-12T14:35:13.265360+00:00"
+  }
+]

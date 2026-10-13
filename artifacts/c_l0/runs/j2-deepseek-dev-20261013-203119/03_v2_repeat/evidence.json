@@ -1,0 +1,869 @@
+{
+  "case_context": {
+    "business_initial_hash": "3a783be958ecfefc3c1eb80970e725d603aa7d4b388171f61cc04013e1a283ae",
+    "canonical_initial": {
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "canonical_version": "business-initial-v1",
+      "case": {
+        "candidate_order_ids": [
+          "order-bundle"
+        ],
+        "customer_id": "customer-main",
+        "evidence_status": "development_public_facts",
+        "messages": [
+          {
+            "confirmation": null,
+            "customer_id": "customer-main",
+            "message_id": "message-question",
+            "text": "包装袋是否满足退款资格仍需核实，此消息不是退款授权。"
+          },
+          {
+            "confirmation": {
+              "items": [
+                {
+                  "item_id": "item-cup",
+                  "quantity": 2
+                },
+                {
+                  "item_id": "item-coaster",
+                  "quantity": 2
+                }
+              ],
+              "order_id": "order-bundle"
+            },
+            "customer_id": "customer-main",
+            "message_id": "message-confirm",
+            "text": "确认杯子累计最多两件、杯垫累计最多两件退款，不包含包装袋。"
+          }
+        ],
+        "request": "申请部分商品退款；请使用公开确认范围，包装袋资格未满足。"
+      },
+      "customer_balance_cents": 0,
+      "environment_version": "sandbox-rules-v1-development",
+      "merchant_balance_cents": 1001,
+      "orders": [
+        {
+          "allocation_version": "largest-remainder-prefix-v1-development",
+          "currency": "CNY",
+          "customer_id": "customer-main",
+          "items": [
+            {
+              "allocated_paid_cents": 500,
+              "eligible": true,
+              "gross_cents": 501,
+              "item_id": "item-cup",
+              "name": "开发杯子",
+              "quantity": 2,
+              "refundable_quantity": 2,
+              "refunded_cents": 0,
+              "refunded_quantity": 0
+            },
+            {
+              "allocated_paid_cents": 300,
+              "eligible": true,
+              "gross_cents": 300,
+              "item_id": "item-coaster",
+              "name": "开发杯垫",
+              "quantity": 3,
+              "refundable_quantity": 3,
+              "refunded_cents": 0,
+              "refunded_quantity": 0
+            },
+            {
+              "allocated_paid_cents": 201,
+              "eligible": false,
+              "gross_cents": 201,
+              "item_id": "item-bag",
+              "name": "资格未满足的开发包装袋",
+              "quantity": 1,
+              "refundable_quantity": 0,
+              "refunded_cents": 0,
+              "refunded_quantity": 0
+            }
+          ],
+          "order_id": "order-bundle",
+          "original_channel": "simulated_original",
+          "paid_cents": 1001,
+          "refunded_cents": 0,
+          "remaining_cents": 1001,
+          "status": "paid",
+          "tenant_id": "template-tenant",
+          "version": 1
+        }
+      ],
+      "policy": {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "development_only": true,
+        "policy_version": "dev-policy-v2",
+        "rules": [
+          "仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。",
+          "必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。",
+          "金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。",
+          "这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。",
+          "事实不足时提交人工审核工单；工单不产生裁决或资金变化。"
+        ]
+      }
+    },
+    "case_id": "dev-case-refund-v2",
+    "environment_version": "sandbox-rules-v1-development",
+    "family_id": "dev-refund-engineering",
+    "fixture_content_sha256": "3009f73810169e038742f39570035ec71b9ea21551510a10d2194f09a3a5c628",
+    "fixture_id": "dev-refund-v2",
+    "fixture_source": "development_only",
+    "fixture_version": "dev-refund-v2-r1",
+    "hash_algorithm": "sha256-canonical-json-v1",
+    "identity_semantics": "development_case_candidate",
+    "object_mapping": {
+      "customers": {
+        "customer-main": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014"
+      },
+      "items": {
+        "item-bag": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-3",
+        "item-coaster": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+        "item-cup": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+      },
+      "messages": {
+        "message-confirm": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+        "message-question": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+      },
+      "orders": {
+        "order-bundle": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+      }
+    },
+    "parent_case_id": null,
+    "policy_version": "dev-policy-v2",
+    "review_status": "pending_A_C_D_review",
+    "source_case_id": "dev-case-refund-v2"
+  },
+  "case_context_status": "recorded",
+  "contract_version": "bc-0.3-candidate",
+  "events": [
+    {
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "call_id": "c.c81ff6a1.1",
+      "case_id": "dev-case-refund-v2",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 0,
+      "config_id": "c-deepseek-flash-dev-v0.1",
+      "episode_id": "episode-session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "error": null,
+      "event_id": "event-6d32a751923246c9ae7a35d37ef94ce5",
+      "experiment_id": "c-l0-j2-deepseek-dev",
+      "idempotency_key": null,
+      "order_version_after": null,
+      "order_version_before": null,
+      "raw_arguments": {},
+      "recorded_at": "2026-10-13T12:31:35.794696+00:00",
+      "request_id": "request-2c3842b8198c486983782a3f93952130",
+      "result": {
+        "candidate_order_ids": [
+          "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+        ],
+        "case_id": "dev-case-refund-v2",
+        "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+        "evidence_status": "development_public_facts",
+        "messages": [
+          {
+            "confirmation": null,
+            "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+            "message_id": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+            "text": "包装袋是否满足退款资格仍需核实，此消息不是退款授权。"
+          },
+          {
+            "confirmation": {
+              "items": [
+                {
+                  "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+                  "quantity": 2
+                },
+                {
+                  "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+                  "quantity": 2
+                }
+              ],
+              "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+            },
+            "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+            "message_id": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+            "text": "确认杯子累计最多两件、杯垫累计最多两件退款，不包含包装袋。"
+          }
+        ],
+        "request": "申请部分商品退款；请使用公开确认范围，包装袋资格未满足。",
+        "sources": {
+          "calculation_version": "largest-remainder-prefix-v1-development",
+          "contract_source": "candidate_pending_review",
+          "execution_source": "observed_agent_execution",
+          "fixture_source": "development_only",
+          "recovery_source": "none"
+        }
+      },
+      "seq": 1,
+      "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "session_version_after": 1,
+      "session_version_before": 1,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "get_case",
+      "transaction_id": null,
+      "validated_arguments": {}
+    },
+    {
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "call_id": "c.c81ff6a1.2",
+      "case_id": "dev-case-refund-v2",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 0,
+      "config_id": "c-deepseek-flash-dev-v0.1",
+      "episode_id": "episode-session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "error": null,
+      "event_id": "event-549f4c09cf0840729de1ddfe433549dd",
+      "experiment_id": "c-l0-j2-deepseek-dev",
+      "idempotency_key": null,
+      "order_version_after": null,
+      "order_version_before": null,
+      "raw_arguments": {},
+      "recorded_at": "2026-10-13T12:31:35.810342+00:00",
+      "request_id": "request-ae85b24e2e35471d8d4027c865a38597",
+      "result": {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "development_only": true,
+        "policy_version": "dev-policy-v2",
+        "rules": [
+          "仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。",
+          "必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。",
+          "金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。",
+          "这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。",
+          "事实不足时提交人工审核工单；工单不产生裁决或资金变化。"
+        ]
+      },
+      "seq": 2,
+      "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "session_version_after": 1,
+      "session_version_before": 1,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "get_business_policy",
+      "transaction_id": null,
+      "validated_arguments": {}
+    },
+    {
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "call_id": "c.c81ff6a1.3",
+      "case_id": "dev-case-refund-v2",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 0,
+      "config_id": "c-deepseek-flash-dev-v0.1",
+      "episode_id": "episode-session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "error": null,
+      "event_id": "event-2b881a3cc51c4d84a202bfc6f424407b",
+      "experiment_id": "c-l0-j2-deepseek-dev",
+      "idempotency_key": null,
+      "order_version_after": null,
+      "order_version_before": null,
+      "raw_arguments": {
+        "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+      },
+      "recorded_at": "2026-10-13T12:31:36.693070+00:00",
+      "request_id": "request-a9e9c4439c4345e9af43dcf1a5ce6561",
+      "result": {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+        "items": [
+          {
+            "allocated_paid_cents": 500,
+            "eligible": true,
+            "gross_cents": 501,
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+            "name": "开发杯子",
+            "quantity": 2,
+            "refundable_quantity": 2,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 300,
+            "eligible": true,
+            "gross_cents": 300,
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+            "name": "开发杯垫",
+            "quantity": 3,
+            "refundable_quantity": 3,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 201,
+            "eligible": false,
+            "gross_cents": 201,
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-3",
+            "name": "资格未满足的开发包装袋",
+            "quantity": 1,
+            "refundable_quantity": 0,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          }
+        ],
+        "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+        "original_channel": "simulated_original",
+        "paid_cents": 1001,
+        "refunded_cents": 0,
+        "remaining_cents": 1001,
+        "status": "paid",
+        "tenant_id": "c-l0-development",
+        "version": 1
+      },
+      "seq": 3,
+      "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "session_version_after": 1,
+      "session_version_before": 1,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "get_order",
+      "transaction_id": null,
+      "validated_arguments": {
+        "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+      }
+    },
+    {
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "call_id": "c.c81ff6a1.4",
+      "case_id": "dev-case-refund-v2",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 0,
+      "config_id": "c-deepseek-flash-dev-v0.1",
+      "episode_id": "episode-session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "error": null,
+      "event_id": "event-22a1ab28a1ef41f6a66c2ead6e22d334",
+      "experiment_id": "c-l0-j2-deepseek-dev",
+      "idempotency_key": null,
+      "order_version_after": null,
+      "order_version_before": null,
+      "raw_arguments": {
+        "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+      },
+      "recorded_at": "2026-10-13T12:31:36.723269+00:00",
+      "request_id": "request-5797dd1b295e4f02bd39824d8596b2fc",
+      "result": {
+        "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+        "refunds": [],
+        "request_status": "not_requested",
+        "requested_key": null,
+        "transaction_id": null
+      },
+      "seq": 4,
+      "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "session_version_after": 1,
+      "session_version_before": 1,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "get_refund_history",
+      "transaction_id": null,
+      "validated_arguments": {
+        "idempotency_key": null,
+        "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+      }
+    },
+    {
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "call_id": "c.c81ff6a1.5",
+      "case_id": "dev-case-refund-v2",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 700,
+      "config_id": "c-deepseek-flash-dev-v0.1",
+      "episode_id": "episode-session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "error": null,
+      "event_id": "event-b5302607ab85435ea34d3ab2e6536c08",
+      "experiment_id": "c-l0-j2-deepseek-dev",
+      "idempotency_key": "ck.c81ff6a1.5",
+      "order_version_after": 2,
+      "order_version_before": 1,
+      "raw_arguments": {
+        "confirmation_message_id": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+            "quantity": 2
+          },
+          {
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+            "quantity": 2
+          }
+        ],
+        "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+        "reason": "按客户结构化确认（消息-2）退款：杯子2件、杯垫2件，不含资格未满足的包装袋。"
+      },
+      "recorded_at": "2026-10-13T12:31:38.500677+00:00",
+      "request_id": "request-d66c3919b4d54384a09485e6b046f07d",
+      "result": {
+        "amount_cents": 700,
+        "call_id": "c.c81ff6a1.5",
+        "channel": "simulated_original",
+        "committed_at": "2026-10-13T12:31:38.500414+00:00",
+        "confirmation_message_id": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+        "idempotency_key": "ck.c81ff6a1.5",
+        "items": [
+          {
+            "amount_cents": 500,
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+            "quantity": 2
+          },
+          {
+            "amount_cents": 200,
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+            "quantity": 2
+          }
+        ],
+        "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+        "order_version_after": 2,
+        "order_version_before": 1,
+        "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+        "session_version_after": 2,
+        "status": "committed",
+        "transaction_id": "refund-73c1be3ba1324245a41f628450824509"
+      },
+      "seq": 5,
+      "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "session_version_after": 2,
+      "session_version_before": 1,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "submit_refund",
+      "transaction_id": "refund-73c1be3ba1324245a41f628450824509",
+      "validated_arguments": {
+        "confirmation_message_id": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+            "quantity": 2
+          },
+          {
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+            "quantity": 2
+          }
+        ],
+        "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+        "reason": "按客户结构化确认（消息-2）退款：杯子2件、杯垫2件，不含资格未满足的包装袋。"
+      }
+    },
+    {
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "call_id": "c.c81ff6a1.6",
+      "case_id": "dev-case-refund-v2",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 0,
+      "config_id": "c-deepseek-flash-dev-v0.1",
+      "episode_id": "episode-session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "error": null,
+      "event_id": "event-080d80d1575b4a34963a5333ff8a7883",
+      "experiment_id": "c-l0-j2-deepseek-dev",
+      "idempotency_key": "ck.c81ff6a1.6",
+      "order_version_after": null,
+      "order_version_before": null,
+      "raw_arguments": {
+        "expected_version": 2,
+        "explanation": "依据客户结构化确认（消息-2），对订单中 eligible 的杯子2件、杯垫2件提交退款，共700分，退回原模拟渠道；资格未满足的包装袋未退款。",
+        "outcome": "completed"
+      },
+      "recorded_at": "2026-10-13T12:31:39.780593+00:00",
+      "request_id": "request-2b1e4def14444867b0b920723db88fa7",
+      "result": {
+        "case_id": "dev-case-refund-v2",
+        "config_id": "c-deepseek-flash-dev-v0.1",
+        "contract_version": "bc-0.3-candidate",
+        "episode_id": "episode-session-3f52c72f03ae4cc5849d0e0b094c2014",
+        "experiment_id": "c-l0-j2-deepseek-dev",
+        "explanation": "依据客户结构化确认（消息-2），对订单中 eligible 的杯子2件、杯垫2件提交退款，共700分，退回原模拟渠道；资格未满足的包装袋未退款。",
+        "outcome": "completed",
+        "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+        "sources": {
+          "calculation_version": "largest-remainder-prefix-v1-development",
+          "contract_source": "candidate_pending_review",
+          "execution_source": "observed_agent_execution",
+          "fixture_source": "development_only",
+          "recovery_source": "none"
+        },
+        "status": "finished",
+        "tenant_id": "c-l0-development",
+        "version": 3
+      },
+      "seq": 6,
+      "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "session_version_after": 3,
+      "session_version_before": 2,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "finish_case",
+      "transaction_id": null,
+      "validated_arguments": {
+        "expected_version": 2,
+        "explanation": "依据客户结构化确认（消息-2），对订单中 eligible 的杯子2件、杯垫2件提交退款，共700分，退回原模拟渠道；资格未满足的包装袋未退款。",
+        "outcome": "completed"
+      }
+    }
+  ],
+  "exported_at": "2026-10-13T12:31:39.795486+00:00",
+  "final_snapshot": {
+    "case": {
+      "candidate_order_ids": [
+        "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+      ],
+      "case_id": "dev-case-refund-v2",
+      "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "evidence_status": "development_public_facts",
+      "messages": [
+        {
+          "confirmation": null,
+          "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+          "message_id": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+          "text": "包装袋是否满足退款资格仍需核实，此消息不是退款授权。"
+        },
+        {
+          "confirmation": {
+            "items": [
+              {
+                "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+                "quantity": 2
+              },
+              {
+                "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+                "quantity": 2
+              }
+            ],
+            "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+          },
+          "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+          "message_id": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+          "text": "确认杯子累计最多两件、杯垫累计最多两件退款，不包含包装袋。"
+        }
+      ],
+      "request": "申请部分商品退款；请使用公开确认范围，包装袋资格未满足。",
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      }
+    },
+    "customer_balance_cents": 700,
+    "merchant_balance_cents": 301,
+    "orders": [
+      {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+        "items": [
+          {
+            "allocated_paid_cents": 500,
+            "eligible": true,
+            "gross_cents": 501,
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+            "name": "开发杯子",
+            "quantity": 2,
+            "refundable_quantity": 0,
+            "refunded_cents": 500,
+            "refunded_quantity": 2
+          },
+          {
+            "allocated_paid_cents": 300,
+            "eligible": true,
+            "gross_cents": 300,
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+            "name": "开发杯垫",
+            "quantity": 3,
+            "refundable_quantity": 1,
+            "refunded_cents": 200,
+            "refunded_quantity": 2
+          },
+          {
+            "allocated_paid_cents": 201,
+            "eligible": false,
+            "gross_cents": 201,
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-3",
+            "name": "资格未满足的开发包装袋",
+            "quantity": 1,
+            "refundable_quantity": 0,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          }
+        ],
+        "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+        "original_channel": "simulated_original",
+        "paid_cents": 1001,
+        "refunded_cents": 700,
+        "remaining_cents": 301,
+        "status": "partially_refunded",
+        "tenant_id": "c-l0-development",
+        "version": 2
+      }
+    ],
+    "policy": {
+      "allocation_version": "largest-remainder-prefix-v1-development",
+      "development_only": true,
+      "policy_version": "dev-policy-v2",
+      "rules": [
+        "仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。",
+        "必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。",
+        "金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。",
+        "这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。",
+        "事实不足时提交人工审核工单；工单不产生裁决或资金变化。"
+      ]
+    },
+    "session": {
+      "case_id": "dev-case-refund-v2",
+      "config_id": "c-deepseek-flash-dev-v0.1",
+      "contract_version": "bc-0.3-candidate",
+      "episode_id": "episode-session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "experiment_id": "c-l0-j2-deepseek-dev",
+      "explanation": "依据客户结构化确认（消息-2），对订单中 eligible 的杯子2件、杯垫2件提交退款，共700分，退回原模拟渠道；资格未满足的包装袋未退款。",
+      "outcome": "completed",
+      "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "finished",
+      "tenant_id": "c-l0-development",
+      "version": 3
+    }
+  },
+  "human_reviews": [],
+  "initial_snapshot": {
+    "case": {
+      "candidate_order_ids": [
+        "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+      ],
+      "case_id": "dev-case-refund-v2",
+      "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "evidence_status": "development_public_facts",
+      "messages": [
+        {
+          "confirmation": null,
+          "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+          "message_id": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+          "text": "包装袋是否满足退款资格仍需核实，此消息不是退款授权。"
+        },
+        {
+          "confirmation": {
+            "items": [
+              {
+                "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+                "quantity": 2
+              },
+              {
+                "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+                "quantity": 2
+              }
+            ],
+            "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1"
+          },
+          "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+          "message_id": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+          "text": "确认杯子累计最多两件、杯垫累计最多两件退款，不包含包装袋。"
+        }
+      ],
+      "request": "申请部分商品退款；请使用公开确认范围，包装袋资格未满足。",
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      }
+    },
+    "customer_balance_cents": 0,
+    "merchant_balance_cents": 1001,
+    "orders": [
+      {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "customer-session-3f52c72f03ae4cc5849d0e0b094c2014",
+        "items": [
+          {
+            "allocated_paid_cents": 500,
+            "eligible": true,
+            "gross_cents": 501,
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+            "name": "开发杯子",
+            "quantity": 2,
+            "refundable_quantity": 2,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 300,
+            "eligible": true,
+            "gross_cents": 300,
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+            "name": "开发杯垫",
+            "quantity": 3,
+            "refundable_quantity": 3,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 201,
+            "eligible": false,
+            "gross_cents": 201,
+            "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-3",
+            "name": "资格未满足的开发包装袋",
+            "quantity": 1,
+            "refundable_quantity": 0,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          }
+        ],
+        "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+        "original_channel": "simulated_original",
+        "paid_cents": 1001,
+        "refunded_cents": 0,
+        "remaining_cents": 1001,
+        "status": "paid",
+        "tenant_id": "c-l0-development",
+        "version": 1
+      }
+    ],
+    "policy": {
+      "allocation_version": "largest-remainder-prefix-v1-development",
+      "development_only": true,
+      "policy_version": "dev-policy-v2",
+      "rules": [
+        "仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。",
+        "必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。",
+        "金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。",
+        "这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。",
+        "事实不足时提交人工审核工单；工单不产生裁决或资金变化。"
+      ]
+    },
+    "session": {
+      "case_id": "dev-case-refund-v2",
+      "config_id": "c-deepseek-flash-dev-v0.1",
+      "contract_version": "bc-0.3-candidate",
+      "episode_id": "episode-session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "experiment_id": "c-l0-j2-deepseek-dev",
+      "explanation": null,
+      "outcome": null,
+      "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "active",
+      "tenant_id": "c-l0-development",
+      "version": 1
+    }
+  },
+  "ledger": [
+    {
+      "customer_balance_cents": 700,
+      "customer_delta_cents": 700,
+      "entry_id": "ledger-76bdfb86b96143e4930a4f88d4bda6e3",
+      "merchant_balance_cents": 301,
+      "merchant_delta_cents": -700,
+      "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+      "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "transaction_id": "refund-73c1be3ba1324245a41f628450824509"
+    }
+  ],
+  "policy": {
+    "allocation_version": "largest-remainder-prefix-v1-development",
+    "development_only": true,
+    "policy_version": "dev-policy-v2",
+    "rules": [
+      "仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。",
+      "必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。",
+      "金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。",
+      "这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。",
+      "事实不足时提交人工审核工单；工单不产生裁决或资金变化。"
+    ]
+  },
+  "receipt_semantics": "server_commit_does_not_prove_client_receipt",
+  "refunds": [
+    {
+      "amount_cents": 700,
+      "call_id": "c.c81ff6a1.5",
+      "channel": "simulated_original",
+      "committed_at": "2026-10-13T12:31:38.500414+00:00",
+      "confirmation_message_id": "message-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+      "idempotency_key": "ck.c81ff6a1.5",
+      "items": [
+        {
+          "amount_cents": 500,
+          "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+          "quantity": 2
+        },
+        {
+          "amount_cents": 200,
+          "item_id": "item-session-3f52c72f03ae4cc5849d0e0b094c2014-2",
+          "quantity": 2
+        }
+      ],
+      "order_id": "order-session-3f52c72f03ae4cc5849d0e0b094c2014-1",
+      "order_version_after": 2,
+      "order_version_before": 1,
+      "session_id": "session-3f52c72f03ae4cc5849d0e0b094c2014",
+      "session_version_after": 2,
+      "status": "committed",
+      "transaction_id": "refund-73c1be3ba1324245a41f628450824509"
+    }
+  ],
+  "schema_version": 3,
+  "sources": {
+    "calculation_version": "largest-remainder-prefix-v1-development",
+    "contract_source": "candidate_pending_review",
+    "execution_source": "observed_agent_execution",
+    "fixture_source": "development_only",
+    "recovery_source": "none"
+  }
+}

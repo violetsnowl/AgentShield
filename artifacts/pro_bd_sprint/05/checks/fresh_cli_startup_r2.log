@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\作业合集\大三\智能+保险\agentshield\var\stage05-reception\artifacts\pro_bd_sprint\05\support\check_startup.py", line 71, in <module>
+    run()
+    ~~~^^
+  File "D:\作业合集\大三\智能+保险\agentshield\var\stage05-reception\artifacts\pro_bd_sprint\05\support\check_startup.py", line 57, in run
+    main()
+    ~~~~^^
+  File "D:\作业合集\大三\智能+保险\agentshield\var\stage05-reception\scripts\run_workbench.py", line 98, in main
+    webbrowser.open((args.dev_origin or origin) + "/#pair=" + grant)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\作业合集\大三\智能+保险\agentshield\var\stage05-reception\artifacts\pro_bd_sprint\05\support\check_startup.py", line 49, in open_browser
+    raise RuntimeError("Startup browser checks failed; no secret-bearing trace persisted")
+RuntimeError: Startup browser checks failed; no secret-bearing trace persisted

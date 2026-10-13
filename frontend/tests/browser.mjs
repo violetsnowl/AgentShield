@@ -1,0 +1,207 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+
+let raw = ''; for await (const chunk of process.stdin) raw += chunk;
+const config = JSON.parse(raw); raw = '';
+const require = createRequire(import.meta.url);
+const { chromium } = config.playwrightModule ? require(config.playwrightModule) : require('playwright-core');
+const checks = [], consoleErrors = [], requests = [], responseChecks = [];
+let browser;
+function check(condition, label) { assert.ok(condition, label); checks.push(label); }
+try {
+  browser = await chromium.launch({ channel: 'msedge', headless: true });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'zh-CN', reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  page.on('pageerror', error => consoleErrors.push(error.message));
+  page.on('request', request => requests.push({ url: request.url(), method: request.method(), headers: request.headers(), body: request.postData() }));
+  page.on('response', response => {
+    if (response.url().includes('/observer/api/')) {
+      responseChecks.push((async () => {
+        let content;
+        try { content = await response.text(); } catch { return; } // Aborted reads are checked by the UI-state tests.
+        for (const secret of config.forbidden) check(!content.includes(secret), 'no B secret in browser API response');
+        check(!content.includes('"session_token"'), 'no run credential in browser API response');
+        if (response.status() === 201 && response.url().endsWith('/observer/api/sessions'))
+          await fs.writeFile(path.join(config.output, 'created-session-observer.json'), content);
+      })());
+    }
+  });
+  await page.goto(`${config.origin}/#pair=${config.grant}`);
+  await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor({ timeout: 20000 });
+  check(!page.url().includes(config.grant), 'one-use observer grant removed from URL');
+  const storage = await page.evaluate(() => ({ local: localStorage.length, session: sessionStorage.length, cookie: document.cookie }));
+  check(storage.local === 0 && storage.session === 0 && storage.cookie === '', 'no JS-readable credentials or browser storage');
+  const cookies = await context.cookies();
+  check(cookies.length === 1 && cookies[0].httpOnly && cookies[0].sameSite === 'Strict', 'only scoped HttpOnly observer cookie');
+  check(await page.getByRole('button', { name: '启动 Agent', exact: true }).isDisabled(), 'real Agent control disabled');
+  check((await page.locator('#run').inputValue()) === config.sessions[0], 'v1 exact session selected');
+  check((await page.locator('main').innerText()).includes('¥3.33'), 'v1 actual 333-cent refund visible');
+  async function layout(name) {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${name}: no page horizontal overflow`);
+    const money = await page.locator('td.money').evaluateAll(nodes => nodes.map(node => ({ align: getComputedStyle(node).textAlign, overflow: node.scrollWidth > node.clientWidth + 1 })));
+    check(money.every(row => row.align === 'right' && !row.overflow), `${name}: table money right aligned without clipping`);
+    const ids = await page.locator('code.id').evaluateAll(nodes => nodes.filter(node => node.clientWidth > 0).map(node => node.scrollWidth <= node.clientWidth + 1));
+    check(ids.every(Boolean), `${name}: visible IDs wrap within bounds`);
+    await page.screenshot({ path: path.join(config.output, `${name}.png`), fullPage: true });
+  }
+  await layout('core-lab-v1-desktop');
+  await page.getByRole('button', { name: /执行证据 \/ 账本/ }).click();
+  await page.getByRole('heading', { name: '资金账本', exact: true }).waitFor();
+  check((await page.getByTestId('committed-total').innerText()) === '¥3.33', 'committed total from actual refunds is 333 cents');
+  await page.getByRole('button', { name: '加载后续事件', exact: true }).click();
+  await page.locator('tr[data-seq="8"]').waitFor();
+  const sequences = await page.locator('tr[data-seq]').evaluateAll(nodes => nodes.map(node => Number(node.getAttribute('data-seq'))));
+  check(JSON.stringify(sequences) === JSON.stringify([1,2,3,4,5,6,7,8]), 'real event pagination preserves seq order');
+  check((await page.locator('tr[data-seq="5"]').innerText()).includes('¥0.00'), 'replayed refund adds zero money');
+  await page.getByRole('button', { name: '关联交易', exact: true }).first().click();
+  await page.getByRole('heading', { name: '交易追溯', exact: true }).waitFor();
+  await layout('core-ledger-v1-desktop');
+  if (config.phase === 'final') {
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: '保存证据回放', exact: true }).click();
+    const download = await downloadPromise;
+    const saved = path.join(config.output, 'saved-v1-replay.json');
+    await download.saveAs(saved);
+    const recorded = JSON.parse(await fs.readFile(saved, 'utf8'));
+    check(recorded.final_snapshot.session.session_id === config.sessions[0], 'saved replay identifies exact v1 run');
+    check(recorded.refunds.length === 1 && recorded.refunds[0].amount_cents === 333, 'saved replay preserves one 333-cent transaction');
+    async function selectRun(sid) {
+      await Promise.all([page.waitForResponse(response => response.url().endsWith(`/sessions/${sid}/evidence`)), page.selectOption('#run', sid)]);
+      await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+      await page.getByRole('button', { name: '刷新本次运行', exact: true }).waitFor();
+    }
+    await selectRun(config.sessions[1]);
+    check(await page.locator('.orders .order').count() === 1 && await page.locator('.message').count() === 2, 'v2 real structure: one order and two messages');
+    check((await page.locator('.message').first().innerText()).includes('无结构化确认'), 'v2 unconfirmed message is explicit');
+    await layout('lab-v2-desktop');
+    await page.getByRole('button', { name: /执行证据 \/ 账本/ }).click();
+    check(await page.getByTestId('committed-total').innerText() === '¥2.50', 'v2 exact run has 250-cent refund without v1 funds');
+    await layout('ledger-v2-desktop');
+    for (const area of ['风险 / 配置比较', '合同 / 情景成本']) {
+      await page.getByRole('button', { name: new RegExp(area) }).click();
+      check(await page.getByRole('button', { name: area.startsWith('风险') ? '查看损失依据' : '重新理算', exact: true }).isDisabled(), 'pending module action disabled');
+      check((await page.locator('.integration-panel').innerText()).includes('待接入'), 'pending result is explicit, no generated score');
+      await layout(area.startsWith('风险') ? 'risk-pending-desktop' : 'cost-pending-desktop');
+    }
+    await page.getByRole('button', { name: /企业实验场/ }).click();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await layout('lab-v2-mobile');
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.selectOption('#fixture', 'dev-refund-v1');
+    await page.getByRole('button', { name: '创建开发会话', exact: true }).click();
+    await page.getByRole('button', { name: '创建开发会话', exact: true }).waitFor();
+    await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+    await page.waitForFunction(ids => !ids.includes(document.querySelector('#run').value), config.sessions);
+    const newSid = await page.locator('#run').inputValue();
+    check(newSid !== config.sessions[0] && newSid !== config.sessions[1], 'new same-case session is a separate run');
+    check((await page.locator('.hash code').innerText()) === recorded.case_context.business_initial_hash, 'same case keeps canonical initial hash');
+    check(!(await page.locator('.orders').innerText()).includes(recorded.final_snapshot.orders[0].order_id), 'same case has disjoint runtime objects');
+    await page.getByRole('button', { name: /执行证据 \/ 账本/ }).click();
+    await page.getByText('尚无执行事件', { exact: true }).waitFor();
+    check(await page.getByTestId('committed-total').innerText() === '¥0.00', 'new run has no inherited refunds');
+    await layout('empty-run-desktop');
+    // Controlled transport-state injection is QA only; never included in the product.
+    const sessionsRoute = '**/observer/api/sessions';
+    await page.route(sessionsRoute, route => route.fulfill({ status: 200, contentType: 'application/json', body: '{"sessions":[],"next_offset":null}' }));
+    await page.reload();
+    await page.getByText('还没有开发会话', { exact: true }).waitFor();
+    await layout('empty-list-test-desktop');
+    await page.unroute(sessionsRoute); await page.reload();
+    await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+    await selectRun(config.sessions[0]);
+    await page.getByText('查看原始政策文案 · dev-policy-v1', { exact: true }).click();
+    check((await page.locator('.policy').innerText()).includes('本批人工工单工具尚未接入'), 'v1 historical policy preserved literally');
+    check((await page.locator('.policy').innerText()).includes('待 A/C/D'), 'v1 historical inconsistency flagged pending review');
+
+    const evidenceRoute = `**/observer/api/sessions/${config.sessions[1]}/evidence`;
+    let release;
+    let gate = new Promise(resolve => { release = resolve; });
+    await page.route(evidenceRoute, async route => { await gate; await route.continue().catch(() => {}); });
+    await page.selectOption('#run', config.sessions[1]);
+    await page.getByRole('status').filter({ hasText: '正在读取本次运行' }).waitFor();
+    check(await page.locator('.orders').count() === 0, 'loading hides previous run facts');
+    await layout('loading-test-desktop');
+    release(); await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+    await page.unroute(evidenceRoute);
+
+    await page.route(evidenceRoute, route => route.fulfill({ status: 502, contentType: 'application/json', body: '{"code":"B_UNAVAILABLE"}' }));
+    await page.getByRole('button', { name: '刷新本次运行', exact: true }).click();
+    await page.getByRole('alert').filter({ hasText: '暂时无法读取 B 服务' }).waitFor();
+    check(await page.locator('.orders').count() === 0, 'error state does not show stale orders');
+    await layout('error-test-desktop');
+    await page.unroute(evidenceRoute);
+    await page.getByRole('button', { name: '重试读取', exact: true }).click();
+    await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+
+    gate = new Promise(resolve => { release = resolve; });
+    await page.route(evidenceRoute, async route => { await gate; await route.abort().catch(() => {}); });
+    await page.getByRole('button', { name: '刷新本次运行', exact: true }).click();
+    await page.getByRole('alert').filter({ hasText: '请求超过 8 秒' }).waitFor({ timeout: 12000 });
+    await layout('timeout-test-desktop');
+    check(true, 'actual eight-second browser timeout handled');
+    release(); await page.unroute(evidenceRoute);
+    await page.getByRole('button', { name: '重试读取', exact: true }).click();
+    await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+
+    // A delayed response for v1 must not overwrite a newer v2 selection.
+    const delayed = `**/observer/api/sessions/${config.sessions[0]}/evidence`;
+    gate = new Promise(resolve => { release = resolve; });
+    await page.route(delayed, async route => { await gate; await route.continue().catch(() => {}); });
+    await page.selectOption('#run', config.sessions[0]);
+    await page.getByRole('status').filter({ hasText: '正在读取本次运行' }).waitFor();
+    await selectRun(config.sessions[1]);
+    release(); await page.unroute(delayed);
+    check((await page.locator('#run').inputValue()) === config.sessions[1] && await page.locator('.orders .order').count() === 1, 'late previous-session response cannot replace current run');
+
+    await context.setOffline(true);
+    const beforeOffline = requests.length;
+    await page.locator('input[type=file]').setInputFiles(saved);
+    await page.getByText('离线只读回放', { exact: true }).waitFor();
+    check(await page.getByTestId('committed-total').innerText() === '¥3.33', 'saved schema3 replay works with network disabled');
+    for (const area of [/企业实验场/, /风险 \/ 配置比较/, /合同 \/ 情景成本/, /执行证据 \/ 账本/]) await page.getByRole('button', { name: area }).click();
+    check(requests.length === beforeOffline, 'offline file import and four-area navigation make zero network requests');
+    check(await page.getByRole('button', { name: '创建开发会话', exact: true }).count() === 0, 'offline replay exposes no create or transaction action');
+    await layout('offline-schema3-desktop');
+    for (const [schemaVersion, filename] of [[1, 'artifacts/b_bootstrap/http_smoke/evidence_sample.json'], [2, 'artifacts/pro_bd_sprint/01/patch_http_evidence/evidence_sample.json']]) {
+      await page.locator('input[type=file]').setInputFiles(path.join(config.root, filename));
+      await page.getByRole('button', { name: /企业实验场/ }).click();
+      await page.getByText('旧证据未记录案例上下文', { exact: true }).waitFor();
+      check((await page.locator('.content-toolbar').innerText()).includes(`schema ${schemaVersion}`), `legacy schema ${schemaVersion} shown without upgrading historical facts`);
+      check(await page.locator('.hash').count() === 0, `legacy schema ${schemaVersion} has no invented hash`);
+      await layout(`offline-schema${schemaVersion}-desktop`);
+    }
+    await page.locator('input[type=file]').setInputFiles({ name: 'invalid.json', mimeType: 'application/json', buffer: Buffer.from('{"schema_version":4}') });
+    await page.getByRole('alert').filter({ hasText: '证据格式不符合' }).waitFor();
+    check(true, 'invalid imported evidence produces actionable error');
+    await context.setOffline(false);
+    const unauthorized = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+    const locked = await unauthorized.newPage();
+    await locked.goto(config.origin);
+    await locked.getByRole('alert').filter({ hasText: '本机观察授权未建立或已过期' }).waitFor();
+    check(!config.sessions.some(id => (requests.find(request => request.body?.includes(id))?.body ?? '').includes('session_token')), 'no B session secret in browser bodies');
+    check(!(await locked.locator('body').innerText()).includes(config.sessions[0]), 'unapproved browser cannot read runs');
+    await locked.screenshot({ path: path.join(config.output, 'unauthorized-desktop.png'), fullPage: true });
+    await unauthorized.close();
+  }
+  for (const request of requests) {
+    check(!request.headers.authorization, 'browser sends no B Authorization header');
+    for (const secret of config.forbidden) check(!JSON.stringify(request).includes(secret), 'B credential absent from browser requests');
+    check(!request.url.includes('/tools/'), 'browser never invokes a B tool');
+  }
+  check(consoleErrors.length === 0, 'no uncaught browser errors');
+  check(requests.every(request => request.url.startsWith(config.origin)), 'no external browser requests');
+  await Promise.all(responseChecks);
+  for (const filename of await fs.readdir(path.join(config.root, 'frontend/dist/assets'))) {
+    const built = await fs.readFile(path.join(config.root, 'frontend/dist/assets', filename), 'utf8');
+    for (const secret of [...config.forbidden, config.grant]) check(!built.includes(secret), 'credential absent from built assets');
+  }
+  await fs.writeFile(path.join(config.output, 'browser_results.json'), JSON.stringify({ phase: config.phase, browser: await browser.version(), viewport: [1440,1000], checks, uncaught_errors: consoleErrors, external_requests: requests.filter(request => !request.url.startsWith(config.origin)).length }, null, 2));
+  console.log(JSON.stringify({ browser_qa: 'pass', phase: config.phase, checks: checks.length, screenshots: (await fs.readdir(config.output)).filter(name => name.endsWith('.png')).length, browser: await browser.version() }));
+} catch (error) {
+  let message = String(error.stack ?? error) + '\nBrowser errors: ' + JSON.stringify(consoleErrors); for (const secret of [...config.forbidden, config.grant]) message = message.replaceAll(secret, '[REDACTED]');
+  console.error(message); process.exitCode = 1;
+} finally { if (browser) await browser.close(); }

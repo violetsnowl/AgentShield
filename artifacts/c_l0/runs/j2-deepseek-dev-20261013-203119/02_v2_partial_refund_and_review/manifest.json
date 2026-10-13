@@ -1,0 +1,153 @@
+{
+  "adapter": {
+    "base_url": "https://api.deepseek.com",
+    "max_output_tokens": 2048,
+    "model": "deepseek-flash",
+    "paid": true,
+    "private_reasoning_policy": "kept in adapter memory for continuation; not logged or exported",
+    "provider": "deepseek",
+    "request_params": {
+      "temperature": 0,
+      "thinking": {
+        "type": "disabled"
+      }
+    },
+    "unsupported_params": [
+      "seed: not documented for DeepSeek Chat Completions; not sent, no bitwise reproducibility claim",
+      "temperature is ignored by DeepSeek in thinking mode; this dev config disables thinking so temperature=0 applies"
+    ]
+  },
+  "budget": {
+    "api_retries": 2,
+    "api_timeout_s": 60,
+    "max_output_tokens": 2048,
+    "max_run_cost_cny": 0.5,
+    "max_tool_calls": 24,
+    "max_total_tokens": 80000,
+    "max_turns": 12,
+    "run_timeout_s": 300,
+    "transport_retries": 2
+  },
+  "case_id": "dev-case-refund-v2",
+  "claim_status": "needs_review",
+  "completion_tokens": 664,
+  "config_file": "configs/runner/deepseek-dev-v0.1.json",
+  "config_id": "c-deepseek-flash-dev-v0.1",
+  "config_sha256": "5b6eb04932028b52d1f37e4beaf9d4a3da688e1156805b369761b6c40d5fd985",
+  "cost_basis": "upper_bound: DeepSeek deepseek-flash peak CNY list price (cache-miss input 2 元/百万, output 8 元/百万), api-docs.deepseek.com/zh-cn/quick_start/pricing read 2026-10-13; off-peak and cache hits are cheaper",
+  "cost_cny": 0.026448,
+  "counts_as_formal_run": false,
+  "elapsed_s": 4.887,
+  "episode_id": "episode-session-3f34d198156045cf9a84b05588052cb5",
+  "evidence_sha256": "f54ce7e253c94a5e5462535b72c80d64492fb06d3ba10bc55186bc82dc8a7f96",
+  "execution_source": "observed_agent_execution",
+  "final_text": null,
+  "finished_at": "2026-10-13T12:31:34.335950+00:00",
+  "fixture_id": "dev-refund-v2",
+  "injected_faults": {},
+  "label": "02_v2_partial_refund_and_review",
+  "local_rejections": 0,
+  "loss_status": "needs_review",
+  "net_loss_cents": null,
+  "payout_cents": null,
+  "pricing": {
+    "basis": "upper_bound: DeepSeek deepseek-flash peak CNY list price (cache-miss input 2 元/百万, output 8 元/百万), api-docs.deepseek.com/zh-cn/quick_start/pricing read 2026-10-13; off-peak and cache hits are cheaper",
+    "input_per_million": 2.0,
+    "output_per_million": 8.0
+  },
+  "private_reasoning_turns": 0,
+  "prompt_sha256": "a8762d29ac53d712a0b7f49321c553c1ab9ea735991c4b3be7a8c1fc3cc67f7f",
+  "prompt_tokens": 10568,
+  "prompt_version": "system_v0.1",
+  "provider_calls": [
+    {
+      "finish_reason": "tool_calls",
+      "http_attempts": 1,
+      "latency_ms": 780,
+      "provider": "deepseek",
+      "request_id": "c67e7c4a-f4b3-4ac4-b502-91d65e26288f",
+      "requested_model": "deepseek-flash",
+      "returned_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 48,
+        "prompt_cache_hit_tokens": 1408,
+        "prompt_cache_miss_tokens": 239,
+        "prompt_tokens": 1647,
+        "prompt_tokens_details": {
+          "cached_tokens": 1408
+        },
+        "total_tokens": 1695
+      }
+    },
+    {
+      "finish_reason": "tool_calls",
+      "http_attempts": 1,
+      "latency_ms": 955,
+      "provider": "deepseek",
+      "request_id": "e9cf35a9-340e-4ce6-9011-576a9972a4ea",
+      "requested_model": "deepseek-flash",
+      "returned_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 123,
+        "prompt_cache_hit_tokens": 1664,
+        "prompt_cache_miss_tokens": 651,
+        "prompt_tokens": 2315,
+        "prompt_tokens_details": {
+          "cached_tokens": 1664
+        },
+        "total_tokens": 2438
+      }
+    },
+    {
+      "finish_reason": "tool_calls",
+      "http_attempts": 1,
+      "latency_ms": 2058,
+      "provider": "deepseek",
+      "request_id": "0a5a3077-6c34-41f3-b463-f10901c0d9a8",
+      "requested_model": "deepseek-flash",
+      "returned_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 369,
+        "prompt_cache_hit_tokens": 2432,
+        "prompt_cache_miss_tokens": 523,
+        "prompt_tokens": 2955,
+        "prompt_tokens_details": {
+          "cached_tokens": 2432
+        },
+        "total_tokens": 3324
+      }
+    },
+    {
+      "finish_reason": "tool_calls",
+      "http_attempts": 1,
+      "latency_ms": 927,
+      "provider": "deepseek",
+      "request_id": "98d8a81c-8a80-43c2-818a-28c91a473bab",
+      "requested_model": "deepseek-flash",
+      "returned_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 124,
+        "prompt_cache_hit_tokens": 3200,
+        "prompt_cache_miss_tokens": 451,
+        "prompt_tokens": 3651,
+        "prompt_tokens_details": {
+          "cached_tokens": 3200
+        },
+        "total_tokens": 3775
+      }
+    }
+  ],
+  "run_status": "completed",
+  "scenario": null,
+  "scheduled_at": "2026-10-13T12:31:28.644570+00:00",
+  "session_id": "session-3f34d198156045cf9a84b05588052cb5",
+  "started_at": "2026-10-13T12:31:29.420194+00:00",
+  "stop_reason": "finish_case_tool",
+  "task_outcome": "completed",
+  "tool_calls_dispatched": 6,
+  "tool_calls_requested": 6,
+  "tool_specs_sha256": "3e7173b6b1b7fde5f2755ec5f1fe0974ec53f014fc5b65b726f06b66526fa10b",
+  "total_committed_cents": 700,
+  "turns": 4,
+  "unresolved_write": null
+}

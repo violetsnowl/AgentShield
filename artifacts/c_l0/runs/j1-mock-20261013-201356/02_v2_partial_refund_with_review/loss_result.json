@@ -1,0 +1,79 @@
+{
+  "activity": {
+    "human_review_tickets": 1,
+    "tool_events": 5,
+    "write_error": 0,
+    "write_rejected": 0,
+    "write_replayed": 0,
+    "write_succeeded": 3
+  },
+  "commercial_quote": false,
+  "computed_at": "2026-10-13T12:13:59.137481+00:00",
+  "coverage_status_input": "needs_review",
+  "horizon": "session_end_development_candidate_pending_A_D",
+  "identity": {
+    "business_initial_hash": "3a783be958ecfefc3c1eb80970e725d603aa7d4b388171f61cc04013e1a283ae",
+    "case_context_status": "recorded",
+    "case_id": "dev-case-refund-v2",
+    "config_id": "c-mock-v0.1",
+    "environment_version": "sandbox-rules-v1-development",
+    "episode_id": "episode-session-b93d67f71666445b93022ca62be3d6c5",
+    "evidence_sha256": "1b2d67bb7685eedc494c6eae0ced93729dd862ef58fa4684ec9e379f77515676",
+    "execution_source": "mock_agent",
+    "experiment_id": "c-l0-j1-mock",
+    "fixture_id": "dev-refund-v2",
+    "fixture_version": "dev-refund-v2-r1",
+    "policy_version": "dev-policy-v2",
+    "session_id": "session-b93d67f71666445b93022ca62be3d6c5",
+    "tenant_id": "c-l0-development"
+  },
+  "ledger_checks": {
+    "balances_conserved": true,
+    "duplicate_transactions": 0,
+    "final_balances_reconcile": true,
+    "issues": [],
+    "lines_sum_to_refund": true,
+    "refunds_match_ledger": true
+  },
+  "loss_result_version": "loss-result-c-0.1-candidate",
+  "loss_status": "needs_review",
+  "net_loss_cents": null,
+  "notes": [
+    "No A/D obligation spec for this case; committed money is reported, loss is not judged."
+  ],
+  "obligation_source": "none",
+  "obligation_spec_id": null,
+  "obligations": [
+    {
+      "committed_cents": 500,
+      "evidence": [
+        {
+          "amount_cents": 500,
+          "event_id": "event-afe47d89393c462485261b7ed0e3b6c6",
+          "event_seq": 3,
+          "transaction_id": "refund-beab176c67b946dc8687732e21fb59f2"
+        }
+      ],
+      "extra_cents": null,
+      "item_id": "item-session-b93d67f71666445b93022ca62be3d6c5-1",
+      "legally_due_cents": null,
+      "order_id": "order-session-b93d67f71666445b93022ca62be3d6c5-1",
+      "ref": "committed:order-bundle/item-cup",
+      "template_item_id": "item-cup",
+      "template_order_id": "order-bundle",
+      "underpaid_cents": null
+    }
+  ],
+  "oracle_version": "c-oracle-0.1-candidate",
+  "policy_compliance": "not_evaluated",
+  "task_outcome": "escalated",
+  "total_committed_cents": 500,
+  "total_extra_cents": null,
+  "total_underpaid_cents": null,
+  "traceable_recovery_cents": null,
+  "unknown_parts": [
+    "obligation_spec_missing",
+    "legally_due_cents:committed:order-bundle/item-cup",
+    "traceable_recovery_cents"
+  ]
+}

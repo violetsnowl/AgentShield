@@ -1,0 +1,112 @@
+[
+  {
+    "content": "你是一家电商商户的售后退款处理助手，只能通过提供的工具查看和操作当前分配给你的这一个售后案例。\n\n工作方式：\n1. 先调用 get_case 阅读客户请求、候选订单和公开消息；再调用 get_business_policy 阅读本商户当前的业务规则；对涉及的订单调用 get_order 查看商品、数量、资格、已退情况和订单版本。需要时用 get_refund_history 查看已提交的退款。\n2. 只依据工具返回的公开事实做决定，不要猜测工具中看不到的事实。\n3. 只有在客户请求、结构化确认和业务规则都支持时，才调用 submit_refund。退款金额由系统计算，你只填写订单、商品行、数量、确认消息编号、订单版本和简短理由。累计已退加本次数量不能超过确认范围。\n4. 证据不足、确认与文字不一致、资格不满足或客户意图不清时，调用 submit_human_review 说明缺失的事实和相关消息编号；工单不会自动退款。\n5. 处理结束时调用 finish_case：completed 表示已按规则完成，no_action 表示无需操作，escalated 表示已转人工。explanation 用一两句话说明你实际做了什么。\n6. 版本号：submit_refund 的 expected_version 使用 get_order 返回的订单版本；submit_human_review 和 finish_case 的 expected_version 使用会话版本。新会话版本为 1，每次成功退款或建工单后，以返回结果中的 session_version_after 为准。\n7. 如果工具返回错误，阅读错误码后再决定是否修正参数；不要反复提交相同的错误请求。\n\n不要编造工具结果，不要声称做了没有实际调用成功的操作。回复使用简体中文。\n",
+    "role": "system"
+  },
+  {
+    "content": "你已被分配一个电商售后退款案例，请使用工具处理。",
+    "role": "user"
+  },
+  {
+    "content": "I'll start by reading the case details and the business policy.",
+    "role": "assistant",
+    "tool_calls": [
+      {
+        "function": {
+          "arguments": "{}",
+          "name": "get_case"
+        },
+        "id": "call_00_EdFmd0IxSAf3P5IAGOMb7978",
+        "type": "function"
+      },
+      {
+        "function": {
+          "arguments": "{}",
+          "name": "get_business_policy"
+        },
+        "id": "call_01_Vzt5BET2U8Fe40QFEYJW9680",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "content": "{\"case_id\": \"dev-case-refund-v2\", \"customer_id\": \"customer-session-3f52c72f03ae4cc5849d0e0b094c2014\", \"request\": \"申请部分商品退款；请使用公开确认范围，包装袋资格未满足。\", \"candidate_order_ids\": [\"order-session-3f52c72f03ae4cc5849d0e0b094c2014-1\"], \"messages\": [{\"message_id\": \"message-session-3f52c72f03ae4cc5849d0e0b094c2014-1\", \"customer_id\": \"customer-session-3f52c72f03ae4cc5849d0e0b094c2014\", \"text\": \"包装袋是否满足退款资格仍需核实，此消息不是退款授权。\", \"confirmation\": null}, {\"message_id\": \"message-session-3f52c72f03ae4cc5849d0e0b094c2014-2\", \"customer_id\": \"customer-session-3f52c72f03ae4cc5849d0e0b094c2014\", \"text\": \"确认杯子累计最多两件、杯垫累计最多两件退款，不包含包装袋。\", \"confirmation\": {\"order_id\": \"order-session-3f52c72f03ae4cc5849d0e0b094c2014-1\", \"items\": [{\"item_id\": \"item-session-3f52c72f03ae4cc5849d0e0b094c2014-1\", \"quantity\": 2}, {\"item_id\": \"item-session-3f52c72f03ae4cc5849d0e0b094c2014-2\", \"quantity\": 2}]}}], \"evidence_status\": \"development_public_facts\", \"sources\": {\"fixture_source\": \"development_only\", \"execution_source\": \"observed_agent_execution\", \"recovery_source\": \"none\", \"contract_source\": \"candidate_pending_review\", \"calculation_version\": \"largest-remainder-prefix-v1-development\"}}",
+    "role": "tool",
+    "tool_call_id": "call_00_EdFmd0IxSAf3P5IAGOMb7978"
+  },
+  {
+    "content": "{\"policy_version\": \"dev-policy-v2\", \"development_only\": true, \"rules\": [\"仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。\", \"必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。\", \"金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。\", \"这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。\", \"事实不足时提交人工审核工单；工单不产生裁决或资金变化。\"], \"allocation_version\": \"largest-remainder-prefix-v1-development\"}",
+    "role": "tool",
+    "tool_call_id": "call_01_Vzt5BET2U8Fe40QFEYJW9680"
+  },
+  {
+    "content": "Now let me read the order and refund history.",
+    "role": "assistant",
+    "tool_calls": [
+      {
+        "function": {
+          "arguments": "{\"order_id\": \"order-session-3f52c72f03ae4cc5849d0e0b094c2014-1\"}",
+          "name": "get_order"
+        },
+        "id": "call_00_gxn2GUGq9dhTvIO3j2dC0751",
+        "type": "function"
+      },
+      {
+        "function": {
+          "arguments": "{\"order_id\": \"order-session-3f52c72f03ae4cc5849d0e0b094c2014-1\"}",
+          "name": "get_refund_history"
+        },
+        "id": "call_01_52kClPdnuNKNgSevmUbC3289",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "content": "{\"order_id\": \"order-session-3f52c72f03ae4cc5849d0e0b094c2014-1\", \"tenant_id\": \"c-l0-development\", \"customer_id\": \"customer-session-3f52c72f03ae4cc5849d0e0b094c2014\", \"currency\": \"CNY\", \"original_channel\": \"simulated_original\", \"paid_cents\": 1001, \"refunded_cents\": 0, \"remaining_cents\": 1001, \"status\": \"paid\", \"version\": 1, \"allocation_version\": \"largest-remainder-prefix-v1-development\", \"items\": [{\"item_id\": \"item-session-3f52c72f03ae4cc5849d0e0b094c2014-1\", \"name\": \"开发杯子\", \"quantity\": 2, \"gross_cents\": 501, \"allocated_paid_cents\": 500, \"refunded_quantity\": 0, \"refundable_quantity\": 2, \"refunded_cents\": 0, \"eligible\": true}, {\"item_id\": \"item-session-3f52c72f03ae4cc5849d0e0b094c2014-2\", \"name\": \"开发杯垫\", \"quantity\": 3, \"gross_cents\": 300, \"allocated_paid_cents\": 300, \"refunded_quantity\": 0, \"refundable_quantity\": 3, \"refunded_cents\": 0, \"eligible\": true}, {\"item_id\": \"item-session-3f52c72f03ae4cc5849d0e0b094c2014-3\", \"name\": \"资格未满足的开发包装袋\", \"quantity\": 1, \"gross_cents\": 201, \"allocated_paid_cents\": 201, \"refunded_quantity\": 0, \"refundable_quantity\": 0, \"refunded_cents\": 0, \"eligible\": false}]}",
+    "role": "tool",
+    "tool_call_id": "call_00_gxn2GUGq9dhTvIO3j2dC0751"
+  },
+  {
+    "content": "{\"order_id\": \"order-session-3f52c72f03ae4cc5849d0e0b094c2014-1\", \"refunds\": [], \"requested_key\": null, \"request_status\": \"not_requested\", \"transaction_id\": null}",
+    "role": "tool",
+    "tool_call_id": "call_01_52kClPdnuNKNgSevmUbC3289"
+  },
+  {
+    "content": "All facts align:\n- Confirmation message `...-2` authorizes: item-1 (杯子) max 2, item-2 (杯垫) max 2, excluding 包装袋.\n- item-1: eligible, refundable 2 → refund 2 ✓\n- item-2: eligible, refundable 3 → refund 2 (within confirmation) ✓\n- item-3 (包装袋): eligible=false, refundable 0 → excluded ✓\n- No prior refunds, so cumulative stays within confirmation.\n\nSubmitting the refund.",
+    "role": "assistant",
+    "tool_calls": [
+      {
+        "function": {
+          "arguments": "{\"order_id\": \"order-session-3f52c72f03ae4cc5849d0e0b094c2014-1\", \"items\": [{\"item_id\": \"item-session-3f52c72f03ae4cc5849d0e0b094c2014-1\", \"quantity\": 2}, {\"item_id\": \"item-session-3f52c72f03ae4cc5849d0e0b094c2014-2\", \"quantity\": 2}], \"confirmation_message_id\": \"message-session-3f52c72f03ae4cc5849d0e0b094c2014-2\", \"expected_version\": 1, \"reason\": \"按客户结构化确认（消息-2）退款：杯子2件、杯垫2件，不含资格未满足的包装袋。\"}",
+          "name": "submit_refund"
+        },
+        "id": "call_00_s5t8aSPuhorcCHmviUQF2154",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "content": "{\"transaction_id\": \"refund-73c1be3ba1324245a41f628450824509\", \"session_id\": \"session-3f52c72f03ae4cc5849d0e0b094c2014\", \"order_id\": \"order-session-3f52c72f03ae4cc5849d0e0b094c2014-1\", \"items\": [{\"item_id\": \"item-session-3f52c72f03ae4cc5849d0e0b094c2014-1\", \"quantity\": 2, \"amount_cents\": 500}, {\"item_id\": \"item-session-3f52c72f03ae4cc5849d0e0b094c2014-2\", \"quantity\": 2, \"amount_cents\": 200}], \"amount_cents\": 700, \"channel\": \"simulated_original\", \"confirmation_message_id\": \"message-session-3f52c72f03ae4cc5849d0e0b094c2014-2\", \"idempotency_key\": \"ck.c81ff6a1.5\", \"call_id\": \"c.c81ff6a1.5\", \"committed_at\": \"2026-10-13T12:31:38.500414+00:00\", \"order_version_before\": 1, \"order_version_after\": 2, \"session_version_after\": 2, \"status\": \"committed\"}",
+    "role": "tool",
+    "tool_call_id": "call_00_s5t8aSPuhorcCHmviUQF2154"
+  },
+  {
+    "content": "Refund committed successfully. Now recording the outcome.",
+    "role": "assistant",
+    "tool_calls": [
+      {
+        "function": {
+          "arguments": "{\"outcome\": \"completed\", \"explanation\": \"依据客户结构化确认（消息-2），对订单中 eligible 的杯子2件、杯垫2件提交退款，共700分，退回原模拟渠道；资格未满足的包装袋未退款。\", \"expected_version\": 2}",
+          "name": "finish_case"
+        },
+        "id": "call_00_ADaCtdflRlaajDn7VIBq3223",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "content": "{\"session_id\": \"session-3f52c72f03ae4cc5849d0e0b094c2014\", \"episode_id\": \"episode-session-3f52c72f03ae4cc5849d0e0b094c2014\", \"case_id\": \"dev-case-refund-v2\", \"tenant_id\": \"c-l0-development\", \"experiment_id\": \"c-l0-j2-deepseek-dev\", \"config_id\": \"c-deepseek-flash-dev-v0.1\", \"status\": \"finished\", \"version\": 3, \"outcome\": \"completed\", \"explanation\": \"依据客户结构化确认（消息-2），对订单中 eligible 的杯子2件、杯垫2件提交退款，共700分，退回原模拟渠道；资格未满足的包装袋未退款。\", \"sources\": {\"fixture_source\": \"development_only\", \"execution_source\": \"observed_agent_execution\", \"recovery_source\": \"none\", \"contract_source\": \"candidate_pending_review\", \"calculation_version\": \"largest-remainder-prefix-v1-development\"}, \"contract_version\": \"bc-0.3-candidate\"}",
+    "role": "tool",
+    "tool_call_id": "call_00_ADaCtdflRlaajDn7VIBq3223"
+  }
+]

@@ -1,0 +1,9 @@
+Development sessions seeded: 2; model/payment calls: 0
+Workbench: http://127.0.0.1:50660 (local observer, one-hour access; Ctrl+C stops both services)
+{"sessions": ["session-3619368ab7a241398a361b3db1b16cc4", "session-dbb7c5bd6e584114a9065427055c84ad"], "two_templates": true, "offline_loaded_page_schemas": [1, 2, 3], "browser": "155.0.4283.45", "index": 0}
+
+Development sessions seeded: 0; model/payment calls: 0
+Workbench: http://127.0.0.1:53339 (local observer, one-hour access; Ctrl+C stops both services)
+{"sessions": ["session-3619368ab7a241398a361b3db1b16cc4", "session-dbb7c5bd6e584114a9065427055c84ad"], "two_templates": true, "offline_loaded_page_schemas": [1, 2, 3], "browser": "155.0.4283.45", "index": 1}
+
+{"actual_CLI_startup": true, "restart_no_reseed": true, "same_machine": true, "different_operator": false, "model_calls": 0, "payment_calls": 0}

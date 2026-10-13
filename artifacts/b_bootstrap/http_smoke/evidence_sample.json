@@ -1,0 +1,1273 @@
+{
+  "contract_version": "bc-0.1-candidate",
+  "schema_version": 1,
+  "exported_at": "2026-10-12T07:11:03.253103+00:00",
+  "initial_snapshot": {
+    "session": {
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "tenant_id": "dev-smoke-a",
+      "experiment_id": "development",
+      "config_id": "scripted-http-v1",
+      "status": "active",
+      "version": 1,
+      "outcome": null,
+      "explanation": null,
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      },
+      "contract_version": "bc-0.1-candidate"
+    },
+    "case": {
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "request": "请按商品与数量办理原路退款。消息中给出了明确的结构化确认；不同确认不能累加。",
+      "candidate_order_ids": [
+        "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-2"
+      ],
+      "messages": [
+        {
+          "message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+          "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+          "text": "确认订单一的甲商品三件和乙商品两件可全退，累计不超过购买数量。",
+          "confirmation": {
+            "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "items": [
+              {
+                "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+                "quantity": 3
+              },
+              {
+                "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-2",
+                "quantity": 2
+              }
+            ]
+          }
+        },
+        {
+          "message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-one",
+          "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+          "text": "此条确认仅允许甲商品累计退一件，不包含乙商品。",
+          "confirmation": {
+            "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "items": [
+              {
+                "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+                "quantity": 1
+              }
+            ]
+          }
+        },
+        {
+          "message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-second",
+          "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+          "text": "申请订单二的商品退款，但公开资格快照尚不满足退款条件。",
+          "confirmation": {
+            "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-2",
+            "items": [
+              {
+                "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-3",
+                "quantity": 1
+              }
+            ]
+          }
+        }
+      ],
+      "evidence_status": "development_public_facts",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    "orders": [
+      {
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "tenant_id": "dev-smoke-a",
+        "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "currency": "CNY",
+        "original_channel": "simulated_original",
+        "paid_cents": 1500,
+        "refunded_cents": 0,
+        "remaining_cents": 1500,
+        "status": "paid",
+        "version": 1,
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "name": "开发商品甲",
+            "quantity": 3,
+            "gross_cents": 1002,
+            "allocated_paid_cents": 1000,
+            "refunded_quantity": 0,
+            "refundable_quantity": 3,
+            "refunded_cents": 0,
+            "eligible": true
+          },
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-2",
+            "name": "开发商品乙",
+            "quantity": 2,
+            "gross_cents": 501,
+            "allocated_paid_cents": 500,
+            "refunded_quantity": 0,
+            "refundable_quantity": 2,
+            "refunded_cents": 0,
+            "eligible": true
+          }
+        ]
+      },
+      {
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-2",
+        "tenant_id": "dev-smoke-a",
+        "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "currency": "CNY",
+        "original_channel": "simulated_original",
+        "paid_cents": 200,
+        "refunded_cents": 0,
+        "remaining_cents": 200,
+        "status": "paid",
+        "version": 1,
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-3",
+            "name": "资格未满足的开发商品",
+            "quantity": 1,
+            "gross_cents": 200,
+            "allocated_paid_cents": 200,
+            "refunded_quantity": 0,
+            "refundable_quantity": 0,
+            "refunded_cents": 0,
+            "eligible": false
+          }
+        ]
+      }
+    ],
+    "policy": {
+      "policy_version": "dev-policy-v1",
+      "development_only": true,
+      "rules": [
+        "仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。",
+        "必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。",
+        "金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。",
+        "事实不足时停止写入并交管理侧人工处理；本批人工工单工具尚未接入。",
+        "这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。"
+      ],
+      "allocation_version": "largest-remainder-prefix-v1-development"
+    },
+    "merchant_balance_cents": 1700,
+    "customer_balance_cents": 0
+  },
+  "final_snapshot": {
+    "session": {
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "tenant_id": "dev-smoke-a",
+      "experiment_id": "development",
+      "config_id": "scripted-http-v1",
+      "status": "finished",
+      "version": 3,
+      "outcome": "completed",
+      "explanation": "Scripted HTTP demonstration; not an evaluator result.",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      },
+      "contract_version": "bc-0.1-candidate"
+    },
+    "case": {
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "request": "请按商品与数量办理原路退款。消息中给出了明确的结构化确认；不同确认不能累加。",
+      "candidate_order_ids": [
+        "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-2"
+      ],
+      "messages": [
+        {
+          "message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+          "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+          "text": "确认订单一的甲商品三件和乙商品两件可全退，累计不超过购买数量。",
+          "confirmation": {
+            "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "items": [
+              {
+                "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+                "quantity": 3
+              },
+              {
+                "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-2",
+                "quantity": 2
+              }
+            ]
+          }
+        },
+        {
+          "message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-one",
+          "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+          "text": "此条确认仅允许甲商品累计退一件，不包含乙商品。",
+          "confirmation": {
+            "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "items": [
+              {
+                "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+                "quantity": 1
+              }
+            ]
+          }
+        },
+        {
+          "message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-second",
+          "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+          "text": "申请订单二的商品退款，但公开资格快照尚不满足退款条件。",
+          "confirmation": {
+            "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-2",
+            "items": [
+              {
+                "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-3",
+                "quantity": 1
+              }
+            ]
+          }
+        }
+      ],
+      "evidence_status": "development_public_facts",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    "orders": [
+      {
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "tenant_id": "dev-smoke-a",
+        "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "currency": "CNY",
+        "original_channel": "simulated_original",
+        "paid_cents": 1500,
+        "refunded_cents": 333,
+        "remaining_cents": 1167,
+        "status": "partially_refunded",
+        "version": 2,
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "name": "开发商品甲",
+            "quantity": 3,
+            "gross_cents": 1002,
+            "allocated_paid_cents": 1000,
+            "refunded_quantity": 1,
+            "refundable_quantity": 2,
+            "refunded_cents": 333,
+            "eligible": true
+          },
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-2",
+            "name": "开发商品乙",
+            "quantity": 2,
+            "gross_cents": 501,
+            "allocated_paid_cents": 500,
+            "refunded_quantity": 0,
+            "refundable_quantity": 2,
+            "refunded_cents": 0,
+            "eligible": true
+          }
+        ]
+      },
+      {
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-2",
+        "tenant_id": "dev-smoke-a",
+        "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "currency": "CNY",
+        "original_channel": "simulated_original",
+        "paid_cents": 200,
+        "refunded_cents": 0,
+        "remaining_cents": 200,
+        "status": "paid",
+        "version": 1,
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-3",
+            "name": "资格未满足的开发商品",
+            "quantity": 1,
+            "gross_cents": 200,
+            "allocated_paid_cents": 200,
+            "refunded_quantity": 0,
+            "refundable_quantity": 0,
+            "refunded_cents": 0,
+            "eligible": false
+          }
+        ]
+      }
+    ],
+    "policy": {
+      "policy_version": "dev-policy-v1",
+      "development_only": true,
+      "rules": [
+        "仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。",
+        "必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。",
+        "金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。",
+        "事实不足时停止写入并交管理侧人工处理；本批人工工单工具尚未接入。",
+        "这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。"
+      ],
+      "allocation_version": "largest-remainder-prefix-v1-development"
+    },
+    "merchant_balance_cents": 1367,
+    "customer_balance_cents": 333
+  },
+  "refunds": [
+    {
+      "transaction_id": "refund-1d5dd69de8754d3189ec40f0aab2c1ce",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+      "items": [
+        {
+          "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+          "quantity": 1,
+          "amount_cents": 333
+        }
+      ],
+      "amount_cents": 333,
+      "channel": "simulated_original",
+      "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+      "idempotency_key": "refund-7798e4b8c7ae4db294231fe15d56a94a",
+      "call_id": "call-ef89f12e983b45fc9ff9791ee13694d4",
+      "committed_at": "2026-10-12T07:11:02.775326+00:00",
+      "order_version_before": 1,
+      "order_version_after": 2,
+      "session_version_after": 2,
+      "status": "committed"
+    }
+  ],
+  "ledger": [
+    {
+      "entry_id": "ledger-9cb185dc32b3480b970c7f0d49320430",
+      "transaction_id": "refund-1d5dd69de8754d3189ec40f0aab2c1ce",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+      "merchant_delta_cents": -333,
+      "customer_delta_cents": 333,
+      "merchant_balance_cents": 1367,
+      "customer_balance_cents": 333
+    }
+  ],
+  "events": [
+    {
+      "event_id": "event-520338ee094a4ed09de879311fd92dbb",
+      "request_id": "request-55be7825dd85493abdf816c45ee0edde",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 1,
+      "recorded_at": "2026-10-12T07:11:02.675150+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "get_case",
+      "call_id": "call-71e4f77b0a474efc90bebafbc77c1076",
+      "raw_arguments": {},
+      "validated_arguments": {},
+      "idempotency_key": null,
+      "status": "succeeded",
+      "session_version_before": 1,
+      "session_version_after": 1,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": null,
+      "committed_amount_cents": 0,
+      "result": {
+        "candidate_order_ids": [
+          "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+          "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-2"
+        ],
+        "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "evidence_status": "development_public_facts",
+        "messages": [
+          {
+            "confirmation": {
+              "items": [
+                {
+                  "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+                  "quantity": 3
+                },
+                {
+                  "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-2",
+                  "quantity": 2
+                }
+              ],
+              "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1"
+            },
+            "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+            "message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+            "text": "确认订单一的甲商品三件和乙商品两件可全退，累计不超过购买数量。"
+          },
+          {
+            "confirmation": {
+              "items": [
+                {
+                  "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+                  "quantity": 1
+                }
+              ],
+              "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1"
+            },
+            "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+            "message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-one",
+            "text": "此条确认仅允许甲商品累计退一件，不包含乙商品。"
+          },
+          {
+            "confirmation": {
+              "items": [
+                {
+                  "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-3",
+                  "quantity": 1
+                }
+              ],
+              "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-2"
+            },
+            "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+            "message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-second",
+            "text": "申请订单二的商品退款，但公开资格快照尚不满足退款条件。"
+          }
+        ],
+        "request": "请按商品与数量办理原路退款。消息中给出了明确的结构化确认；不同确认不能累加。",
+        "sources": {
+          "calculation_version": "largest-remainder-prefix-v1-development",
+          "contract_source": "candidate_pending_review",
+          "execution_source": "scripted_test",
+          "fixture_source": "development_only",
+          "recovery_source": "none"
+        }
+      },
+      "error": null,
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-241490c76ee14a6cb751c73de6ffb0ce",
+      "request_id": "request-9f53789f812240c797d2e06f7bdcad89",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 2,
+      "recorded_at": "2026-10-12T07:11:02.728796+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "get_business_policy",
+      "call_id": "call-ee728278ce7a4153baaee7b2a47c170e",
+      "raw_arguments": {},
+      "validated_arguments": {},
+      "idempotency_key": null,
+      "status": "succeeded",
+      "session_version_before": 1,
+      "session_version_after": 1,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": null,
+      "committed_amount_cents": 0,
+      "result": {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "development_only": true,
+        "policy_version": "dev-policy-v1",
+        "rules": [
+          "仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。",
+          "必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。",
+          "金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。",
+          "事实不足时停止写入并交管理侧人工处理；本批人工工单工具尚未接入。",
+          "这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。"
+        ]
+      },
+      "error": null,
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-2bddaf5bf4cf471ca7662df008357047",
+      "request_id": "request-1f84010726e4467b84b656010e4cead6",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 3,
+      "recorded_at": "2026-10-12T07:11:02.744395+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "get_order",
+      "call_id": "call-b118fd8745854af58e8b2ed094691fcd",
+      "raw_arguments": {
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1"
+      },
+      "validated_arguments": {
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1"
+      },
+      "idempotency_key": null,
+      "status": "succeeded",
+      "session_version_before": 1,
+      "session_version_after": 1,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": null,
+      "committed_amount_cents": 0,
+      "result": {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "items": [
+          {
+            "allocated_paid_cents": 1000,
+            "eligible": true,
+            "gross_cents": 1002,
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "name": "开发商品甲",
+            "quantity": 3,
+            "refundable_quantity": 3,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 500,
+            "eligible": true,
+            "gross_cents": 501,
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-2",
+            "name": "开发商品乙",
+            "quantity": 2,
+            "refundable_quantity": 2,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "original_channel": "simulated_original",
+        "paid_cents": 1500,
+        "refunded_cents": 0,
+        "remaining_cents": 1500,
+        "status": "paid",
+        "tenant_id": "dev-smoke-a",
+        "version": 1
+      },
+      "error": null,
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-bc73b34c828540d09a46a26ecfc438c1",
+      "request_id": "request-b859005c385b466facebf1f61c95a859",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 4,
+      "recorded_at": "2026-10-12T07:11:02.776093+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "submit_refund",
+      "call_id": "call-ef89f12e983b45fc9ff9791ee13694d4",
+      "raw_arguments": {
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "reason": "scripted_test: one unit confirmed by public message"
+      },
+      "validated_arguments": {
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "reason": "scripted_test: one unit confirmed by public message"
+      },
+      "idempotency_key": "refund-7798e4b8c7ae4db294231fe15d56a94a",
+      "status": "succeeded",
+      "session_version_before": 1,
+      "session_version_after": 2,
+      "order_version_before": 1,
+      "order_version_after": 2,
+      "transaction_id": "refund-1d5dd69de8754d3189ec40f0aab2c1ce",
+      "committed_amount_cents": 333,
+      "result": {
+        "amount_cents": 333,
+        "call_id": "call-ef89f12e983b45fc9ff9791ee13694d4",
+        "channel": "simulated_original",
+        "committed_at": "2026-10-12T07:11:02.775326+00:00",
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "idempotency_key": "refund-7798e4b8c7ae4db294231fe15d56a94a",
+        "items": [
+          {
+            "amount_cents": 333,
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "order_version_after": 2,
+        "order_version_before": 1,
+        "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "session_version_after": 2,
+        "status": "committed",
+        "transaction_id": "refund-1d5dd69de8754d3189ec40f0aab2c1ce"
+      },
+      "error": null,
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-4e8b2c8549cc44b3baf93dc7109532b8",
+      "request_id": "request-641e12eb9e63462b8bb97c657d9d25a3",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 5,
+      "recorded_at": "2026-10-12T07:11:02.821483+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "get_refund_history",
+      "call_id": "call-19494bd956924667a0bf897ffb4cc645",
+      "raw_arguments": {
+        "idempotency_key": "refund-7798e4b8c7ae4db294231fe15d56a94a",
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1"
+      },
+      "validated_arguments": {
+        "idempotency_key": "refund-7798e4b8c7ae4db294231fe15d56a94a",
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1"
+      },
+      "idempotency_key": null,
+      "status": "succeeded",
+      "session_version_before": 2,
+      "session_version_after": 2,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": null,
+      "committed_amount_cents": 0,
+      "result": {
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "refunds": [
+          {
+            "amount_cents": 333,
+            "call_id": "call-ef89f12e983b45fc9ff9791ee13694d4",
+            "channel": "simulated_original",
+            "committed_at": "2026-10-12T07:11:02.775326+00:00",
+            "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+            "idempotency_key": "refund-7798e4b8c7ae4db294231fe15d56a94a",
+            "items": [
+              {
+                "amount_cents": 333,
+                "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+                "quantity": 1
+              }
+            ],
+            "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "order_version_after": 2,
+            "order_version_before": 1,
+            "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+            "session_version_after": 2,
+            "status": "committed",
+            "transaction_id": "refund-1d5dd69de8754d3189ec40f0aab2c1ce"
+          }
+        ],
+        "request_status": "committed",
+        "requested_key": "refund-7798e4b8c7ae4db294231fe15d56a94a",
+        "transaction_id": "refund-1d5dd69de8754d3189ec40f0aab2c1ce"
+      },
+      "error": null,
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-99ab32bc108b48ae8e23cfe0c91eab04",
+      "request_id": "request-442500282ac74e14859c0c2bc39889d9",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 6,
+      "recorded_at": "2026-10-12T07:11:02.839155+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "submit_refund",
+      "call_id": "call-1be42e295eed41ec8aac0e61c7051d83",
+      "raw_arguments": {
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "reason": "scripted_test: one unit confirmed by public message"
+      },
+      "validated_arguments": {
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "reason": "scripted_test: one unit confirmed by public message"
+      },
+      "idempotency_key": "refund-7798e4b8c7ae4db294231fe15d56a94a",
+      "status": "replayed",
+      "session_version_before": 2,
+      "session_version_after": 2,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": "refund-1d5dd69de8754d3189ec40f0aab2c1ce",
+      "committed_amount_cents": 0,
+      "result": {
+        "amount_cents": 333,
+        "call_id": "call-ef89f12e983b45fc9ff9791ee13694d4",
+        "channel": "simulated_original",
+        "committed_at": "2026-10-12T07:11:02.775326+00:00",
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "idempotency_key": "refund-7798e4b8c7ae4db294231fe15d56a94a",
+        "items": [
+          {
+            "amount_cents": 333,
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "order_version_after": 2,
+        "order_version_before": 1,
+        "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "session_version_after": 2,
+        "status": "committed",
+        "transaction_id": "refund-1d5dd69de8754d3189ec40f0aab2c1ce"
+      },
+      "error": null,
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-b6f564f23b3b46679677932b8442cd62",
+      "request_id": "request-a2cca4684b2b4c84b7848fbbfe4d9a16",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 7,
+      "recorded_at": "2026-10-12T07:11:02.875973+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "submit_refund",
+      "call_id": "call-45a1a93044c84978be3a7fe91905b05a",
+      "raw_arguments": {
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "reason": "scripted_test: one unit confirmed by public message"
+      },
+      "validated_arguments": {
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "reason": "scripted_test: one unit confirmed by public message"
+      },
+      "idempotency_key": "new-745bcb449caa47a394285227ba5be986",
+      "status": "rejected",
+      "session_version_before": 2,
+      "session_version_after": 2,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": null,
+      "committed_amount_cents": 0,
+      "result": null,
+      "error": {
+        "code": "STALE_STATE",
+        "message": "Expected version does not match current state.",
+        "retryable": false,
+        "request_id": "request-a2cca4684b2b4c84b7848fbbfe4d9a16"
+      },
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-0ac70e5472b44279a24ae69df7662219",
+      "request_id": "request-1c114d1fa6df4c20bf4fceffe67d91c1",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 8,
+      "recorded_at": "2026-10-12T07:11:03.105409+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "get_order",
+      "call_id": "call-ae25a33d09524500a54f9ce719128aa4",
+      "raw_arguments": {
+        "order_id": "order-session-ba9c80928ec94ce99ce0deff46b280ef-1"
+      },
+      "validated_arguments": {
+        "order_id": "order-session-ba9c80928ec94ce99ce0deff46b280ef-1"
+      },
+      "idempotency_key": null,
+      "status": "rejected",
+      "session_version_before": 2,
+      "session_version_after": 2,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": null,
+      "committed_amount_cents": 0,
+      "result": null,
+      "error": {
+        "code": "OBJECT_FORBIDDEN",
+        "message": "Object is outside this session's authorized scope.",
+        "retryable": false,
+        "request_id": "request-1c114d1fa6df4c20bf4fceffe67d91c1"
+      },
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-1bccda0467e240098402c7b86b00a5b2",
+      "request_id": "request-6819e81e48864b6aa4a55b49f01b3075",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 9,
+      "recorded_at": "2026-10-12T07:11:03.132890+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "finish_case",
+      "call_id": "call-f5078b534ca545e694f3c04a31f4b5da",
+      "raw_arguments": {
+        "expected_version": 2,
+        "explanation": "Scripted HTTP demonstration; not an evaluator result.",
+        "outcome": "completed"
+      },
+      "validated_arguments": {
+        "expected_version": 2,
+        "explanation": "Scripted HTTP demonstration; not an evaluator result.",
+        "outcome": "completed"
+      },
+      "idempotency_key": "finish-8c8fc4d5d19e4184a39b767cc1643e08",
+      "status": "succeeded",
+      "session_version_before": 2,
+      "session_version_after": 3,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": null,
+      "committed_amount_cents": 0,
+      "result": {
+        "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "config_id": "scripted-http-v1",
+        "contract_version": "bc-0.1-candidate",
+        "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "experiment_id": "development",
+        "explanation": "Scripted HTTP demonstration; not an evaluator result.",
+        "outcome": "completed",
+        "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "sources": {
+          "calculation_version": "largest-remainder-prefix-v1-development",
+          "contract_source": "candidate_pending_review",
+          "execution_source": "scripted_test",
+          "fixture_source": "development_only",
+          "recovery_source": "none"
+        },
+        "status": "finished",
+        "tenant_id": "dev-smoke-a",
+        "version": 3
+      },
+      "error": null,
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-887ee2dba9a3415a949f64a09d71c7e3",
+      "request_id": "request-4bca53aa8a3a44c9b456709158be77d4",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 10,
+      "recorded_at": "2026-10-12T07:11:03.151769+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "submit_refund",
+      "call_id": "call-bbdd24b560f249ae98569fe366ab3742",
+      "raw_arguments": {
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "reason": "scripted_test: one unit confirmed by public message"
+      },
+      "validated_arguments": {
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "reason": "scripted_test: one unit confirmed by public message"
+      },
+      "idempotency_key": "refund-7798e4b8c7ae4db294231fe15d56a94a",
+      "status": "replayed",
+      "session_version_before": 3,
+      "session_version_after": 3,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": "refund-1d5dd69de8754d3189ec40f0aab2c1ce",
+      "committed_amount_cents": 0,
+      "result": {
+        "amount_cents": 333,
+        "call_id": "call-ef89f12e983b45fc9ff9791ee13694d4",
+        "channel": "simulated_original",
+        "committed_at": "2026-10-12T07:11:02.775326+00:00",
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "idempotency_key": "refund-7798e4b8c7ae4db294231fe15d56a94a",
+        "items": [
+          {
+            "amount_cents": 333,
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "order_version_after": 2,
+        "order_version_before": 1,
+        "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "session_version_after": 2,
+        "status": "committed",
+        "transaction_id": "refund-1d5dd69de8754d3189ec40f0aab2c1ce"
+      },
+      "error": null,
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-0060166becb546a396d18ff9a3f37576",
+      "request_id": "request-f5b6d686aca049aeb1fd970df618941b",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 11,
+      "recorded_at": "2026-10-12T07:11:03.183094+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "finish_case",
+      "call_id": "call-c8d78371a593453e9fca2b65e32199e0",
+      "raw_arguments": {
+        "expected_version": 2,
+        "explanation": "Scripted HTTP demonstration; not an evaluator result.",
+        "outcome": "completed"
+      },
+      "validated_arguments": {
+        "expected_version": 2,
+        "explanation": "Scripted HTTP demonstration; not an evaluator result.",
+        "outcome": "completed"
+      },
+      "idempotency_key": "finish-8c8fc4d5d19e4184a39b767cc1643e08",
+      "status": "replayed",
+      "session_version_before": 3,
+      "session_version_after": 3,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": null,
+      "committed_amount_cents": 0,
+      "result": {
+        "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "config_id": "scripted-http-v1",
+        "contract_version": "bc-0.1-candidate",
+        "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "experiment_id": "development",
+        "explanation": "Scripted HTTP demonstration; not an evaluator result.",
+        "outcome": "completed",
+        "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "sources": {
+          "calculation_version": "largest-remainder-prefix-v1-development",
+          "contract_source": "candidate_pending_review",
+          "execution_source": "scripted_test",
+          "fixture_source": "development_only",
+          "recovery_source": "none"
+        },
+        "status": "finished",
+        "tenant_id": "dev-smoke-a",
+        "version": 3
+      },
+      "error": null,
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-26362a73be96466fbb7eee9cfacbad3d",
+      "request_id": "request-41a8e732e12c492a8a0ed35872355429",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 12,
+      "recorded_at": "2026-10-12T07:11:03.209914+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "submit_refund",
+      "call_id": "call-118c589e3b244eb3ab2a5b32aed72501",
+      "raw_arguments": {
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "expected_version": 2,
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "reason": "scripted_test: one unit confirmed by public message"
+      },
+      "validated_arguments": {
+        "confirmation_message_id": "message-session-d9cb65f67aaa41daadd4a7abefe3a38b-all",
+        "expected_version": 2,
+        "items": [
+          {
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "reason": "scripted_test: one unit confirmed by public message"
+      },
+      "idempotency_key": "after-finish",
+      "status": "rejected",
+      "session_version_before": 3,
+      "session_version_after": 3,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": null,
+      "committed_amount_cents": 0,
+      "result": null,
+      "error": {
+        "code": "SESSION_FINISHED",
+        "message": "New writes are not allowed after finish_case.",
+        "retryable": false,
+        "request_id": "request-41a8e732e12c492a8a0ed35872355429"
+      },
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    },
+    {
+      "event_id": "event-04094210b6d9447296d003940f5fec2e",
+      "request_id": "request-39146bfc04e84b048f06813e930479cf",
+      "experiment_id": "development",
+      "episode_id": "episode-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "case_id": "case-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "session_id": "session-d9cb65f67aaa41daadd4a7abefe3a38b",
+      "config_id": "scripted-http-v1",
+      "seq": 13,
+      "recorded_at": "2026-10-12T07:11:03.243394+00:00",
+      "business_time": "2026-10-11T12:00:00+08:00",
+      "tool_name": "get_order",
+      "call_id": "call-50def3d826904e359424fb3028502253",
+      "raw_arguments": {
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1"
+      },
+      "validated_arguments": {
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1"
+      },
+      "idempotency_key": null,
+      "status": "succeeded",
+      "session_version_before": 3,
+      "session_version_after": 3,
+      "order_version_before": null,
+      "order_version_after": null,
+      "transaction_id": null,
+      "committed_amount_cents": 0,
+      "result": {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "customer-session-d9cb65f67aaa41daadd4a7abefe3a38b",
+        "items": [
+          {
+            "allocated_paid_cents": 1000,
+            "eligible": true,
+            "gross_cents": 1002,
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+            "name": "开发商品甲",
+            "quantity": 3,
+            "refundable_quantity": 2,
+            "refunded_cents": 333,
+            "refunded_quantity": 1
+          },
+          {
+            "allocated_paid_cents": 500,
+            "eligible": true,
+            "gross_cents": 501,
+            "item_id": "item-session-d9cb65f67aaa41daadd4a7abefe3a38b-2",
+            "name": "开发商品乙",
+            "quantity": 2,
+            "refundable_quantity": 2,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          }
+        ],
+        "order_id": "order-session-d9cb65f67aaa41daadd4a7abefe3a38b-1",
+        "original_channel": "simulated_original",
+        "paid_cents": 1500,
+        "refunded_cents": 333,
+        "remaining_cents": 1167,
+        "status": "partially_refunded",
+        "tenant_id": "dev-smoke-a",
+        "version": 2
+      },
+      "error": null,
+      "client_receipt": "unknown",
+      "sources": {
+        "fixture_source": "development_only",
+        "execution_source": "scripted_test",
+        "recovery_source": "none",
+        "contract_source": "candidate_pending_review",
+        "calculation_version": "largest-remainder-prefix-v1-development"
+      }
+    }
+  ],
+  "policy": {
+    "policy_version": "dev-policy-v1",
+    "development_only": true,
+    "rules": [
+      "仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。",
+      "必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。",
+      "金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。",
+      "事实不足时停止写入并交管理侧人工处理；本批人工工单工具尚未接入。",
+      "这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。"
+    ],
+    "allocation_version": "largest-remainder-prefix-v1-development"
+  },
+  "sources": {
+    "fixture_source": "development_only",
+    "execution_source": "scripted_test",
+    "recovery_source": "none",
+    "contract_source": "candidate_pending_review",
+    "calculation_version": "largest-remainder-prefix-v1-development"
+  },
+  "receipt_semantics": "server_commit_does_not_prove_client_receipt"
+}

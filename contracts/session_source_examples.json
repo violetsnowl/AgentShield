@@ -1,0 +1,10 @@
+{
+  "notice": "Controlled source-label propagation examples only; this file is not proof of a provider/model execution.",
+  "model_calls": 0,
+  "real_execution_proof": false,
+  "requests": [
+    {"tenant_id": "development-source-test", "execution_source": "scripted_test"},
+    {"tenant_id": "development-source-test", "execution_source": "mock_agent"},
+    {"tenant_id": "development-source-test", "execution_source": "observed_agent_execution"}
+  ]
+}

@@ -1,0 +1,8 @@
+AgentShield A0 Patch 0.1 -- only new A-owned files.
+1. Backup your project folder before merging.
+2. Unzip contents DIRECTLY into the root of your existing AgentShield project (where api/, sandbox/, frontend/ exist).
+3. Read README_A0_PYCHARM.md.
+4. PyCharm Terminal: python -m unittest tests.test_actuarial_claims tests.test_actuarial_estimates tests.test_actuarial_cases -v
+5. PyCharm Terminal: python -m actuarial.demo
+No files in api/, sandbox/, frontend/, migrations/ or original B/D contracts/models.py are included.
+No original databases or history are included. No model/API calls. All quote numbers are engineering illustrations, never real tariffs.

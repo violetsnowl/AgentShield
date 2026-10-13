@@ -1,0 +1,10 @@
+{
+  "batch_prefix": "j2-deepseek-dev",
+  "experiment_id": "c-l0-j2-deepseek-dev",
+  "purpose": "L0 real development runs (C0-2): one DeepSeek configuration on the two development templates. Counts toward the >=10 cost pre-trial, never as formal L1 results.",
+  "runs": [
+    {"label": "v1_refund", "config": "configs/runner/deepseek-dev-v0.1.json", "fixture_id": "dev-refund-v1"},
+    {"label": "v2_partial_refund_and_review", "config": "configs/runner/deepseek-dev-v0.1.json", "fixture_id": "dev-refund-v2"},
+    {"label": "v2_repeat", "config": "configs/runner/deepseek-dev-v0.1.json", "fixture_id": "dev-refund-v2"}
+  ]
+}

@@ -1,0 +1,12 @@
+HTTP evidence directory: artifacts\pro_bd_sprint\05\http_evidence
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\作业合集\大三\智能+保险\agentshield\scripts\run_http_checks.py", line 157, in <module>
+    main()
+    ~~~~^^
+  File "D:\作业合集\大三\智能+保险\agentshield\scripts\run_http_checks.py", line 110, in main
+    process = start(port, env, log)
+  File "D:\作业合集\大三\智能+保险\agentshield\scripts\run_http_checks.py", line 45, in start
+    raise TimeoutError("HTTP server failed to become ready")
+TimeoutError: HTTP server failed to become ready

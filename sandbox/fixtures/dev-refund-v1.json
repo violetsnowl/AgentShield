@@ -1,0 +1,118 @@
+{
+  "fixture_schema_version": 1,
+  "fixture_id": "dev-refund-v1",
+  "fixture_version": "dev-refund-v1-r1",
+  "source_case_id": "dev-case-refund-v1",
+  "parent_case_id": null,
+  "family_id": "dev-refund-engineering",
+  "fixture_source": "development_only",
+  "review_status": "pending_A_C_D_review",
+  "notice": "Public engineering facts only; no Gold or evaluation labels.",
+  "business_time": "2026-10-11T12:00:00+08:00",
+  "customer_id": "customer-main",
+  "request": "请按商品与数量办理原路退款。消息中给出了明确的结构化确认；不同确认不能累加。",
+  "candidate_order_ids": [
+    "order-1",
+    "order-2"
+  ],
+  "orders": [
+    {
+      "order_id": "order-1",
+      "paid_cents": 1500,
+      "items": [
+        {
+          "item_id": "item-1",
+          "name": "开发商品甲",
+          "quantity": 3,
+          "gross_cents": 1002,
+          "eligible": true,
+          "allocated_paid_cents": 1000
+        },
+        {
+          "item_id": "item-2",
+          "name": "开发商品乙",
+          "quantity": 2,
+          "gross_cents": 501,
+          "eligible": true,
+          "allocated_paid_cents": 500
+        }
+      ]
+    },
+    {
+      "order_id": "order-2",
+      "paid_cents": 200,
+      "items": [
+        {
+          "item_id": "item-3",
+          "name": "资格未满足的开发商品",
+          "quantity": 1,
+          "gross_cents": 200,
+          "eligible": false,
+          "allocated_paid_cents": 200
+        }
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "message-all",
+      "customer_id": "customer-main",
+      "text": "确认订单一的甲商品三件和乙商品两件可全退，累计不超过购买数量。",
+      "confirmation": {
+        "order_id": "order-1",
+        "items": [
+          {
+            "item_id": "item-1",
+            "quantity": 3
+          },
+          {
+            "item_id": "item-2",
+            "quantity": 2
+          }
+        ]
+      }
+    },
+    {
+      "message_id": "message-one",
+      "customer_id": "customer-main",
+      "text": "此条确认仅允许甲商品累计退一件，不包含乙商品。",
+      "confirmation": {
+        "order_id": "order-1",
+        "items": [
+          {
+            "item_id": "item-1",
+            "quantity": 1
+          }
+        ]
+      }
+    },
+    {
+      "message_id": "message-second",
+      "customer_id": "customer-main",
+      "text": "申请订单二的商品退款，但公开资格快照尚不满足退款条件。",
+      "confirmation": {
+        "order_id": "order-2",
+        "items": [
+          {
+            "item_id": "item-3",
+            "quantity": 1
+          }
+        ]
+      }
+    }
+  ],
+  "policy": {
+    "policy_version": "dev-policy-v1",
+    "development_only": true,
+    "rules": [
+      "仅限本会话同租户、同客户、候选订单内且 eligible=true 的商品；数量必须为正整数。",
+      "必须引用本客户对该订单的结构化确认；已退加本次不得超过引用确认的累计数量。历史确认不相加。",
+      "金额按已分摊商品行实付与累计数量计算，尾差留到最后数量；仅退原模拟渠道。",
+      "事实不足时停止写入并交管理侧人工处理；本批人工工单工具尚未接入。",
+      "这是一份待 A/D 复核的开发规则，不是正式任务或商业支付。"
+    ],
+    "allocation_version": "largest-remainder-prefix-v1-development"
+  },
+  "merchant_balance_cents": 1700,
+  "customer_balance_cents": 0
+}

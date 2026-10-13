@@ -1,0 +1,14 @@
+{
+  "contract_version": "research-refund-ai-v0.1-candidate",
+  "currency": "CNY",
+  "deductible_cents": 10000,
+  "coinsurance_bp": 10000,
+  "occurrence_limit_cents": 100000,
+  "commercial_quote": false,
+  "per_event_deductible": true,
+  "aggregate_limit_cents": null,
+  "covered_description": "研究用：经独立核验、在声明配置和业务范围内的非故意 AI 执行错误造成的可追溯额外净资金损失；具体责任由 A/C 另行核验",
+  "exclusions_description": "不承保故意欺骗、外部现实攻击、罚款、第三人人身损害、声誉损失和机会成本；争议/缺失证据待审",
+  "observation_horizon": "pending_A_D_review",
+  "warning": "research scenario only; engineering examples are not natural Agent losses"
+}

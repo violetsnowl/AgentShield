@@ -1,0 +1,21 @@
+{
+  "label": "environment",
+  "started_at": "2026-10-12T14:38:26.806661+00:00",
+  "finished_at": "2026-10-12T14:38:29.250587+00:00",
+  "command": [
+    "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+    "artifacts/pro_bd_sprint/05/support/check_environment.py"
+  ],
+  "exit_code": 0,
+  "status": "pass",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "No broken requirements found.\n{\n  \"python\": \"3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]\",\n  \"prefix\": \"D:\\\\\\u4f5c\\u4e1a\\u5408\\u96c6\\\\\\u5927\\u4e09\\\\\\u667a\\u80fd+\\u4fdd\\u9669\\\\agentshield\\\\.venv\",\n  \"packages\": {\n    \"annotated-doc\": \"0.0.5\",\n    \"annotated-types\": \"0.8.0\",\n    \"anyio\": \"4.15.1\",\n    \"attrs\": \"26.1.0\",\n    \"certifi\": \"2026.7.22\",\n    \"click\": \"8.5.0\",\n    \"fastapi\": \"0.136.0\",\n    \"h11\": \"0.16.0\",\n    \"httpcore\": \"1.0.9\",\n    \"httpx\": \"0.28.1\",\n    \"idna\": \"3.20\",\n    \"jsonschema\": \"4.26.0\",\n    \"jsonschema-specifications\": \"2025.9.1\",\n    \"pydantic\": \"2.13.3\",\n    \"pydantic_core\": \"2.46.3\",\n    \"referencing\": \"0.37.0\",\n    \"rpds-py\": \"2026.9.1\",\n    \"starlette\": \"1.7.0\",\n    \"typing-inspection\": \"0.4.4\",\n    \"typing_extensions\": \"4.16.0\",\n    \"uvicorn\": \"0.45.0\"\n  },\n  \"node\": \"v24.21.0\",\n  \"npm\": \"11.19.0\",\n  \"frontend_direct_packages\": {\n    \"ajv\": \"8.17.1\",\n    \"react\": \"19.3.0\",\n    \"react-dom\": \"19.3.0\",\n    \"@types/react\": \"19.3.0\",\n    \"@types/react-dom\": \"19.3.0\",\n    \"@vitejs/plugin-react\": \"6.1.2\",\n    \"playwright-core\": \"1.62.1\",\n    \"typescript\": \"7.0.2\",\n    \"vite\": \"8.3.4\",\n    \"vitest\": \"4.0.18\"\n  },\n  \"lock_sha256\": {\n    \"requirements.lock\": \"dc656653de7b86f9dde155a5532179d5028aa1551fcd62680ab8b36c40b6bda7\",\n    \"frontend/package-lock.json\": \"3da72fda2fc6b6fa9e4ab9913c2133081c9596f28237c6d1bf2edd0a6212274e\"\n  }\n}\n"
+}

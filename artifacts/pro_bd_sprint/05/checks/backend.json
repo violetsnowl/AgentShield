@@ -1,0 +1,26 @@
+{
+  "label": "backend",
+  "started_at": "2026-10-12T14:32:25.147230+00:00",
+  "finished_at": "2026-10-12T14:35:02.152535+00:00",
+  "command": [
+    "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-v"
+  ],
+  "exit_code": 4294967295,
+  "status": "fail",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Lib\\site-packages\\fastapi\\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n  from starlette.testclient import TestClient as TestClient  # noqa\ntest_legacy_rows_and_successful_keys_survive_additive_migration (test_b_patch.MigrationTests.test_legacy_rows_and_successful_keys_survive_additive_migration) ... "
+}

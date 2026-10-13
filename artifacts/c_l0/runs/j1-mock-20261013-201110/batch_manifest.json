@@ -1,0 +1,498 @@
+{
+  "b_instance": {
+    "admin_token": "in-memory only, not recorded",
+    "db": "var/c_runs/j1-mock-20261013-201110/b.sqlite3",
+    "host": "127.0.0.1 (random port)"
+  },
+  "batch_id": "j1-mock-20261013-201110",
+  "code_sha256": {
+    "evaluator/__init__.py": "63ad7355f1ea40c8ff4293b574a1aa421eb7e60447ada9e2b9b3fe1b5f9c6ee2",
+    "evaluator/evidence_adapter.py": "773b756e80c21ec491d1a9819ca81b725e02e63376ec6ab6831f1e0b657a2db3",
+    "evaluator/export_schema.py": "4a25ea8898645b06685947bb8c80eb48d6413bd47ebcd9a871b551121170fe3c",
+    "evaluator/loss.py": "2403f2ca19ed86077a65716a4c692b7c5c45ddf633d047e31b7be51dfd327411",
+    "evaluator/models.py": "f5e109309de3fe18332748688db08239772ec9b7f125537d19aaf837a0367063",
+    "evaluator/obligations.py": "a6bce3a1fa26debc5dc0b7f8faf01c0d958cbf31569cd97881db0f1b124b2574",
+    "evaluator/verify.py": "17301c19cb74f95efbc48fbde855781f92a321a18a2dcaf2628938830f2fbb64",
+    "experiments/__init__.py": "30e0a8aa31e3f3812d483a43b493d2172571b96596e9a7772fa818f1ec786f46",
+    "experiments/b_process.py": "d63c941ba367b3fb8c3bdbc12c3692084e4d569307c300e03db60cf4b9c8ca5a",
+    "experiments/plans/j1_mock.json": "1e14644ef601efc2f5d9b5659afd633335981692756a87717f0bcc424fbfd7d2",
+    "experiments/plans/j2_deepseek_dev.json": "38ced8171f6bcfc277f114d72fbdd736fed3b694448c2b33b7e31d9d9cdd7892",
+    "experiments/run_dev.py": "609f322cedd69ca33f40be0d7274a21cdb8c295efafebbea80f44a813842c144",
+    "runners/__init__.py": "c980caf00d13025fa850573f3ad040e4c8ed6e58d3603ffd868794222356cbed",
+    "runners/adapters/__init__.py": "82f4b33d1919a28d631a0d88a8b04e078b5eb363db80b86c3c43f218f47f18ee",
+    "runners/adapters/mock.py": "9f8023735cec256537c50171c3afac8ff6d56ac4c064030125a3467523234050",
+    "runners/adapters/openai_compat.py": "fae913d0d3aeca52f5e0e11635f459569baf1e15d98bf47dbe1ff2ae4d8bfe7d",
+    "runners/attempts.py": "909382bf474d81759ed22b1dadd4b822fceea708f9e90ac9badd93c3718918ae",
+    "runners/config.py": "68a02b78bb68901d4a6b09d70a4411c48e06047a68db68209dd725df9e1e2229",
+    "runners/env.py": "95910bcb6e8bb90735179a96d0989cf6766f380ad8080bd3048662cc6912e313",
+    "runners/loop.py": "db39337c06172323ea75461f1488380a9b04b00db256e883674785f4df8bbb03",
+    "runners/prompts/system_v0.1.md": "a8762d29ac53d712a0b7f49321c553c1ab9ea735991c4b3be7a8c1fc3cc67f7f",
+    "runners/protocol.py": "6c81c8c3ae4ba5d63ed7a997904ae1fc108798fdbd84888f75b997de95ed75c0",
+    "runners/sandbox_client.py": "e740ec9ab80677093e20dccb06b0eddc6c201342b8602b26fab2009a0bef7c37",
+    "runners/tools.py": "c5611ef3baab72486a948c3c975a026d1e123089902ecf68fc2a240f8bb01c06"
+  },
+  "contract_version": "bc-0.3-candidate",
+  "counts_as_formal_run": false,
+  "finished_at": "2026-10-13T12:11:14.121652+00:00",
+  "git_head": "38315d6bdd138996df9d2daccd336406432bee7b",
+  "plan": {
+    "batch_prefix": "j1-mock",
+    "experiment_id": "c-l0-j1-mock",
+    "purpose": "J1 engineering closed loop with the scripted MockAdapter. Not a model run; not a formal sample.",
+    "runs": [
+      {
+        "config": "configs/runner/mock-v0.1.json",
+        "fixture_id": "dev-refund-v1",
+        "label": "v1_normal_refund",
+        "scenario": "normal_refund"
+      },
+      {
+        "config": "configs/runner/mock-v0.1.json",
+        "fixture_id": "dev-refund-v2",
+        "label": "v2_partial_refund_with_review",
+        "scenario": "partial_refund_with_review"
+      },
+      {
+        "config": "configs/runner/mock-v0.1.json",
+        "fixture_id": "dev-refund-v1",
+        "label": "v1_rejected_then_corrected",
+        "scenario": "rejected_then_corrected"
+      },
+      {
+        "config": "configs/runner/mock-v0.1.json",
+        "fixture_id": "dev-refund-v1",
+        "label": "v1_lost_response_recovery",
+        "scenario": "lost_response_recovery"
+      }
+    ]
+  },
+  "plan_file": "experiments/plans/j1_mock.json",
+  "plan_sha256": "1e14644ef601efc2f5d9b5659afd633335981692756a87717f0bcc424fbfd7d2",
+  "purpose": "J1 engineering closed loop with the scripted MockAdapter. Not a model run; not a formal sample.",
+  "python": "3.13.2 (tags/v3.13.2:4f8bb39, Feb  4 2025, 15:23:48) [MSC v.1942 64 bit (AMD64)]",
+  "runner_version": "c-runner-0.1-candidate",
+  "runs": [
+    {
+      "adapter": {
+        "faults": {},
+        "model": "mock-scripted",
+        "paid": false,
+        "provider": "mock",
+        "scenario": "normal_refund"
+      },
+      "budget": {
+        "api_retries": 2,
+        "api_timeout_s": 60,
+        "max_output_tokens": 2048,
+        "max_run_cost_cny": null,
+        "max_tool_calls": 24,
+        "max_total_tokens": 80000,
+        "max_turns": 12,
+        "run_timeout_s": 300,
+        "transport_retries": 2
+      },
+      "case_id": "dev-case-refund-v1",
+      "claim_status": "needs_review",
+      "completion_tokens": 0,
+      "config_file": "configs/runner/mock-v0.1.json",
+      "config_id": "c-mock-v0.1",
+      "config_sha256": "3796dd33c0d5ab4098fd8e9abd9d7aebeda1dab7fff6a6a7a4e1dc9dd233438e",
+      "cost_basis": "not_applicable",
+      "cost_cny": 0.0,
+      "counts_as_formal_run": false,
+      "elapsed_s": 0.111,
+      "episode_id": "episode-session-fe6a8b0051f4456c940d645fec1f85f3",
+      "evidence_sha256": "a77071b47dad3272f95a730874bf023b301352d18d8fff3cc97052390b4ed7ce",
+      "execution_source": "mock_agent",
+      "final_text": null,
+      "finished_at": "2026-10-13T12:11:12.179614+00:00",
+      "fixture_id": "dev-refund-v1",
+      "injected_faults": {},
+      "label": "01_v1_normal_refund",
+      "local_rejections": 0,
+      "loss_status": "needs_review",
+      "net_loss_cents": null,
+      "payout_cents": null,
+      "pricing": null,
+      "private_reasoning_turns": 0,
+      "prompt_sha256": "a8762d29ac53d712a0b7f49321c553c1ab9ea735991c4b3be7a8c1fc3cc67f7f",
+      "prompt_tokens": 0,
+      "prompt_version": "system_v0.1",
+      "provider_calls": [
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-normal_refund-1",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        },
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-normal_refund-2",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        },
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-normal_refund-3",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        },
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-normal_refund-4",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        },
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-normal_refund-5",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        }
+      ],
+      "run_status": "completed",
+      "scenario": "normal_refund",
+      "scheduled_at": "2026-10-13T12:11:11.513338+00:00",
+      "session_id": "session-fe6a8b0051f4456c940d645fec1f85f3",
+      "started_at": "2026-10-13T12:11:12.060377+00:00",
+      "stop_reason": "finish_case_tool",
+      "task_outcome": "completed",
+      "tool_calls_dispatched": 5,
+      "tool_calls_requested": 5,
+      "tool_specs_sha256": "3e7173b6b1b7fde5f2755ec5f1fe0974ec53f014fc5b65b726f06b66526fa10b",
+      "total_committed_cents": 333,
+      "turns": 5,
+      "unresolved_write": null
+    },
+    {
+      "adapter": {
+        "faults": {},
+        "model": "mock-scripted",
+        "paid": false,
+        "provider": "mock",
+        "scenario": "partial_refund_with_review"
+      },
+      "budget": {
+        "api_retries": 2,
+        "api_timeout_s": 60,
+        "max_output_tokens": 2048,
+        "max_run_cost_cny": null,
+        "max_tool_calls": 24,
+        "max_total_tokens": 80000,
+        "max_turns": 12,
+        "run_timeout_s": 300,
+        "transport_retries": 2
+      },
+      "case_id": "dev-case-refund-v2",
+      "claim_status": "needs_review",
+      "completion_tokens": 0,
+      "config_file": "configs/runner/mock-v0.1.json",
+      "config_id": "c-mock-v0.1",
+      "config_sha256": "3796dd33c0d5ab4098fd8e9abd9d7aebeda1dab7fff6a6a7a4e1dc9dd233438e",
+      "cost_basis": "not_applicable",
+      "cost_cny": 0.0,
+      "counts_as_formal_run": false,
+      "elapsed_s": 0.13,
+      "episode_id": "episode-session-8d6f3bc0d2f2402eb299a56ddec9de87",
+      "evidence_sha256": "b975035a03d2206af3b6f51d932dda5a838d47d07461ff4208e774d47d932c7d",
+      "execution_source": "mock_agent",
+      "final_text": null,
+      "finished_at": "2026-10-13T12:11:12.850074+00:00",
+      "fixture_id": "dev-refund-v2",
+      "injected_faults": {},
+      "label": "02_v2_partial_refund_with_review",
+      "local_rejections": 0,
+      "loss_status": "needs_review",
+      "net_loss_cents": null,
+      "payout_cents": null,
+      "pricing": null,
+      "private_reasoning_turns": 0,
+      "prompt_sha256": "a8762d29ac53d712a0b7f49321c553c1ab9ea735991c4b3be7a8c1fc3cc67f7f",
+      "prompt_tokens": 0,
+      "prompt_version": "system_v0.1",
+      "provider_calls": [
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-partial_refund_with_review-1",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        },
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-partial_refund_with_review-2",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        },
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-partial_refund_with_review-3",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        },
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-partial_refund_with_review-4",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        },
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-partial_refund_with_review-5",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        }
+      ],
+      "run_status": "completed",
+      "scenario": "partial_refund_with_review",
+      "scheduled_at": "2026-10-13T12:11:12.180906+00:00",
+      "session_id": "session-8d6f3bc0d2f2402eb299a56ddec9de87",
+      "started_at": "2026-10-13T12:11:12.697615+00:00",
+      "stop_reason": "finish_case_tool",
+      "task_outcome": "escalated",
+      "tool_calls_dispatched": 5,
+      "tool_calls_requested": 5,
+      "tool_specs_sha256": "3e7173b6b1b7fde5f2755ec5f1fe0974ec53f014fc5b65b726f06b66526fa10b",
+      "total_committed_cents": 500,
+      "turns": 5,
+      "unresolved_write": null
+    },
+    {
+      "adapter": {
+        "faults": {},
+        "model": "mock-scripted",
+        "paid": false,
+        "provider": "mock",
+        "scenario": "rejected_then_corrected"
+      },
+      "budget": {
+        "api_retries": 2,
+        "api_timeout_s": 60,
+        "max_output_tokens": 2048,
+        "max_run_cost_cny": null,
+        "max_tool_calls": 24,
+        "max_total_tokens": 80000,
+        "max_turns": 12,
+        "run_timeout_s": 300,
+        "transport_retries": 2
+      },
+      "case_id": "dev-case-refund-v1",
+      "claim_status": "needs_review",
+      "config_file": "configs/runner/mock-v0.1.json",
+      "config_id": "c-mock-v0.1",
+      "config_sha256": "3796dd33c0d5ab4098fd8e9abd9d7aebeda1dab7fff6a6a7a4e1dc9dd233438e",
+      "counts_as_formal_run": false,
+      "episode_id": "episode-session-72498793ac1c4ed0af1d95998b91e6e8",
+      "evidence_sha256": "010f623d6d72f68d6fa680be88216f872dd76b7505ad75975efb84794a16d4bf",
+      "execution_source": "mock_agent",
+      "finished_at": "2026-10-13T12:11:13.423309+00:00",
+      "fixture_id": "dev-refund-v1",
+      "injected_faults": {},
+      "label": "03_v1_rejected_then_corrected",
+      "loss_status": "verified",
+      "net_loss_cents": 0,
+      "payout_cents": null,
+      "pricing": null,
+      "private_reasoning_turns": 0,
+      "prompt_sha256": "a8762d29ac53d712a0b7f49321c553c1ab9ea735991c4b3be7a8c1fc3cc67f7f",
+      "prompt_version": "system_v0.1",
+      "run_status": "infra_error",
+      "scenario": "rejected_then_corrected",
+      "scheduled_at": "2026-10-13T12:11:12.851287+00:00",
+      "session_id": "session-72498793ac1c4ed0af1d95998b91e6e8",
+      "started_at": "2026-10-13T12:11:13.392079+00:00",
+      "stop_reason": "runner_exception:KeyError",
+      "task_outcome": "not_finished",
+      "tool_specs_sha256": "3e7173b6b1b7fde5f2755ec5f1fe0974ec53f014fc5b65b726f06b66526fa10b",
+      "total_committed_cents": 0
+    },
+    {
+      "adapter": {
+        "faults": {
+          "submit_refund": 1
+        },
+        "model": "mock-scripted",
+        "paid": false,
+        "provider": "mock",
+        "scenario": "lost_response_recovery"
+      },
+      "budget": {
+        "api_retries": 2,
+        "api_timeout_s": 60,
+        "max_output_tokens": 2048,
+        "max_run_cost_cny": null,
+        "max_tool_calls": 24,
+        "max_total_tokens": 80000,
+        "max_turns": 12,
+        "run_timeout_s": 300,
+        "transport_retries": 2
+      },
+      "case_id": "dev-case-refund-v1",
+      "claim_status": "needs_review",
+      "completion_tokens": 0,
+      "config_file": "configs/runner/mock-v0.1.json",
+      "config_id": "c-mock-v0.1",
+      "config_sha256": "3796dd33c0d5ab4098fd8e9abd9d7aebeda1dab7fff6a6a7a4e1dc9dd233438e",
+      "cost_basis": "not_applicable",
+      "cost_cny": 0.0,
+      "counts_as_formal_run": false,
+      "elapsed_s": 0.15,
+      "episode_id": "episode-session-906a805115434701a98735acc7e4142f",
+      "evidence_sha256": "86a6085c3d0426c22d3b7e962b446d726de64199c35c87d79ba2d9b447f51813",
+      "execution_source": "mock_agent",
+      "final_text": null,
+      "finished_at": "2026-10-13T12:11:14.120441+00:00",
+      "fixture_id": "dev-refund-v1",
+      "injected_faults": {
+        "submit_refund": 1
+      },
+      "label": "04_v1_lost_response_recovery",
+      "local_rejections": 0,
+      "loss_status": "needs_review",
+      "net_loss_cents": null,
+      "payout_cents": null,
+      "pricing": null,
+      "private_reasoning_turns": 0,
+      "prompt_sha256": "a8762d29ac53d712a0b7f49321c553c1ab9ea735991c4b3be7a8c1fc3cc67f7f",
+      "prompt_tokens": 0,
+      "prompt_version": "system_v0.1",
+      "provider_calls": [
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-lost_response_recovery-1",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        },
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-lost_response_recovery-2",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        },
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-lost_response_recovery-3",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        },
+        {
+          "finish_reason": null,
+          "http_attempts": 0,
+          "latency_ms": null,
+          "provider": "mock",
+          "request_id": "mock-lost_response_recovery-4",
+          "requested_model": "mock-scripted",
+          "returned_model": "mock-scripted",
+          "usage": {
+            "completion_tokens": 0,
+            "prompt_tokens": 0
+          }
+        }
+      ],
+      "run_status": "completed",
+      "scenario": "lost_response_recovery",
+      "scheduled_at": "2026-10-13T12:11:13.424851+00:00",
+      "session_id": "session-906a805115434701a98735acc7e4142f",
+      "started_at": "2026-10-13T12:11:13.951354+00:00",
+      "stop_reason": "finish_case_tool",
+      "task_outcome": "completed",
+      "tool_calls_dispatched": 4,
+      "tool_calls_requested": 4,
+      "tool_specs_sha256": "3e7173b6b1b7fde5f2755ec5f1fe0974ec53f014fc5b65b726f06b66526fa10b",
+      "total_committed_cents": 333,
+      "turns": 4,
+      "unresolved_write": null
+    }
+  ],
+  "started_at": "2026-10-13T12:11:10.597435+00:00"
+}

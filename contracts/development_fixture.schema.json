@@ -1,0 +1,357 @@
+{
+  "$defs": {
+    "Confirmation": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/RefundLine"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "order_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Order Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "order_id",
+        "items"
+      ],
+      "title": "Confirmation",
+      "type": "object"
+    },
+    "Message": {
+      "additionalProperties": false,
+      "properties": {
+        "confirmation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Confirmation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "customer_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Customer Id",
+          "type": "string"
+        },
+        "message_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Message Id",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message_id",
+        "customer_id",
+        "text",
+        "confirmation"
+      ],
+      "title": "Message",
+      "type": "object"
+    },
+    "Policy": {
+      "additionalProperties": false,
+      "properties": {
+        "allocation_version": {
+          "default": "largest-remainder-prefix-v1-development",
+          "title": "Allocation Version",
+          "type": "string"
+        },
+        "development_only": {
+          "const": true,
+          "default": true,
+          "title": "Development Only",
+          "type": "boolean"
+        },
+        "policy_version": {
+          "default": "dev-policy-v1",
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Policy Version",
+          "type": "string"
+        },
+        "rules": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "rules"
+      ],
+      "title": "Policy",
+      "type": "object"
+    },
+    "RefundLine": {
+      "additionalProperties": false,
+      "properties": {
+        "item_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Item Id",
+          "type": "string"
+        },
+        "quantity": {
+          "minimum": 1,
+          "title": "Quantity",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "item_id",
+        "quantity"
+      ],
+      "title": "RefundLine",
+      "type": "object"
+    },
+    "TemplateItem": {
+      "additionalProperties": false,
+      "properties": {
+        "allocated_paid_cents": {
+          "minimum": 0,
+          "title": "Allocated Paid Cents",
+          "type": "integer"
+        },
+        "eligible": {
+          "title": "Eligible",
+          "type": "boolean"
+        },
+        "gross_cents": {
+          "minimum": 0,
+          "title": "Gross Cents",
+          "type": "integer"
+        },
+        "item_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Item Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "quantity": {
+          "minimum": 1,
+          "title": "Quantity",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "item_id",
+        "name",
+        "quantity",
+        "gross_cents",
+        "allocated_paid_cents",
+        "eligible"
+      ],
+      "title": "TemplateItem",
+      "type": "object"
+    },
+    "TemplateOrder": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/TemplateItem"
+          },
+          "maxItems": 30,
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        },
+        "order_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Order Id",
+          "type": "string"
+        },
+        "paid_cents": {
+          "minimum": 0,
+          "title": "Paid Cents",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "order_id",
+        "paid_cents",
+        "items"
+      ],
+      "title": "TemplateOrder",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "business_time": {
+      "format": "date-time",
+      "title": "Business Time",
+      "type": "string"
+    },
+    "candidate_order_ids": {
+      "items": {
+        "maxLength": 128,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9_.:-]+$",
+        "type": "string"
+      },
+      "maxItems": 30,
+      "minItems": 1,
+      "title": "Candidate Order Ids",
+      "type": "array"
+    },
+    "customer_balance_cents": {
+      "const": 0,
+      "title": "Customer Balance Cents",
+      "type": "integer"
+    },
+    "customer_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "title": "Customer Id",
+      "type": "string"
+    },
+    "family_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "title": "Family Id",
+      "type": "string"
+    },
+    "fixture_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "title": "Fixture Id",
+      "type": "string"
+    },
+    "fixture_schema_version": {
+      "const": 1,
+      "title": "Fixture Schema Version",
+      "type": "integer"
+    },
+    "fixture_source": {
+      "const": "development_only",
+      "title": "Fixture Source",
+      "type": "string"
+    },
+    "fixture_version": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "title": "Fixture Version",
+      "type": "string"
+    },
+    "merchant_balance_cents": {
+      "minimum": 0,
+      "title": "Merchant Balance Cents",
+      "type": "integer"
+    },
+    "messages": {
+      "items": {
+        "$ref": "#/$defs/Message"
+      },
+      "maxItems": 30,
+      "title": "Messages",
+      "type": "array"
+    },
+    "notice": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Notice",
+      "type": "string"
+    },
+    "orders": {
+      "items": {
+        "$ref": "#/$defs/TemplateOrder"
+      },
+      "maxItems": 30,
+      "minItems": 1,
+      "title": "Orders",
+      "type": "array"
+    },
+    "parent_case_id": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Parent Case Id"
+    },
+    "policy": {
+      "$ref": "#/$defs/Policy"
+    },
+    "request": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Request",
+      "type": "string"
+    },
+    "review_status": {
+      "const": "pending_A_C_D_review",
+      "title": "Review Status",
+      "type": "string"
+    },
+    "source_case_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "title": "Source Case Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "fixture_schema_version",
+    "fixture_id",
+    "fixture_version",
+    "source_case_id",
+    "parent_case_id",
+    "family_id",
+    "fixture_source",
+    "review_status",
+    "notice",
+    "business_time",
+    "customer_id",
+    "request",
+    "candidate_order_ids",
+    "orders",
+    "messages",
+    "policy",
+    "merchant_balance_cents",
+    "customer_balance_cents"
+  ],
+  "title": "DevelopmentFixture",
+  "type": "object"
+}
