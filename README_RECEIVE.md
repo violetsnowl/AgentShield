@@ -1,3 +1,13 @@
+# AgentShield ABCD 本地集成接收入口（2026-10-13）
+
+当前工作区已在原 BD 阶段 05 基线上合入经清单校验的 A/C L0 交付，并完成 B→C→A 候选链与 D 展示联调。先读 `artifacts/integration_abcd/INTEGRATION_REPORT.md`、`INTERFACE_MATRIX.md` 和 `INTEGRATION_CHANGELOG.md`。本轮没有 Git 提交或远程操作；工作区也不是 Git 仓库，因此接收方应按检查点清单审核本地文件。
+
+启动方式见 `frontend/README.md`。当前实测后端 115 项、前端 42 项、核心浏览器 419 条、异常/回放浏览器 101 条均通过。A/C 交付仍为候选接口与非正式开发证据；正式 Gold、56 次 Agent 实验、28 次规则基线、正式保险定价和第二台机器接收均未完成。
+
+下方阶段 05 精简包说明保留为历史接收记录，不代表本次 ABCD 集成包已经重新制作。
+
+---
+
 # AgentShield BD 阶段 05 接收入口
 
 2026-10-12。这是同学接收用的精简源码包，不是正式实验数据或全量历史审计副本。先读 `docs/handoff/BD_CURRENT_STATE.md`；A、C 分别按 `BD_to_A_CHECKLIST.md`、`BD_to_C_CHECKLIST.md` 接收。所有签收仍 pending，BD 的自测不能代签。

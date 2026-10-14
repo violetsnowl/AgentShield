@@ -1,3 +1,13 @@
+# ABCD 本地集成后的当前状态（2026-10-13）
+
+已在阶段 05 BD 基线上合入经 `C_DELIVERY_MANIFEST.json` 404/404 校验的 A0/C L0 交付，并新增受控 A/C→D 只读适配。B 交易逻辑、bc-0.3-candidate、七工具、EvidenceBundle schema 3 和迁移 001/002/003 保持不变。完整后端 115 项、前端 42 项、核心浏览器 419 条、异常/回放 101 条均通过；详见 `artifacts/integration_abcd/`。
+
+C 已签收 B 的 L0 开发接口；D 现在能显示交付的 C LossResult、A0 Claim 和独立 Quote 工程示例，并追溯到精确 B session/episode。所有运行仍为 `counts_as_formal_run=false`，真实模型历史开发结果保持 `needs_review/null`。正式 Gold、C1-1、56+28 正式运行、A 正式定价/理赔、第二机接收及 A/C 联合签收未完成，不能宣布 L1。
+
+本轮没有 Git 远程操作或提交；当前目录仍不是 Git 仓库。下方阶段 05 内容作为合并前历史状态保留。
+
+---
+
 # BD 当前状态：阶段 05 收口候选
 
 2026-10-12。用户与舍友联合负责 BD，目前仍由用户统一使用 Codex 推进。阶段 01—04 的交易/界面能力保持原状，05 只复验、整理交接、修正打包遗漏及增加 QA 工具。无 Git 仓库，无虚构 commit；检查点和清单在 `artifacts/pro_bd_sprint/05/checkpoints/`。

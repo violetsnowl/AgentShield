@@ -101,6 +101,33 @@ class ObserverTests(unittest.TestCase):
         for path in (f"/observer/api/sessions/{self.sid}/tools/submit_refund", "/observer/api/admin/anything", "/api/v1/admin/fixtures"):
             self.assertIn(self.client.post(path, json={}, headers=self.headers).status_code, (404, 405))
 
+    def test_ac_delivery_results_are_authenticated_read_only_and_identity_linked(self):
+        self.assertEqual(self.client.get("/observer/api/integration-runs", headers=self.headers).status_code, 401)
+        self.pair()
+        before = self.b_app.state.store.evidence(self.sid)
+        response = self.client.get("/observer/api/integration-runs", headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        rows = response.json()["runs"]
+        self.assertGreaterEqual(len(rows), 7)
+        selected = next(row for row in rows if row["execution_source"] == "observed_agent_execution")
+        self.assertFalse(selected["counts_as_formal_run"])
+        self.assertEqual(selected["loss_status"], "needs_review")
+        detail = self.client.get(f"/observer/api/integration-runs/{selected['run_id']}", headers=self.headers)
+        self.assertEqual(detail.status_code, 200)
+        payload = detail.json()
+        self.assertEqual(payload["evidence"]["final_snapshot"]["session"]["session_id"], selected["session_id"])
+        self.assertEqual(payload["loss_result"]["identity"]["episode_id"], selected["episode_id"])
+        self.assertIsNone(payload["loss_result"]["net_loss_cents"])
+        self.assertIsNone(payload["claim"]["payout_cents"])
+        self.assertFalse(payload["claim"]["commercial_quote"])
+        self.assertFalse(payload["quote_result"]["commercial_quote"])
+        self.assertNotIn("api_key", detail.text.lower())
+        self.assertNotIn("session_token", detail.text.lower())
+        self.assertEqual(self.client.get("/observer/api/integration-runs/../secrets", headers=self.headers).status_code, 404)
+        after = self.b_app.state.store.evidence(self.sid)
+        for key in ("events", "refunds", "ledger", "human_reviews", "initial_snapshot", "final_snapshot"):
+            self.assertEqual(before[key], after[key])
+
     def test_actual_catalog_admin_auth_session_list_and_event_pagination(self):
         self.assertEqual(self.b.get("/api/v1/admin/fixtures").status_code, 401)
         self.assertEqual(self.b.get("/api/v1/admin/fixtures", headers={"Authorization": "Bearer " + self.own["session_token"]}).status_code, 403)

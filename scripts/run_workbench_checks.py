@@ -26,8 +26,10 @@ def main():
     parser.add_argument("--playwright-module", default=os.environ.get("PLAYWRIGHT_MODULE_PATH"))
     args = parser.parse_args()
     output = (ROOT / args.output_dir).resolve()
-    if not any(output.is_relative_to(ROOT / f"artifacts/pro_bd_sprint/{stage}") for stage in ("03", "04", "05")):
-        raise SystemExit("QA outputs must be under stage 03/04/05 artifacts")
+    allowed = [ROOT / f"artifacts/pro_bd_sprint/{stage}" for stage in ("03", "04", "05")]
+    allowed.append(ROOT / "artifacts/integration_abcd")
+    if not any(output.is_relative_to(folder) for folder in allowed):
+        raise SystemExit("QA outputs must be under stage 03/04/05 or integration_abcd artifacts")
     output.mkdir(parents=True, exist_ok=False)
     token, grant = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
     with tempfile.TemporaryDirectory(prefix="workbench-http-", dir=ROOT / "var") as folder:

@@ -5,9 +5,9 @@
 ## 环境
 
 - 接收人：C（本人机器，Cursor 编码助手执行命令）；日期：2026-10-13。
-- 机器：Windows 10.0.26200；Python 3.13.2（`D:\python\python.exe` 新建 `.venv`）。B/D 的验证环境是 3.13.1，补丁版本不同。
+- 机器：Windows 10.0.26200；Python 3.13.2（`C:\path\to\python.exe` 新建 `.venv`）。B/D 的验证环境是 3.13.1，补丁版本不同。
 - 依赖：`pip install -r requirements.lock` 成功（官方源，无 TLS 错误），`pip check` 无冲突。fastapi 0.136.0 / pydantic 2.13.3 / starlette 1.7.0 / uvicorn 0.45.0 / httpx 0.28.1。
-- 代码基线：BD 阶段 05 精简包 + A0 patch 0.1（按 `docs/business/A0_patch/A0_PATCH_MANIFEST.json` 逐文件 SHA-256 核对后合并）。A 副本中其余 225 个文件与主目录逐字节一致，备份于 `D:\work\26fw\A第一阶段工作_backup.zip`（SHA-256 `03E7149C976B028CF3E43BACDFECB7F233A8481F647A407F40A5A61D13643FCC`）后删除。
+- 代码基线：BD 阶段 05 精简包 + A0 patch 0.1（按 `docs/business/A0_patch/A0_PATCH_MANIFEST.json` 逐文件 SHA-256 核对后合并）。A 副本中其余 225 个文件与主目录逐字节一致，备份于 `<external-local-backup.zip>`（SHA-256 `03E7149C976B028CF3E43BACDFECB7F233A8481F647A407F40A5A61D13643FCC`）后删除。
 
 ## 已执行命令与结果
 

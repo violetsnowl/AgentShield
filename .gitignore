@@ -1,15 +1,95 @@
+# Python environments and caches
 .venv/
+venv/
 __pycache__/
-*.pyc
-.env
-var/
-*.sqlite*
-artifacts/b_bootstrap/private/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Node dependencies and generated frontend output
+node_modules/
 frontend/node_modules/
 frontend/dist/
+dist/
+coverage/
+.vite/
 
-# 本地编辑器/系统杂项（2026-10-13 增补）
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+!**/env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Runtime databases and mutable state
+var/
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.wal
+*.shm
+
+# Logs, temporary files, editor and OS metadata
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+~$*
 .idea/
-.pytest_cache/
-Thumbs.db
+.vscode/
 .DS_Store
+Thumbs.db
+
+# Private evaluation inputs and local deliveries
+gold/
+Gold/
+holdout/
+private/
+incoming_delivery/
+*.zip
+
+# Historical outputs stay outside the Git source handoff. Keep only the
+# explicitly reviewed, non-model Mock demonstration batch needed by the
+# workbench integration view and browser tests.
+artifacts/*
+!artifacts/c_l0/
+artifacts/c_l0/*
+!artifacts/c_l0/runs/
+artifacts/c_l0/runs/*
+!artifacts/c_l0/runs/j1-mock-20261013-201356/
+!artifacts/c_l0/runs/j1-mock-20261013-234140/
+!artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/
+artifacts/c_l0/runs/j1-mock-20261013-201356/b_server.log
+artifacts/c_l0/runs/j1-mock-20261013-234140/b_server.log
+artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/*
+!artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/01_v1_refund/
+artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/01_v1_refund/*
+!artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/01_v1_refund/manifest.json
+!artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/01_v1_refund/evidence.json
+!artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/01_v1_refund/loss_result.json
+!artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/01_v1_refund/claim_A0.json
+
+# Public regression fixtures referenced by backend/frontend tests.
+!artifacts/b_bootstrap/
+artifacts/b_bootstrap/*
+!artifacts/b_bootstrap/http_smoke/
+artifacts/b_bootstrap/http_smoke/*
+!artifacts/b_bootstrap/http_smoke/evidence_sample.json
+!artifacts/b_bootstrap/http_smoke/events_sample.jsonl
+!artifacts/b_bootstrap/http_smoke/http_responses.json
+!artifacts/pro_bd_sprint/
+artifacts/pro_bd_sprint/*
+!artifacts/pro_bd_sprint/01/
+artifacts/pro_bd_sprint/01/*
+!artifacts/pro_bd_sprint/01/patch_http_evidence/
+artifacts/pro_bd_sprint/01/patch_http_evidence/*
+!artifacts/pro_bd_sprint/01/patch_http_evidence/evidence_sample.json

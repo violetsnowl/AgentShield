@@ -16,6 +16,7 @@ import httpx
 from pydantic import Field
 
 from contracts import models as m
+from workbench.integration_results import IntegrationResults
 
 ROOT = Path(__file__).resolve().parents[1]
 COOKIE = "agentshield_observer"
@@ -76,7 +77,7 @@ class CreateDevelopmentRun(m.Wire):
 
 def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:8810",
                     tenant_id="workbench-development", frontend_dir=None, transport=None,
-                    dev_origin=None):
+                    dev_origin=None, integration_root=None):
     local_origin(base_url)
     origins = {local_origin(origin)}
     if dev_origin:
@@ -89,6 +90,7 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
     client = httpx.Client(base_url=base_url, headers={"Authorization": "Bearer " + admin_token},
                           timeout=5, trust_env=False, follow_redirects=False, transport=transport)
     authority = Authority(grant)
+    results = IntegrationResults(Path(integration_root or ROOT / "artifacts/c_l0/runs"), ROOT)
 
     @asynccontextmanager
     async def lifespan(app):
@@ -209,6 +211,19 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
     def ledger(sid: m.Id):
         evidence_in_scope(sid)
         return backend("GET", f"/api/v1/admin/sessions/{sid}/ledger", m.Ledger)
+
+    @app.get("/observer/api/integration-runs", dependencies=[Depends(authorized)])
+    def integration_runs():
+        return results.catalog()
+
+    @app.get("/observer/api/integration-runs/{run_id}", dependencies=[Depends(authorized)])
+    def integration_run(run_id: str):
+        if len(run_id) != 20 or any(character not in "0123456789abcdef" for character in run_id):
+            raise ObserverError("RUN_NOT_FOUND", 404)
+        try:
+            return results.detail(run_id)
+        except KeyError:
+            raise ObserverError("RUN_NOT_FOUND", 404) from None
 
     static = Path(frontend_dir or ROOT / "frontend/dist")
     if static.is_dir():

@@ -157,9 +157,11 @@ try {
       const disclosure = page.locator('.integration-foot details');
       if (!(await disclosure.evaluate(node => node.open))) await disclosure.locator('summary').click();
       const panel = await page.locator('.integration-panel').innerText();
-      check(['not_fitted','insufficient_evidence','partial','out_of_scope','commercial_quote=false'].every(value => panel.includes(value)), 'pending panel contains required honest state explanations');
-      check((await page.locator('.integration-panel button').isDisabled()), 'no formal A/C execution enabled');
-      await snapshot(area.startsWith('风险') ? 'integration-risk-pending' : 'integration-cost-pending');
+      check(['not_fitted','insufficient_evidence','partial','out_of_scope','commercial_quote=false'].every(value => panel.includes(value)), 'candidate panel contains required honest state explanations');
+      check(panel.includes('counts_as_formal_run=false') || panel.includes('不计入 56 次'), 'delivered runs remain explicitly non-formal');
+      if (area.startsWith('风险')) check(await page.getByRole('button', { name: '加载关联业务证据', exact: true }).isEnabled(), 'validated C result can open exact B evidence');
+      else check(await page.getByRole('button', { name: '重新理算', exact: true }).isDisabled(), 'no browser-side insurance execution enabled');
+      await snapshot(area.startsWith('风险') ? 'integration-risk-candidate' : 'integration-cost-candidate');
     }
     // Lost create response after a real commit: do not announce that creation failed.
     await page.getByRole('button', { name: '返回本机服务', exact: true }).click();

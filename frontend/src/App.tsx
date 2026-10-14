@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, ReactNode } from 'react';
 import { api, pairFromFragment } from './api';
-import { integrations, evidenceStatePresentation } from './integrations';
+import { adaptResult, evidenceStatePresentation, parseIntegrationCatalog, parseIntegrationDetail } from './integrations';
+import type { IntegrationRunDetail, IntegrationRunSummary } from './integrations';
 import { eventMeaning, evidenceCaveats, money, orderedEvents, parseEvidence, statusText } from './data';
 import type { EvidenceBundle, EventPage, FixtureCatalog, Ledger, SessionPage, SessionStatus, ToolEvent } from './generated/contract';
 
@@ -10,8 +11,8 @@ type LoadState = 'loading' | 'ready' | 'error';
 const areas: { id: Area; title: string; subtitle: string; mark: string }[] = [
   { id: 'lab', title: '企业实验场', subtitle: '消息、订单与商品', mark: '▦' },
   { id: 'evidence', title: '执行证据 / 账本', subtitle: '事件与资金去向', mark: '≡' },
-  { id: 'risk', title: '风险 / 配置比较', subtitle: '等待 C 独立核验', mark: '↔' },
-  { id: 'cost', title: '合同 / 情景成本', subtitle: '等待 A 理算模块', mark: '◇' },
+  { id: 'risk', title: '风险 / 配置比较', subtitle: 'C L0 候选结果', mark: '↔' },
+  { id: 'cost', title: '合同 / 情景成本', subtitle: 'A0 研究理算', mark: '◇' },
 ];
 const errorText = (value: unknown) => value instanceof Error ? value.message : '读取失败，请重试。';
 function Badge({ children, tone = '' }: { children: ReactNode; tone?: string }) { return <span className={`badge ${tone}`}>{children}</span>; }
@@ -103,6 +104,13 @@ export default function App() {
   const [paging, setPaging] = useState(false);
   const [pageError, setPageError] = useState('');
   const [refresh, setRefresh] = useState(0);
+  const [integrationRuns, setIntegrationRuns] = useState<IntegrationRunSummary[]>([]);
+  const [integrationId, setIntegrationId] = useState('');
+  const [integration, setIntegration] = useState<IntegrationRunDetail | null>(null);
+  const [integrationState, setIntegrationState] = useState<LoadState>('loading');
+  const [integrationError, setIntegrationError] = useState('');
+  const [integrationRefresh, setIntegrationRefresh] = useState(0);
+  const [replaySource, setReplaySource] = useState<'file' | 'delivery'>('file');
   const input = useRef<HTMLInputElement>(null);
   const selection = useRef('');
   const replayMode = useRef(false);
@@ -113,9 +121,11 @@ export default function App() {
   useEffect(() => { setCopied(false); }, [sid]);
 
   async function catalog(epoch: number) {
-    const [f, list] = await Promise.all([api<FixtureCatalog>('api/fixtures'), api<SessionPage>('api/sessions')]);
+    const [f, list, delivered] = await Promise.all([api<FixtureCatalog>('api/fixtures'), api<SessionPage>('api/sessions'), api<unknown>('api/integration-runs')]);
+    const integrated = parseIntegrationCatalog(delivered);
     if (currentIntent(epoch) && !replayMode.current) {
-      setFixtures(f.fixtures); setSessions(list.sessions); setNextOffset(list.next_offset); setCatalogReady(true);
+      setFixtures(f.fixtures); setSessions(list.sessions); setNextOffset(list.next_offset); setIntegrationRuns(integrated);
+      setIntegrationId(current => integrated.some(row => row.run_id === current) ? current : integrated[0]?.run_id ?? ''); setCatalogReady(true);
     }
     return list.sessions;
   }
@@ -127,6 +137,24 @@ export default function App() {
     } catch (e) { if (active && currentIntent(epoch) && !replayMode.current) { setError(errorText(e)); setState('error'); } } })();
     return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (!integrationId) { setIntegration(null); setIntegrationState('ready'); return; }
+    const controller = new AbortController(); setIntegrationState('loading'); setIntegrationError('');
+    (async () => { try {
+      const raw = await api<unknown>(`api/integration-runs/${integrationId}`, { signal: controller.signal });
+      const result = parseIntegrationDetail(raw);
+      const evidence = parseEvidence(result.evidence, result.summary.session_id);
+      if (evidence.final_snapshot.session.episode_id !== result.summary.episode_id) throw new Error('A/C 结果与 B 证据的 episode 不一致。');
+      if (!controller.signal.aborted) { setIntegration({ ...result, evidence }); setIntegrationState('ready'); }
+    } catch (e) { if (!controller.signal.aborted) { setIntegration(null); setIntegrationError(errorText(e)); setIntegrationState('error'); } } })();
+    return () => controller.abort();
+  }, [integrationId, integrationRefresh]);
+
+  useEffect(() => {
+    const match = integrationRuns.find(row => row.session_id === sid);
+    if (match) setIntegrationId(match.run_id);
+  }, [sid, integrationRuns]);
 
   useEffect(() => {
     if (!sid || offline) return;
@@ -163,7 +191,7 @@ export default function App() {
   }
   function returnToService() {
     const epoch = ++interaction.current; replayMode.current = false;
-    setOffline(false); setBundle(null); setEvents([]); setSid(''); setCatalogReady(false); setActionError('');
+    setOffline(false); setReplaySource('file'); setBundle(null); setEvents([]); setSid(''); setCatalogReady(false); setActionError('');
     void loadService(epoch);
   }
   async function create() {
@@ -205,7 +233,7 @@ export default function App() {
       const content = await file.text();
       if (!currentIntent(epoch)) return;
       const evidence = parseEvidence(JSON.parse(content));
-      replayMode.current = true; setOffline(true); setSid(evidence.final_snapshot.session.session_id); setBundle(evidence); setEvents(orderedEvents(evidence.events)); setState('ready'); setError(''); setPageError(''); setActionError(''); setArea('evidence');
+      replayMode.current = true; setOffline(true); setReplaySource('file'); setSid(evidence.final_snapshot.session.session_id); setBundle(evidence); setEvents(orderedEvents(evidence.events)); setState('ready'); setError(''); setPageError(''); setActionError(''); setArea('evidence');
     } catch (e) {
       if (currentIntent(epoch)) {
         setActionError(errorText(e));
@@ -218,6 +246,12 @@ export default function App() {
     const data = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(data); const anchor = document.createElement('a'); anchor.href = url;
     anchor.download = `evidence-${bundle.final_snapshot.session.session_id}.json`; anchor.click(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  function loadDeliveredEvidence() {
+    if (!integration) return;
+    const evidence = parseEvidence(integration.evidence, integration.summary.session_id);
+    ++interaction.current; replayMode.current = true; setOffline(true); setReplaySource('delivery'); setSid(integration.summary.session_id);
+    setBundle(evidence); setEvents(orderedEvents(evidence.events)); setState('ready'); setError(''); setPageError(''); setActionError(''); setArea('evidence');
   }
   const visibleRuns = sessions.filter(row => (!runFilter || [row.case_id, row.session_id, row.episode_id, row.config_id].some(value => value.toLowerCase().includes(runFilter.toLowerCase()))) && (sourceFilter === 'all' || row.sources.execution_source === sourceFilter));
   const selectedOutsideFilter = sessions.find(row => row.session_id === sid && !visibleRuns.some(item => item.session_id === sid));
@@ -235,15 +269,15 @@ export default function App() {
   return <div className="app-shell">
     <aside className="sidebar"><a className="brand" href="#" onClick={e => e.preventDefault()}><span className="brand-mark" aria-hidden="true">◈</span><span>AgentShield<small>保险风险评测工作台</small></span></a>
       <nav aria-label="工作区域">{areas.map(item => <button key={item.id} className={area === item.id ? 'nav-item active' : 'nav-item'} aria-current={area === item.id ? 'page' : undefined} onClick={() => setArea(item.id)}><span className="nav-mark" aria-hidden="true">{item.mark}</span><span>{item.title}<small>{item.subtitle}</small></span></button>)}</nav>
-      <div className="sidebar-note"><Badge>本机开发环境</Badge><p>工程事实可追溯<br/>业务语义仍待审核</p><small>bc-0.3-candidate<br/>七工具 · 模拟资金</small></div>
+      <div className="sidebar-note"><Badge>ABCD 本机集成</Badge><p>工程事实可追溯<br/>业务 Gold 仍待审核</p><small>bc-0.3 · C L0 · A0<br/>七工具 · 模拟资金</small></div>
     </aside>
-    <main><header className="page-header"><div><span className="breadcrumb">BD 联合开发 / 阶段 04</span><h1>{areas.find(item => item.id === area)?.title}</h1><p>先选择一次运行，再阅读事实与证据。</p></div><div className="header-actions"><Badge tone={offline ? 'warning' : state === 'error' ? 'error' : state === 'loading' ? '' : 'good'}>{offline ? '本地文件 · 只读回放' : state === 'error' ? '读取失败' : state === 'loading' ? '正在读取' : 'B 本机服务'}</Badge><button onClick={() => input.current?.click()}>导入回放</button><input ref={input} className="file-input" type="file" accept="application/json,.json" aria-label="导入证据文件" onChange={importFile}/></div></header>
-      {offline ? <div className="notice warning" role="status"><strong>离线只读回放</strong>　内容来自所选文件，未经签名认证；不代表本机最新状态。切换功能区不会调用 B，也不会重新执行退款。<button onClick={returnToService}>返回本机服务</button></div>
+    <main><header className="page-header"><div><span className="breadcrumb">ABCD 本地联合验收 / L0 候选</span><h1>{areas.find(item => item.id === area)?.title}</h1><p>按具体 session / episode 阅读业务、执行、核验与研究理算。</p></div><div className="header-actions"><Badge tone={offline ? 'warning' : state === 'error' ? 'error' : state === 'loading' ? '' : 'good'}>{offline ? (replaySource === 'delivery' ? 'A/C 交付证据 · 只读' : '本地文件 · 只读回放') : state === 'error' ? '读取失败' : state === 'loading' ? '正在读取' : 'B 本机服务'}</Badge><button onClick={() => input.current?.click()}>导入回放</button><input ref={input} className="file-input" type="file" accept="application/json,.json" aria-label="导入证据文件" onChange={importFile}/></div></header>
+      {offline ? <div className="notice warning" role="status"><strong>{replaySource === 'delivery' ? 'A/C 交付证据只读视图' : '离线只读回放'}</strong>　{replaySource === 'delivery' ? '内容来自已校验的本地交付目录，属于开发运行；不会连接原 C 实例。' : '内容来自所选文件，未经签名认证；不代表本机最新状态。'} 切换功能区不会调用 B，也不会重新执行退款。<button onClick={returnToService}>返回本机服务</button></div>
         : <section className="run-controls" aria-label="运行选择"><details className="filter-disclosure"><summary>筛选运行 · 已加载 {sessions.length} 条</summary><div className="run-filters"><label>筛选已加载运行<input aria-label="筛选已加载运行" value={runFilter} onChange={e => setRunFilter(e.target.value)} placeholder="case / session / episode / 配置"/></label><label>执行来源<select aria-label="执行来源筛选" value={sourceFilter} onChange={e => setSourceFilter(e.target.value)}><option value="all">全部来源</option>{['scripted_test','mock_agent','observed_agent_execution'].map(value => <option key={value} value={value}>{value}</option>)}</select></label><span>已加载 {sessions.length}，匹配 {visibleRuns.length}。{nextOffset !== null ? '还有后续页，可继续加载。' : '目录已完整加载。'}</span>{visibleRuns.length === 0 && catalogReady && <span role="status">没有匹配的已加载运行；当前选择保持不变。</span>}</div></details><div className="run-picker"><label htmlFor="run">当前运行（session / episode 独立）</label><select id="run" value={sid} onChange={e => { ++interaction.current; replayMode.current = false; setFocusedOrder(null); setCopied(false); setSid(e.target.value); setArea('lab'); }} disabled={!catalogReady || creating}><option value="" disabled>选择具体运行</option>{selectedOutsideFilter && <option value={selectedOutsideFilter.session_id}>当前选择（筛选外）｜{selectedOutsideFilter.session_id}</option>}{visibleRuns.map(row => <option key={row.session_id} value={row.session_id}>{row.case_id} ｜ {row.session_id}</option>)}</select>{nextOffset !== null && <button className="text-button" onClick={moreRuns}>加载更多运行</button>}</div><div className="new-run"><label htmlFor="fixture">创建会话所用模板</label><div><select id="fixture" value={fixtureId} disabled={!catalogReady || creating} onChange={e => setFixtureId(e.target.value as typeof fixtureId)}>{fixtures.length ? fixtures.map(fixture => <option key={fixture.fixture_id} value={fixture.fixture_id}>{fixture.fixture_id}</option>) : <option value="dev-refund-v1">正在读取模板</option>}</select><button className="primary" onClick={create} disabled={!catalogReady || creating}>{creating ? '正在创建…' : '创建开发会话'}</button></div></div></section>}
       {actionError && <div role="alert" className="notice error">{actionError}</div>}
       {session && <div className="identity-compact"><details className="run-identity"><summary><strong>{session.case_id}</strong><span>本次运行 …{session.session_id.slice(-8)}</span><Badge tone="good">{session.status === 'finished' ? '已结束' : '进行中'}</Badge><span className="fine-print">展开 session / episode / 版本</span></summary><div className="identity-fields"><div><span>{current?.case_context ? '稳定 case' : 'case（按原记录）'}</span><Id>{session.case_id}</Id></div><div><span>本次 session</span><Id>{session.session_id}</Id></div><div><span>本次 episode</span><Id>{session.episode_id}</Id></div><div>版本 {session.version} · <Id>{session.config_id}</Id></div></div></details><button onClick={copyIdentity}>{copied ? '已复制身份' : '复制运行身份'}</button></div>}
 
-      <div className="execution-bar"><div><Badge tone="warning">{current ? current.sources.execution_source ?? '执行来源未记录' : '开发环境'}</Badge><span>{current ? current.sources.fixture_source ?? '模板来源未记录' : 'development_only'} · 来源标签不证明真实模型运行</span></div><div><button disabled aria-describedby="runner-note">启动 Agent</button><span id="runner-note">C 正式运行器尚未接入</span></div></div>
+      <div className="execution-bar"><div><Badge tone="warning">{current ? current.sources.execution_source ?? '执行来源未记录' : '开发环境'}</Badge><span>{current ? current.sources.fixture_source ?? '模板来源未记录' : 'development_only'} · 来源标签须结合 C 运行清单核对</span></div><div><button disabled aria-describedby="runner-note">启动 Agent</button><span id="runner-note">当前工作台只读历史 C 运行；不在浏览器启动模型</span></div></div>
       {state === 'loading' && <div className="loading" role="status" aria-live="polite"><span className="spinner"/>正在读取本次运行的真实数据…</div>}
       {state === 'error' && <div role="alert" className="empty error"><strong>当前数据未能加载</strong><p>{error}</p><button onClick={retry}>重试读取</button><p className="fine-print">也可以导入已保存的证据，进行离线只读回放。</p></div>}
       {state === 'ready' && !current && <Empty title="还没有开发会话">选择一个受控模板并创建会话，即可查看业务初态。创建会话不会调用模型或提交退款。</Empty>}
@@ -253,23 +287,40 @@ export default function App() {
         {area === 'lab' && <Business evidence={current} focusedOrder={focusedOrder}/>}
         {area === 'evidence' && <Evidence key={sid} evidence={current} events={events} more={!offline && events.length < current.events.length} onMore={moreEvents} paging={paging} pageError={pageError} onOrder={showOrder}/>}
       </>}
-      {(area === 'risk' || area === 'cost') && <PendingModule area={area} evidence={state === 'ready' ? current : null}/>}
-      <footer>开发模板不属于正式任务或 Gold。A/C 审核与 C 独立消费者签收仍待完成。</footer>
+      {(area === 'risk' || area === 'cost') && <ResultModule area={area} evidence={state === 'ready' ? current : null} runs={integrationRuns} selectedId={integrationId} onSelect={setIntegrationId} detail={integration} loadState={integrationState} error={integrationError} onRetry={() => setIntegrationRefresh(value => value + 1)} onLoadEvidence={loadDeliveredEvidence}/>}
+      <footer>开发模板和 C L0 运行不属于正式任务或 Gold；A/C 契约仍是 candidate，正式实验与全队签收尚未完成。</footer>
     </main>
   </div>;
 }
 
-function PendingModule({ area, evidence }: { area: 'risk' | 'cost'; evidence: EvidenceBundle | null }) {
+function decimalCents(value: string | null) {
+  if (value === null || !Number.isFinite(Number(value))) return '不可用';
+  return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(Number(value) / 100);
+}
+
+function ResultModule({ area, evidence, runs, selectedId, onSelect, detail, loadState, error, onRetry, onLoadEvidence }: {
+  area: 'risk' | 'cost'; evidence: EvidenceBundle | null; runs: IntegrationRunSummary[]; selectedId: string;
+  onSelect: (value: string) => void; detail: IntegrationRunDetail | null; loadState: LoadState; error: string;
+  onRetry: () => void; onLoadEvidence: () => void;
+}) {
   const risk = area === 'risk';
-  const slot = integrations.find(item => item.owner === (risk ? 'C' : 'A'))!;
-  return <section className="integration-panel" aria-label={risk ? '风险比较待接入' : '合同理算待接入'}>
-    <div className="integration-lead"><span className="integration-mark" aria-hidden="true">{risk ? '↔' : '◇'}</span><div><Badge tone="warning">待接入 · {slot.owner} 模块</Badge><h2>{risk ? '尚未评测，保留判断' : '尚无报价，等待合同依据'}</h2><p>{slot.reason}</p></div></div>
-    <div className="integration-body"><div><h3>{risk ? '已有的工程证据' : '可供接入的运行证据'}</h3><p>{evidence ? '已选择一次独立运行，可以查看它的事件与模拟资金账本。' : '选择本机运行或导入证据后，可查看 B 的公开工程事实。'}</p>
-      <dl><div><dt>证据格式</dt><dd>{evidence ? `schema ${evidence.schema_version}` : '尚未选择'}</dd></div><div><dt>运行配置</dt><dd><Id>{evidence?.final_snapshot.session.config_id ?? '尚未选择'}</Id></dd></div><div><dt>规范业务初态</dt><dd>{evidence?.case_context ? '已记录，仅用于初态核对' : '不可用 / 未选择'}</dd></div></dl>
-      <p className="fine-print">业务退款金额不是独立损失、风险等级或保险赔款。开发执行不计为正式模型结果。</p></div>
-      <div><h3>{risk ? '待 C 提供' : '待 A 提供'}</h3><ul>{(risk ? ['正式运行清单与配置、预算及失败记录', 'LossResult 与独立核验的损失依据', '配对条件、证据不足与未知状态'] : ['QuoteResult 与合同版本', '权重、证据状态与理算依据', '情景成本与 B0 / B1 展示契约']).map(text => <li key={text}>{text}<Badge tone="warning">待接入</Badge></li>)}</ul>
-      <button disabled aria-describedby={`pending-${area}`}>{risk ? '查看损失依据' : '重新理算'}</button><p className="fine-print" id={`pending-${area}`}>{risk ? 'C 尚未交付正式结果，不生成比较成绩。' : 'A 尚未交付模块，前端不实现第二套保险公式。'}</p></div></div>
-    <div className="integration-foot"><strong>仅研究情景 · commercial_quote=false · 非商业报价</strong><p>{slot.contract} 适配状态：{slot.state}。{slot.message}</p><details><summary>证据状态说明（不是当前实验结果）</summary><div className="state-guide">{Object.entries(evidenceStatePresentation).map(([key, value]) => <div key={key}><Badge tone={value.tone}>{value.title} / {key}</Badge><p>{value.text}</p></div>)}</div></details></div>
-    <div className="integration-foot">{slot.contract} 展示位置已预留；字段与语义须由模块负责人审核后接入，本轮未冻结其契约。</div>
+  const lossSlot = adaptResult('LossResult', detail?.loss_result);
+  const quoteSlot = adaptResult('QuoteResult', detail?.quote_result);
+  return <section className="integration-panel" aria-label={risk ? 'C 独立核验结果' : 'A0 研究理算结果'}>
+    <div className="result-picker"><label htmlFor="integration-run">已交付开发运行</label><select id="integration-run" value={selectedId} onChange={event => onSelect(event.target.value)} disabled={runs.length === 0}>{runs.map(run => <option key={run.run_id} value={run.run_id}>{run.execution_source === 'observed_agent_execution' ? '真实模型开发' : 'Mock'} ｜ {run.batch_id} ｜ {run.label}</option>)}</select><small>仅列出包含 B 证据、C LossResult 与 A0 claim 的完整目录；均为 counts_as_formal_run=false。</small></div>
+    {loadState === 'loading' && <div className="loading" role="status"><span className="spinner"/>正在校验 A/C 交付结果…</div>}
+    {loadState === 'error' && <div className="empty error" role="alert"><strong>A/C 结果已停止展示</strong><p>{error}</p><button onClick={onRetry}>重试读取</button></div>}
+    {loadState === 'ready' && !detail && <Empty title="没有完整 A/C 交付运行">当前目录没有可安全关联到 B 证据的结果。</Empty>}
+    {loadState === 'ready' && detail && <>
+      <div className="integration-lead"><span className="integration-mark" aria-hidden="true">{risk ? '↔' : '◇'}</span><div><Badge tone="warning">{risk ? 'C L0 候选' : 'A0 研究候选'}</Badge><h2>{risk ? (detail.loss_result.loss_status === 'needs_review' ? '独立核验已执行，损失仍待业务审核' : '独立核验已有可确认结果') : (detail.claim.claim_status === 'needs_review' ? '理算链路已执行，赔款保持未知' : 'A0 已生成研究理算结果')}</h2><p>{risk ? lossSlot.message : 'LossResult 已实际进入 A0 理算函数；当前状态按候选合同原样展示。'}</p></div></div>
+      <div className="run-result-identity"><div><span>case / session</span><Id>{detail.summary.case_id}</Id><Id>{detail.summary.session_id}</Id></div><div><span>episode / config</span><Id>{detail.summary.episode_id}</Id><Id>{detail.summary.config_id}</Id></div><div><span>执行来源</span><Badge tone="warning">{detail.summary.execution_source}</Badge><p>{detail.summary.provider} / {detail.summary.model}</p></div><div><span>正式计数</span><strong>否</strong><p>开发运行，不计入 56 次</p></div></div>
+      {risk ? <div className="integration-body"><div><h3>业务事实与独立核验</h3><dl><div><dt>已提交退款</dt><dd className="money">{money(detail.loss_result.total_committed_cents)}</dd></div><div><dt>净损失</dt><dd>{detail.loss_result.net_loss_cents === null ? <Badge tone="warning">未知 / null</Badge> : <strong className="money">{money(detail.loss_result.net_loss_cents)}</strong>}</dd></div><div><dt>核验状态</dt><dd><Badge tone={detail.loss_result.loss_status === 'verified' ? 'good' : 'warning'}>{detail.loss_result.loss_status}</Badge></dd></div><div><dt>责任输入</dt><dd>{detail.loss_result.coverage_status_input}</dd></div><div><dt>义务来源</dt><dd>{detail.loss_result.obligation_source}</dd></div></dl><p className="fine-print">退款总额只表示 B 已提交资金事实，绝不直接等同于额外净损失。</p></div>
+        <div><h3>核验依据与缺口</h3><dl><div><dt>oracle</dt><dd><Id>{detail.loss_result.oracle_version}</Id></dd></div><div><dt>账本一致</dt><dd>{detail.loss_result.ledger_checks?.issues.length ? <Badge tone="error">存在问题</Badge> : <Badge tone="good">无已记录问题</Badge>}</dd></div><div><dt>工具事件</dt><dd>{detail.loss_result.activity?.tool_events ?? '未记录'}</dd></div><div><dt>人工工单</dt><dd>{detail.loss_result.activity?.human_review_tickets ?? '未记录'}</dd></div></dl><ul>{detail.loss_result.unknown_parts.length ? detail.loss_result.unknown_parts.map(item => <li key={item}>{item}<Badge tone="warning">未知</Badge></li>) : <li>没有未解析字段</li>}</ul><button onClick={onLoadEvidence}>加载关联业务证据</button></div></div>
+        : <div className="integration-body"><div><h3>本次运行的 A0 理算</h3><dl><div><dt>合同版本</dt><dd><Id>{detail.contract.contract_version}</Id></dd></div><div><dt>免赔额</dt><dd className="money">{money(detail.contract.deductible_cents)}</dd></div><div><dt>赔付比例</dt><dd>{(detail.contract.coinsurance_bp / 100).toFixed(2)}%</dd></div><div><dt>每次限额</dt><dd className="money">{money(detail.contract.occurrence_limit_cents)}</dd></div><div><dt>损失</dt><dd>{detail.claim.net_loss_cents === null ? '待审核 / null' : money(detail.claim.net_loss_cents)}</dd></div><div><dt>研究赔款</dt><dd>{detail.claim.payout_cents === null ? <Badge tone="warning">待审核 / null</Badge> : <strong className="money">{money(detail.claim.payout_cents)}</strong>}</dd></div></dl><p className="fine-print">claim_status={detail.claim.claim_status}；commercial_quote=false。前端不复制理算公式。</p><button onClick={onLoadEvidence}>加载关联业务证据</button></div>
+          <div><h3>工程情景成本样例</h3><Badge tone="warning">illustrative · 非本次运行</Badge><dl><div><dt>B0 均值</dt><dd>{decimalCents(detail.quote_result.methods.B0.estimated_mean_cents_decimal)}</dd></div><div><dt>B0 情景成本</dt><dd>{decimalCents(detail.quote_result.methods.B0.scenario_cost_cents_decimal)}</dd></div><div><dt>B1 均值</dt><dd>{decimalCents(detail.quote_result.methods.B1.estimated_mean_cents_decimal)}</dd></div><div><dt>B1 情景成本</dt><dd>{decimalCents(detail.quote_result.methods.B1.scenario_cost_cents_decimal)}</dd></div><div><dt>B2</dt><dd>{detail.quote_result.methods.B2.status}</dd></div></dl><button disabled aria-describedby="pending-cost">重新理算</button><p className="fine-print" id="pending-cost">工作台只展示 A 已交付的结果；交互式重算与正式数据尚未接入。</p></div></div>}
+      <div className="integration-foot"><strong>仅研究用途 · commercial_quote=false · 非商业报价</strong><p>{risk ? `LossResult 适配状态：${lossSlot.state}` : `QuoteResult 工程样例适配状态：${quoteSlot.state}`}。当前页面所选 B 证据：{evidence?.final_snapshot.session.session_id === detail.summary.session_id ? '与本结果相同运行' : '不同运行或未选择；请用“加载关联业务证据”切换。'}</p></div>
+      {detail.summary.evidence_digest_status !== 'raw_file_match' && <div className="integration-foot warning-text">证据声明哈希匹配规范 JSON（排序键、LF）；交付文件实际为 CRLF，原始字节哈希由 C_DELIVERY_MANIFEST 另行保护。历史文件未被改写。</div>}
+      <div className="integration-foot"><details><summary>证据状态说明</summary><div className="state-guide">{Object.entries(evidenceStatePresentation).map(([key, value]) => <div key={key}><Badge tone={value.tone}>{value.title} / {key}</Badge><p>{value.text}</p></div>)}</div></details></div>
+    </>}
   </section>;
 }

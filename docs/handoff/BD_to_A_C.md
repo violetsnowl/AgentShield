@@ -1,3 +1,13 @@
+# ABCD 本地集成后的 A/C 交接（2026-10-13）
+
+当前已完成候选链的本机接入：C 的 LossResult 和运行清单、A0 Claim 与 QuoteResult schema/工程样例均已合入；D 通过 `abcd-results-boundary-0.2-candidate` 读取固定服务端目录并追溯到精确 B case/session/episode。C 对 bc-0.3 L0 开发接口的签收见 `C_receipt_bc-0.3.md`。本轮没有修改 B 交易语义，也没有由 D 运行 Agent 或保险计算。
+
+给 C 的下一步：交付正式 Gold 输入后的冻结运行清单，完成 C1-1、至少 10 次成本预试、56 次正式 Agent 和 28 次规则基线；三个历史真实模型开发运行需人工审核，当前继续 `needs_review/null`。给 A 的下一步：审定正式任务义务和研究合同，冻结 Claim/Quote 语义并完成正式赔付与定价。A/C/BD 还需共同决定规范 JSON 哈希与 CRLF 交付原始字节哈希的正式口径。
+
+完整当前结论、接口矩阵和测试见 `artifacts/integration_abcd/`。下方阶段 05 文字作为集成前历史交接保留；其中“无成功适配器”已不再是当前事实。
+
+---
+
 # 阶段05接收入口（原04交接正文保留）
 
 2026-10-12：05仅做复验与收口；当前状态见 `BD_CURRENT_STATE.md`，A/C本人接收分别见 `BD_to_A_CHECKLIST.md`、`BD_to_C_CHECKLIST.md`，安装/回放见根目录 `README_RECEIVE.md`。候选接口与交易逻辑未变，无成功A/C适配器。下方“完成04后停止”是历史记录；当前完成05后停止，不自动扩功能。所有A/C/第二人签收仍pending。

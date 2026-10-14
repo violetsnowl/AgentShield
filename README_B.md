@@ -1,3 +1,11 @@
+# AgentShield B 交易底座（ABCD 本地集成说明）
+
+2026-10-13：B 交易逻辑、七工具、SQLite 事务、幂等、工单和 EvidenceBundle schema 3 保持不变；本地集成只新增受控、只读的 A/C 已交付结果适配，并由 D 追溯到精确的 B session/episode。当前完整后端回归为 115 项通过。集成报告与变更清单见 `artifacts/integration_abcd/`。所有 A/C 结果仍是工程候选或开发证据，`counts_as_formal_run=false`；没有正式 Gold、真实支付或本轮模型调用。
+
+下方阶段 02 说明作为 B 协议与历史实现记录保留。
+
+---
+
 # AgentShield B 交易底座（阶段 02）
 
 当前接口为 **bc-0.3-candidate，B 自测完成，A/C 审核及消费者签收待完成**。本轮只执行 BD 冲刺包 02：稳定案例/运行分离、对象映射、可比较初态和受控开发模板；阶段 01 七工具与事务保护保留；完成后停止扩展，不代表全队 L0/L1 或 J0/J1/J2 通过。

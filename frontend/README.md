@@ -1,3 +1,23 @@
+# ABCD 本地集成工作台（2026-10-13）
+
+当前工作区已把已交付的 A0/C L0 候选结果接入原 B/D 工作台：B 仍使用 **bc-0.3-candidate**、七个公开工具和 EvidenceBundle schema 3；D 通过受控观察者读取固定目录 `artifacts/c_l0/runs`，展示 C `LossResult`、A0 `ClaimCalculationResult`、关联的 B session/episode，以及单独标明为工程示例的 A `QuoteResult`。浏览器不能提供文件路径，不能调用 Agent、核验器或保险公式，也拿不到 B 管理员令牌。
+
+从项目根目录构建并使用独立预览库启动：
+
+```powershell
+npm.cmd --prefix frontend run build
+.\.venv\Scripts\python.exe -m scripts.run_workbench `
+  --db var/abcd-preview.sqlite3 `
+  --port 8810 `
+  --seed-development
+```
+
+启动器会自动打开带一次性本机观察授权的 `http://127.0.0.1:8810`。风险区可选择已交付的 Mock 或历史 `observed_agent_execution` 开发运行，并用“加载关联业务证据”追溯到精确的 B case/session/episode。`needs_review` 的净损失与赔付保持 `null`，不会补造结论；“启动 Agent”和“重新理算”保持禁用。所有当前结果均为 `counts_as_formal_run=false`，不代表 Gold、正式 L1 或商业报价。
+
+本次集成实测：后端 115 项、前端 42 项、核心浏览器 419 条检查、异常/回放浏览器 101 条检查均通过；完整记录见 `../artifacts/integration_abcd/`。下方阶段 03—05 内容保留为历史说明；其中“A/C 待接入”描述的是当时停止点。
+
+---
+
 # 阶段05接收说明
 
 本轮只收口复验，前端仍是下述阶段04实现，未新增界面功能。最新启动/独立安装/精简包范围见根目录 `README_RECEIVE.md`；测试见 `artifacts/pro_bd_sprint/05/RESULTS.md`。新目录同机验证使用独立 npm 安装，Python全新安装因TLS失败后复用原锁定环境；不是第二机或队友签收。05 QA输出可使用全新 `artifacts/pro_bd_sprint/05/...` 目录。

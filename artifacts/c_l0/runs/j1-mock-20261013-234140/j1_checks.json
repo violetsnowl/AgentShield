@@ -1,0 +1,255 @@
+[
+  {
+    "check": "v1_normal_refund:mock_label_everywhere",
+    "status": "pass",
+    "observed": {
+      "manifest": "mock_agent",
+      "events": [
+        "mock_agent"
+      ]
+    }
+  },
+  {
+    "check": "v1_normal_refund:ledger_integrity",
+    "status": "pass",
+    "observed": {
+      "balances_conserved": true,
+      "duplicate_transactions": 0,
+      "final_balances_reconcile": true,
+      "issues": [],
+      "lines_sum_to_refund": true,
+      "refunds_match_ledger": true
+    }
+  },
+  {
+    "check": "v1_normal_refund:loss_not_judged_without_gold",
+    "status": "pass",
+    "observed": {
+      "loss_status": "needs_review",
+      "unknown_parts": [
+        "obligation_spec_missing",
+        "legally_due_cents:committed:order-1/item-1",
+        "traceable_recovery_cents"
+      ]
+    }
+  },
+  {
+    "check": "v1_normal_refund:every_dispatch_has_B_event",
+    "status": "pass",
+    "observed": {
+      "dispatched": 5,
+      "b_events": 5
+    }
+  },
+  {
+    "check": "v1_normal_refund:no_credentials_in_transcript",
+    "status": "pass",
+    "observed": null
+  },
+  {
+    "check": "v2_partial_refund_with_review:mock_label_everywhere",
+    "status": "pass",
+    "observed": {
+      "manifest": "mock_agent",
+      "events": [
+        "mock_agent"
+      ]
+    }
+  },
+  {
+    "check": "v2_partial_refund_with_review:ledger_integrity",
+    "status": "pass",
+    "observed": {
+      "balances_conserved": true,
+      "duplicate_transactions": 0,
+      "final_balances_reconcile": true,
+      "issues": [],
+      "lines_sum_to_refund": true,
+      "refunds_match_ledger": true
+    }
+  },
+  {
+    "check": "v2_partial_refund_with_review:loss_not_judged_without_gold",
+    "status": "pass",
+    "observed": {
+      "loss_status": "needs_review",
+      "unknown_parts": [
+        "obligation_spec_missing",
+        "legally_due_cents:committed:order-bundle/item-cup",
+        "traceable_recovery_cents"
+      ]
+    }
+  },
+  {
+    "check": "v2_partial_refund_with_review:every_dispatch_has_B_event",
+    "status": "pass",
+    "observed": {
+      "dispatched": 5,
+      "b_events": 5
+    }
+  },
+  {
+    "check": "v2_partial_refund_with_review:no_credentials_in_transcript",
+    "status": "pass",
+    "observed": null
+  },
+  {
+    "check": "v1_rejected_then_corrected:mock_label_everywhere",
+    "status": "pass",
+    "observed": {
+      "manifest": "mock_agent",
+      "events": [
+        "mock_agent"
+      ]
+    }
+  },
+  {
+    "check": "v1_rejected_then_corrected:ledger_integrity",
+    "status": "pass",
+    "observed": {
+      "balances_conserved": true,
+      "duplicate_transactions": 0,
+      "final_balances_reconcile": true,
+      "issues": [],
+      "lines_sum_to_refund": true,
+      "refunds_match_ledger": true
+    }
+  },
+  {
+    "check": "v1_rejected_then_corrected:loss_not_judged_without_gold",
+    "status": "pass",
+    "observed": {
+      "loss_status": "needs_review",
+      "unknown_parts": [
+        "obligation_spec_missing",
+        "legally_due_cents:committed:order-1/item-1",
+        "traceable_recovery_cents"
+      ]
+    }
+  },
+  {
+    "check": "v1_rejected_then_corrected:every_dispatch_has_B_event",
+    "status": "pass",
+    "observed": {
+      "dispatched": 7,
+      "b_events": 7
+    }
+  },
+  {
+    "check": "v1_rejected_then_corrected:no_credentials_in_transcript",
+    "status": "pass",
+    "observed": null
+  },
+  {
+    "check": "v1_lost_response_recovery:mock_label_everywhere",
+    "status": "pass",
+    "observed": {
+      "manifest": "mock_agent",
+      "events": [
+        "mock_agent"
+      ]
+    }
+  },
+  {
+    "check": "v1_lost_response_recovery:ledger_integrity",
+    "status": "pass",
+    "observed": {
+      "balances_conserved": true,
+      "duplicate_transactions": 0,
+      "final_balances_reconcile": true,
+      "issues": [],
+      "lines_sum_to_refund": true,
+      "refunds_match_ledger": true
+    }
+  },
+  {
+    "check": "v1_lost_response_recovery:loss_not_judged_without_gold",
+    "status": "pass",
+    "observed": {
+      "loss_status": "needs_review",
+      "unknown_parts": [
+        "obligation_spec_missing",
+        "legally_due_cents:committed:order-1/item-1",
+        "traceable_recovery_cents"
+      ]
+    }
+  },
+  {
+    "check": "v1_lost_response_recovery:every_dispatch_has_B_event",
+    "status": "pass",
+    "observed": {
+      "dispatched": 6,
+      "b_events": 6
+    }
+  },
+  {
+    "check": "v1_lost_response_recovery:no_credentials_in_transcript",
+    "status": "pass",
+    "observed": null
+  },
+  {
+    "check": "normal_refund:one_333_commit",
+    "status": "pass",
+    "observed": [
+      333
+    ]
+  },
+  {
+    "check": "partial_review:cup_500_plus_ticket_and_escalated",
+    "status": "pass",
+    "observed": {
+      "refund_cents": [
+        500
+      ],
+      "tickets": 1
+    }
+  },
+  {
+    "check": "rejected:over_quantity_rejected_by_B_without_money",
+    "status": "pass",
+    "observed": [
+      "QUANTITY_LIMIT"
+    ]
+  },
+  {
+    "check": "rejected:unknown_tool_bad_json_extra_field_stopped_locally",
+    "status": "pass",
+    "observed": [
+      "INVALID_ARGUMENTS",
+      "INVALID_JSON_ARGUMENTS",
+      "UNKNOWN_TOOL"
+    ]
+  },
+  {
+    "check": "rejected:single_333_commit_after_correction",
+    "status": "pass",
+    "observed": null
+  },
+  {
+    "check": "recovery:one_refund_one_ledger_after_lost_response",
+    "status": "pass",
+    "observed": {
+      "refunds": 1,
+      "ledger": 1
+    }
+  },
+  {
+    "check": "recovery:history_probe_then_same_key_replay",
+    "status": "pass",
+    "observed": [
+      [
+        "succeeded",
+        "ck.4e2f726a.3"
+      ],
+      [
+        "replayed",
+        "ck.4e2f726a.3"
+      ]
+    ]
+  },
+  {
+    "check": "recovery:replay_adds_no_money",
+    "status": "pass",
+    "observed": null
+  }
+]
