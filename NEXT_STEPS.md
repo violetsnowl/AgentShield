@@ -7,7 +7,7 @@
 - `main`：已合入 ABCD 集成版（A/C L0 候选链 + D 只读展示 + 工作台集成视图），并完成 2026-10-14 文档系统整理；本 `feature/bd-integration` 分支已同步该整理。
 - 计划书 V1.2（工作基线，2026-10-14 确认）已入库：`AgentShield_v1.2_Plan.md`（根目录）。
 - 工作分支：
-  - `feature/bd-integration`（本分支）：B 案例生成器与 fixture v2、40 个公开候选案例、浏览器专项；**B 侧基本完成**，该分支接下来作为 **D 前端**的工作线。
+  - `feature/bd-integration`（本分支）：B 案例生成器与 fixture v2、40 个公开候选案例；B 侧基本完成；**D 前端**批A 五项补课（`bd5546f`）与批B N01–N16 验收矩阵（`docs/validation/N01-N16_acceptance.md`）已完成，批C 视觉打磨待启动。
   - `feature/c-agent-evaluation`：C1-1 规则基线、正式计划占位、成本预审申请；等准入条件解除后执行。
   - `feature/a-gold-actuarial`：已建，待 A 开工。
 - 已删除空分支：`feature/b-case-generator`、`feature/d-frontend-delivery`（2026-10-14；内容并入 main 与 `feature/bd-integration`）。

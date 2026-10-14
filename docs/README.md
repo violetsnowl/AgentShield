@@ -16,6 +16,7 @@
 | `docs/handoff/` | 角色间交接、签收清单、回执、请求 |
 | `docs/decisions/` | 接口/边界决策记录（按版本留存） |
 | `docs/business/` | 业务规则、精算候选、业务审查记录 |
+| `docs/validation/` | 验收记录（N/Q/R 项实测矩阵与复现说明） |
 | `docs/migrations/` | 数据库迁移说明 |
 | `docs/spec/` | 计划书历史版本与角色卡（V1.1 包；当前版计划书在根目录） |
 | `docs/audit/` | 历史独立复核包（按日期目录） |
@@ -32,6 +33,7 @@
 4. 决策类：`<主题>_v<版本>.md`。例：`BC_contract_v0.3.md`。
 5. 日期只用于归档与批次：ISO 格式（`2026-10-14`）。
 6. 新增文档一律用 ASCII 文件名；历史中文名文件已归档、不再新增。
+7. 验收类：`<范围>_acceptance.md`。例：`N01-N16_acceptance.md`。
 
 ## 三、维护规则
 
@@ -97,6 +99,9 @@
 
 **docs/migrations/** — `B_002_human_reviews.md`、`B_003_session_cases.md`。
 
+**docs/validation/**
+- `N01-N16_acceptance.md` — 前端 N 项验收矩阵（D 线，批B：批A 改动 `bd5546f`/`6e83d01` 的自动化证据）。
+
 **docs/spec/AgentShield_v1.1_Package/**（历史） — 计划书 V1.1（`.md`/`.docx`）、`delivery_levels_v1.1.json`、`role_cards/`（A/B/C/D 四份任务卡）。
 
 **docs/audit/** — 三次独立复核包（B_Audit、Stage03、Stage04，均为历史记录）。
@@ -105,7 +110,7 @@
 
 ## 六、在途（在分支上、尚未合入 main 的文档）
 
-- `feature/bd-integration`：`artifacts/b_case_generator/`（A/C 交接件与结果）、`docs/decisions/B_case_generator_contract_v0.1.md`、`docs/handoff/` 增补。
+- `feature/bd-integration`：`artifacts/b_case_generator/`（A/C 交接件与结果）、`docs/decisions/B_case_generator_contract_v0.1.md`、`docs/handoff/` 增补、`docs/validation/N01-N16_acceptance.md` 与前端批A/批B 改动。
 - `feature/c-agent-evaluation`：`docs/handoff/C_C1_CHECKPOINT.md`、`C_C1_to_A/B/D.md`。
 
 > 合并后请把新增文档登入本索引（维护规则第 2 条）。
