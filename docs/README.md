@@ -9,6 +9,7 @@
 | `README.md`（根） | 项目门面：是什么、现在到哪、快速开始 |
 | `NEXT_STEPS.md`（根） | **当前停止点与下一步**（全项目唯一“状态真源”，不堆历史） |
 | `CONTRIBUTING.md`（根） | Git 协作规范：分支、提交格式、PR 规则、禁区 |
+| `AgentShield_v1.2_Plan.md`（根） | **当前生效的计划书**（V1.2 工作基线；历史 V1.1 包在 `docs/spec/`） |
 | `docs/setup/` | 接收、环境安装、检查命令、启动 |
 | `docs/manuals/` | 使用手册（操作说明） |
 | `docs/modules/` | 各模块的当前说明（如 B 交易底座） |
@@ -16,7 +17,7 @@
 | `docs/decisions/` | 接口/边界决策记录（按版本留存） |
 | `docs/business/` | 业务规则、精算候选、业务审查记录 |
 | `docs/migrations/` | 数据库迁移说明 |
-| `docs/spec/` | 计划书与角色卡（唯一副本，含 .docx/.md/role_cards） |
+| `docs/spec/` | 计划书历史版本与角色卡（V1.1 包；当前版计划书在根目录） |
 | `docs/audit/` | 历史独立复核包（按日期目录） |
 | `docs/archive/` | 已归档文档（不再维护；**保留原样**，见该目录 README） |
 | `artifacts/` | 实验证据与结果（按批次；仅白名单路径入库） |
@@ -61,6 +62,7 @@
 - `README.md` — 项目门面与导航。
 - `NEXT_STEPS.md` — 当前停止点、在途分支、P0/P1 清单、禁止事项。
 - `CONTRIBUTING.md` — 分支表、提交格式、PR 规则、合并顺序。
+- `AgentShield_v1.2_Plan.md` — V1.2 计划书（工作基线，2026-10-14 确认入库）。
 
 **docs/setup/**
 - `RECEIVE_AND_RUN.md` — 克隆、环境安装、完整检查命令、启动工作台、接收回执要素。
@@ -95,7 +97,7 @@
 
 **docs/migrations/** — `B_002_human_reviews.md`、`B_003_session_cases.md`。
 
-**docs/spec/AgentShield_v1.1_Package/** — 计划书（`.md`/`.docx`）、`delivery_levels_v1.1.json`、`role_cards/`（A/B/C/D 四份任务卡）。
+**docs/spec/AgentShield_v1.1_Package/**（历史） — 计划书 V1.1（`.md`/`.docx`）、`delivery_levels_v1.1.json`、`role_cards/`（A/B/C/D 四份任务卡）。
 
 **docs/audit/** — 三次独立复核包（B_Audit、Stage03、Stage04，均为历史记录）。
 
