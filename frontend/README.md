@@ -14,13 +14,13 @@ npm.cmd --prefix frontend run build
 
 启动器会自动打开带一次性本机观察授权的 `http://127.0.0.1:8810`。风险区可选择已交付的 Mock 或历史 `observed_agent_execution` 开发运行，并用“加载关联业务证据”追溯到精确的 B case/session/episode。`needs_review` 的净损失与赔付保持 `null`，不会补造结论；“启动 Agent”和“重新理算”保持禁用。所有当前结果均为 `counts_as_formal_run=false`，不代表 Gold、正式 L1 或商业报价。
 
-本次集成实测：后端 115 项、前端 42 项、核心浏览器 419 条检查、异常/回放浏览器 101 条检查均通过；完整记录见 `../artifacts/integration_abcd/`。下方阶段 03—05 内容保留为历史说明；其中“A/C 待接入”描述的是当时停止点。
+本次集成实测：后端 115 项、前端 42 项、核心浏览器 419 条检查、异常/回放浏览器 101 条检查均通过；完整记录未随仓库分发（存档于制作方工作区）。下方阶段 03—05 内容保留为历史说明；其中“A/C 待接入”描述的是当时停止点。
 
 ---
 
 # 阶段05接收说明
 
-本轮只收口复验，前端仍是下述阶段04实现，未新增界面功能。最新启动/独立安装/精简包范围见根目录 `README_RECEIVE.md`；测试见 `artifacts/pro_bd_sprint/05/RESULTS.md`。新目录同机验证使用独立 npm 安装，Python全新安装因TLS失败后复用原锁定环境；不是第二机或队友签收。05 QA输出可使用全新 `artifacts/pro_bd_sprint/05/...` 目录。
+本轮只收口复验，前端仍是下述阶段04实现，未新增界面功能。最新启动/独立安装/精简包范围见 `docs/setup/RECEIVE_AND_RUN.md`；测试见 `artifacts/pro_bd_sprint/05/RESULTS.md`。新目录同机验证使用独立 npm 安装，Python全新安装因TLS失败后复用原锁定环境；不是第二机或队友签收。05 QA输出可使用全新 `artifacts/pro_bd_sprint/05/...` 目录。
 
 下方为原阶段04使用说明，保留其版本与历史上下文。其中“没有执行05”描述当时，不代表当前停止点。A/C成功适配、真实Agent、保险计算与第二机仍待完成。
 

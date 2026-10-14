@@ -1,0 +1,109 @@
+# 文档系统：索引与规范
+
+本文件是 AgentShield 全项目文档的**唯一索引**。找信息先看这里；新增、移动、改名文档前，先读本文件的「维护规则」。
+
+## 一、目录规范（每类内容住哪）
+
+| 位置 | 放什么 |
+|---|---|
+| `README.md`（根） | 项目门面：是什么、现在到哪、快速开始 |
+| `NEXT_STEPS.md`（根） | **当前停止点与下一步**（全项目唯一“状态真源”，不堆历史） |
+| `CONTRIBUTING.md`（根） | Git 协作规范：分支、提交格式、PR 规则、禁区 |
+| `docs/setup/` | 接收、环境安装、检查命令、启动 |
+| `docs/manuals/` | 使用手册（操作说明） |
+| `docs/modules/` | 各模块的当前说明（如 B 交易底座） |
+| `docs/handoff/` | 角色间交接、签收清单、回执、请求 |
+| `docs/decisions/` | 接口/边界决策记录（按版本留存） |
+| `docs/business/` | 业务规则、精算候选、业务审查记录 |
+| `docs/migrations/` | 数据库迁移说明 |
+| `docs/spec/` | 计划书与角色卡（唯一副本，含 .docx/.md/role_cards） |
+| `docs/audit/` | 历史独立复核包（按日期目录） |
+| `docs/archive/` | 已归档文档（不再维护；**保留原样**，见该目录 README） |
+| `artifacts/` | 实验证据与结果（按批次；仅白名单路径入库） |
+| `frontend/README.md` | 工作台构建/启动说明（跟着代码走） |
+
+## 二、命名规范
+
+1. **角色与缩写保持大写**：`A` `B` `C` `D` `BD` `BC` `L0/L1` `C1` `J1` `v0.1`。
+2. **普通词小写**，词间用 `_`；不做纯大小写改名（Windows 与 Linux 对大小写不友好）。
+3. 交接类：`<from>_to_<to>[_<类型>].md`，类型词表：`handoff / checklist / receipt / requests / results / state`。
+   例：`BD_to_A_checklist.md`、`C_receipt_bc-0.3.md`、`C_to_A_B_D_requests.md`。
+4. 决策类：`<主题>_v<版本>.md`。例：`BC_contract_v0.3.md`。
+5. 日期只用于归档与批次：ISO 格式（`2026-10-14`）。
+6. 新增文档一律用 ASCII 文件名；历史中文名文件已归档、不再新增。
+
+## 三、维护规则
+
+- 被取代的文档**不删除**：移入 `docs/archive/`，并在本文件「归档登记」表登记（旧位置 → 现位置 → 替代文档）。
+- 移动/改名任何文档，必须同步更新：① 本索引；② 所有引用它的文档（用搜索确认）。
+- 归档文档内容保持原样（含当时的旧路径引用）；对应关系以「归档登记」表为准。
+- 实验证据（`artifacts/`）与审计记录（`docs/audit/`）不得改写。
+
+## 四、归档登记（2026-10-14 整理）
+
+| 旧位置（原引用名） | 现位置 | 替代文档 |
+|---|---|---|
+| `AgentShield_v1.1_Plan(1).md`（根） | 已删除（与 spec 版完全同哈希的重复副本） | `docs/spec/AgentShield_v1.1_Package/AgentShield_v1.1_Plan.md` |
+| `00_先读我_C交付说明.md`（根） | `docs/archive/00_先读我_C交付说明.md` | `docs/handoff/C_L0_RESULTS.md`、`docs/setup/RECEIVE_AND_RUN.md` |
+| `README_START_HERE.md`（根） | `docs/archive/README_START_HERE.md` | 根 `README.md`、`docs/spec/` |
+| `README_RECEIVE.md`（根） | `docs/archive/README_RECEIVE.md` | `docs/setup/RECEIVE_AND_RUN.md` |
+| `GIT_HANDOFF_README.md`（根） | `docs/archive/GIT_HANDOFF_README.md` | `docs/setup/RECEIVE_AND_RUN.md`（环境/检查/启动内容已并入） |
+| `README_B.md`（根） | `docs/modules/B_sandbox_backend.md` | 自身续用（文件继续维护） |
+| `GIT_COLLABORATION.md`（根） | `CONTRIBUTING.md` | 自身续用（已扩写） |
+| `docs/FRONTEND_USER_MANUAL.md` | `docs/manuals/FRONTEND_USER_MANUAL.md` | 自身续用 |
+| `tasks/`（根整目录） | `docs/archive/tasks/` | 现行指令见 `NEXT_STEPS.md` |
+| `PACKAGE_MANIFEST.json`、`C_DELIVERY_MANIFEST.json`（根） | `docs/archive/delivery_manifests/` | —（历史交付的逐文件 SHA-256 记录，仅存档） |
+| `NEXT_STEPS.md` 内 2026-10-12/13 历史停止点 | `docs/archive/stop_points_2026-10-12_13.md` | `NEXT_STEPS.md`（现行停止点） |
+
+## 五、现行文档清单（每份一句话）
+
+**根目录**
+- `README.md` — 项目门面与导航。
+- `NEXT_STEPS.md` — 当前停止点、在途分支、P0/P1 清单、禁止事项。
+- `CONTRIBUTING.md` — 分支表、提交格式、PR 规则、合并顺序。
+
+**docs/setup/**
+- `RECEIVE_AND_RUN.md` — 克隆、环境安装、完整检查命令、启动工作台、接收回执要素。
+
+**docs/manuals/**
+- `FRONTEND_USER_MANUAL.md` — 工作台操作手册（启动、四区、风险区选择、导入回放）。
+
+**docs/modules/**
+- `B_sandbox_backend.md` — B 交易底座：七工具、账本/幂等、迁移、证据契约（原 README_B）。
+
+**docs/handoff/**
+- `BD_CURRENT_STATE.md` — BD 侧交接状态（阶段05 收口 + 10-13 集成增补）。
+- `BD_to_A_C.md` — BD→A/C 联合交接（跨实例导出/回放路径、最小语义需求）。
+- `BD_to_A_CHECKLIST.md` — 给 A 的业务与研究合同接收清单（待 A 签收）。
+- `BD_to_C_CHECKLIST.md` — 给 C 的沙箱与证据接收清单（C 已出接收记录）。
+- `B_to_C.md` — B→C 接入交接（工具、幂等、证据细节）。
+- `C_L0_RESULTS.md` — C 的 L0 结果（J1/J2、核验器、运行清单）。
+- `C_receipt_bc-0.3.md` — C 对 bc-0.3 的接收记录。
+- `C_to_A_B_D_requests.md` — C 对 A/B/D 的输入请求（义务定义、预算等）。
+
+**docs/decisions/**
+- `BC_contract_v0.1/0.2/0.3.md` — B/C 接口契约演进（当前 bc-0.3-candidate）。
+- `BD_display_v0.2.md` — 展示边界候选（bd-display-0.2）。
+- `BD_observer_v0.1.md` — 观察者适配（observer-0.1-candidate）。
+
+**docs/business/**
+- `business_policy_A_candidate.md` — A0 业务规则候选与决策表（待双签）。
+- `BD_A_review_v0.1.md` — B/D→A 的业务审查（未签收）。
+- `QuoteResult_A_v0.1_candidate.md` — A 的 QuoteResult 候选接口说明。
+- `engineering_*.json` — 工程算例/输入（合成，非真实数据）。
+- `A0_RECEIPT.md`、`A0_patch/` — A0 首轮交付回执与补丁说明（历史）。
+
+**docs/migrations/** — `B_002_human_reviews.md`、`B_003_session_cases.md`。
+
+**docs/spec/AgentShield_v1.1_Package/** — 计划书（`.md`/`.docx`）、`delivery_levels_v1.1.json`、`role_cards/`（A/B/C/D 四份任务卡）。
+
+**docs/audit/** — 三次独立复核包（B_Audit、Stage03、Stage04，均为历史记录）。
+
+**docs/archive/** — 见该目录 `README.md` 索引。
+
+## 六、在途（在分支上、尚未合入 main 的文档）
+
+- `feature/bd-integration`：`artifacts/b_case_generator/`（A/C 交接件与结果）、`docs/decisions/B_case_generator_contract_v0.1.md`、`docs/handoff/` 增补。
+- `feature/c-agent-evaluation`：`docs/handoff/C_C1_CHECKPOINT.md`、`C_C1_to_A/B/D.md`。
+
+> 合并后请把新增文档登入本索引（维护规则第 2 条）。

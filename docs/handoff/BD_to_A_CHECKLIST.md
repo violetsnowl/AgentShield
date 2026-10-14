@@ -1,10 +1,12 @@
 # BD → A 业务与研究合同接收清单（待 A 本人审核）
 
+> 状态提示（2026-10-14）：本文写于阶段 05（10-12）；其中“尚无成功适配器”等描述已被 10-13 集成更新；当前状态以 `NEXT_STEPS.md` 为准。
+
 本轮没有替 A 实现公式或签署规则。bc-0.3-candidate、两个公开开发模板和历史政策仍是候选；D 中金额是 B 已提交的模拟资金事实，不是损失、保费或赔款。commercial_quote=false。
 
 ## 接收材料
 
-`README_RECEIVE.md`、`BD_CURRENT_STATE.md`、`BD_to_A_C.md`；`docs/spec/AgentShield_v1.1_Package/AgentShield_v1.1_Plan.md`、A任务卡与 delivery_levels_v1.1.json；`BC_contract_v0.3.md`；`sandbox/fixtures/dev-refund-v1.json`、`dev-refund-v2.json`；`contracts/evidence_example.json`、`fixture_v2_evidence_example.json`、`case_examples.json`、`bd_handoff_example_v0.1.json`。最后一个是实际 B 证据引用与 A/C 缺席示例，不是已审 QuoteResult/LossResult wire 格式。
+`docs/setup/RECEIVE_AND_RUN.md`、`BD_CURRENT_STATE.md`、`BD_to_A_C.md`；`docs/spec/AgentShield_v1.1_Package/AgentShield_v1.1_Plan.md`、A任务卡与 delivery_levels_v1.1.json；`BC_contract_v0.3.md`；`sandbox/fixtures/dev-refund-v1.json`、`dev-refund-v2.json`；`contracts/evidence_example.json`、`fixture_v2_evidence_example.json`、`case_examples.json`、`bd_handoff_example_v0.1.json`。最后一个是实际 B 证据引用与 A/C 缺席示例，不是已审 QuoteResult/LossResult wire 格式。
 
 ## A 需逐项审定
 
@@ -24,7 +26,7 @@
 
 ## 本人执行与回执
 
-按 README_RECEIVE 安装、构建、启动；检查企业实验场的原政策/公开消息/订单/商品，以及账本到交易/事件的追溯。导入上述开发证据及schema1/2历史样例，确认缺失不补造。必要时执行 `python -m unittest discover -s tests -v` 和 `python -m scripts.run_http_checks --output-dir <全新目录>` 理解实现事实；这些通过不能代替业务审定。
+按 `docs/setup/RECEIVE_AND_RUN.md` 安装、构建、启动；检查企业实验场的原政策/公开消息/订单/商品，以及账本到交易/事件的追溯。导入上述开发证据及schema1/2历史样例，确认缺失不补造。必要时执行 `python -m unittest discover -s tests -v` 和 `python -m scripts.run_http_checks --output-dir <全新目录>` 理解实现事实；这些通过不能代替业务审定。
 
 记录：审核人、日期、规则/合同/模板版本、逐项接受/保留意见、修改依据、样例/命令/结果、与C的分歧、下一输入与接受范围。全部**待 A 本人填写**。D 当前空值 pending、非空未审协议 unsupported_contract，尚无成功适配器；收到 schema/语义/样例后由 BD 在另行授权范围逐版本接入并测试。
 

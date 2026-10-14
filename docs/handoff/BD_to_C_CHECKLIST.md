@@ -1,10 +1,12 @@
 # BD → C 接收清单（待 C 本人签收）
 
+> 状态提示（2026-10-14）：本文写于阶段 05（10-12）；C 已按本文出接收记录（`C_receipt_bc-0.3.md`）；后续进展以 `NEXT_STEPS.md` 为准。
+
 版本 bc-0.3-candidate / EvidenceBundle 3（兼容1/2）/ 迁移001/002/003。这是工程候选，不能把 B 自测或来源标签当 C 消费者验收、真实 Agent 或独立损失核验。
 
 ## 接收文件
 
-- `README_RECEIVE.md`、`docs/handoff/BD_CURRENT_STATE.md`、`B_to_C.md`、`BD_to_A_C.md`；实际边界以当前文档及源码为准，旧阶段结果保留历史语境。
+- `docs/setup/RECEIVE_AND_RUN.md`、`docs/handoff/BD_CURRENT_STATE.md`、`B_to_C.md`、`BD_to_A_C.md`；实际边界以当前文档及源码为准，旧阶段结果保留历史语境。
 - `docs/decisions/BC_contract_v0.3.md`、`BD_observer_v0.1.md`、`contracts/models.py`、`openapi.json`、`schemas.json`、`tools.json`、`examples.json`、`response_examples.json`、`session_source_examples.json`。
 - `contracts/case_examples.json`、`fixture_registry.json`、`development_fixture.schema.json`、`evidence_example.json`、`fixture_v2_evidence_example.json`；两份 `sandbox/fixtures/` 开发模板；schema1/2最小旧样例随包保留。
 - `scripts/bc_smoke_test.py`（纯标准库独立客户端）、`run_http_checks.py`、`export_evidence.py`；`docs/migrations/` 及迁移 SQL。先在隔离库验收，旧库需一致备份，不清库掩盖迁移。
@@ -28,7 +30,7 @@
 
 ## C 本人执行与交付
 
-先按 README_RECEIVE 安装和执行独立 HTTP 检查。该命令自动创建隔离 B，当前预期为333/250分开发退款、各一次提交/账本、持久工单、同键/重启/TCP恢复；并非真实 Agent。
+先按 `docs/setup/RECEIVE_AND_RUN.md` 安装和执行独立 HTTP 检查。该命令自动创建隔离 B，当前预期为333/250分开发退款、各一次提交/账本、持久工单、同键/重启/TCP恢复；并非真实 Agent。
 
 ```powershell
 $cStamp = Get-Date -Format yyyyMMdd-HHmmss

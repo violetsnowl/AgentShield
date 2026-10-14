@@ -6,11 +6,13 @@
 
 # B → C 接入交接（bc-0.3 候选，待接收）
 
+> 状态提示（2026-10-14）：本文写于阶段 02–04；当前状态以 `NEXT_STEPS.md` 为准。
+
 当前已完成 BD 阶段 04 集成（下文阶段 02/03 记录保留其历史语境）。B/C 仍为 bc-0.3-candidate，七工具、EvidenceBundle schema 3 与迁移 001/002/003 不变；新增 observer-0.1-candidate 本机观察者，不能替代 C 运行器。阶段 02 的案例与模板说明保留如下。最新验证见 artifacts/pro_bd_sprint/04/RESULTS.md，阶段 02 历史证据见 artifacts/pro_bd_sprint/02/RESULTS.md。C 独立消费者和 A 业务签收仍待本人完成，没有代签全队关口或真实模型运行。
 
 ## 接入和版本
 
-按 README_B 在 loopback 启动；旧数据库先备份再运行迁移 003。管理侧创建会话并保管管理员令牌，运行器传输层只接对应 session_token，模型只看公开 observation 和工具参数。令牌不进模型消息、浏览器、日志或仓库。
+按 `docs/modules/B_sandbox_backend.md` 在 loopback 启动；旧数据库先备份再运行迁移 003。管理侧创建会话并保管管理员令牌，运行器传输层只接对应 session_token，模型只看公开 observation 和工具参数。令牌不进模型消息、浏览器、日志或仓库。
 
 七个 POST 工具共用 /api/v1/sessions/{session_id}/tools/{name}：
 

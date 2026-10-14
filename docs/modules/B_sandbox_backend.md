@@ -6,7 +6,9 @@
 
 # AgentShield B 交易底座（ABCD 本地集成说明）
 
-2026-10-13：B 交易逻辑、七工具、SQLite 事务、幂等、工单和 EvidenceBundle schema 3 保持不变；本地集成只新增受控、只读的 A/C 已交付结果适配，并由 D 追溯到精确的 B session/episode。当前完整后端回归为 115 项通过。集成报告与变更清单见 `artifacts/integration_abcd/`。所有 A/C 结果仍是工程候选或开发证据，`counts_as_formal_run=false`；没有正式 Gold、真实支付或本轮模型调用。
+> 位置说明：本文档为 `docs/modules/B_sandbox_backend.md`（原根目录 `README_B.md`）；文档索引见 `../README.md`。
+
+2026-10-13：B 交易逻辑、七工具、SQLite 事务、幂等、工单和 EvidenceBundle schema 3 保持不变；本地集成只新增受控、只读的 A/C 已交付结果适配，并由 D 追溯到精确的 B session/episode。当前完整后端回归为 115 项通过。集成报告与变更清单未随仓库分发（存档于制作方工作区）。所有 A/C 结果仍是工程候选或开发证据，`counts_as_formal_run=false`；没有正式 Gold、真实支付或本轮模型调用。
 
 下方阶段 02 说明作为 B 协议与历史实现记录保留。
 
@@ -18,7 +20,7 @@
 
 现有七工具、SQLite 退款/账本/幂等事务和管理只读导出可运行。所有 fixture 为 development_only；来源枚举兼容 scripted_test、mock_agent、observed_agent_execution。来源是创建方声明，此次仅测试标签传播，没有模型调用、真实支付或收费服务。
 
-本轮实际记录见 [RESULTS](artifacts/pro_bd_sprint/02/RESULTS.md)，协议见 [bc-0.3](docs/decisions/BC_contract_v0.3.md)。原 bc-0.1/0.2、artifacts/b_bootstrap 和阶段 01 的结果/检查点完整保留。
+本轮实际记录见 [RESULTS](../../artifacts/pro_bd_sprint/02/RESULTS.md)，协议见 [bc-0.3](../decisions/BC_contract_v0.3.md)。原 bc-0.1/0.2、artifacts/b_bootstrap 和阶段 01 的结果/检查点完整保留。
 
 ## 环境与启动
 
@@ -30,7 +32,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-**已有库须先备份再启动。** 服务启动和 init_dev 都自动执行增量迁移 001/002/003；保留旧数据。002 增加工单；003 增加冻结案例上下文，不改写旧编号、会话来源/版本、交易、工单或事件。操作和回退限制见 [迁移说明](docs/migrations/B_003_session_cases.md)。本轮保留了阶段 01 两个遗留测试库，所有新测试均使用独占临时库。
+**已有库须先备份再启动。** 服务启动和 init_dev 都自动执行增量迁移 001/002/003；保留旧数据。002 增加工单；003 增加冻结案例上下文，不改写旧编号、会话来源/版本、交易、工单或事件。操作和回退限制见 [迁移说明](../migrations/B_003_session_cases.md)。本轮保留了阶段 01 两个遗留测试库，所有新测试均使用独占临时库。
 
 在项目根目录的服务终端配置本地数据库和随机管理员令牌（赋值不会显示令牌）：
 
@@ -105,9 +107,9 @@ canonical_initial 保存所有公开业务初态和执行规则版本，排除 s
 
 只面向本地可信团队开发；未完成多机、吞吐、断电、密钥轮换、正式任务/Gold、真实 Agent/核验器、保险算法、前端、工单分派处理、真实支付和公网部署。锁定依赖的 Starlette/httpx 弃用警告保留；历史还有 Pydantic Header alias 警告，依赖升级时复核，不能据此声称无警告。
 
-测试只清理自己创建的临时目录；不得删除旧库来规避迁移。需要新开发数据时停止服务后指定 var 下的新数据库，保留旧库。无 Git 仓库，本轮用文件归档和 SHA-256 保存前后检查点。BD 目前共同负责、由用户操作，分工待实际进展确定。
+测试只清理自己创建的临时目录；不得删除旧库来规避迁移。需要新开发数据时停止服务后指定 var 下的新数据库，保留旧库。本轮用文件归档和 SHA-256 保存前后检查点；自 2026-10-13 起项目改用 Git 仓库协作（见 `../../CONTRIBUTING.md`）。BD 目前共同负责。
 
-C 按 [交接](docs/handoff/B_to_C.md) 接续；下一位 B 开发者先读 [NEXT_STEPS](NEXT_STEPS.md)。A/C 审核保持待填；阶段 02 完成后停止，不自动进入 03 或 D。
+C 按 [交接](../handoff/B_to_C.md) 接续；下一位 B 开发者先读 [NEXT_STEPS](../../NEXT_STEPS.md)。A/C 审核保持待填；阶段 02 完成后停止，不自动进入 03 或 D。
 
 
 ## 阶段 03：本机观察者工作台
