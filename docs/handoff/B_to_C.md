@@ -1,3 +1,9 @@
+# B-CP1/CP2 → C 增量说明（2026-10-14）
+
+新案例通过原 bc-0.3 CreateSession 和七工具运行；固定 ID/登记见 `contracts/fixture_ids.py` 与 `contracts/fixture_registry.json`。fixture schema v2 的历史退款属于 initial_snapshot，不属于本 episode refunds/ledger/events，C 不得归因成本次 Agent 损失。实际命令、Mock 证据和待确认项见 `artifacts/b_case_generator/C_RUNNER_HANDOFF.md`。
+
+---
+
 # B → C 接入交接（bc-0.3 候选，待接收）
 
 当前已完成 BD 阶段 04 集成（下文阶段 02/03 记录保留其历史语境）。B/C 仍为 bc-0.3-candidate，七工具、EvidenceBundle schema 3 与迁移 001/002/003 不变；新增 observer-0.1-candidate 本机观察者，不能替代 C 运行器。阶段 02 的案例与模板说明保留如下。最新验证见 artifacts/pro_bd_sprint/04/RESULTS.md，阶段 02 历史证据见 artifacts/pro_bd_sprint/02/RESULTS.md。C 独立消费者和 A 业务签收仍待本人完成，没有代签全队关口或真实模型运行。

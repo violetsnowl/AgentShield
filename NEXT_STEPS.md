@@ -1,3 +1,12 @@
+# B-CP1/CP2 后续接续（2026-10-14）
+
+1. A 根据 `artifacts/b_case_generator/A_GOLD_HANDOFF.md` 审核 40 个补充候选，并提供可公开的 A1 manifest/schema 映射；当前不得声称本库替代 A1。
+2. C 根据 `C_RUNNER_HANDOFF.md` 独立确认 schema v2 期初历史不归因到本 episode，冻结运行清单后再执行获批实验。
+3. D 继续把所有候选标为开发待审；只有 A/C 正式结果到位后才展示正式损失或赔款。
+4. 当前工作区未提交；由用户审核 diff 后安排 commit/PR/push。本轮不得自动进入正式 Gold、收费模型或真实支付。
+
+---
+
 # 当前停止点：ABCD 本地安全集成已完成（2026-10-13）
 
 已将校验通过的 A/C L0 交付增量合入现有 BD 工作区，并完成 B→C→A 候选链、D 只读展示、精确 session/episode 追溯、完整回归与实际浏览器验收。结论、接口矩阵、测试记录和变更文件见 `artifacts/integration_abcd/`。没有 Git 提交、推送、拉取或远程同步；当前目录不是 Git 仓库，使用前后 ZIP/逐文件 SHA-256 清单作为回退与审计依据。

@@ -1,0 +1,15 @@
+
+> agentshield-workbench@0.3.0 test
+> vitest run
+
+
+ RUN  v4.0.18 C:/Users/leo/AgentShield_Git_Publish_20261014_retry/frontend
+
+ ✓ tests/integrations.test.ts (6 tests) 4ms
+ ✓ tests/data.test.ts (15 tests) 34ms
+ ✓ tests/consistency.test.ts (21 tests) 34ms
+
+ Test Files  3 passed (3)
+      Tests  42 passed (42)
+   Start at  18:23:21
+   Duration  1.15s (transform 360ms, setup 0ms, import 780ms, tests 72ms, environment 0ms)

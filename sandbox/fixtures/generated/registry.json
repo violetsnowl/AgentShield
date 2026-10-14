@@ -1,0 +1,287 @@
+{
+  "fixtures": [
+    {
+      "fixture_content_sha256": "d692dac937d605698146782e3e38adfa421707f0c58390893c2c3da66277555b",
+      "fixture_id": "bcp2-l0-whole-low-01",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-whole-low-01.json",
+      "source_case_id": "case-bcp2-l0-whole-low-01"
+    },
+    {
+      "fixture_content_sha256": "5c8290b860bd9f9d8124913456c76985c445cab26b666a37b146378574a885e8",
+      "fixture_id": "bcp2-l0-whole-low-02",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-whole-low-02.json",
+      "source_case_id": "case-bcp2-l0-whole-low-02"
+    },
+    {
+      "fixture_content_sha256": "a5863c60037311876cae87342d1cc9e3b33658da5b860f351d6e4680b56faf18",
+      "fixture_id": "bcp2-l0-whole-high-01",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-whole-high-01.json",
+      "source_case_id": "case-bcp2-l0-whole-high-01"
+    },
+    {
+      "fixture_content_sha256": "5a15e54f64f7e6f813c66bb2a13154412de9bcd478cc753342b69f343098cb82",
+      "fixture_id": "bcp2-l0-whole-high-02",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-whole-high-02.json",
+      "source_case_id": "case-bcp2-l0-whole-high-02"
+    },
+    {
+      "fixture_content_sha256": "5de3f1d07f6306571f3cf4b18777db181be94268ec0dc17359fd29f866c5921f",
+      "fixture_id": "bcp2-l0-partial-low-01",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-partial-low-01.json",
+      "source_case_id": "case-bcp2-l0-partial-low-01"
+    },
+    {
+      "fixture_content_sha256": "ee647147a97b4c47720cfb438888a3e05aae565a149aa99c5ba9b1133488787e",
+      "fixture_id": "bcp2-l0-partial-low-02",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-partial-low-02.json",
+      "source_case_id": "case-bcp2-l0-partial-low-02"
+    },
+    {
+      "fixture_content_sha256": "2a239fa6fd4314811fe6d1d18e000342a7aef2dfd1a067fb2cbb392ffc60e77c",
+      "fixture_id": "bcp2-l0-partial-high-01",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-partial-high-01.json",
+      "source_case_id": "case-bcp2-l0-partial-high-01"
+    },
+    {
+      "fixture_content_sha256": "6486926bb4f4b32657c52a27a00d310d8850006f2d4b50f3e6922eed7ff09a8a",
+      "fixture_id": "bcp2-l0-partial-high-02",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-partial-high-02.json",
+      "source_case_id": "case-bcp2-l0-partial-high-02"
+    },
+    {
+      "fixture_content_sha256": "3dbaa4db35ca117e4d91967df0a97b5017596d6a05315eaec541ce3cd1066ceb",
+      "fixture_id": "bcp2-l0-stress-injection",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-stress-injection.json",
+      "source_case_id": "case-bcp2-l0-stress-injection"
+    },
+    {
+      "fixture_content_sha256": "f53fac76a623cdc03c9db7907b9278c671b685864bb5a12d2e96ec0e8301dfc3",
+      "fixture_id": "bcp2-l0-stress-conflict",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-stress-conflict.json",
+      "source_case_id": "case-bcp2-l0-stress-conflict"
+    },
+    {
+      "fixture_content_sha256": "e7afab8d9668e607d17985edc10dfdb8c918696cf5fd33a07466bccd1f532f34",
+      "fixture_id": "bcp2-l0-stress-maximum",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-stress-maximum.json",
+      "source_case_id": "case-bcp2-l0-stress-maximum"
+    },
+    {
+      "fixture_content_sha256": "93d97465756daaa008993b3d71ca81b1ba02f349573291b450e8b4ec9f3a6ff5",
+      "fixture_id": "bcp2-l0-stress-ineligible",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l0-stress-ineligible.json",
+      "source_case_id": "case-bcp2-l0-stress-ineligible"
+    },
+    {
+      "fixture_content_sha256": "e3445185bd0020d57749ad88f208abf2cda836fff9903749cd9bc7e8180ebc37",
+      "fixture_id": "bcp2-l1-whole-low-01",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-low-01.json",
+      "source_case_id": "case-bcp2-l1-whole-low-01"
+    },
+    {
+      "fixture_content_sha256": "a62aa3a03fbc74a10339e3f69cda83f37169c818426ad2d9f948d038f3305022",
+      "fixture_id": "bcp2-l1-whole-low-02",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-low-02.json",
+      "source_case_id": "case-bcp2-l1-whole-low-02"
+    },
+    {
+      "fixture_content_sha256": "d8a52f2c7030cc58dda1f1eb26e6e29b124ec71ed2356b7ad2db00b4e1c4a4b5",
+      "fixture_id": "bcp2-l1-whole-low-03",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-low-03.json",
+      "source_case_id": "case-bcp2-l1-whole-low-03"
+    },
+    {
+      "fixture_content_sha256": "efc19da048344370c3aab8b70b662500cfb1ab820cca10d919e81a853681f1c7",
+      "fixture_id": "bcp2-l1-whole-low-04",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-low-04.json",
+      "source_case_id": "case-bcp2-l1-whole-low-04"
+    },
+    {
+      "fixture_content_sha256": "2f0ddc161282990b3b44e4ac5d79c5ab07fdff28ad6925e61eb92f0f8e677746",
+      "fixture_id": "bcp2-l1-whole-low-05",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-low-05.json",
+      "source_case_id": "case-bcp2-l1-whole-low-05"
+    },
+    {
+      "fixture_content_sha256": "7f95028cdfb9974850fbcb527b8cf90c4d5570623b3cff774c1620f35c57c3de",
+      "fixture_id": "bcp2-l1-whole-low-06",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-low-06.json",
+      "source_case_id": "case-bcp2-l1-whole-low-06"
+    },
+    {
+      "fixture_content_sha256": "64a4ed0f057d1fe1179f0b2317b9cdbe8f38eda77aab48647dbffae6de3293ab",
+      "fixture_id": "bcp2-l1-whole-high-01",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-high-01.json",
+      "source_case_id": "case-bcp2-l1-whole-high-01"
+    },
+    {
+      "fixture_content_sha256": "3d265b3596043c4845a6506d4ebda5dedb53493014eefbd30c70dadb20afb389",
+      "fixture_id": "bcp2-l1-whole-high-02",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-high-02.json",
+      "source_case_id": "case-bcp2-l1-whole-high-02"
+    },
+    {
+      "fixture_content_sha256": "273215962e672690f2b836b0546cb2fa4da500ee2f6066f1aa196c8c28c352c3",
+      "fixture_id": "bcp2-l1-whole-high-03",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-high-03.json",
+      "source_case_id": "case-bcp2-l1-whole-high-03"
+    },
+    {
+      "fixture_content_sha256": "cbfbdc6d0677a269c30506c8e60a00fb5a50bb270bf601b0bd070340b247d1c2",
+      "fixture_id": "bcp2-l1-whole-high-04",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-high-04.json",
+      "source_case_id": "case-bcp2-l1-whole-high-04"
+    },
+    {
+      "fixture_content_sha256": "2220d1ade64b503a8e27f380708c3469b36ccd780871303e403d730834222bc1",
+      "fixture_id": "bcp2-l1-whole-high-05",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-high-05.json",
+      "source_case_id": "case-bcp2-l1-whole-high-05"
+    },
+    {
+      "fixture_content_sha256": "0a8739247ac55c09389097c332abc48c757b90d9c48feb799dc0de51a66ed0ce",
+      "fixture_id": "bcp2-l1-whole-high-06",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-whole-high-06.json",
+      "source_case_id": "case-bcp2-l1-whole-high-06"
+    },
+    {
+      "fixture_content_sha256": "af1a34beb0a395d7724de187e39f434612bb0a3416fb449cc7a2be1950bde432",
+      "fixture_id": "bcp2-l1-partial-low-01",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-low-01.json",
+      "source_case_id": "case-bcp2-l1-partial-low-01"
+    },
+    {
+      "fixture_content_sha256": "95cc73bcf75453c1c57ffe9b67b889d1db9ba13ac5ab5bb4a6dd9e12bd2be946",
+      "fixture_id": "bcp2-l1-partial-low-02",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-low-02.json",
+      "source_case_id": "case-bcp2-l1-partial-low-02"
+    },
+    {
+      "fixture_content_sha256": "d02ce177cabb2c764cb40220f4214b9912f711055be6e6d11c23b15719e34956",
+      "fixture_id": "bcp2-l1-partial-low-03",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-low-03.json",
+      "source_case_id": "case-bcp2-l1-partial-low-03"
+    },
+    {
+      "fixture_content_sha256": "7dbdc0bcc6f82f0c007c2d7b729e8fc5d4f4137c7474d45d2d19f37be256f358",
+      "fixture_id": "bcp2-l1-partial-low-04",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-low-04.json",
+      "source_case_id": "case-bcp2-l1-partial-low-04"
+    },
+    {
+      "fixture_content_sha256": "45a7168d847ac15e96321ff473568b3a152bff86da4205dc2b55217ba194328b",
+      "fixture_id": "bcp2-l1-partial-low-05",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-low-05.json",
+      "source_case_id": "case-bcp2-l1-partial-low-05"
+    },
+    {
+      "fixture_content_sha256": "c3033ba552613c7f0b4cc9e7cf3857f738ddcc80166a795f358be4e8bc7bc891",
+      "fixture_id": "bcp2-l1-partial-low-06",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-low-06.json",
+      "source_case_id": "case-bcp2-l1-partial-low-06"
+    },
+    {
+      "fixture_content_sha256": "7b984a2f73fc27f09dbfefda7a0a27433a37ac0459c638d35a7be8941c90ed51",
+      "fixture_id": "bcp2-l1-partial-high-01",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-high-01.json",
+      "source_case_id": "case-bcp2-l1-partial-high-01"
+    },
+    {
+      "fixture_content_sha256": "6f6a904cf0a1f92c507cd295395f5904fc0ccacb6f64484442945dc39ccd7b7f",
+      "fixture_id": "bcp2-l1-partial-high-02",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-high-02.json",
+      "source_case_id": "case-bcp2-l1-partial-high-02"
+    },
+    {
+      "fixture_content_sha256": "76023fdbc93f29fbb0c0f06f951ee6e259951c53184e684cb0f16a87964fd3d4",
+      "fixture_id": "bcp2-l1-partial-high-03",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-high-03.json",
+      "source_case_id": "case-bcp2-l1-partial-high-03"
+    },
+    {
+      "fixture_content_sha256": "5da02325fcf9e95f3d4c2aab251972bb57efdb10d7cf20b932817d7ddde7ae42",
+      "fixture_id": "bcp2-l1-partial-high-04",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-high-04.json",
+      "source_case_id": "case-bcp2-l1-partial-high-04"
+    },
+    {
+      "fixture_content_sha256": "cfd67c75a489150eb9e41ddc2812ca2bc6e81e0fce15a1b0fe612e18714ea5fc",
+      "fixture_id": "bcp2-l1-partial-high-05",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-high-05.json",
+      "source_case_id": "case-bcp2-l1-partial-high-05"
+    },
+    {
+      "fixture_content_sha256": "e7fc2b0aa1debe682cffffe7bd138d7179b09c441566324a40f7b9eb74eca850",
+      "fixture_id": "bcp2-l1-partial-high-06",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-partial-high-06.json",
+      "source_case_id": "case-bcp2-l1-partial-high-06"
+    },
+    {
+      "fixture_content_sha256": "d7aac6726e4f5a91d402b8b904bf267789cac45261d1087f97f2c0e6796a2917",
+      "fixture_id": "bcp2-l1-stress-injection",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-stress-injection.json",
+      "source_case_id": "case-bcp2-l1-stress-injection"
+    },
+    {
+      "fixture_content_sha256": "a693b845dc0ab5d7dd49e7127528e9e14f233dcb3681f333dfbfd79356a18f86",
+      "fixture_id": "bcp2-l1-stress-conflict",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-stress-conflict.json",
+      "source_case_id": "case-bcp2-l1-stress-conflict"
+    },
+    {
+      "fixture_content_sha256": "b9cb29985bd001b3bf38aea1ec2c2ac9d3653b1e8a52d41df58b87a2013ada73",
+      "fixture_id": "bcp2-l1-stress-maximum",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-stress-maximum.json",
+      "source_case_id": "case-bcp2-l1-stress-maximum"
+    },
+    {
+      "fixture_content_sha256": "9426b3b95c87770e1a78e4b1b3ad71ed213043509fb3ced68abe633fadac15e3",
+      "fixture_id": "bcp2-l1-stress-ineligible",
+      "fixture_version": "bcp2-public-20261014-r1",
+      "path": "generated/bcp2-l1-stress-ineligible.json",
+      "source_case_id": "case-bcp2-l1-stress-ineligible"
+    }
+  ],
+  "generator_version": "b-case-generator-v1",
+  "registration": "source_controlled_development_only",
+  "rules_version": "b-refund-rules-candidate-v1"
+}

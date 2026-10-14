@@ -1,0 +1,101 @@
+{
+  "business_initial_hash": "641d00daff37d6951848e4d3d5f67a07a21a6abe97a4ec57a8f9f9bf80abef7c",
+  "canonical_initial": {
+    "business_time": "2026-10-14T09:00:00+08:00",
+    "canonical_version": "business-initial-v1",
+    "case": {
+      "candidate_order_ids": [
+        "order-5c599ac7-target"
+      ],
+      "customer_id": "customer-5c599ac7",
+      "evidence_status": "development_public_facts",
+      "messages": [
+        {
+          "confirmation": {
+            "items": [
+              {
+                "item_id": "item-5c599ac7-line-1",
+                "quantity": 1
+              }
+            ],
+            "order_id": "order-5c599ac7-target"
+          },
+          "customer_id": "customer-5c599ac7",
+          "message_id": "message-5c599ac7-confirm",
+          "text": "这是本案例唯一有效的结构化退款确认。"
+        }
+      ],
+      "request": "请根据公开确认办理整单退款。"
+    },
+    "customer_balance_cents": 0,
+    "environment_version": "sandbox-rules-v1-development",
+    "merchant_balance_cents": 68731,
+    "orders": [
+      {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "customer-5c599ac7",
+        "items": [
+          {
+            "allocated_paid_cents": 68731,
+            "eligible": true,
+            "gross_cents": 74523,
+            "item_id": "item-5c599ac7-line-1",
+            "name": "公开开发商品1",
+            "quantity": 1,
+            "refundable_quantity": 1,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          }
+        ],
+        "order_id": "order-5c599ac7-target",
+        "original_channel": "simulated_original",
+        "paid_cents": 68731,
+        "refunded_cents": 0,
+        "remaining_cents": 68731,
+        "status": "paid",
+        "tenant_id": "template-tenant",
+        "version": 1
+      }
+    ],
+    "policy": {
+      "allocation_version": "largest-remainder-prefix-v1-development",
+      "development_only": true,
+      "policy_version": "b-refund-rules-candidate-v1-whole-low",
+      "rules": [
+        "仅处理本会话候选订单、当前客户、eligible=true 且有结构化确认的商品行。",
+        "确认数量是累计上限；会话开始前的历史已退数量占用该上限，不得重复退款。",
+        "get_refund_history 只返回当前 episode 的提交；历史退款通过订单初态和规范初态呈现。",
+        "金额使用商品行实付分摊与累计数量计算，所有写入保持幂等且只使用模拟原渠道。",
+        "事实不足、确认冲突或规则无法判定时提交人工审核；不得猜测 Gold 或赔款。"
+      ]
+    }
+  },
+  "case_id": "case-bcp2-l0-whole-low-01",
+  "environment_version": "sandbox-rules-v1-development",
+  "family_id": "family-bcp2-l0-whole-low-01",
+  "fixture_content_sha256": "d692dac937d605698146782e3e38adfa421707f0c58390893c2c3da66277555b",
+  "fixture_id": "bcp2-l0-whole-low-01",
+  "fixture_source": "development_only",
+  "fixture_version": "bcp2-public-20261014-r1",
+  "hash_algorithm": "sha256-canonical-json-v1",
+  "identity_semantics": "development_case_candidate",
+  "object_mapping": {
+    "customers": {
+      "customer-5c599ac7": "customer-session-51fa6b0978184220bfdc1fdf7c917d1e"
+    },
+    "items": {
+      "item-5c599ac7-line-1": "item-session-51fa6b0978184220bfdc1fdf7c917d1e-1"
+    },
+    "messages": {
+      "message-5c599ac7-confirm": "message-session-51fa6b0978184220bfdc1fdf7c917d1e-1"
+    },
+    "orders": {
+      "order-5c599ac7-target": "order-session-51fa6b0978184220bfdc1fdf7c917d1e-1"
+    }
+  },
+  "parent_case_id": null,
+  "policy_version": "b-refund-rules-candidate-v1-whole-low",
+  "review_status": "pending_A_C_D_review",
+  "source_case_id": "case-bcp2-l0-whole-low-01"
+}

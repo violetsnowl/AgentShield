@@ -1,0 +1,15 @@
+{
+  "case_fixture_http": "pass",
+  "same_case_two_configs": true,
+  "state_isolated": true,
+  "canonical_reconstructed_from_http": true,
+  "hash_verified_with_stdlib": true,
+  "fixture_ids": [
+    "dev-refund-v1",
+    "dev-refund-v2"
+  ],
+  "v1_refund_cents": 333,
+  "v2_refund_cents": 250,
+  "v2_human_reviews": 1,
+  "model_calls": 0
+}

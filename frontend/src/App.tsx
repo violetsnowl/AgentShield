@@ -92,7 +92,7 @@ export default function App() {
   const [sourceFilter, setSourceFilter] = useState('all');
   const [focusedOrder, setFocusedOrder] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [fixtureId, setFixtureId] = useState<'dev-refund-v1' | 'dev-refund-v2'>('dev-refund-v1');
+  const [fixtureId, setFixtureId] = useState<FixtureCatalog['fixtures'][number]['fixture_id']>('dev-refund-v1');
   const [state, setState] = useState<LoadState>('loading');
   const [error, setError] = useState('');
   const [actionError, setActionError] = useState('');

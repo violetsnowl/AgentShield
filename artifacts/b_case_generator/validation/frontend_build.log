@@ -1,0 +1,15 @@
+
+> agentshield-workbench@0.3.0 build
+> node scripts/generate-validator.mjs --check && tsc --noEmit && vite build
+
+Browser validator matches the B schema; no runtime code generation.
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 21 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.66 kB │ gzip:   0.46 kB
+dist/assets/index-DaCkFEzo.css   17.69 kB │ gzip:   4.34 kB
+dist/assets/index-7e9sIapI.js   468.22 kB │ gzip: 103.36 kB
+
+✓ built in 1.08s

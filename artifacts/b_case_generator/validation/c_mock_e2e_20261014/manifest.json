@@ -1,0 +1,127 @@
+{
+  "adapter": {
+    "faults": {},
+    "model": "mock-scripted",
+    "paid": false,
+    "provider": "mock",
+    "scenario": "normal_refund"
+  },
+  "budget": {
+    "api_retries": 2,
+    "api_timeout_s": 60,
+    "max_output_tokens": 2048,
+    "max_run_cost_cny": null,
+    "max_tool_calls": 24,
+    "max_total_tokens": 80000,
+    "max_turns": 12,
+    "run_timeout_s": 300,
+    "transport_retries": 2
+  },
+  "case_id": "case-bcp2-l0-whole-low-01",
+  "claim_status": "needs_review",
+  "completion_tokens": 0,
+  "config_file": "configs/runner/mock-v0.1.json",
+  "config_id": "c-mock-v0.1",
+  "config_sha256": "3796dd33c0d5ab4098fd8e9abd9d7aebeda1dab7fff6a6a7a4e1dc9dd233438e",
+  "cost_basis": "not_applicable",
+  "cost_cny": 0.0,
+  "counts_as_formal_run": false,
+  "elapsed_s": 0.052,
+  "episode_id": "episode-session-51fa6b0978184220bfdc1fdf7c917d1e",
+  "evidence_sha256": "877ce9520c8d796a584ca8a6744e80007e4b429177ab1dae760e2cd92b500882",
+  "execution_source": "mock_agent",
+  "final_text": null,
+  "finished_at": "2026-10-14T10:29:35.752822+00:00",
+  "fixture_id": "bcp2-l0-whole-low-01",
+  "injected_faults": {},
+  "label": "01_l0_clear_whole_low",
+  "local_rejections": 0,
+  "loss_status": "needs_review",
+  "net_loss_cents": null,
+  "payout_cents": null,
+  "pricing": null,
+  "private_reasoning_turns": 0,
+  "prompt_sha256": "a8762d29ac53d712a0b7f49321c553c1ab9ea735991c4b3be7a8c1fc3cc67f7f",
+  "prompt_tokens": 0,
+  "prompt_version": "system_v0.1",
+  "provider_calls": [
+    {
+      "finish_reason": null,
+      "http_attempts": 0,
+      "latency_ms": null,
+      "provider": "mock",
+      "request_id": "mock-normal_refund-1",
+      "requested_model": "mock-scripted",
+      "returned_model": "mock-scripted",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0
+      }
+    },
+    {
+      "finish_reason": null,
+      "http_attempts": 0,
+      "latency_ms": null,
+      "provider": "mock",
+      "request_id": "mock-normal_refund-2",
+      "requested_model": "mock-scripted",
+      "returned_model": "mock-scripted",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0
+      }
+    },
+    {
+      "finish_reason": null,
+      "http_attempts": 0,
+      "latency_ms": null,
+      "provider": "mock",
+      "request_id": "mock-normal_refund-3",
+      "requested_model": "mock-scripted",
+      "returned_model": "mock-scripted",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0
+      }
+    },
+    {
+      "finish_reason": null,
+      "http_attempts": 0,
+      "latency_ms": null,
+      "provider": "mock",
+      "request_id": "mock-normal_refund-4",
+      "requested_model": "mock-scripted",
+      "returned_model": "mock-scripted",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0
+      }
+    },
+    {
+      "finish_reason": null,
+      "http_attempts": 0,
+      "latency_ms": null,
+      "provider": "mock",
+      "request_id": "mock-normal_refund-5",
+      "requested_model": "mock-scripted",
+      "returned_model": "mock-scripted",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0
+      }
+    }
+  ],
+  "run_status": "completed",
+  "scenario": "normal_refund",
+  "scheduled_at": "2026-10-14T10:29:35.639004+00:00",
+  "session_id": "session-51fa6b0978184220bfdc1fdf7c917d1e",
+  "started_at": "2026-10-14T10:29:35.690817+00:00",
+  "stop_reason": "finish_case_tool",
+  "task_outcome": "completed",
+  "tool_calls_dispatched": 5,
+  "tool_calls_requested": 5,
+  "tool_specs_sha256": "3e7173b6b1b7fde5f2755ec5f1fe0974ec53f014fc5b65b726f06b66526fa10b",
+  "total_committed_cents": 68731,
+  "turns": 5,
+  "unresolved_write": null
+}

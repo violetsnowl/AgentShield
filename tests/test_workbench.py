@@ -132,7 +132,8 @@ class ObserverTests(unittest.TestCase):
         self.assertEqual(self.b.get("/api/v1/admin/fixtures").status_code, 401)
         self.assertEqual(self.b.get("/api/v1/admin/fixtures", headers={"Authorization": "Bearer " + self.own["session_token"]}).status_code, 403)
         fixtures = self.b.get("/api/v1/admin/fixtures", headers=self.admin).json()["fixtures"]
-        self.assertEqual([f["fixture_id"] for f in fixtures], ["dev-refund-v1", "dev-refund-v2"])
+        from sandbox.fixture import REGISTRY
+        self.assertEqual([f["fixture_id"] for f in fixtures], list(REGISTRY))
         new = self.b.post("/api/v1/sessions", json={"tenant_id": "workbench-development"}, headers=self.admin).json()
         first = self.b.get("/api/v1/admin/sessions?tenant_id=workbench-development&limit=1", headers=self.admin).json()
         second = self.b.get(f"/api/v1/admin/sessions?tenant_id=workbench-development&limit=1&offset={first['next_offset']}", headers=self.admin).json()

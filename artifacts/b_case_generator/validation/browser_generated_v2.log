@@ -1,0 +1,3 @@
+{"browser_qa":"pass","checks":21,"screenshots":2,"browser":"155.0.4283.45"}
+
+{"generated_schema_v2_browser": "pass", "fixture_id": "bcp2-l1-whole-low-04", "opening_history_visible": true, "episode_refund_only_in_committed_total": true, "observer_read_only": true, "model_calls": 0, "real_payment_calls": 0}

@@ -142,6 +142,31 @@
           "title": "Gross Cents",
           "type": "integer"
         },
+        "initial_refund_source": {
+          "anyOf": [
+            {
+              "const": "pre_session_business_history",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Initial Refund Source"
+        },
+        "initial_refunded_cents": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Initial Refunded Cents",
+          "type": "integer"
+        },
+        "initial_refunded_quantity": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Initial Refunded Quantity",
+          "type": "integer"
+        },
         "item_id": {
           "maxLength": 128,
           "minLength": 1,
@@ -226,7 +251,7 @@
       "type": "array"
     },
     "customer_balance_cents": {
-      "const": 0,
+      "minimum": 0,
       "title": "Customer Balance Cents",
       "type": "integer"
     },
@@ -252,7 +277,10 @@
       "type": "string"
     },
     "fixture_schema_version": {
-      "const": 1,
+      "enum": [
+        1,
+        2
+      ],
       "title": "Fixture Schema Version",
       "type": "integer"
     },

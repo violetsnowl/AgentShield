@@ -1,0 +1,3 @@
+{"browser_qa":"pass","phase":"final","checks":419,"screenshots":17,"browser":"155.0.4283.45"}
+
+{"real_B_HTTP": "pass", "two_fixtures": true, "browser_is_observer_only": true, "original_transactions_unchanged": true, "seeding_restart_idempotent": true, "model_calls": 0, "real_payment_calls": 0}

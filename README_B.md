@@ -1,3 +1,9 @@
+# B-CP1/CP2 可复现案例生成器（2026-10-14）
+
+当前分支已增加固定 seed 的公开开发候选生成器、fixture schema v2 期初历史退款，以及 40 个源码 allowlist 候选。bc-0.3、七工具、EvidenceBundle 3 和交易逻辑保持不变。生成与检查命令、候选状态及 A/C 边界见 `artifacts/b_case_generator/RESULTS.md`；全部候选均待 A/C/D 审核，不是 Gold 或正式样本。
+
+---
+
 # AgentShield B 交易底座（ABCD 本地集成说明）
 
 2026-10-13：B 交易逻辑、七工具、SQLite 事务、幂等、工单和 EvidenceBundle schema 3 保持不变；本地集成只新增受控、只读的 A/C 已交付结果适配，并由 D 追溯到精确的 B session/episode。当前完整后端回归为 115 项通过。集成报告与变更清单见 `artifacts/integration_abcd/`。所有 A/C 结果仍是工程候选或开发证据，`counts_as_formal_run=false`；没有正式 Gold、真实支付或本轮模型调用。

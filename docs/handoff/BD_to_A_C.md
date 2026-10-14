@@ -1,3 +1,9 @@
+# B-CP1/CP2 案例生成器增量交接（2026-10-14）
+
+B 已交付 40 个 development_only 候选、固定 allowlist、schema v2 期初历史退款和可复现 manifest；bc-0.3 七工具、EvidenceBundle 3、C 核验和 A0 公式未改。A 接收 `artifacts/b_case_generator/A_GOLD_HANDOFF.md`，C 接收 `C_RUNNER_HANDOFF.md`。当前分支没有 A1 公共补丁，候选只作补充且全部待审。真实 B HTTP + C Mock 已通过；无 Gold 时 loss/payout 保持 null。
+
+---
+
 # ABCD 本地集成后的 A/C 交接（2026-10-13）
 
 当前已完成候选链的本机接入：C 的 LossResult 和运行清单、A0 Claim 与 QuoteResult schema/工程样例均已合入；D 通过 `abcd-results-boundary-0.2-candidate` 读取固定服务端目录并追溯到精确 B case/session/episode。C 对 bc-0.3 L0 开发接口的签收见 `C_receipt_bc-0.3.md`。本轮没有修改 B 交易语义，也没有由 D 运行 Agent 或保险计算。
