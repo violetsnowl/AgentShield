@@ -38,12 +38,12 @@ $stamp = Get-Date -Format yyyyMMdd-HHmmss
 .\\.venv\\Scripts\\python.exe -m scripts.export_contracts --with-openapi --check
 .\\.venv\\Scripts\\python.exe -m scripts.export_frontend_contract --check
 .\\.venv\\Scripts\\python.exe -m evaluator.export_schema --check
-.\\.venv\\Scripts\\python.exe -m scripts.run_http_checks --output-dir "artifacts/local-http-$stamp"
+.\\.venv\\Scripts\\python.exe -m scripts.run_http_checks --output-dir "artifacts/pro_bd_sprint/05/receive-http-$stamp"
 npm.cmd --prefix frontend test
 npm.cmd --prefix frontend run typecheck
 npm.cmd --prefix frontend run build
-.\\.venv\\Scripts\\python.exe -m scripts.run_workbench_checks --output-dir "artifacts/local-browser-$stamp"
-.\\.venv\\Scripts\\python.exe -m scripts.run_workbench_checks --suite stage04 --output-dir "artifacts/local-replay-$stamp"
+.\\.venv\\Scripts\\python.exe -m scripts.run_workbench_checks --output-dir "artifacts/pro_bd_sprint/05/receive-browser-$stamp"
+.\\.venv\\Scripts\\python.exe -m scripts.run_workbench_checks --suite stage04 --output-dir "artifacts/pro_bd_sprint/05/receive-integration-$stamp"
 ```
 
 - 各命令使用自己的隔离临时库；**无需**模型或真实支付。
