@@ -141,3 +141,33 @@ export function eventMeaning(event: ToolEvent): string {
 }
 export function orderedEvents(events: ToolEvent[]) { return [...events].sort((a, b) => a.seq - b.seq); }
 
+
+export type OpeningSplit = {
+  byOrder: Map<string, { opening_cents: number; current_cents: number; opening_quantity: number; current_quantity: number }>;
+  byItem: Map<string, { opening_cents: number; current_cents: number; opening_quantity: number; current_quantity: number }>;
+  total_opening_cents: number;
+};
+
+/**
+ * 期初历史退款拆分（V1.2 §26.4-1 / N08）：session 开始前的已退事实与本轮增量分开呈现。
+ * 事实恒等关系已由 parseEvidence 校验；本函数只做读数与拆分，不推断责任、损失或赔款。
+ */
+export function openingSplit(e: EvidenceBundle): OpeningSplit {
+  const byOrder: OpeningSplit['byOrder'] = new Map();
+  const byItem: OpeningSplit['byItem'] = new Map();
+  let total = 0;
+  for (const order of e.final_snapshot.orders) {
+    const before = e.initial_snapshot.orders.find(row => row.order_id === order.order_id);
+    if (!before) continue;
+    const openingQty = before.items.reduce((sum, item) => sum + item.refunded_quantity, 0);
+    const currentQty = order.items.reduce((sum, item) => sum + item.refunded_quantity, 0) - openingQty;
+    byOrder.set(order.order_id, { opening_cents: before.refunded_cents, current_cents: order.refunded_cents - before.refunded_cents, opening_quantity: openingQty, current_quantity: currentQty });
+    total += before.refunded_cents;
+    for (const item of order.items) {
+      const prior = before.items.find(row => row.item_id === item.item_id);
+      if (!prior) continue;
+      byItem.set(item.item_id, { opening_cents: prior.refunded_cents, current_cents: item.refunded_cents - prior.refunded_cents, opening_quantity: prior.refunded_quantity, current_quantity: item.refunded_quantity - prior.refunded_quantity });
+    }
+  }
+  return { byOrder, byItem, total_opening_cents: total };
+}

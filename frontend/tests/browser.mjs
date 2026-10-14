@@ -23,7 +23,8 @@ try {
         try { content = await response.text(); } catch { return; } // Aborted reads are checked by the UI-state tests.
         for (const secret of config.forbidden) check(!content.includes(secret), 'no B secret in browser API response');
         check(!content.includes('"session_token"'), 'no run credential in browser API response');
-        if (response.status() === 201 && response.url().endsWith('/observer/api/sessions'))
+        if (response.status() === 201 && response.url().endsWith('/observer/api/sessions')
+            && (response.request().postData() ?? '').includes('dev-refund-v1'))
           await fs.writeFile(path.join(config.output, 'created-session-observer.json'), content);
       })());
     }
@@ -74,6 +75,7 @@ try {
       await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
       await page.getByRole('button', { name: '刷新本次运行', exact: true }).waitFor();
     }
+    await page.getByRole('button', { name: /企业实验场/ }).click();
     await selectRun(config.sessions[1]);
     check(await page.locator('.orders .order').count() === 1 && await page.locator('.message').count() === 2, 'v2 real structure: one order and two messages');
     check((await page.locator('.message').first().innerText()).includes('无结构化确认'), 'v2 unconfirmed message is explicit');
@@ -133,11 +135,84 @@ try {
     await page.getByText('还没有开发会话', { exact: true }).waitFor();
     await layout('empty-list-test-desktop');
     await page.unroute(sessionsRoute); await page.reload();
+    await page.getByRole('button', { name: /企业实验场/ }).click();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
-    await selectRun(config.sessions[0]);
+    if ((await page.locator('#run').inputValue()) !== config.sessions[0]) await selectRun(config.sessions[0]);
     await page.getByText('查看原始政策文案 · dev-policy-v1', { exact: true }).click();
     check((await page.locator('.policy').innerText()).includes('本批人工工单工具尚未接入'), 'v1 historical policy preserved literally');
     check((await page.locator('.policy').innerText()).includes('待 A/C/D'), 'v1 historical inconsistency flagged pending review');
+
+    // N03: URL 状态与刷新恢复。
+    await page.getByRole('button', { name: /风险 \/ 配置比较/ }).click();
+    await page.getByLabel('已交付开发运行').waitFor();
+    check(page.url().includes('area=risk'), 'N03: area recorded in URL hash');
+    await page.reload();
+    await page.getByLabel('已交付开发运行').waitFor();
+    check((await page.locator('h1').innerText()).includes('风险'), 'N03: reload restores the risk area');
+    await page.waitForFunction(sid => document.querySelector('#run').value === sid, config.sessions[0]);
+    check(true, 'N03: reload restores the selected run');
+    // N02: 切换运行保持当前区；无交付结果的运行不残留旧结果。
+    await Promise.all([
+      page.waitForResponse(response => response.url().endsWith(`/sessions/${config.sessions[1]}/evidence`)),
+      page.selectOption('#run', config.sessions[1]),
+    ]);
+    check((await page.locator('h1').innerText()).includes('风险'), 'N02: switching run stays in the current area');
+    check(page.url().includes('run=' + config.sessions[1]), 'N03: run switch recorded in URL');
+    await Promise.all([
+      page.waitForResponse(response => response.url().endsWith(`/sessions/${newSid}/evidence`)),
+      page.selectOption('#run', newSid),
+    ]);
+    check((await page.locator('h1').innerText()).includes('风险'), 'N02: switching to another run keeps the risk area');
+    check(page.url().includes('run=' + newSid), 'N03: URL tracks the second run');
+    // N04: 从风险结果跳到证据后可返回原位置。
+    await Promise.all([
+      page.waitForResponse(response => response.url().endsWith(`/sessions/${config.sessions[1]}/evidence`)),
+      page.selectOption('#run', config.sessions[1]),
+    ]);
+    await page.locator('.integration-panel').getByText('C L0 候选').waitFor();
+    await page.getByRole('button', { name: '加载关联业务证据', exact: true }).click();
+    await page.getByRole('status').filter({ hasText: 'A/C 交付证据只读视图' }).waitFor();
+    await page.getByRole('button', { name: /返回上一位置/ }).click();
+    await page.locator('h1', { hasText: '风险' }).waitFor();
+    check((await page.locator('.integration-panel').innerText()).includes('C L0 候选'), 'N04: risk result restored after returning');
+    // N03: 深链接直接恢复区+运行；前进/后退恢复区域。
+    await page.goto('about:blank');
+    await page.goto(`${config.origin}/#area=cost&run=${config.sessions[1]}`);
+    await page.getByText('A0 研究候选').waitFor();
+    check((await page.locator('h1').innerText()).includes('合同'), 'N03: deep link opens the requested area');
+    await page.waitForFunction(sid => document.querySelector('#run').value === sid, config.sessions[1]);
+    check(true, 'N03: deep link restores the requested run');
+    await page.getByRole('button', { name: /企业实验场/ }).click();
+    await page.locator('h1', { hasText: '企业实验场' }).waitFor();
+    await page.goBack();
+    await page.locator('h1', { hasText: '合同' }).waitFor();
+    check(true, 'N03: browser back returns to the previous area');
+    await page.goForward();
+    await page.locator('h1', { hasText: '企业实验场' }).waitFor();
+    check(true, 'N03: browser forward returns to the later area');
+    // N08: schema v2 期初历史退款分栏。
+    const previousSid = await page.locator('#run').inputValue();
+    await page.selectOption('#fixture', 'bcp2-l1-whole-low-04');
+    await Promise.all([
+      page.waitForResponse(response => response.url().endsWith('/observer/api/sessions') && response.request().method() === 'POST'),
+      page.getByRole('button', { name: '创建开发会话', exact: true }).click(),
+    ]);
+    await page.waitForFunction(prev => document.querySelector('#run').value !== prev, previousSid);
+    await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+    const bcpSid = await page.locator('#run').inputValue();
+    const bcpEvidence = await page.evaluate(async sid => (await fetch(`/observer/api/sessions/${sid}/evidence`, { headers: { 'X-Workbench-Request': '1' } })).json(), bcpSid);
+    const openingCents = bcpEvidence.initial_snapshot.orders.reduce((sum, order) => sum + order.refunded_cents, 0);
+    check(openingCents > 0, 'N08: fixture v2 run carries real opening history');
+    const uiMoney = cents => `¥${Math.floor(Math.abs(cents) / 100).toLocaleString('zh-CN')}.${String(Math.abs(cents) % 100).padStart(2, '0')}`;
+    check((await page.locator('.orders').innerText()).includes('期初历史'), 'N08: opening history labeled in the business zone');
+    check((await page.locator('.orders').innerText()).includes(uiMoney(openingCents)), 'N08: opening amount shown in the business zone');
+    await page.getByRole('button', { name: /执行证据 \/ 账本/ }).click();
+    const currentTotal = bcpEvidence.refunds.reduce((sum, row) => sum + row.amount_cents, 0);
+    check((await page.getByTestId('committed-total').innerText()) === uiMoney(currentTotal), 'N08: committed total keeps current-episode refunds only');
+    check((await page.locator('.ledger-summary').innerText()).includes('另有期初历史退款'), 'N08: evidence zone annotates the opening source');
+    await layout('n08-opening-history-desktop');
+    await page.getByRole('button', { name: /企业实验场/ }).click();
+    await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
 
     const evidenceRoute = `**/observer/api/sessions/${config.sessions[1]}/evidence`;
     let release;

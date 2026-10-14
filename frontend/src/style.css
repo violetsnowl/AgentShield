@@ -18,3 +18,12 @@ main{margin:0 auto}
 .result-picker{display:grid;grid-template-columns:170px minmax(0,1fr);gap:8px 18px;align-items:center;padding:18px 32px;border-bottom:1px solid var(--line);background:#fafcfd}.result-picker label{font-size:12px;font-weight:600;color:var(--muted)}.result-picker select{width:100%;min-width:0}.result-picker small{grid-column:2;color:var(--muted)}.run-result-identity{display:grid;grid-template-columns:1.2fr 1.2fr .8fr .7fr;border-bottom:1px solid var(--line);background:#f8fbfc}.run-result-identity>div{padding:18px 22px;border-right:1px solid var(--line);min-width:0}.run-result-identity>div:last-child{border-right:0}.run-result-identity span{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}.run-result-identity p{font-size:12px;color:var(--muted);margin-top:5px}.run-result-identity strong{font-size:18px}.warning-text{color:#78551b;background:#fff8e9}
 @media(max-width:900px){.run-result-identity{grid-template-columns:1fr 1fr}.run-result-identity>div:nth-child(2){border-right:0}}
 @media(max-width:760px){.result-picker{grid-template-columns:1fr;padding:16px 20px}.result-picker small{grid-column:1}.run-result-identity{grid-template-columns:1fr}.run-result-identity>div{border-right:0;border-bottom:1px solid var(--line)}.run-result-identity>div:last-child{border-bottom:0}}
+
+/* 批A(N16): 运行身份与来源、操作合并为单一条（去冗余 v1）。 */
+.identity-extra{display:flex;flex-direction:column;gap:8px;justify-content:center;min-width:240px;max-width:360px;padding:4px 0}
+.identity-extra-line{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.identity-extra .fine-print{margin:0}
+.identity-extra button{min-height:30px;font-size:12px}
+.nav-back-button{background:transparent;border:1px dashed #7c9fae;color:#136c80}
+@media(max-width:1180px){.identity-extra{max-width:none}}
+@media(max-width:760px){.identity-compact{flex-direction:column}.identity-extra{width:100%;max-width:none}}
