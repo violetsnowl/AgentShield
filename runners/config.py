@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .adapters import MockAdapter, OpenAICompatibleAdapter
+from .adapters import MockAdapter, OpenAICompatibleAdapter, RuleBaselineAdapter
 from .env import load_runner_env, paid_authorization
 from .loop import Budget, Pricing
 
@@ -36,6 +36,10 @@ def build(config: dict[str, Any], scenario: str | None = None):
         if not scenario:
             raise ValueError("mock adapter requires a scenario")
         return MockAdapter(scenario), budget, pricing, None
+    if config["adapter"] == "rule_baseline":
+        if scenario:
+            raise ValueError("rule baseline does not take a mock scenario")
+        return RuleBaselineAdapter(), budget, pricing, None
     if config["adapter"] != "openai_compatible":
         raise ValueError("unknown adapter")
     env = load_runner_env()

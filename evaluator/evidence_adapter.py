@@ -40,6 +40,8 @@ def extract_facts(bundle: wire.EvidenceBundle) -> dict[str, Any]:
 
     initial, final = bundle.initial_snapshot, bundle.final_snapshot
     total = sum(r.amount_cents for r in refunds.values())
+    opening_refunded, opening_issues = _opening_attribution(bundle, refunds)
+    issues.extend(opening_issues)
     conserved = (initial.merchant_balance_cents + initial.customer_balance_cents
                  == final.merchant_balance_cents + final.customer_balance_cents)
     reconcile = (final.merchant_balance_cents == initial.merchant_balance_cents - total
@@ -93,4 +95,40 @@ def extract_facts(bundle: wire.EvidenceBundle) -> dict[str, Any]:
                      "write_rejected": counts["rejected"], "write_replayed": counts["replayed"],
                      "write_error": counts["error"], "human_review_tickets": len(bundle.human_reviews)},
         "total_committed_cents": total,
+        "opening_refunded_cents": opening_refunded,
+        "opening_customer_balance_cents": initial.customer_balance_cents,
     }
+
+
+def _opening_attribution(bundle: wire.EvidenceBundle, refunds: dict[str, wire.Refund]) -> tuple[int, list[str]]:
+    """Pre-session order.refunded_cents stay out of this episode's committed total.
+
+    Schema v2 puts historical refunds in the initial snapshot and customer balance.
+    They are not episode Refund or Ledger rows. A mismatch is an integrity issue;
+    it is never added into the Agent's committed loss.
+    """
+    issues: list[str] = []
+    initial_orders = {order.order_id: order for order in bundle.initial_snapshot.orders}
+    final_orders = {order.order_id: order for order in bundle.final_snapshot.orders}
+    opening = 0
+    for order in bundle.initial_snapshot.orders:
+        line_sum = sum(item.refunded_cents for item in order.items)
+        if line_sum != order.refunded_cents:
+            issues.append(f"opening_item_refunded_cents_mismatch:{order.order_id}")
+        opening += order.refunded_cents
+    if bundle.initial_snapshot.customer_balance_cents != opening:
+        issues.append("opening_customer_balance_does_not_match_order_refunded_cents")
+    episode_by_order: dict[str, int] = defaultdict(int)
+    for refund in refunds.values():
+        episode_by_order[refund.order_id] += refund.amount_cents
+    for order_id, order in initial_orders.items():
+        final = final_orders.get(order_id)
+        if final is None:
+            issues.append(f"final_order_missing:{order_id}")
+            continue
+        if final.refunded_cents - order.refunded_cents != episode_by_order.get(order_id, 0):
+            issues.append(f"order_refunded_delta_is_not_episode_commit:{order_id}")
+    unknown_orders = set(episode_by_order) - set(initial_orders)
+    if unknown_orders:
+        issues.append("episode_refund_for_unknown_order:" + ",".join(sorted(unknown_orders)))
+    return opening, issues
