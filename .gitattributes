@@ -1,3 +1,3 @@
-# 字节保真：本项目交付含逐文件 SHA-256 清单（PACKAGE_MANIFEST.json / C_DELIVERY_MANIFEST.json），
+# 字节保真：历史交付含逐文件 SHA-256 清单（存档于 docs/archive/delivery_manifests/），
 # 要求 clone / 检出后的文件与提交内容逐字节一致 —— 全库禁用换行符自动转换。
 * -text

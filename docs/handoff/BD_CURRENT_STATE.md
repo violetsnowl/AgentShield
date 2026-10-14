@@ -1,6 +1,8 @@
 # ABCD 本地集成后的当前状态（2026-10-13）
 
-已在阶段 05 BD 基线上合入经 `C_DELIVERY_MANIFEST.json` 404/404 校验的 A0/C L0 交付，并新增受控 A/C→D 只读适配。B 交易逻辑、bc-0.3-candidate、七工具、EvidenceBundle schema 3 和迁移 001/002/003 保持不变。完整后端 115 项、前端 42 项、核心浏览器 419 条、异常/回放 101 条均通过；详见 `artifacts/integration_abcd/`。
+> 状态提示（2026-10-14）：本文为 BD 侧交接状态记录；全项目当前状态以 `NEXT_STEPS.md` 为准。其中“当前目录仍不是 Git 仓库”等表述为当时语境。
+
+已在阶段 05 BD 基线上合入经交付清单 404/404 校验（清单存档于 `docs/archive/delivery_manifests/`）的 A0/C L0 交付，并新增受控 A/C→D 只读适配。B 交易逻辑、bc-0.3-candidate、七工具、EvidenceBundle schema 3 和迁移 001/002/003 保持不变。完整后端 115 项、前端 42 项、核心浏览器 419 条、异常/回放 101 条均通过；详见制作方工作区存档（`artifacts/integration_abcd/`，未随仓库分发）。
 
 C 已签收 B 的 L0 开发接口；D 现在能显示交付的 C LossResult、A0 Claim 和独立 Quote 工程示例，并追溯到精确 B session/episode。所有运行仍为 `counts_as_formal_run=false`，真实模型历史开发结果保持 `needs_review/null`。正式 Gold、C1-1、56+28 正式运行、A 正式定价/理赔、第二机接收及 A/C 联合签收未完成，不能宣布 L1。
 
@@ -22,7 +24,7 @@ C 已签收 B 的 L0 开发接口；D 现在能显示交付的 C LossResult、A0
 
 ## 本次真实验证与可复现入口
 
-完整命令、版本、退出码与输出见 `artifacts/pro_bd_sprint/05/checks/*.json/.log` 和 `test_command_index.json`。直接命令与接收步骤见根目录 `README_RECEIVE.md`。本轮使用 Python 3.13.1 / Node 24.21.0 / npm 11.19.0 / Edge 155.0.4283.45，requirements.lock 和 package-lock 未改。
+完整命令、版本、退出码与输出见 `artifacts/pro_bd_sprint/05/checks/*.json/.log` 和 `test_command_index.json`。直接命令与接收步骤见 `docs/setup/RECEIVE_AND_RUN.md`。本轮使用 Python 3.13.1 / Node 24.21.0 / npm 11.19.0 / Edge 155.0.4283.45，requirements.lock 和 package-lock 未改。
 
 - `python -m unittest discover -s tests -v`：原目录及新目录均 65/65，含旧退款/工单原键迁移恢复、非法模板原子性、隔离和权限。新目录复用原 Python 环境。
 - `python -m scripts.run_http_checks --output-dir <全新目录>`：两目录均通过。独立标准库客户端、真实 loopback HTTP、333/250 分开发退款、同 case 独立状态及初态复算、三来源标签、进程重启、TCP 发完不读响应后同键恢复；真实模型调用 0。
@@ -45,6 +47,6 @@ B 和观察者仅 loopback；B 管理/会话凭据保留服务端，浏览器仅
 
 - C：按 `BD_to_C_CHECKLIST.md` 独立跑消费者 smoke，确认候选协议；实现/验证 attempted 记录、真实运行清单与独立核验，交付 LossResult schema/样例/真实结果。签收 pending。
 - A：按 `BD_to_A_CHECKLIST.md` 审分摊、资格、确认/更正、工单、v1 历史政策与保险研究接口，交付 QuoteResult schema/样例/语义。签收 pending。
-- BD/舍友：按 README_RECEIVE 独立安装/启动/回放，记录实际机器、操作者和失败。后续成功适配、第二机、离线冷启动/A理算另行授权；不自动继续。
+- BD/舍友：按 `docs/setup/RECEIVE_AND_RUN.md` 独立安装/启动/回放，记录实际机器、操作者和失败。后续成功适配、第二机、离线冷启动/A理算另行授权；不自动继续。
 
 浏览器初态 hash 未复核，文件未签名；冷启动/刷新离线、A 离线理算、真实 Agent、保险计算、第二机及两处旧库核查仍未完成。不宣布正式56次实验可开始，不签 J0/J1/J2/L1/R09。优先级与输入依赖见 NEXT_STEPS。

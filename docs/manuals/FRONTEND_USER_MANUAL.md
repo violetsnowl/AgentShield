@@ -352,4 +352,4 @@ evidence-<session_id>.json
 - `docs/handoff/BD_CURRENT_STATE.md`
 - `docs/handoff/BD_to_A_C.md`
 - `artifacts/pro_bd_sprint/05/RESULTS.md`
-- `artifacts/integration_abcd/INTEGRATION_REPORT.md`
+- `artifacts/integration_abcd/INTEGRATION_REPORT.md`（未随仓库分发，存档于制作方工作区）
