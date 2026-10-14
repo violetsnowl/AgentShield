@@ -142,6 +142,12 @@ try {
     check((await page.locator('.policy').innerText()).includes('本批人工工单工具尚未接入'), 'v1 historical policy preserved literally');
     check((await page.locator('.policy').innerText()).includes('待 A/C/D'), 'v1 historical inconsistency flagged pending review');
 
+    // N01/N16: 四区切换保持运行；顶部去冗余结构检查。
+    for (const areaName of [/执行证据 \/ 账本/, /风险 \/ 配置比较/, /合同 \/ 情景成本/, /企业实验场/]) await page.getByRole('button', { name: areaName }).click();
+    check(await page.locator('#run').inputValue() === config.sessions[0], 'N01: switching all four areas keeps the selected run');
+    check(await page.locator('.execution-bar').count() === 0, 'N16: former standalone execution bar removed');
+    check(await page.locator('.identity-extra').count() === 1, 'N16: source labels and actions consolidated into the identity strip');
+
     // N03: URL 状态与刷新恢复。
     await page.getByRole('button', { name: /风险 \/ 配置比较/ }).click();
     await page.getByLabel('已交付开发运行').waitFor();
