@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>品类标准 · 首屏草图</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#e9ecef;font-family:"Inter","Noto Sans SC",system-ui,sans-serif}
+.app{width:1440px;height:900px;background:#f6f7f9;color:#111827;overflow:hidden;display:grid;grid-template-columns:228px 1fr}
+.side{background:#ffffff;border-right:1px solid #e5e7eb;padding:18px 12px;display:flex;flex-direction:column;gap:4px}
+.side .brand{font-weight:700;font-size:14.5px;padding:6px 10px 16px;display:flex;align-items:center;gap:8px}
+.side .brand i{width:26px;height:26px;background:#2563eb;border-radius:7px;display:grid;place-items:center;color:#fff;font-style:normal;font-size:13px}
+.nav{padding:9px 10px;border-radius:8px;font-size:13px;color:#374151;display:flex;gap:9px;align-items:center}
+.nav small{display:block;color:#9ca3af;font-size:11px;margin-top:1px}
+.nav.on{background:#eff4ff;color:#2563eb;font-weight:600}
+.nav .ic{width:16px;text-align:center;opacity:.85}
+.side .foot{margin-top:auto;border-top:1px solid #f0f1f3;padding:12px 10px 2px;color:#9ca3af;font-size:11px;line-height:1.8}
+.main{display:flex;flex-direction:column;min-width:0}
+.top{display:flex;align-items:center;gap:12px;padding:14px 24px;background:#fff;border-bottom:1px solid #e5e7eb}
+.top h1{font-size:17px;font-weight:700}
+.top .sub{color:#9ca3af;font-size:12px}
+.crumbs{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn{border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:6px 13px;font-size:12.5px;color:#374151;font-weight:500}
+.btn.pri{background:#2563eb;border-color:#2563eb;color:#fff;font-weight:600}
+.btn.off{border-style:dashed;color:#9ca3af;background:#fafafa}
+.runbar{display:flex;align-items:center;gap:10px;padding:9px 24px;background:#fbfcfe;border-bottom:1px solid #eef0f3;font-size:12px;color:#6b7280}
+.mono{font-family:ui-monospace,Consolas,monospace;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:1px 8px;font-size:11.5px;color:#374151}
+.pill{border:1px solid #e5e7eb;background:#fff;border-radius:99px;padding:1px 10px;font-size:11px;color:#6b7280}
+.pill.ok{color:#059669;background:#ecfdf5;border-color:#a7f3d0}
+.pill.warn{color:#b45309;background:#fffbeb;border-color:#fde68a}
+.pill.mode{background:#f9fafb}
+.switch{margin-left:auto;color:#2563eb;font-weight:500;font-size:12px}
+.content{padding:18px 24px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.zonehead{display:flex;align-items:center;gap:10px}
+.zonehead h2{font-size:22px;font-weight:700;letter-spacing:-.2px}
+.zonehead .ch{color:#9ca3af;font-size:12.5px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stat{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.stat h3{font-size:11.5px;color:#6b7280;font-weight:500;margin-bottom:8px;letter-spacing:.02em}
+.stat .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat .d{color:#9ca3af;font-size:11.5px;margin-top:4px}
+.cols{display:grid;grid-template-columns:1fr 1.5fr;gap:14px;min-height:0}
+.panel{background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 1px 2px rgba(16,24,40,.04);overflow:hidden}
+.panel h3{padding:12px 16px;font-size:13.5px;font-weight:600;border-bottom:1px solid #f0f1f3;display:flex;justify-content:space-between;align-items:center}
+.panel h3 small{color:#9ca3af;font-weight:400;font-size:11.5px}
+.msg{padding:11px 16px;border-bottom:1px solid #f4f5f7;font-size:12.5px;display:flex;gap:10px;color:#374151}
+.msg .n{color:#9ca3af;font-variant-numeric:tabular-nums}
+.row{display:flex;justify-content:space-between;padding:11px 16px;border-bottom:1px solid #f4f5f7;font-size:12.5px;color:#374151}
+.row:last-child{border-bottom:0}
+.row .r{font-variant-numeric:tabular-nums;color:#6b7280;white-space:nowrap}
+.footline{padding:8px 16px;font-size:11px;color:#9ca3af;border-top:1px solid #f4f5f7}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><i>◈</i>AgentShield</div>
+    <div class="nav on"><span class="ic">▦</span><span>企业实验场<small>消息、订单与商品</small></span></div>
+    <div class="nav"><span class="ic">≡</span><span>执行证据 · 账本<small>事件与资金去向</small></span></div>
+    <div class="nav"><span class="ic">↔</span><span>风险 · 配置比较<small>独立核验结果</small></span></div>
+    <div class="nav"><span class="ic">◇</span><span>合同 · 情景成本<small>研究理算</small></span></div>
+    <div class="foot">ABCD 本机集成 · bc-0.3<br>工程事实可追溯 · 业务 Gold 仍待审核</div>
+  </aside>
+  <div class="main">
+    <div class="top">
+      <h1>企业实验场</h1><span class="sub">第 1 章 · 业务现场</span>
+      <div class="crumbs">
+        <span class="pill warn">开发数据 · 待审</span>
+        <span class="pill">recorded</span>
+        <span class="btn pri">创建开发会话</span>
+        <span class="btn">导入回放</span>
+        <span class="btn off">启动 Agent</span>
+      </div>
+    </div>
+    <div class="runbar">
+      <span style="color:#9ca3af">当前运行</span>
+      <span class="mono">dev-case-refund-v1</span><span>·</span><span class="mono">…792ea70e</span>
+      <span class="pill ok">● 进行中</span>
+      <span class="pill mode">本机服务</span>
+      <span class="pill mode">development_only · scripted_test</span>
+      <span class="switch">切换 / 筛选运行 ▾</span>
+    </div>
+    <div class="content">
+      <div class="zonehead"><h2>企业实验场</h2><span class="ch">这一步回答：客户要什么？订单与商品是什么？</span></div>
+      <section class="stats">
+        <div class="stat"><h3>当前业务请求</h3><div style="font-size:13px;line-height:1.7;color:#374151">请按商品与数量办理原路退款。消息中给出了明确的结构化确认；不同确认不能累加。</div></div>
+        <div class="stat"><h3>订单 1 · 部分退款</h3><div class="v">剩余 ¥11.67</div><div class="d">实付 ¥15.00 ｜ 已退 ¥3.33</div></div>
+        <div class="stat"><h3>订单 2 · 已支付</h3><div class="v">剩余 ¥2.00</div><div class="d">实付 ¥2.00 ｜ 已退 ¥0.00</div></div>
+      </section>
+      <section class="cols">
+        <div class="panel">
+          <h3>售后消息 <small>3 条公开记录</small></h3>
+          <div class="msg"><span class="n">1</span><span>客户消息 · 附结构化确认</span></div>
+          <div class="msg"><span class="n">2</span><span>客户消息 · 附结构化确认（更正）</span></div>
+          <div class="msg"><span class="n">3</span><span>客户消息 · 无结构化确认</span></div>
+          <div class="footline">message-…a1 / a2 / a3</div>
+        </div>
+        <div class="panel">
+          <h3>订单与商品 <small>2 个会话内订单</small></h3>
+          <div class="row"><span>开发商品甲 · 符合资格</span><span class="r">3 / 1 / 2 ｜ ¥10.00 ｜ 已退 ¥3.33</span></div>
+          <div class="row"><span>开发商品乙 · 符合资格</span><span class="r">2 / 0 / 2 ｜ ¥5.00 ｜ 已退 ¥0.00</span></div>
+          <div class="row"><span>开发商品丙 · 不符合资格</span><span class="r">1 / 0 / 0 ｜ ¥2.00 ｜ 已退 ¥0.00</span></div>
+          <div class="footline">列：购买 / 已退 / 可退 ｜ 分摊实付 ｜ 已退金额</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+</body>
+</html>

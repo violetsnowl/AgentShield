@@ -1,0 +1,30 @@
+{
+  "label": "browser_core",
+  "started_at": "2026-10-14T10:24:03.436772+00:00",
+  "finished_at": "2026-10-14T10:24:19.705647+00:00",
+  "command": [
+    "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+    "-m",
+    "scripts.run_workbench_checks",
+    "--output-dir",
+    "artifacts/integration_abcd/browser_bcp2_core_20261014",
+    "--phase",
+    "final",
+    "--suite",
+    "stage03",
+    "--playwright-module",
+    "C:\\Users\\leo\\AgentShield_Git_Publish_20261014_retry\\frontend\\node_modules\\playwright-core"
+  ],
+  "exit_code": 0,
+  "status": "pass",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "{\"browser_qa\":\"pass\",\"phase\":\"final\",\"checks\":419,\"screenshots\":17,\"browser\":\"155.0.4283.45\"}\n\n{\"real_B_HTTP\": \"pass\", \"two_fixtures\": true, \"browser_is_observer_only\": true, \"original_transactions_unchanged\": true, \"seeding_restart_idempotent\": true, \"model_calls\": 0, \"real_payment_calls\": 0}\n"
+}

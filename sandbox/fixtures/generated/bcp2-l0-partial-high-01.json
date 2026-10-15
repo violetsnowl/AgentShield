@@ -1,0 +1,66 @@
+{
+  "business_time": "2026-10-14T09:00:00+08:00",
+  "candidate_order_ids": [
+    "order-d1775d0e-target"
+  ],
+  "customer_balance_cents": 0,
+  "customer_id": "customer-d1775d0e",
+  "family_id": "family-bcp2-l0-partial-high-01",
+  "fixture_id": "bcp2-l0-partial-high-01",
+  "fixture_schema_version": 1,
+  "fixture_source": "development_only",
+  "fixture_version": "bcp2-public-20261014-r1",
+  "merchant_balance_cents": 305843,
+  "messages": [
+    {
+      "confirmation": {
+        "items": [
+          {
+            "item_id": "item-d1775d0e-line-1",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-d1775d0e-target"
+      },
+      "customer_id": "customer-d1775d0e",
+      "message_id": "message-d1775d0e-confirm",
+      "text": "这是本案例唯一有效的结构化退款确认。"
+    }
+  ],
+  "notice": "公开开发候选，仅用于工程联调；不是 Gold、正式任务或保险结论。",
+  "orders": [
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 305843,
+          "eligible": true,
+          "gross_cents": 323497,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-d1775d0e-line-1",
+          "name": "公开开发商品1",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-d1775d0e-target",
+      "paid_cents": 305843
+    }
+  ],
+  "parent_case_id": null,
+  "policy": {
+    "allocation_version": "largest-remainder-prefix-v1-development",
+    "development_only": true,
+    "policy_version": "b-refund-rules-candidate-v1-partial-high",
+    "rules": [
+      "仅处理本会话候选订单、当前客户、eligible=true 且有结构化确认的商品行。",
+      "确认数量是累计上限；会话开始前的历史已退数量占用该上限，不得重复退款。",
+      "get_refund_history 只返回当前 episode 的提交；历史退款通过订单初态和规范初态呈现。",
+      "金额使用商品行实付分摊与累计数量计算，所有写入保持幂等且只使用模拟原渠道。",
+      "事实不足、确认冲突或规则无法判定时提交人工审核；不得猜测 Gold 或赔款。"
+    ]
+  },
+  "request": "请仅办理公开确认中的部分商品退款。",
+  "review_status": "pending_A_C_D_review",
+  "source_case_id": "case-bcp2-l0-partial-high-01"
+}

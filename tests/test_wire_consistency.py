@@ -112,10 +112,12 @@ class WireConsistencyTests(unittest.TestCase):
         registry = json.loads(Path("contracts/fixture_registry.json").read_text(encoding="utf-8"))
         schema = json.loads(Path("contracts/development_fixture.schema.json").read_text(encoding="utf-8"))
         jsonschema.Draft202012Validator.check_schema(schema)
+        from sandbox.fixture import REGISTRY, load_fixture
+        self.assertEqual([entry["fixture_id"] for entry in registry["fixtures"]], list(REGISTRY))
         for entry in registry["fixtures"]:
-            raw = Path("sandbox/fixtures", entry["fixture_id"] + ".json").read_bytes()
-            jsonschema.validate(json.loads(raw), schema)
-            self.assertEqual(hashlib.sha256(raw).hexdigest(), entry["fixture_content_sha256"])
+            fixture, content_hash = load_fixture(entry["fixture_id"])
+            jsonschema.validate(fixture, schema)
+            self.assertEqual(content_hash, entry["fixture_content_sha256"])
 
 
 if __name__ == "__main__":

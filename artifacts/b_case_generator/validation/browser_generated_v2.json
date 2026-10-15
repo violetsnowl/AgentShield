@@ -1,0 +1,24 @@
+{
+  "label": "browser_generated_v2",
+  "started_at": "2026-10-14T10:33:28.753192+00:00",
+  "finished_at": "2026-10-14T10:33:31.978748+00:00",
+  "command": [
+    "D:\\作业合集\\大三\\智能+保险\\agentshield\\.venv\\Scripts\\python.exe",
+    "-m",
+    "scripts.run_bcp2_browser_check",
+    "--output-dir",
+    "artifacts/b_case_generator/validation/browser_generated_v2"
+  ],
+  "exit_code": 0,
+  "status": "pass",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "{\"browser_qa\":\"pass\",\"checks\":21,\"screenshots\":2,\"browser\":\"155.0.4283.45\"}\n\n{\"generated_schema_v2_browser\": \"pass\", \"fixture_id\": \"bcp2-l1-whole-low-04\", \"opening_history_visible\": true, \"episode_refund_only_in_committed_total\": true, \"observer_read_only\": true, \"model_calls\": 0, \"real_payment_calls\": 0}\n"
+}

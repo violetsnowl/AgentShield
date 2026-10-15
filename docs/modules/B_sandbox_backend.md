@@ -1,3 +1,9 @@
+# B-CP1/CP2 可复现案例生成器（2026-10-14）
+
+当前分支已增加固定 seed 的公开开发候选生成器、fixture schema v2 期初历史退款，以及 40 个源码 allowlist 候选。bc-0.3、七工具、EvidenceBundle 3 和交易逻辑保持不变。生成与检查命令、候选状态及 A/C 边界见 `artifacts/b_case_generator/RESULTS.md`；全部候选均待 A/C/D 审核，不是 Gold 或正式样本。
+
+---
+
 # AgentShield B 交易底座（ABCD 本地集成说明）
 
 > 位置说明：本文档为 `docs/modules/B_sandbox_backend.md`（原根目录 `README_B.md`）；文档索引见 `../README.md`。

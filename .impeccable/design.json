@@ -1,0 +1,428 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T18:45:31+08:00",
+  "title": "Design System: AgentShield 保险风险评测工作台",
+  "extensions": {
+    "colorMeta": {
+      "signal-yellow": {
+        "role": "primary",
+        "displayName": "导视黄 Signal Yellow",
+        "canonical": "#ffcc00",
+        "tonalRamp": [
+          "#100a00",
+          "#2f2300",
+          "#524000",
+          "#775e00",
+          "#9f7e00",
+          "#c8a000",
+          "#f4c300",
+          "#ffeebe"
+        ]
+      },
+      "signal-yellow-deep": {
+        "role": "primary",
+        "displayName": "导视黄·深 Signal Yellow Deep",
+        "canonical": "#f2c200",
+        "tonalRamp": [
+          "#100a00",
+          "#2f2400",
+          "#524000",
+          "#775e00",
+          "#9f7e00",
+          "#c8a000",
+          "#f3c305",
+          "#ffeebd"
+        ]
+      },
+      "signage-ink": {
+        "role": "neutral",
+        "displayName": "墨黑 Signage Ink",
+        "canonical": "#0b0b0b",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "paper-white": {
+        "role": "neutral",
+        "displayName": "纸白 Paper White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "concrete": {
+        "role": "neutral",
+        "displayName": "干灰 Concrete",
+        "canonical": "#e6e6e6",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "plaster": {
+        "role": "neutral",
+        "displayName": "灰泥 Plaster",
+        "canonical": "#f7f7f7",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "发丝线 Hairline",
+        "canonical": "#d8d8d8",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "muted-graphite": {
+        "role": "neutral",
+        "displayName": "次级墨 Muted Graphite",
+        "canonical": "#6b6b6b",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "soft-graphite": {
+        "role": "neutral",
+        "displayName": "柔墨 Soft Graphite",
+        "canonical": "#4a4a4a",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "status-pass": {
+        "role": "tertiary",
+        "displayName": "通过绿 Pass Green",
+        "canonical": "#0a7d32",
+        "tonalRamp": [
+          "#001002",
+          "#002e0d",
+          "#00511c",
+          "#00762d",
+          "#35994d",
+          "#5dbd6f",
+          "#82e392",
+          "#c8ffcf"
+        ]
+      },
+      "status-caution": {
+        "role": "tertiary",
+        "displayName": "警示琥珀 Caution Amber",
+        "canonical": "#8a6116",
+        "tonalRamp": [
+          "#130900",
+          "#342100",
+          "#593b00",
+          "#815806",
+          "#a47a34",
+          "#c99d58",
+          "#eec17c",
+          "#ffeccf"
+        ]
+      },
+      "status-error": {
+        "role": "tertiary",
+        "displayName": "错误砖 Error Brick",
+        "canonical": "#a4343a",
+        "tonalRamp": [
+          "#1f0002",
+          "#4d000b",
+          "#7e071c",
+          "#a4343a",
+          "#cb585a",
+          "#f37c7c",
+          "#ffb2af",
+          "#ffe8e7"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "余额大字 Display Figures",
+        "purpose": "台账汇总（28px）与事实带余额（26px）的 900 大字，tabular-nums；数字是页面里最大的东西之一。"
+      },
+      "headline": {
+        "displayName": "区头区名 Headline",
+        "purpose": "区头 H1 区名（22px/900/.01em）；900 让中文站名有标牌感。"
+      },
+      "title": {
+        "displayName": "栏目标题 Title",
+        "purpose": "面板 H2（17px；黑底栏目头内 13.5px）与 H3（14.5px）。"
+      },
+      "body": {
+        "displayName": "正文 Body",
+        "purpose": "阅读正文与消息文本（14px/1.6；消息段 13px/1.85、限宽 65ch）。"
+      },
+      "label": {
+        "displayName": "标签 Label",
+        "purpose": "facts 格标题（.1em）、fine-print、breadcrumb、badge（11px）等次级文字。"
+      },
+      "mono": {
+        "displayName": "等宽 Mono",
+        "purpose": "金额（Consolas / Cascadia Mono）与机器标识符（浏览器默认等宽 code）；只在此出现。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "exit-plate-float",
+        "value": "0 10px 30px -18px rgba(0, 0, 0, .5)",
+        "purpose": "出口牌专用轻浮影，全站唯一投影：让停靠的出口牌从平面标牌里轻微浮起。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "loading-spin",
+        "value": "spin 1s linear infinite",
+        "purpose": "全站唯一动效：读取 spinner 的匀速旋转；prefers-reduced-motion: reduce 下被全局停用。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-min",
+        "value": "1500px"
+      },
+      {
+        "name": "desktop-max",
+        "value": "1180px"
+      },
+      {
+        "name": "compact-max",
+        "value": "900px"
+      },
+      {
+        "name": "mobile-max",
+        "value": "760px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "标准按钮 Standard Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "工作台的标准按钮：白底墨框、方角、无过渡瞬时状态；禁用态是虚线灰框（未接通功能不放假按钮）。",
+      "html": "<button class=\"ds-btn\">刷新本次运行</button>\n<button class=\"ds-btn\" disabled>启动 Agent</button>",
+      "css": ".ds-btn { font-family: \"Noto Sans SC\",\"Microsoft YaHei UI\",\"PingFang SC\",system-ui,sans-serif; font-size: 14px; font-weight: 500; min-height: 34px; padding: 5px 12px; border: 2px solid var(--ink, #0b0b0b); border-radius: 2px; background: var(--paper, #ffffff); color: var(--ink, #0b0b0b); cursor: pointer; }\n.ds-btn:hover:not(:disabled) { background: var(--concrete, #e6e6e6); }\n.ds-btn:focus-visible { outline: 3px solid var(--ink, #0b0b0b); outline-offset: 2px; }\n.ds-btn:disabled { cursor: not-allowed; color: #9a9a9a; border-color: #9a9a9a; border-style: dashed; background: #ffffff; }"
+    },
+    {
+      "name": "出发按钮 Primary Departure Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "全站唯一的出发动作按钮：导视黄底墨字 700；一张屏上至多一个（创建开发会话）。",
+      "html": "<button class=\"ds-btn-primary\">创建开发会话</button>",
+      "css": ".ds-btn-primary { font-family: \"Noto Sans SC\",\"Microsoft YaHei UI\",\"PingFang SC\",system-ui,sans-serif; font-size: 14px; font-weight: 700; min-height: 34px; padding: 5px 12px; border: 2px solid var(--ink, #0b0b0b); border-radius: 2px; background: var(--yw, #ffcc00); color: var(--ink, #0b0b0b); cursor: pointer; }\n.ds-btn-primary:hover:not(:disabled) { background: #f2c200; }\n.ds-btn-primary:focus-visible { outline: 3px solid var(--ink, #0b0b0b); outline-offset: 2px; }\n.ds-btn-primary:disabled { cursor: not-allowed; color: #9a9a9a; border-color: #9a9a9a; border-style: dashed; background: #ffffff; }"
+    },
+    {
+      "name": "输入 / 下拉 Input & Select",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "标准 web 输入件：白底 2px 墨框；焦点用 3px 墨色外描边——全站统一焦点语言。",
+      "html": "<label class=\"ds-field\"><span>筛选已加载运行</span><input class=\"ds-input\" placeholder=\"case / session / episode / 配置\" /></label>\n<label class=\"ds-field\"><span>执行来源</span><select class=\"ds-input\"><option>全部来源</option><option>observed_agent_execution</option></select></label>",
+      "css": ".ds-field { display: grid; gap: 4px; font-family: \"Noto Sans SC\",\"Microsoft YaHei UI\",\"PingFang SC\",system-ui,sans-serif; font-size: 11px; font-weight: 500; color: var(--muted, #6b6b6b); }\n.ds-input { font: inherit; font-size: 12px; min-height: 30px; padding: 4px 8px; border: 2px solid var(--ink, #0b0b0b); border-radius: 2px; background: var(--paper, #ffffff); color: var(--ink, #0b0b0b); }\n.ds-input::placeholder { color: #767676; }\n.ds-input:focus-visible { outline: 3px solid var(--ink, #0b0b0b); outline-offset: 2px; }"
+    },
+    {
+      "name": "导航项 Nav Item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "顶栏居中的四站导视导航：站号＋区名（＋小字副标题）；当前站黄底 700——黄只在这里指认「你在这」。",
+      "html": "<nav class=\"ds-navgroup\">\n<button class=\"ds-nav-item ds-nav-item--active\" aria-current=\"page\"><span class=\"ds-nav-mark\" aria-hidden=\"true\">Ⅰ</span><span>企业实验场<small>消息、订单与商品</small></span></button>\n<button class=\"ds-nav-item\"><span class=\"ds-nav-mark\" aria-hidden=\"true\">Ⅱ</span><span>执行证据 / 账本<small>事件与资金去向</small></span></button>\n<button class=\"ds-nav-item\"><span class=\"ds-nav-mark\" aria-hidden=\"true\">Ⅲ</span><span>风险 / 配置比较<small>C L0 候选结果</small></span></button>\n<button class=\"ds-nav-item\"><span class=\"ds-nav-mark\" aria-hidden=\"true\">Ⅳ</span><span>合同 / 情景成本<small>A0 研究理算</small></span></button>\n</nav>",
+      "css": ".ds-navgroup { display: flex; align-items: stretch; gap: 6px; flex-wrap: wrap; }\n.ds-nav-item { display: flex; align-items: baseline; gap: 7px; font-family: \"Noto Sans SC\",\"Microsoft YaHei UI\",\"PingFang SC\",system-ui,sans-serif; font-size: 12.5px; font-weight: 500; min-height: 34px; padding: 6px 13px; border: 2px solid var(--ink, #0b0b0b); border-radius: 2px; background: var(--paper, #ffffff); color: var(--ink, #0b0b0b); cursor: pointer; white-space: nowrap; }\n.ds-nav-item small { font-size: 10.5px; color: var(--muted, #6b6b6b); font-weight: 500; margin-left: 4px; }\n.ds-nav-item:hover:not(.ds-nav-item--active) { background: var(--concrete, #e6e6e6); }\n.ds-nav-item--active { background: var(--yw, #ffcc00); font-weight: 700; }\n.ds-nav-item--active small { color: #5c4a00; }\n.ds-nav-item:focus-visible { outline: 3px solid var(--ink, #0b0b0b); outline-offset: 2px; }\n.ds-nav-mark { font-weight: 900; font-size: 13px; }"
+    },
+    {
+      "name": "状态徽标 Status Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "状态徽标：白底 2px 墨框，状态色只染文字不铺底——色在字不在底。",
+      "html": "<span class=\"ds-badge\">正在读取</span>\n<span class=\"ds-badge ds-good\">成功 / succeeded</span>\n<span class=\"ds-badge ds-warning\">开发数据 · 待审</span>\n<span class=\"ds-badge ds-error\">拒绝 / rejected</span>",
+      "css": ".ds-badge { display: inline-block; width: fit-content; padding: 1px 9px; border: 2px solid var(--ink, #0b0b0b); border-radius: 2px; background: var(--paper, #ffffff); color: var(--ink, #0b0b0b); font-family: \"Noto Sans SC\",\"Microsoft YaHei UI\",\"PingFang SC\",system-ui,sans-serif; font-size: 11px; line-height: 1.7; font-weight: 500; white-space: nowrap; }\n.ds-badge.ds-good { color: var(--good, #0a7d32); }\n.ds-badge.ds-warning { color: var(--warn, #8a6116); }\n.ds-badge.ds-error { color: var(--err, #a4343a); }"
+    },
+    {
+      "name": "核心事实行 Core Facts Band",
+      "kind": "custom",
+      "description": "每案开头的三格事实带（特征构件）：2px 墨框＋竖墨线分格，余额以 900 大字呈现；格与格之间没有空白。",
+      "html": "<section class=\"ds-facts\">\n<div class=\"ds-facts-cell\"><h3>当前业务请求</h3><p class=\"ds-facts-req\">客户的公开退款请求文本（设计示例）。</p></div>\n<div class=\"ds-facts-cell\"><h3>订单 1 · 已支付</h3><p class=\"ds-facts-kv\">实付 ¥129.00 ｜ 已退 ¥0.00</p><p class=\"ds-facts-big\">¥129.00<small>原路退回</small></p></div>\n<div class=\"ds-facts-cell\"><h3>订单 2 · 部分退款</h3><p class=\"ds-facts-kv\">实付 ¥58.00 ｜ 已退 ¥58.00</p><p class=\"ds-facts-big\">¥0.00<small>原路退回</small></p></div>\n</section>",
+      "css": ".ds-facts { display: flex; align-items: stretch; border: 2px solid var(--ink, #0b0b0b); background: #ffffff; font-family: \"Noto Sans SC\",\"Microsoft YaHei UI\",\"PingFang SC\",system-ui,sans-serif; }\n.ds-facts-cell { flex: 1; min-width: 0; padding: 13px 16px; border-right: 2px solid var(--ink, #0b0b0b); }\n.ds-facts-cell:first-child { flex: 1.6; }\n.ds-facts-cell:last-child { border-right: 0; }\n.ds-facts-cell h3 { font-size: 11.5px; color: var(--muted, #6b6b6b); letter-spacing: .1em; margin: 0 0 8px; font-weight: 500; }\n.ds-facts-req { font-size: 14px; line-height: 1.75; margin: 0; color: var(--ink, #0b0b0b); }\n.ds-facts-kv { font-weight: 700; font-size: 14px; margin: 0; color: var(--ink, #0b0b0b); }\n.ds-facts-big { font-size: 26px; font-weight: 900; margin: 4px 0 0; font-variant-numeric: tabular-nums; color: var(--ink, #0b0b0b); }\n.ds-facts-big small { font-size: 12px; font-weight: 500; color: var(--muted, #6b6b6b); margin-left: 6px; }"
+    },
+    {
+      "name": "面板 + 黑底栏目头 Panel with Section Head",
+      "kind": "card",
+      "refersTo": "section-head",
+      "description": "标准面板：2px 墨框白底，黑底栏目头＋可选灰泥 section-note；栏目标题在白字上，说明在灰泥上。",
+      "html": "<section class=\"ds-panel\">\n<div class=\"ds-section-head\"><h2>执行事件</h2><span>按本次 session 内的 seq 排序</span></div>\n<p class=\"ds-section-note\">服务端提交不证明客户端收到（设计示例文案）。</p>\n<div class=\"ds-panel-body\">面板内容区：表格、列表或消息流。</div>\n</section>",
+      "css": ".ds-panel { border: 2px solid var(--ink, #0b0b0b); background: #ffffff; border-radius: 2px; overflow: hidden; font-family: \"Noto Sans SC\",\"Microsoft YaHei UI\",\"PingFang SC\",system-ui,sans-serif; }\n.ds-section-head { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 10px 16px; background: var(--ink, #0b0b0b); color: #ffffff; border-bottom: 2px solid var(--ink, #0b0b0b); }\n.ds-section-head h2 { margin: 0; color: #ffffff; font-size: 13.5px; font-weight: 700; }\n.ds-section-head > span { color: #c9c9c9; font-size: 11.5px; }\n.ds-section-note { margin: 0; padding: 10px 16px; font-size: 11.5px; color: var(--soft, #4a4a4a); background: var(--plaster, #f7f7f7); border-bottom: 1px solid var(--hair, #d8d8d8); }\n.ds-panel-body { padding: 16px; font-size: 13px; line-height: 1.85; color: var(--ink, #0b0b0b); }"
+    },
+    {
+      "name": "证据表格 Evidence Table",
+      "kind": "custom",
+      "description": "证据 / 账本表：灰泥表头＋2px 墨线底边、发丝线行分隔、金额右对齐 Consolas tabular。",
+      "html": "<div class=\"ds-table-scroll\">\n<table class=\"ds-table\">\n<thead><tr><th>序号 / 事件时间</th><th>工具 / call_id</th><th>真实状态 / 事实</th><th class=\"ds-number\">本次提交</th></tr></thead>\n<tbody>\n<tr><td><strong class=\"ds-seq\">1</strong><time class=\"ds-cell-note\">2026-01-01 00:00:00 UTC</time></td><td><strong>工具调用</strong><code class=\"ds-id\">call_示例</code></td><td><span class=\"ds-status\">成功 / succeeded</span></td><td class=\"ds-money\">¥29.00</td></tr>\n</tbody>\n</table>\n</div>",
+      "css": ".ds-table-scroll { overflow: auto; }\n.ds-table { border-collapse: collapse; width: 100%; text-align: left; font-family: \"Noto Sans SC\",\"Microsoft YaHei UI\",\"PingFang SC\",system-ui,sans-serif; font-size: 12.5px; color: var(--ink, #0b0b0b); }\n.ds-table th { color: var(--soft, #4a4a4a); font-weight: 600; background: var(--plaster, #f7f7f7); padding: 10px 12px; border-bottom: 2px solid var(--ink, #0b0b0b); font-size: 11px; white-space: nowrap; }\n.ds-table td { padding: 11px 12px; border-bottom: 1px solid var(--hair, #d8d8d8); vertical-align: top; }\n.ds-table tr:last-child td { border-bottom: 0; }\n.ds-number, .ds-money { text-align: right; font-variant-numeric: tabular-nums; }\n.ds-money { white-space: nowrap; font-weight: 700; font-family: Consolas, \"Cascadia Mono\", monospace; font-size: 13px; }\n.ds-id { font-size: 12.5px; }\n.ds-cell-note { display: block; font-size: 11px; color: var(--muted, #6b6b6b); margin-top: 4px; }\n.ds-seq { font-size: 16px; font-weight: 900; font-variant-numeric: tabular-nums; }\n.ds-status { display: inline-block; padding: 1px 9px; border: 2px solid var(--ink, #0b0b0b); border-radius: 2px; background: #ffffff; color: var(--good, #0a7d32); font-size: 11px; font-weight: 500; line-height: 1.7; white-space: nowrap; }"
+    },
+    {
+      "name": "运行条 Run Strip",
+      "kind": "custom",
+      "refersTo": "subbar",
+      "description": "运行条：干灰细条承载全局运行上下文（当前运行、来源徽标、导入回放）——切区不换运行。",
+      "html": "<div class=\"ds-subbar\">\n<label class=\"ds-sub-label\" for=\"ds-run\">当前运行（session / episode 独立）</label>\n<select class=\"ds-sub-select\" id=\"ds-run\"><option>dev-case-refund-v1 ｜ session_id 示例</option></select>\n<button class=\"ds-sub-import\">导入回放</button>\n</div>",
+      "css": ".ds-subbar { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding: 8px 22px; background: var(--concrete, #e6e6e6); border-bottom: 2px solid var(--ink, #0b0b0b); font-family: \"Noto Sans SC\",\"Microsoft YaHei UI\",\"PingFang SC\",system-ui,sans-serif; font-size: 12px; color: var(--ink, #0b0b0b); }\n.ds-sub-label { font-size: 11.5px; font-weight: 500; color: var(--soft, #4a4a4a); }\n.ds-sub-select { font: inherit; font-size: 12px; min-height: 30px; padding: 4px 8px; border: 2px solid var(--ink, #0b0b0b); border-radius: 2px; background: #ffffff; color: var(--ink, #0b0b0b); }\n.ds-sub-import { font: inherit; font-size: 12px; font-weight: 500; min-height: 30px; padding: 2px 10px; margin-left: auto; border: 2px solid var(--ink, #0b0b0b); border-radius: 2px; background: #ffffff; color: var(--ink, #0b0b0b); cursor: pointer; }\n.ds-sub-import:hover { background: var(--concrete, #e6e6e6); }\n.ds-sub-select:focus-visible, .ds-sub-import:focus-visible { outline: 3px solid var(--ink, #0b0b0b); outline-offset: 2px; }"
+    },
+    {
+      "name": "出口牌 Exit Plate",
+      "kind": "custom",
+      "refersTo": "exit-plate",
+      "description": "特征构件出口牌：黑底双仓牌（回看｜前往下一站）＋黄底箭头格；全站唯一浮影——「读到哪里，出口就在哪里」。",
+      "html": "<div class=\"ds-exitrow\">\n<span class=\"ds-exit-cap\">读完这一段，出口就在手边</span>\n<div class=\"ds-exit-plate\">\n<a class=\"ds-exit-back\" href=\"#\">‹ 回看：<b>Ⅲ</b> 风险 / 配置比较</a>\n<a class=\"ds-exit-go\" href=\"#\">前往下一站 <b>Ⅳ</b> 合同 / 情景成本<small>约 1 分钟</small></a>\n<span class=\"ds-exit-arrow\" aria-hidden=\"true\">→</span>\n</div>\n</div>",
+      "css": ".ds-exitrow { display: flex; justify-content: flex-end; align-items: center; gap: 16px; padding: 6px 22px 12px; background: var(--paper, #ffffff); border-top: 1px solid var(--hair, #d8d8d8); font-family: \"Noto Sans SC\",\"Microsoft YaHei UI\",\"PingFang SC\",system-ui,sans-serif; }\n.ds-exit-cap { color: var(--muted, #6b6b6b); font-size: 11px; }\n.ds-exit-plate { display: flex; align-items: stretch; background: var(--ink, #0b0b0b); color: #ffffff; border-radius: 2px; overflow: hidden; box-shadow: 0 10px 30px -18px rgba(0, 0, 0, .5); }\n.ds-exit-plate a { text-decoration: none; display: flex; align-items: center; }\n.ds-exit-back { gap: 8px; padding: 12px 18px; color: #8f8f8f; font-size: 12px; font-weight: 500; border-right: 1px solid #2c2c2c; }\n.ds-exit-back b { color: #c9c9c9; font-weight: 900; }\n.ds-exit-back:hover { color: var(--yw, #ffcc00); }\n.ds-exit-go { gap: 12px; padding: 12px 20px; font-size: 14px; font-weight: 700; color: #ffffff; }\n.ds-exit-go b { color: var(--yw, #ffcc00); font-weight: 900; font-size: 15px; }\n.ds-exit-go small { font-weight: 500; font-size: 11.5px; color: #c9c9c9; }\n.ds-exit-go:hover { background: #1c1c1c; }\n.ds-exit-arrow { display: grid; place-items: center; width: 52px; background: var(--yw, #ffcc00); color: var(--ink, #0b0b0b); font-size: 22px; font-weight: 900; }\n.ds-exit-plate a:focus-visible { outline: 3px solid var(--ink, #0b0b0b); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "航站楼导视 The Terminal Wayfinding",
+    "overview": "AgentShield 工作台是一座让第三人读懂 AI 理赔执行事实的「航站楼」。整套视觉语法来自机场导视：黄色只干导视一件事——当前站、去向箭头、出发动作；黑、白、灰承载全部内容；2px 墨框把每一块信息钉成一块标牌；黑底栏目头像登机口上方的横带。工作台不讲述情绪，它指路：「读到哪里，出口就在哪里」——每一区内容读到头，视口底缘的出口牌就指向下一站。\n\n密度与诚实是同一件事。界面按机场信息墙的密度组织：事实贴着事实，数字贴着数字，没有装饰性图表，也没有为好看而存在的一像素（第一用户要在 3–5 分钟内沿 Ⅰ→Ⅳ 走完一遍完整故事）。不可信的地方必须写在牌面上：未复核、待审、禁用都占一行自己的位置，用虚线、状态色与文字解释呈现，而不是藏起来。\n\n运动在此系统中几乎不存在——没有入场编排、没有 hover 位移，状态切换像标牌翻面一样瞬时完成；唯一的动效是读取中的 spinner，且已被 prefers-reduced-motion 护栏接管。已确认的反向参照是旧版「通用深色评测控制台」（多色描边、装饰图表、深色格子的「AI 默认味」）——它被明确否决。",
+    "keyCharacteristics": [
+      "机场导视世界：黄只做导视，黑/白/灰承载内容",
+      "2px 墨框构件、黑底栏目头、方角（圆角 2px）",
+      "固定画框：100vh 控制台，只有内容区滚动，出口牌停靠在视口底缘",
+      "平面标牌：零投影，唯一例外是出口牌的一层轻浮影",
+      "无编排动效：状态瞬时切换；仅加载 spinner，reduced-motion 已护栏",
+      "字体自托管离线：Noto Sans SC 400/500/700/900（简中整文件＋拉丁子集）；等宽仅用于标识符与金额"
+    ],
+    "rules": [
+      {
+        "name": "The Wayfinding-Only Yellow Rule",
+        "body": "黄只做导视：当前站、去向箭头、出发动作。任何内容面、容器、装饰都不得铺黄；黄的面积越小，指向越准。",
+        "section": "colors"
+      },
+      {
+        "name": "The Color-In-Type Rule",
+        "body": "状态色活在字与描边里，不活在底色里：badge 白底墨框，good/warning/error 只染文字；仅在黑底栏目头内允许按深底换档（描边＋亮色文字）。",
+        "section": "colors"
+      },
+      {
+        "name": "The Weight-Is-Station Rule",
+        "body": "字重即站级：900 = 站名/余额，700 = 标题/强调，500 = 控件/标签，400 = 正文。系统里不存在 light 字重。",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular-Money Rule",
+        "body": "所有金额、计数与 seq 使用 tabular-nums；金额（.money）用 Consolas 等宽。钱不对齐，就不像账本。",
+        "section": "typography"
+      },
+      {
+        "name": "The Fixed-Frame Rule",
+        "body": "画框不动，只有内容滚动：顶栏、运行条、出口牌是航站楼的固定设施，滚动永远不把出口带走。",
+        "section": "layout"
+      },
+      {
+        "name": "The Station-Order Rule",
+        "body": "四站顺序（Ⅰ 企业实验场 → Ⅱ 执行证据 / 账本 → Ⅲ 风险 / 配置比较 → Ⅳ 合同 / 情景成本）是唯一主叙事；任意时刻，区头都显示章号、区名与诚实标签。",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat-Sign Rule",
+        "body": "表面即标牌，标牌没有影子：全站零投影、零渐变、零玻璃拟态。唯一的浮起属于出口牌——因为它是唯一从平面伸出来的东西。",
+        "section": "elevation"
+      },
+      {
+        "name": "The Depth-By-Frame Rule",
+        "body": "深浅靠框与底，不靠影：2px 墨框、黑底栏目头、灰泥/干灰底差已经足够分层。",
+        "section": "elevation"
+      },
+      {
+        "name": "The 2px Ink Frame Rule",
+        "body": "构件轮廓一律 2px 实线墨框；1px 只允许以发丝线形态做内部分隔。",
+        "section": "shapes"
+      },
+      {
+        "name": "The Near-Square Rule",
+        "body": "圆角一律 2px：方角是标牌的本体形状；全站唯一的圆是加载 spinner。",
+        "section": "shapes"
+      },
+      {
+        "name": "The Dashed-Absence Rule",
+        "body": "虚线 = 缺位：禁用、空、加载中、不可回退；实线 = 存在。两者语义不得互换。",
+        "section": "shapes"
+      },
+      {
+        "name": "The Standard-Control Rule",
+        "body": "控件一律标准 web 件：button/select/input 墨框方角、系统行为（Tab、Enter、原生下拉），不做自定义绘制的控件隐喻。",
+        "section": "components"
+      },
+      {
+        "name": "The Exit-Plate Rule",
+        "body": "每区读完即出口牌（‹ 回看 ｜ 前往下一站 →），Ⅳ 区收尾回 Ⅰ；出口牌是全站唯一的跨区固定出口，也是唯一浮起构件。",
+        "section": "components"
+      },
+      {
+        "name": "The Honest-Disabled Rule",
+        "body": "未接通 = 禁用＋解释（虚线灰框＋一行原因），放进牌面的诚实语境，绝不放假按钮。",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** 让黄只出现在导视语境：当前站、去向箭头、出发动作；其余全部黑白灰。",
+      "**Do** 用 2px 墨框＋2px 圆角＋黑底栏目头构成一切标牌构件。",
+      "**Do** 保持控件为标准 web 件（≥34px 高、墨框）；未接通功能做成「虚线禁用＋一行解释」。",
+      "**Do** 用 tabular-nums 排版所有金额与计数；金额用 Consolas 等宽。",
+      "**Do** 把 null / 未知写成自己的徽标（「未知 / null」），与 0 严格区分。",
+      "**Do** 每区末尾给出口牌；Ⅳ 区收尾回「到 Ⅰ」。",
+      "**Do** 让状态色只染文字与描边。"
+    ],
+    "donts": [
+      "**Don't** 给任何构件加投影、渐变或玻璃拟态——出口牌浮影是全站唯一例外。",
+      "**Don't** 用黄铺内容面、容器底或装饰；黄是手指，不是背景。",
+      "**Don't** 用大圆角、胶囊或圆按钮；圆角只有 2px（唯一全圆是 spinner）。",
+      "**Don't** 引入编排动效或 hover 位移。",
+      "**Don't** 回到旧版「通用深色评测控制台」的视觉（多色描边、装饰图表、深色格子）——已确认的反向参照。",
+      "**Don't** 把「未复核 / 未验证」的诚实标签换成确定语气或省略。"
+    ]
+  }
+}

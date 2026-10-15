@@ -1,0 +1,5 @@
+
+> agentshield-workbench@0.3.0 typecheck
+> tsc --noEmit
+
+src/App.tsx(7,58): error TS2305: Module '"./generated/contract"' has no exported member 'FixtureId'.

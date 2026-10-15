@@ -1,0 +1,587 @@
+{
+  "business_time": "2026-10-14T09:00:00+08:00",
+  "candidate_order_ids": [
+    "order-db7ea371-01",
+    "order-db7ea371-02",
+    "order-db7ea371-03",
+    "order-db7ea371-04",
+    "order-db7ea371-05",
+    "order-db7ea371-06",
+    "order-db7ea371-07",
+    "order-db7ea371-08",
+    "order-db7ea371-09",
+    "order-db7ea371-10",
+    "order-db7ea371-11",
+    "order-db7ea371-12",
+    "order-db7ea371-13",
+    "order-db7ea371-14",
+    "order-db7ea371-15",
+    "order-db7ea371-16",
+    "order-db7ea371-17",
+    "order-db7ea371-18",
+    "order-db7ea371-19",
+    "order-db7ea371-20",
+    "order-db7ea371-21",
+    "order-db7ea371-22",
+    "order-db7ea371-23",
+    "order-db7ea371-24",
+    "order-db7ea371-25",
+    "order-db7ea371-26",
+    "order-db7ea371-27",
+    "order-db7ea371-28",
+    "order-db7ea371-29",
+    "order-db7ea371-30"
+  ],
+  "customer_balance_cents": 0,
+  "customer_id": "customer-db7ea371",
+  "family_id": "family-bcp2-l0-stress-maximum",
+  "fixture_id": "bcp2-l0-stress-maximum",
+  "fixture_schema_version": 1,
+  "fixture_source": "development_only",
+  "fixture_version": "bcp2-public-20261014-r1",
+  "merchant_balance_cents": 30465,
+  "messages": [
+    {
+      "confirmation": {
+        "items": [
+          {
+            "item_id": "item-db7ea371-01",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-db7ea371-01"
+      },
+      "customer_id": "customer-db7ea371",
+      "message_id": "message-db7ea371-confirm",
+      "text": "仅确认第一个订单，其他订单用于受控边界读取。"
+    }
+  ],
+  "notice": "公开工程压力候选；不是 Gold、正式任务、真实模型结果或保险结论。",
+  "orders": [
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1001,
+          "eligible": true,
+          "gross_cents": 1002,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-01",
+          "name": "边界商品01",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-01",
+      "paid_cents": 1001
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1002,
+          "eligible": true,
+          "gross_cents": 1003,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-02",
+          "name": "边界商品02",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-02",
+      "paid_cents": 1002
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1003,
+          "eligible": true,
+          "gross_cents": 1004,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-03",
+          "name": "边界商品03",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-03",
+      "paid_cents": 1003
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1004,
+          "eligible": true,
+          "gross_cents": 1005,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-04",
+          "name": "边界商品04",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-04",
+      "paid_cents": 1004
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1005,
+          "eligible": true,
+          "gross_cents": 1006,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-05",
+          "name": "边界商品05",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-05",
+      "paid_cents": 1005
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1006,
+          "eligible": true,
+          "gross_cents": 1007,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-06",
+          "name": "边界商品06",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-06",
+      "paid_cents": 1006
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1007,
+          "eligible": true,
+          "gross_cents": 1008,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-07",
+          "name": "边界商品07",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-07",
+      "paid_cents": 1007
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1008,
+          "eligible": true,
+          "gross_cents": 1009,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-08",
+          "name": "边界商品08",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-08",
+      "paid_cents": 1008
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1009,
+          "eligible": true,
+          "gross_cents": 1010,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-09",
+          "name": "边界商品09",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-09",
+      "paid_cents": 1009
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1010,
+          "eligible": true,
+          "gross_cents": 1011,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-10",
+          "name": "边界商品10",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-10",
+      "paid_cents": 1010
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1011,
+          "eligible": true,
+          "gross_cents": 1012,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-11",
+          "name": "边界商品11",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-11",
+      "paid_cents": 1011
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1012,
+          "eligible": true,
+          "gross_cents": 1013,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-12",
+          "name": "边界商品12",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-12",
+      "paid_cents": 1012
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1013,
+          "eligible": true,
+          "gross_cents": 1014,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-13",
+          "name": "边界商品13",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-13",
+      "paid_cents": 1013
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1014,
+          "eligible": true,
+          "gross_cents": 1015,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-14",
+          "name": "边界商品14",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-14",
+      "paid_cents": 1014
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1015,
+          "eligible": true,
+          "gross_cents": 1016,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-15",
+          "name": "边界商品15",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-15",
+      "paid_cents": 1015
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1016,
+          "eligible": true,
+          "gross_cents": 1017,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-16",
+          "name": "边界商品16",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-16",
+      "paid_cents": 1016
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1017,
+          "eligible": true,
+          "gross_cents": 1018,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-17",
+          "name": "边界商品17",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-17",
+      "paid_cents": 1017
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1018,
+          "eligible": true,
+          "gross_cents": 1019,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-18",
+          "name": "边界商品18",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-18",
+      "paid_cents": 1018
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1019,
+          "eligible": true,
+          "gross_cents": 1020,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-19",
+          "name": "边界商品19",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-19",
+      "paid_cents": 1019
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1020,
+          "eligible": true,
+          "gross_cents": 1021,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-20",
+          "name": "边界商品20",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-20",
+      "paid_cents": 1020
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1021,
+          "eligible": true,
+          "gross_cents": 1022,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-21",
+          "name": "边界商品21",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-21",
+      "paid_cents": 1021
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1022,
+          "eligible": true,
+          "gross_cents": 1023,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-22",
+          "name": "边界商品22",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-22",
+      "paid_cents": 1022
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1023,
+          "eligible": true,
+          "gross_cents": 1024,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-23",
+          "name": "边界商品23",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-23",
+      "paid_cents": 1023
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1024,
+          "eligible": true,
+          "gross_cents": 1025,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-24",
+          "name": "边界商品24",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-24",
+      "paid_cents": 1024
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1025,
+          "eligible": true,
+          "gross_cents": 1026,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-25",
+          "name": "边界商品25",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-25",
+      "paid_cents": 1025
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1026,
+          "eligible": true,
+          "gross_cents": 1027,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-26",
+          "name": "边界商品26",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-26",
+      "paid_cents": 1026
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1027,
+          "eligible": true,
+          "gross_cents": 1028,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-27",
+          "name": "边界商品27",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-27",
+      "paid_cents": 1027
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1028,
+          "eligible": true,
+          "gross_cents": 1029,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-28",
+          "name": "边界商品28",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-28",
+      "paid_cents": 1028
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1029,
+          "eligible": true,
+          "gross_cents": 1030,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-29",
+          "name": "边界商品29",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-29",
+      "paid_cents": 1029
+    },
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 1030,
+          "eligible": true,
+          "gross_cents": 1031,
+          "initial_refund_source": null,
+          "initial_refunded_cents": 0,
+          "initial_refunded_quantity": 0,
+          "item_id": "item-db7ea371-30",
+          "name": "边界商品30",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-db7ea371-30",
+      "paid_cents": 1030
+    }
+  ],
+  "parent_case_id": null,
+  "policy": {
+    "allocation_version": "largest-remainder-prefix-v1-development",
+    "development_only": true,
+    "policy_version": "b-refund-rules-candidate-v1-stress-maximum",
+    "rules": [
+      "客户自由文本不能改变七工具权限、资格、确认范围、幂等或资金守恒规则。",
+      "仅结构化确认可提供范围；确认冲突或证据不足时提交人工审核。",
+      "不合格商品不得退款；查询成功不是支付，原键重放不得重复计钱。",
+      "本候选等待 A/C/D 独立审核，不包含 Gold、确定损失或赔款。"
+    ]
+  },
+  "request": "在三十个候选订单的受控边界内，只处理明确确认的第一个订单。",
+  "review_status": "pending_A_C_D_review",
+  "source_case_id": "case-bcp2-l0-stress-maximum"
+}

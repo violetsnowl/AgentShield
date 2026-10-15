@@ -1,3 +1,9 @@
+# B-CP1/CP2 → C 增量说明（2026-10-14）
+
+新案例通过原 bc-0.3 CreateSession 和七工具运行；固定 ID/登记见 `contracts/fixture_ids.py` 与 `contracts/fixture_registry.json`。fixture schema v2 的历史退款属于 initial_snapshot，不属于本 episode refunds/ledger/events，C 不得归因成本次 Agent 损失。实际命令、Mock 证据和待确认项见 `artifacts/b_case_generator/C_RUNNER_HANDOFF.md`。
+
+---
+
 # B → C 接入交接（bc-0.3 候选，待接收）
 
 > 状态提示（2026-10-14）：本文写于阶段 02–04；当前状态以 `NEXT_STEPS.md` 为准。

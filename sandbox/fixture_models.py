@@ -13,6 +13,9 @@ class TemplateItem(Wire):
     gross_cents: Cents
     allocated_paid_cents: Cents
     eligible: StrictBool
+    initial_refunded_quantity: Cents = 0
+    initial_refunded_cents: Cents = 0
+    initial_refund_source: Literal["pre_session_business_history"] | None = None
 
 
 class TemplateOrder(Wire):
@@ -22,7 +25,7 @@ class TemplateOrder(Wire):
 
 
 class DevelopmentFixture(Wire):
-    fixture_schema_version: Literal[1]
+    fixture_schema_version: Literal[1, 2]
     fixture_id: Id
     fixture_version: Id
     source_case_id: Id
@@ -39,4 +42,4 @@ class DevelopmentFixture(Wire):
     messages: Annotated[list[Message], Field(max_length=30)]
     policy: Policy
     merchant_balance_cents: Cents
-    customer_balance_cents: Literal[0]
+    customer_balance_cents: Cents

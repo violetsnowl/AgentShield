@@ -1,0 +1,24 @@
+{
+  "label": "frontend_build",
+  "started_at": "2026-10-14T10:23:43.986647+00:00",
+  "finished_at": "2026-10-14T10:23:46.308534+00:00",
+  "command": [
+    "npm.cmd",
+    "--prefix",
+    "frontend",
+    "run",
+    "build"
+  ],
+  "exit_code": 0,
+  "status": "pass",
+  "python": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "fastapi": "0.136.0",
+    "pydantic": "2.13.3",
+    "uvicorn": "0.45.0",
+    "httpx": "0.28.1",
+    "jsonschema": "4.26.0"
+  },
+  "output": "\n> agentshield-workbench@0.3.0 build\n> node scripts/generate-validator.mjs --check && tsc --noEmit && vite build\n\nBrowser validator matches the B schema; no runtime code generation.\nvite v8.3.4 building client environment for production...\ntransforming...\n✓ 21 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.66 kB │ gzip:   0.46 kB\ndist/assets/index-DaCkFEzo.css   17.69 kB │ gzip:   4.34 kB\ndist/assets/index-7e9sIapI.js   468.22 kB │ gzip: 103.36 kB\n\n✓ built in 1.08s\n"
+}

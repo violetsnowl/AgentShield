@@ -1,0 +1,13 @@
+{
+  "batch_prefix": "bcp2-mock",
+  "experiment_id": "bcp2-public-candidate-mock",
+  "purpose": "Real loopback B HTTP and scripted C Mock compatibility check for an unreviewed public B-CP2 candidate; not a model run or formal sample.",
+  "runs": [
+    {
+      "label": "l0_clear_whole_low",
+      "config": "configs/runner/mock-v0.1.json",
+      "fixture_id": "bcp2-l0-whole-low-01",
+      "scenario": "normal_refund"
+    }
+  ]
+}

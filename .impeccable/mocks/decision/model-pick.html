@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>总账本 · 首屏草图</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1f1b16;font-family:"Noto Serif SC",serif}
+.app{width:1440px;height:900px;background:#f7f3e8;color:#1f1b16;overflow:hidden;display:flex;flex-direction:column}
+.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:11px 22px;background:#efe9da;border-bottom:2px solid #2c4a6e}
+.brand{font-weight:700;font-size:15.5px;letter-spacing:.06em}
+.navgroup{display:flex;gap:2px;border:1px solid #c8bfa8;border-radius:4px;padding:3px;background:#e9e2cf}
+.step{padding:5px 12px;border-radius:3px;font-size:12.5px;color:#4a4438;white-space:nowrap}
+.step b{color:#2c4a6e;margin-right:6px;font-weight:700}
+.step.on{background:#f7f3e8;font-weight:700;color:#1f1b16;border:1px solid #c8bfa8}
+.actions{justify-self:end;display:flex;gap:8px;align-items:center}
+.btn{border:1px solid #a99f88;background:#f7f3e8;border-radius:2px;padding:5px 12px;font-size:12px;color:#3a332a;font-family:"Noto Sans SC",sans-serif}
+.btn.pri{background:#2c4a6e;border-color:#243d5c;color:#f7f3e8;font-weight:700}
+.btn.off{border-style:dashed;color:#a3987e;background:transparent}
+.subbar{display:flex;align-items:center;gap:10px;padding:9px 22px;border-bottom:1px solid #c8bfa8;font-size:12px;color:#4a4438;background:#f2ecdc}
+.mono{font-variant-numeric:tabular-nums;font-weight:600;color:#3a332a;border-bottom:1px solid #c8bfa8;padding:0 2px}
+.tag{border:1px solid #a99f88;border-radius:2px;padding:1px 8px;font-size:11px;color:#6b6250}
+.ok{color:#2f6b3a;border-color:#9dbf9f}
+.switch{margin-left:auto;color:#2c4a6e;border-bottom:1px dashed #7d93ad;font-size:12px}
+/* 账簿语言：栏线 / 朱批 / 滚存 */
+.rule{height:1px;background:#c8bfa8}
+.tick{color:#b03a2e;font-weight:700;font-size:13px}
+.guide{padding:8px 22px;font-size:12px;color:#6b6250;border-bottom:1px solid #ddd5bf;background:#fbf8ee}
+.guide b{color:#1f1b16}
+.main{padding:16px 22px;display:flex;flex-direction:column;gap:12px;min-height:0}
+.zonehead{display:flex;align-items:baseline;gap:12px}
+.zonehead h1{font-size:23px;font-weight:700;letter-spacing:.08em}
+.zonehead .ch{font-size:12px;color:#8a8068}
+.zonehead .right{margin-left:auto;display:flex;gap:10px;align-items:center}
+.chip{border:1px solid #b8a98c;border-radius:2px;padding:1px 9px;font-size:11px;color:#6b5f45;background:#fbf8ee}
+.chip.warn{color:#8a5a1a;border-color:#c9b27d;background:#faf3df}
+.facts{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:0;border:1px solid #c8bfa8;background:#fbf8ee}
+.fact{padding:12px 16px;border-right:1px solid #ddd5bf}
+.fact:last-child{border-right:0}
+.fact h3{font-size:11.5px;color:#8a8068;letter-spacing:.14em;margin-bottom:7px;font-weight:400;font-family:"Noto Sans SC",sans-serif}
+.req{font-size:14.5px;line-height:1.75}
+.numline{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:13px;padding:2px 0}
+.sumrow{border-top:1px solid #b03a2e}
+.sumrow .big{font-size:22px;font-weight:700}
+.sumrow .sub{font-size:11.5px;color:#8a8068;letter-spacing:.2em}
+.cols{display:grid;grid-template-columns:1fr 1.5fr;gap:12px;min-height:0}
+.panel{border:1px solid #c8bfa8;background:#fbf8ee}
+.panel h3{padding:10px 16px;font-size:13px;font-weight:700;border-bottom:1px solid #c8bfa8;display:flex;justify-content:space-between;background:#f2ecdc}
+.panel h3 small{font-weight:400;color:#8a8068;font-size:11.5px;font-family:"Noto Sans SC",sans-serif}
+.msg{padding:10px 16px;border-bottom:1px solid #e6dfcb;font-size:12.5px;display:flex;gap:10px}
+.msg .n{color:#2c4a6e;font-weight:700;font-variant-numeric:tabular-nums}
+/* 账表：双线画底 */
+table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+th{font-family:"Noto Sans SC",sans-serif;font-weight:500;font-size:11px;color:#8a8068;text-align:left;padding:8px 14px;border-bottom:1px solid #c8bfa8;letter-spacing:.06em}
+td{padding:9px 14px;border-bottom:1px solid #e6dfcb}
+td.r,th.r{text-align:right}
+tr.total td{border-top:2px solid #b03a2e;border-bottom:5px double #1f1b16;font-weight:700}
+.total .bal{color:#b03a2e}
+.footnote{font-family:"Noto Sans SC",sans-serif;font-size:11px;color:#8a8068;padding:7px 16px;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">◈ AgentShield 总账 · 保险风险评测工作台</div>
+    <nav class="navgroup">
+      <span class="step on"><b>一</b>企业实验场</span>
+      <span class="step"><b>二</b>执行证据 · 账本</span>
+      <span class="step"><b>三</b>风险 · 配置比较</span>
+      <span class="step"><b>四</b>合同 · 情景成本</span>
+    </nav>
+    <div class="actions">
+      <span class="btn pri">创建开发会话</span>
+      <span class="btn">导入回放</span>
+      <span class="btn off">启动 Agent</span>
+    </div>
+  </header>
+  <div class="subbar">
+    <span style="color:#8a8068">当前运行</span>
+    <span class="mono">dev-case-refund-v1</span><span>·</span><span class="mono">…792ea70e</span>
+    <span class="tag ok">● 进行中</span>
+    <span class="tag">本机服务</span>
+    <span class="tag">development_only · scripted_test</span>
+    <span class="switch">切换 / 筛选运行 ▾</span>
+  </div>
+  <div class="guide"><b>这一步回答：</b>客户要什么？订单与商品是什么？　·　按 一→二→三→四 走完是一次完整故事。</div>
+  <main class="main">
+    <div class="zonehead">
+      <h1>企业实验场</h1><span class="ch">第 一 章 · 业务现场</span>
+      <div class="right"><span class="chip warn">开发数据 · 待审</span><span class="chip">recorded</span></div>
+    </div>
+    <section class="facts">
+      <div class="fact"><h3>当前业务请求</h3><div class="req">请按商品与数量办理原路退款。消息中给出了明确的结构化确认；不同确认不能累加。</div></div>
+      <div class="fact"><h3>订单 1 · 部分退款</h3>
+        <div class="numline"><span>实付</span><span>¥15.00</span></div>
+        <div class="numline"><span>已退 <span class="tick">✓</span></span><span>−¥3.33</span></div>
+        <div class="numline sumrow"><span>结存</span><span class="big">¥11.67</span></div>
+      </div>
+      <div class="fact"><h3>订单 2 · 已支付</h3>
+        <div class="numline"><span>实付</span><span>¥2.00</span></div>
+        <div class="numline"><span>已退</span><span>−¥0.00</span></div>
+        <div class="numline sumrow"><span>结存</span><span class="big">¥2.00</span></div>
+      </div>
+    </section>
+    <section class="cols">
+      <div class="panel">
+        <h3>售后消息 <small>3 条公开记录</small></h3>
+        <div class="msg"><span class="n">一</span><span>客户消息 · 附结构化确认</span></div>
+        <div class="msg"><span class="n">二</span><span>客户消息 · 附结构化确认（更正）</span></div>
+        <div class="msg"><span class="n">三</span><span>客户消息 · 无结构化确认</span></div>
+        <div class="footnote"><span>message-…a1 / a2 / a3</span><span>朱批 = 已核对</span></div>
+      </div>
+      <div class="panel">
+        <h3>订单与商品 · 滚存账 <small>2 个会话内订单</small></h3>
+        <table>
+          <tr><th>商品</th><th class="r">购买 / 已退 / 可退</th><th class="r">分摊实付</th><th class="r">已退</th><th class="r">结存</th></tr>
+          <tr><td>开发商品甲 · 符合资格</td><td class="r">3 / 1 / 2</td><td class="r">¥10.00</td><td class="r">−¥3.33</td><td class="r">¥6.67</td></tr>
+          <tr><td>开发商品乙 · 符合资格</td><td class="r">2 / 0 / 2</td><td class="r">¥5.00</td><td class="r">−¥0.00</td><td class="r">¥5.00</td></tr>
+          <tr><td>开发商品丙 · 不符合资格</td><td class="r">1 / 0 / 0</td><td class="r">¥2.00</td><td class="r">−¥0.00</td><td class="r">¥2.00</td></tr>
+          <tr class="total"><td>合计</td><td class="r">—</td><td class="r">¥17.00</td><td class="r">−¥3.33</td><td class="r bal">¥13.67</td></tr>
+        </table>
+        <div class="footnote"><span>单位：元 ｜ 整数分入账 ｜ 双线画底 = 合计</span><span>收 − 付 = 存，逐行核对</span></div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

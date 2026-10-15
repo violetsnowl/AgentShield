@@ -16,11 +16,13 @@
 | `docs/handoff/` | 角色间交接、签收清单、回执、请求 |
 | `docs/decisions/` | 接口/边界决策记录（按版本留存） |
 | `docs/business/` | 业务规则、精算候选、业务审查记录 |
+| `docs/validation/` | 验收记录（N/Q/R 项实测矩阵与复现说明） |
 | `docs/migrations/` | 数据库迁移说明 |
 | `docs/spec/` | 计划书历史版本与角色卡（V1.1 包；当前版计划书在根目录） |
 | `docs/audit/` | 历史独立复核包（按日期目录） |
 | `docs/archive/` | 已归档文档（不再维护；**保留原样**，见该目录 README） |
 | `artifacts/` | 实验证据与结果（按批次；仅白名单路径入库） |
+| `.impeccable/` | D 线设计流程档案（方向契约、决策草图、完工审查截图/报告；随 D 线维护） |
 | `frontend/README.md` | 工作台构建/启动说明（跟着代码走） |
 
 ## 二、命名规范
@@ -32,6 +34,7 @@
 4. 决策类：`<主题>_v<版本>.md`。例：`BC_contract_v0.3.md`。
 5. 日期只用于归档与批次：ISO 格式（`2026-10-14`）。
 6. 新增文档一律用 ASCII 文件名；历史中文名文件已归档、不再新增。
+7. 验收类：`<范围>_acceptance.md`。例：`N01-N16_acceptance.md`。
 
 ## 三、维护规则
 
@@ -55,6 +58,7 @@
 | `tasks/`（根整目录） | `docs/archive/tasks/` | 现行指令见 `NEXT_STEPS.md` |
 | `PACKAGE_MANIFEST.json`、`C_DELIVERY_MANIFEST.json`（根） | `docs/archive/delivery_manifests/` | —（历史交付的逐文件 SHA-256 记录，仅存档） |
 | `NEXT_STEPS.md` 内 2026-10-12/13 历史停止点 | `docs/archive/stop_points_2026-10-12_13.md` | `NEXT_STEPS.md`（现行停止点） |
+| `NEXT_STEPS.md` 内 2026-10-14 版 | `docs/archive/stop_points_2026-10-14.md` | `NEXT_STEPS.md`（现行停止点） |
 
 ## 五、现行文档清单（每份一句话）
 
@@ -63,6 +67,8 @@
 - `NEXT_STEPS.md` — 当前停止点、在途分支、P0/P1 清单、禁止事项。
 - `CONTRIBUTING.md` — 分支表、提交格式、PR 规则、合并顺序。
 - `AgentShield_v1.2_Plan.md` — V1.2 计划书（工作基线，2026-10-14 确认入库）。
+- `PRODUCT.md` — 产品档案（impeccable：用户、使命、定位、约束、品牌承诺）。
+- `DESIGN.md` — 视觉设计系统定稿（导视系统：令牌 frontmatter＋八节规范；侧车 `.impeccable/design.json`）。
 
 **docs/setup/**
 - `RECEIVE_AND_RUN.md` — 克隆、环境安装、完整检查命令、启动工作台、接收回执要素。
@@ -97,6 +103,9 @@
 
 **docs/migrations/** — `B_002_human_reviews.md`、`B_003_session_cases.md`。
 
+**docs/validation/**
+- `N01-N16_acceptance.md` — 前端 N 项验收矩阵（D 线，批B：批A 改动 `bd5546f`/`6e83d01` 的自动化证据）。
+
 **docs/spec/AgentShield_v1.1_Package/**（历史） — 计划书 V1.1（`.md`/`.docx`）、`delivery_levels_v1.1.json`、`role_cards/`（A/B/C/D 四份任务卡）。
 
 **docs/audit/** — 三次独立复核包（B_Audit、Stage03、Stage04，均为历史记录）。
@@ -105,7 +114,8 @@
 
 ## 六、在途（在分支上、尚未合入 main 的文档）
 
-- `feature/bd-integration`：`artifacts/b_case_generator/`（A/C 交接件与结果）、`docs/decisions/B_case_generator_contract_v0.1.md`、`docs/handoff/` 增补。
+- `feature/bd-integration`（2026-10-15 起直接合并 main）：D 线设计档案（`PRODUCT.md`、`DESIGN.md`、`frontend/design/`、`.impeccable/`）与完成审查证据随本轮收尾并入 main（合并后即登入本索引）。
 - `feature/c-agent-evaluation`：`docs/handoff/C_C1_CHECKPOINT.md`、`C_C1_to_A/B/D.md`。
+- `feature/a-gold-actuarial`：待 A 开工，暂无文档。
 
 > 合并后请把新增文档登入本索引（维护规则第 2 条）。

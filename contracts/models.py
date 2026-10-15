@@ -1,6 +1,8 @@
 """Authoritative wire models. Schemas and tool specs are generated from these."""
 from typing import Annotated, Any, Literal
 
+from contracts.fixture_ids import FIXTURE_IDS
+
 from pydantic import BaseModel, ConfigDict, Field
 
 VERSION = "bc-0.3-candidate"
@@ -11,7 +13,7 @@ Text = Annotated[str, Field(min_length=1, max_length=2000)]
 Count = Annotated[int, Field(strict=True, ge=1)]
 Cents = Annotated[int, Field(strict=True, ge=0)]
 ExecutionSource = Literal["scripted_test", "mock_agent", "observed_agent_execution"]
-FixtureId = Literal["dev-refund-v1", "dev-refund-v2"]
+FixtureId = Literal.__getitem__(FIXTURE_IDS)
 Sha256 = Annotated[str, Field(pattern=r"^[a-f0-9]{64}$")]
 
 

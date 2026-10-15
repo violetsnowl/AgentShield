@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>信息架构 · 导航方案 甲「分区工作台」— AgentShield</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#eceff2;color:#2a3138;font-size:13px;line-height:1.6;padding:0 0 44px}
+.note-bar{max-width:1200px;margin:0 auto;padding:16px 20px 12px;color:#55606c;font-size:12.5px}
+.note-bar b{color:#2a3138}
+.note-bar .tag{display:inline-block;background:#2f4a66;color:#fff;border-radius:5px;padding:1px 9px;margin-right:8px;font-weight:600;letter-spacing:.02em}
+.frame{max-width:1200px;margin:0 auto;background:#fff;border:1px solid #d2d7dd;border-radius:10px;overflow:hidden;box-shadow:0 12px 34px -26px rgba(30,45,60,.4)}
+/* ---------- 全局运行条 ---------- */
+.topbar{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #e3e7ec;background:#fbfcfd;flex-wrap:wrap}
+.brand{font-weight:700;white-space:nowrap;font-size:13.5px}
+.runctx{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:12px;color:#3c4652;min-width:0}
+.mono{font-family:Consolas,"Cascadia Mono",monospace;font-size:11.5px;background:#f2f4f7;border:1px solid #dde2e8;border-radius:4px;padding:1px 6px;white-space:nowrap}
+.pill{border:1px solid #c9d0d8;border-radius:99px;padding:0 8px;font-size:11px;color:#5a6570;white-space:nowrap}
+.pill.ok{border-color:#9fbfa8;color:#3e7a52}
+.switch{color:#3b6ea5;font-size:12px;cursor:default;border-bottom:1px dashed #8fb0d4;white-space:nowrap}
+.runactions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.wbtn{border:1px solid #c6cdd6;background:#fff;border-radius:6px;padding:5px 12px;font-size:12px;color:#33404d;white-space:nowrap}
+.wbtn.primary{border-color:#8fa6c4;background:#eef3f9;font-weight:600}
+.wbtn.disabled{border-style:dashed;color:#9aa3ad;background:#f7f8fa}
+/* ---------- 主体 ---------- */
+.body-row{display:grid;grid-template-columns:236px minmax(0,1fr)}
+.nav{border-right:1px solid #e6eaee;padding:12px 10px;display:flex;flex-direction:column;gap:6px;background:#fafbfc}
+.nav-item{border:1px dashed #ccd3db;border-radius:8px;padding:9px 11px;color:#39434e}
+.nav-item.active{border-style:solid;border-color:#8fa6c4;background:#f2f6fb}
+.nav-item b{display:block;font-size:13px}
+.nav-item small{display:block;color:#7d8792;font-size:11px;margin-top:2px;line-height:1.5}
+.nav-foot{margin-top:auto;border-top:1px dashed #d8dde3;padding:10px 6px 2px;color:#8a939d;font-size:11px;line-height:1.7}
+.canvas{padding:16px 18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.zone-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.zone-head h1{font-size:18px;font-weight:700}
+.zone-head .chapter{color:#7d8792;font-size:12px}
+.zone-head .chips{margin-left:auto;display:flex;gap:6px}
+.chip{border:1px solid #c9d0d8;border-radius:4px;padding:1px 8px;font-size:11px;color:#5a6570;background:#fff;white-space:nowrap}
+.chip.warn{border-color:#d8c291;color:#8a6116;background:#fdf8ee}
+.corefacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.wbox{border:1px dashed #c8cfd8;border-radius:8px;background:#f7f8fa;padding:12px 13px;color:#57616c;font-size:12px}
+.wbox b{color:#39434e;display:block;margin-bottom:5px;font-size:12.5px}
+.wbox .kv{font-family:Consolas,monospace;font-size:12px;color:#3c4652;font-variant-numeric:tabular-nums}
+.two-col{display:grid;grid-template-columns:minmax(260px,.9fr) minmax(0,1.5fr);gap:10px}
+.tall{min-height:210px}
+.wbox .line{border-bottom:1px dashed #dfe4ea;padding:7px 0;display:flex;justify-content:space-between;gap:10px}
+.wbox .line:last-child{border-bottom:0}
+.wbox .line .r{font-family:Consolas,monospace;font-variant-numeric:tabular-nums;white-space:nowrap;color:#3c4652}
+.folded{border:1px dashed #cfd5dc;border-radius:8px;background:#fbfcfd;padding:10px 14px;color:#6b7480;display:flex;gap:26px;flex-wrap:wrap;font-size:12px}
+/* ---------- 标注 ---------- */
+.m{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:5px;background:#a06b1f;color:#fff;font-size:10.5px;vertical-align:2px;margin-left:6px;flex:none}
+.legend{max-width:1200px;margin:18px auto 0;padding:0 20px;color:#46505c;font-size:12.5px}
+.legend li{margin:7px 0;list-style:none;display:flex;gap:9px;align-items:baseline}
+.legend .num{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:5px;background:#a06b1f;color:#fff;font-size:10.5px;flex:none;position:relative;top:2px}
+.legend b{color:#2a3138}
+</style>
+</head>
+<body>
+<div class="note-bar"><span class="tag">导航方案 甲</span><b>「分区工作台」</b> —— 保留并精修现有骨架：左栏四区导航 + 顶部全局运行条。<br>
+线框图说明：只讨论结构与层级，不讨论颜色/样式（视觉方向是下一步）。灰块=内容占位；虚线=折叠或次要元素；橙色数字=下方对应说明；虚线框仅为占位示意。</div>
+<div class="frame">
+  <div class="topbar">
+    <div class="brand">◈ AgentShield</div>
+    <div class="runctx">
+      <span class="mono">dev-case-refund-v1</span><span>·</span>
+      <span class="mono">session-…792ea70e</span>
+      <span class="pill ok">● 进行中</span>
+      <span class="pill">本机服务</span>
+      <span class="pill">development_only · scripted_test</span>
+      <span class="switch">切换 / 筛选运行 ▾</span>
+      <span class="m">1</span>
+    </div>
+    <div class="runactions">
+      <span class="wbtn primary">创建开发会话</span>
+      <span class="wbtn">导入回放</span>
+      <span class="wbtn">保存证据回放</span>
+      <span class="wbtn disabled">启动 Agent</span><span class="m">6</span>
+    </div>
+  </div>
+  <div class="body-row">
+    <aside class="nav">
+      <div style="color:#8a939d;font-size:11px;padding:0 4px 4px">四区导航<span class="m">2</span></div>
+      <div class="nav-item active"><b>▦ 企业实验场</b><small>客户要什么？订单与商品是什么？</small></div>
+      <div class="nav-item"><b>≡ 执行证据 · 账本</b><small>AI 真的做了什么？钱去哪了？</small></div>
+      <div class="nav-item"><b>↔ 风险 · 配置比较</b><small>损失多少？结果可信吗？</small></div>
+      <div class="nav-item"><b>◇ 合同 · 情景成本</b><small>该赔多少？样本够不够？</small></div>
+      <div class="nav-foot">工具栏：数据来源说明<br>未接通功能清单<br>帮助 / 术语表</div>
+    </aside>
+    <main class="canvas">
+      <div class="zone-head">
+        <h1>企业实验场</h1><span class="chapter">第①章 · 业务现场</span>
+        <span class="chips"><span class="chip warn">开发数据 · 待审</span><span class="chip">recorded</span></span><span class="m">3</span>
+      </div>
+      <div class="corefacts">
+        <div class="wbox"><b>当前业务请求<span class="m">4</span></b>请按商品与数量办理原路退款。消息中给出了明确的结构化确认；不同确认不能累加。</div>
+        <div class="wbox"><b>订单 1 · 部分退款</b><span class="kv">实付 ¥15.00</span> · <span class="kv">已退 ¥3.33</span> · <span class="kv">剩余 ¥11.67</span></div>
+        <div class="wbox"><b>订单 2 · 已支付</b><span class="kv">实付 ¥2.00</span> · <span class="kv">已退 ¥0.00</span> · <span class="kv">剩余 ¥2.00</span></div>
+      </div>
+      <div class="two-col">
+        <div class="wbox tall"><b>售后消息 · 3 条公开记录</b>
+          <div class="line"><span>① 客户消息 · 附结构化确认</span></div>
+          <div class="line"><span>② 客户消息 · 附结构化确认（更正）</span></div>
+          <div class="line"><span>③ 客户消息 · 无结构化确认</span></div>
+        </div>
+        <div class="wbox tall"><b>订单与商品 · 2 个会话内订单</b><span style="display:block;color:#8a939d;font-size:11px;margin:-1px 0 4px;font-weight:400;text-align:right">列：购买 / 已退 / 可退 ｜ 分摊实付 ｜ 已退金额</span>
+          <div class="line"><span>开发商品甲 · 符合资格</span><span class="r">3 / 1 / 2 ｜ ¥10.00 ｜ ¥3.33</span></div>
+          <div class="line"><span>开发商品乙 · 符合资格</span><span class="r">2 / 0 / 2 ｜ ¥5.00 ｜ ¥0.00</span></div>
+          <div class="line"><span>开发商品丙 · 不符合资格</span><span class="r">1 / 0 / 0 ｜ ¥2.00 ｜ ¥0.00</span></div>
+        </div>
+      </div>
+      <div class="folded">
+        <span>▸ 业务初态与版本（折叠）</span>
+        <span>▸ 技术档案：哈希 / schema / 对象映射（折叠，可展开审计）</span><span class="m">5</span>
+      </div>
+    </main>
+  </div>
+</div>
+<ul class="legend">
+  <li><span class="num">1</span><span><b>全局运行条（常驻）</b>：运行身份（case / session / 状态 / 来源 / 模式）只出现这一次，四区共用。切换运行在这里完成——切区不换运行，换运行不跳区。</span></li>
+  <li><span class="num">2</span><span><b>导航项 = 区名 + 一行"这一区回答什么"</b>：导航自带讲解，第一次来的人不用猜。</span></li>
+  <li><span class="num">3</span><span><b>区头</b>：章节号（它在故事里的位置）+ 诚实标签（开发数据 · 待审 / recorded）就近放置，不埋到页面底部。</span></li>
+  <li><span class="num">4</span><span><b>核心事实行</b>：每区第一屏只放 3–4 个关键块（请求 + 两笔订单），细节一律往下走。</span></li>
+  <li><span class="num">5</span><span><b>技术档案默认折叠</b>：哈希 / schema / 对象映射不打扰阅读，但可随时展开——证据不放丢。</span></li>
+  <li><span class="num">6</span><span><b>未接通的功能不放假按钮</b>：虚线 + 原因（"只读历史运行"），后端接通后点亮（计划书 R07 要求）。</span></li>
+</ul>
+</body>
+</html>

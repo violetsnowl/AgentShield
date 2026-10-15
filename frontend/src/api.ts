@@ -38,6 +38,10 @@ export async function api<T>(path: string, options: { method?: 'GET' | 'POST'; b
 export async function pairFromFragment(): Promise<void> {
   const params = new URLSearchParams(location.hash.slice(1));
   const grant = params.get('pair');
-  history.replaceState(null, '', location.pathname + location.search);
-  if (grant) await api('pair', { method: 'POST', body: { grant } });
+  if (grant) {
+    params.delete('pair');
+    const rest = params.toString();
+    history.replaceState(null, '', location.pathname + location.search + (rest ? '#' + rest : ''));
+    await api('pair', { method: 'POST', body: { grant } });
+  }
 }

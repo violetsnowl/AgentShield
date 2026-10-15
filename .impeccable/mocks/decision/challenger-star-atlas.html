@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>星图星表 · 首屏草图</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400;1,500&family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a1021;font-family:"Noto Serif SC",serif}
+.app{width:1440px;height:900px;color:#f2f2e9;overflow:hidden;display:flex;flex-direction:column;
+background:
+repeating-linear-gradient(0deg,rgba(36,55,79,.35) 0 1px,transparent 1px 72px),
+repeating-linear-gradient(90deg,rgba(36,55,79,.35) 0 1px,transparent 1px 72px),
+#0a1021}
+.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:10px 22px;background:#0e1830cc;border-bottom:1px solid #24374f}
+.brand{font-weight:700;font-size:15px;letter-spacing:.06em}
+.brand em{font-family:"EB Garamond",serif;font-style:italic;color:#ffb36b;margin-left:8px;font-size:13px}
+.navgroup{display:flex;gap:16px;border:1px solid #24374f;border-radius:99px;padding:5px 18px;background:#0a102199}
+.step{font-size:12.5px;color:#5a6477;white-space:nowrap}
+.step b{font-family:"JetBrains Mono",monospace;font-size:11px;margin-right:6px;color:#5a6477}
+.step.on{color:#f2f2e9;font-weight:600}
+.step.on b{color:#ff4d2e}
+.actions{justify-self:end;display:flex;gap:8px;align-items:center}
+.btn{border:1px solid #24374f;background:#16233d;border-radius:99px;padding:5px 13px;font-size:12px;color:#c8d2e4;font-family:"Noto Serif SC",serif}
+.btn.pri{background:#ff4d2e;border-color:#ff4d2e;color:#0a1021;font-weight:700}
+.btn.off{border-style:dashed;color:#5a6477;background:transparent}
+.subbar{display:flex;align-items:center;gap:10px;padding:8px 22px;border-bottom:1px solid #16233d;font-size:12px;color:#5a6477;background:#0c1328cc}
+.mono{font-family:"JetBrains Mono",monospace;color:#8fa3c0;font-size:11px}
+.tag{border:1px solid #24374f;border-radius:99px;padding:0 10px;font-size:11px;color:#8fa3c0;font-family:"Noto Serif SC",serif}
+.ok{color:#ffb36b;border-color:#ffb36b66}
+.warn{color:#ff4d2e;border-color:#ff4d2e88}
+.switch{margin-left:auto;color:#ffb36b;font-size:12px;font-style:italic;font-family:"EB Garamond",serif}
+.guide{padding:8px 22px;font-size:12px;color:#5a6477;border-bottom:1px solid #16233d}
+.guide b{color:#f2f2e9;font-weight:600}
+.main{padding:16px 22px;display:flex;flex-direction:column;gap:12px;min-height:0}
+.zonehead{display:flex;align-items:baseline;gap:14px}
+.zonehead h1{font-size:22px;font-weight:700;letter-spacing:.1em}
+.zonehead .ch{font-family:"EB Garamond",serif;font-style:italic;color:#5a6477;font-size:14px}
+.zonehead .right{margin-left:auto;display:flex;gap:10px;align-items:center}
+.facts{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px}
+.card{border:1px solid #24374f;background:#101b30cc;padding:13px 16px}
+.card h3{font-size:11px;color:#5a6477;letter-spacing:.16em;margin-bottom:8px;font-weight:400;font-family:"Noto Serif SC",serif}
+.req{font-size:13.5px;line-height:1.8;color:#d5dbe8}
+.numline{display:flex;align-items:center;justify-content:space-between;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:#8fa3c0;padding:3px 0}
+.numline .v{color:#f2f2e9}
+/* 量级点阵：点径即量级 */
+.dot{display:inline-block;border-radius:50%;background:#ffb36b;margin-right:9px;vertical-align:middle}
+.d18{width:18px;height:18px}.d14{width:14px;height:14px}.d9{width:9px;height:9px}.d6{width:6px;height:6px}
+.ring{box-shadow:0 0 0 1.5px #0a1021,0 0 0 3px #ff4d2e}
+.big{font-family:"JetBrains Mono",monospace;font-size:22px;color:#ffb36b;font-weight:500}
+.lead{color:#5a6477;font-size:11px;font-family:"EB Garamond",serif;font-style:italic;margin-top:4px}
+.cols{display:grid;grid-template-columns:1fr 1.5fr;gap:12px;min-height:0}
+.panel{border:1px solid #24374f;background:#0d1730b3}
+.panel h3{padding:10px 16px;font-size:13px;font-weight:600;border-bottom:1px solid #1b2c47;display:flex;justify-content:space-between;align-items:baseline}
+.panel h3 small{font-family:"EB Garamond",serif;font-style:italic;color:#5a6477;font-size:12px;font-weight:400}
+.msg{padding:10px 16px;border-bottom:1px solid #14213a;font-size:12.5px;display:flex;gap:10px;color:#d5dbe8}
+.msg .n{font-family:"JetBrains Mono",monospace;color:#ff4d2e;font-size:11px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid #14213a;font-size:12.5px;color:#d5dbe8}
+.row:last-child{border-bottom:0}
+.row .r{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:#8fa3c0;white-space:nowrap}
+.row .r .amt{color:#f2f2e9}
+.footline{padding:7px 16px;font-size:11px;color:#5a6477;border-top:1px solid #14213a;font-family:"EB Garamond",serif;font-style:italic}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">◈ AgentShield<em>risk atlas · 保险风险评测工作台</em></div>
+    <nav class="navgroup">
+      <span class="step on"><b>i</b>企业实验场</span>
+      <span class="step"><b>ii</b>执行证据 · 账本</span>
+      <span class="step"><b>iii</b>风险 · 配置比较</span>
+      <span class="step"><b>iv</b>合同 · 情景成本</span>
+    </nav>
+    <div class="actions">
+      <span class="btn pri">创建开发会话</span>
+      <span class="btn">导入回放</span>
+      <span class="btn off">启动 Agent</span>
+    </div>
+  </header>
+  <div class="subbar">
+    <span>当前运行</span>
+    <span class="mono">dev-case-refund-v1</span><span>·</span><span class="mono">…792ea70e</span>
+    <span class="tag ok">● 进行中</span>
+    <span class="tag">本机服务</span>
+    <span class="tag warn">development_only · scripted_test</span>
+    <span class="switch">切换 / 筛选运行 ▾</span>
+  </div>
+  <div class="guide"><b>这一步回答：</b>客户要什么？订单与商品是什么？　·　按位置而非亮度对齐；地图恒定，天空作证。</div>
+  <main class="main">
+    <div class="zonehead">
+      <h1>企业实验场</h1><span class="ch">chapter i · 业务现场</span>
+      <div class="right"><span class="tag warn">开发数据 · 待审</span><span class="tag">recorded</span></div>
+    </div>
+    <section class="facts">
+      <div class="card"><h3>当前业务请求</h3><div class="req">请按商品与数量办理原路退款。消息中给出了明确的结构化确认；不同确认不能累加。</div></div>
+      <div class="card"><h3>订单 1 · 部分退款</h3>
+        <div class="numline"><span><i class="dot d18"></i>实付</span><span class="v">¥15.00</span></div>
+        <div class="numline"><span><i class="dot d9"></i>已退</span><span class="v">−¥3.33</span></div>
+        <div class="numline"><span><i class="dot d14 ring"></i>剩余</span><span class="big">¥11.67</span></div>
+        <div class="lead">dot diameter = magnitude · 当前观测对象加环</div>
+      </div>
+      <div class="card"><h3>订单 2 · 已支付</h3>
+        <div class="numline"><span><i class="dot d6"></i>实付</span><span class="v">¥2.00</span></div>
+        <div class="numline"><span><i class="dot d6" style="background:#24374f"></i>已退</span><span class="v">−¥0.00</span></div>
+        <div class="numline"><span><i class="dot d6 ring" style="background:#5a6477"></i>剩余</span><span class="big" style="color:#8fa3c0">¥2.00</span></div>
+        <div class="lead">no recorded history · 未观测到变动</div>
+      </div>
+    </section>
+    <section class="cols">
+      <div class="panel">
+        <h3>售后消息 <small>3 messages · public record</small></h3>
+        <div class="msg"><span class="n">01</span><span>客户消息 · 附结构化确认</span></div>
+        <div class="msg"><span class="n">02</span><span>客户消息 · 附结构化确认（更正）</span></div>
+        <div class="msg"><span class="n">03</span><span>客户消息 · 无结构化确认</span></div>
+        <div class="footline">message-…a1 / a2 / a3</div>
+      </div>
+      <div class="panel">
+        <h3>订单与商品 <small>2 orders in session</small></h3>
+        <div class="row"><span>开发商品甲 · 符合资格</span><span class="r">3 / 1 / 2 ｜ <span class="amt">¥10.00</span> ｜ 已退 ¥3.33</span></div>
+        <div class="row"><span>开发商品乙 · 符合资格</span><span class="r">2 / 0 / 2 ｜ <span class="amt">¥5.00</span> ｜ 已退 ¥0.00</span></div>
+        <div class="row"><span>开发商品丙 · 不符合资格</span><span class="r">1 / 0 / 0 ｜ <span class="amt">¥2.00</span> ｜ 已退 ¥0.00</span></div>
+        <div class="footline">列：购买 / 已退 / 可退 ｜ 分摊实付 ｜ 已退金额</div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

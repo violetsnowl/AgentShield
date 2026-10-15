@@ -1,0 +1,11 @@
+{
+  "business_time": "2026-10-14T09:00:00+08:00",
+  "config_schema_version": 1,
+  "generator_version": "b-case-generator-v1",
+  "l0_regular_per_category": 2,
+  "l1_regular_per_category": 6,
+  "library_id": "bcp2-public-20261014",
+  "rules_version": "b-refund-rules-candidate-v1",
+  "seed": "agentshield-bcp2-public-seed-v1",
+  "stress_per_level": 4
+}
