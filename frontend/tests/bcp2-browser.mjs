@@ -16,7 +16,13 @@ try {
   page.on('response', response => {
     if (response.url().includes('/observer/api/')) responses.push(response);
   });
+  async function openEvidence() {
+    const fold = page.locator('details.evidence-fold');
+    await fold.waitFor({ state: 'attached', timeout: 20000 });
+    if (!(await fold.evaluate(node => node.open))) await fold.locator('summary').first().click();
+  }
   await page.goto(config.origin + '/#pair=' + config.grant);
+  await openEvidence();
   await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor({ timeout: 20000 });
   check((await page.locator('#run').inputValue()) === config.sessionId, 'generated session selected exactly');
   check((await page.locator('main').innerText()).includes(config.caseId), 'stable generated case identity visible');
@@ -24,7 +30,7 @@ try {
   check(labText.includes('3 / 2 / 1'), 'opening history plus current refund reflected in item quantities');
   check(labText.includes('开发数据 · 待审'), 'generated candidate remains visibly development-only pending review');
   await page.screenshot({ path: path.join(config.output, 'bcp2-schema-v2-lab.png'), fullPage: true });
-  await page.getByRole('button', { name: /执行证据 \/ 账本/ }).click();
+  await openEvidence();
   await page.getByTestId('committed-total').waitFor();
   const shown = await page.getByTestId('committed-total').innerText();
   const expected = new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(config.currentRefundCents / 100);

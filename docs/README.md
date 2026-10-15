@@ -74,7 +74,7 @@
 - `RECEIVE_AND_RUN.md` — 克隆、环境安装、完整检查命令、启动工作台、接收回执要素。
 
 **docs/manuals/**
-- `FRONTEND_USER_MANUAL.md` — 工作台操作手册（启动、四区、风险区选择、导入回放）。
+- `FRONTEND_USER_MANUAL.md` — 工作台操作手册（启动、三页信息架构、单一运行选择器、导入回放）。
 
 **docs/modules/**
 - `B_sandbox_backend.md` — B 交易底座：七工具、账本/幂等、迁移、证据契约（原 README_B）。
@@ -93,6 +93,8 @@
 - `BC_contract_v0.1/0.2/0.3.md` — B/C 接口契约演进（当前 bc-0.3-candidate）。
 - `BD_display_v0.2.md` — 展示边界候选（bd-display-0.2）。
 - `BD_observer_v0.1.md` — 观察者适配（observer-0.1-candidate）。
+- `IA_V3_case_display_names.md` — IA v3 案例中文显示名映射（公开业务事实，无答案暗示）。
+- `IA_V3_navigation.md` — IA v3 三页导航 / 单一运行选择器 / 深链接 / 护栏决策（批C）。
 
 **docs/business/**
 - `business_policy_A_candidate.md` — A0 业务规则候选与决策表（待双签）。
@@ -104,7 +106,7 @@
 **docs/migrations/** — `B_002_human_reviews.md`、`B_003_session_cases.md`。
 
 **docs/validation/**
-- `N01-N16_acceptance.md` — 前端 N 项验收矩阵（D 线，批B：批A 改动 `bd5546f`/`6e83d01` 的自动化证据）。
+- `N01-N16_acceptance.md` — 前端 N 项验收矩阵（D 线，批B：批A 改动 `bd5546f`/`6e83d01` 的自动化证据；批C（IA v3）行已同步新检查名）。
 
 **docs/spec/AgentShield_v1.1_Package/**（历史） — 计划书 V1.1（`.md`/`.docx`）、`delivery_levels_v1.1.json`、`role_cards/`（A/B/C/D 四份任务卡）。
 
