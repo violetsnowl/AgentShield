@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>信证与用印 · 首屏草图</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Noto Sans SC",system-ui,sans-serif;background:#241f1a}
+.app{width:1440px;height:900px;background:#f6efe3;color:#241f1a;overflow:hidden;display:flex;flex-direction:column}
+.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:10px 22px;background:#efe7d8;border-bottom:1px solid #d9cdb8}
+.brand{font-family:"Noto Serif SC",serif;font-weight:700;font-size:15.5px;letter-spacing:.05em}
+.navgroup{display:flex;gap:2px;border:1px solid #cdbfa6;border-radius:10px;padding:3px;background:#e7ddc9}
+.step{padding:5px 12px;border-radius:7px;font-size:12.5px;color:#4a4238;white-space:nowrap}
+.step b{font-family:"Special Elite",monospace;font-weight:400;margin-right:6px;color:#6b4a7d}
+.step.on{background:#fbf7ee;font-weight:700;color:#241f1a;box-shadow:0 1px 0 rgba(36,31,26,.1)}
+.actions{justify-self:end;display:flex;gap:8px;align-items:center}
+.btn{border:1px solid #b9a88a;background:#fbf7ee;border-radius:6px;padding:5px 12px;font-size:12px;color:#3a332a}
+.btn.pri{background:#6b4a7d;border-color:#5a3d6a;color:#f6efe3;font-weight:700}
+.btn.off{border-style:dashed;color:#a3988a;background:transparent}
+.subbar{display:flex;align-items:center;gap:10px;padding:9px 22px;border-bottom:1px solid #d9cdb8;font-size:12px;color:#4a4238;background:#f2ead9}
+.mono{font-family:"Special Elite",monospace;color:#57503f;background:#fbf7ee;border:1px solid #d9cdb8;padding:1px 8px;border-radius:3px;font-size:11.5px}
+.tag{font-family:"Special Elite",monospace;border:1px dashed #b9a88a;border-radius:3px;padding:1px 8px;font-size:11px;color:#6b6252;background:transparent}
+.switch{margin-left:auto;color:#6b4a7d;border-bottom:1px dashed #9a86ab;font-size:12px}
+/* 用印：印章语言 */
+.seal{font-family:"Noto Serif SC",serif;color:#a63a2e;border:2px solid #a63a2e;border-radius:50%;width:58px;height:58px;display:grid;place-items:center;font-size:12px;font-weight:700;letter-spacing:.12em;line-height:1.25;transform:rotate(-8deg);background:rgba(166,58,46,.05);text-align:center}
+.seal.sq{border-radius:5px;width:52px;height:44px;transform:rotate(-4deg);border-color:#6b4a7d;color:#6b4a7d}
+.seal.void{border-style:dashed;border-color:#a3988a;color:#a3988a;transform:rotate(-6deg);background:none}
+.stamp{display:inline-block;border:1.5px solid #a63a2e;color:#a63a2e;border-radius:99px;padding:1px 10px;font-size:11px;font-weight:700;letter-spacing:.1em;transform:rotate(-3deg)}
+.stamp.wait{border-radius:4px;border-color:#6b4a7d;color:#6b4a7d;letter-spacing:.2em}
+.stamp.void{border-style:dashed;border-color:#a3988a;color:#a3988a;border-radius:50%;padding:2px 7px}
+.guide{padding:8px 22px;font-size:12px;color:#6b6252;border-bottom:1px solid #e4dac4;background:#fbf7ee}
+.guide b{color:#4a4238}
+.main{padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-height:0}
+.zonehead{display:flex;align-items:center;gap:12px}
+.zonehead h1{font-family:"Noto Serif SC",serif;font-size:24px;font-weight:700;letter-spacing:.04em}
+.zonehead .ch{font-size:12px;color:#8a7f6c}
+.zonehead .right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.facts{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px}
+.card{border:1px solid #d9cdb8;background:#fbf7ee;border-radius:4px;padding:14px 16px;position:relative}
+.card h3{font-size:12px;color:#8a7f6c;letter-spacing:.12em;margin-bottom:8px;font-weight:500}
+.card .req{font-family:"Noto Serif SC",serif;font-size:15px;line-height:1.8}
+.kv{font-family:"Special Elite",monospace;font-size:14px;color:#3a332a}
+.kv b{color:#a63a2e;font-weight:400}
+.big{font-family:"Special Elite",monospace;font-size:26px;color:#241f1a}
+.daxie{font-family:"Noto Serif SC",serif;font-size:12px;color:#8a7f6c;margin-top:4px;letter-spacing:.28em}
+.cols{display:grid;grid-template-columns:1fr 1.45fr;gap:14px;min-height:0}
+.panel{border:1px solid #d9cdb8;background:#fbf7ee;border-radius:4px;overflow:hidden}
+.panel h3{padding:11px 16px;font-size:13px;font-weight:700;border-bottom:1px solid #e4dac4;display:flex;justify-content:space-between;align-items:center}
+.panel h3 small{color:#8a7f6c;font-weight:400;font-size:11.5px}
+.msg{padding:11px 16px;border-bottom:1px dashed #e4dac4;font-size:12.5px;display:flex;gap:10px;align-items:baseline}
+.msg .n{font-family:"Special Elite",monospace;color:#6b4a7d}
+.msg .body{color:#4a4238}
+.row{display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px dashed #e4dac4;font-size:12.5px;align-items:baseline}
+.row:last-child{border-bottom:0}
+.row .r{font-family:"Special Elite",monospace;font-size:12px;color:#3a332a;white-space:nowrap}
+.row .r b{color:#a63a2e;font-weight:400}
+.footgrid{display:flex;gap:26px;padding:10px 16px;font-size:11.5px;color:#8a7f6c;border-top:1px solid #e4dac4;background:#f6efe3}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">◈ AgentShield · 保险风险评测工作台</div>
+    <nav class="navgroup">
+      <span class="step on"><b>Ⅰ</b>企业实验场</span>
+      <span class="step"><b>Ⅱ</b>执行证据 · 账本</span>
+      <span class="step"><b>Ⅲ</b>风险 · 配置比较</span>
+      <span class="step"><b>Ⅳ</b>合同 · 情景成本</span>
+    </nav>
+    <div class="actions">
+      <span class="btn pri">创建开发会话</span>
+      <span class="btn">导入回放</span>
+      <span class="btn off">启动 Agent</span>
+    </div>
+  </header>
+  <div class="subbar">
+    <span style="color:#8a7f6c">当前运行</span>
+    <span class="mono">dev-case-refund-v1</span>
+    <span class="mono">…792ea70e</span>
+    <span class="stamp">进行中</span>
+    <span class="tag">本机服务</span>
+    <span class="tag">development_only · scripted_test</span>
+    <span class="switch">切换 / 筛选运行 ▾</span>
+  </div>
+  <div class="guide"><b>这一步回答：</b>客户要什么？订单与商品是什么？　·　按 Ⅰ→Ⅱ→Ⅲ→Ⅳ 走完是一次完整故事。</div>
+  <main class="main">
+    <div class="zonehead">
+      <h1>企业实验场</h1><span class="ch">第Ⅰ章 · 业务现场</span>
+      <div class="right">
+        <span class="stamp wait">开发数据 · 待审</span>
+        <span class="stamp void">recorded</span>
+      </div>
+    </div>
+    <section class="facts">
+      <div class="card"><h3>当前业务请求</h3><div class="req">请按商品与数量办理原路退款。消息中给出了明确的结构化确认；不同确认不能累加。</div></div>
+      <div class="card"><h3>订单 1 · 部分退款</h3>
+        <div class="kv">实付 <b>¥15.00</b> ｜ 已退 <b>¥3.33</b></div>
+        <div class="big">剩余 ¥11.67</div>
+        <div class="daxie">壹拾壹元陆角柒分</div>
+      </div>
+      <div class="card"><h3>订单 2 · 已支付</h3>
+        <div class="kv">实付 <b>¥2.00</b> ｜ 已退 <b>¥0.00</b></div>
+        <div class="big">剩余 ¥2.00</div>
+        <div class="daxie">贰元整</div>
+      </div>
+    </section>
+    <section class="cols">
+      <div class="panel">
+        <h3>售后消息 <small>3 条公开记录</small></h3>
+        <div class="msg"><span class="n">01</span><span class="body">客户消息 · 附结构化确认</span></div>
+        <div class="msg"><span class="n">02</span><span class="body">客户消息 · 附结构化确认（更正）</span></div>
+        <div class="msg"><span class="n">03</span><span class="body">客户消息 · 无结构化确认</span></div>
+        <div class="footgrid" style="align-items:center;gap:18px"><span>message-…a1</span><span>message-…a2</span><span>message-…a3</span><span class="seal void" style="width:46px;height:46px;font-size:10px;margin-left:auto">未复核</span></div>
+      </div>
+      <div class="panel">
+        <h3>订单与商品 <small>2 个会话内订单</small></h3>
+        <div class="row"><span>开发商品甲 · 符合资格</span><span class="r">3 / 1 / 2 ｜ ¥10.00 ｜ 已退 <b>¥3.33</b></span></div>
+        <div class="row"><span>开发商品乙 · 符合资格</span><span class="r">2 / 0 / 2 ｜ ¥5.00 ｜ 已退 ¥0.00</span></div>
+        <div class="row"><span>开发商品丙 · 不符合资格</span><span class="r">1 / 0 / 0 ｜ ¥2.00 ｜ 已退 ¥0.00</span></div>
+        <div class="footgrid"><span>列：购买 / 已退 / 可退 ｜ 分摊实付 ｜ 已退金额</span><span style="margin-left:auto">用印严格只服务核验状态</span></div>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>
