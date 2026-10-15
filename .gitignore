@@ -93,3 +93,8 @@ artifacts/pro_bd_sprint/01/*
 !artifacts/pro_bd_sprint/01/patch_http_evidence/
 artifacts/pro_bd_sprint/01/patch_http_evidence/*
 !artifacts/pro_bd_sprint/01/patch_http_evidence/evidence_sample.json
+
+# A2 sealed evaluation input must never be committed
+_private/
+A_D_custody_PRIVATE_DO_NOT_COMMIT/
+*_private_gold*/
