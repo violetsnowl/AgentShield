@@ -27,7 +27,14 @@ function Business({ evidence, focusedOrder }: { evidence: EvidenceBundle; focuse
   const splitOf = (id: string) => split.byOrder.get(id);
   const itemSplitOf = (id: string) => split.byItem.get(id);
   return <>
-    <section className="case-brief"><div><span className="section-kicker">当前业务请求</span><h2>{state.case.request}</h2><p>只呈现开发模板的公开事实。业务语义与模板仍待 A/C/D 审核。</p></div><Badge tone="warning">开发数据 · 待审</Badge></section>
+    <section className="facts">
+      <div className="cell"><h3>当前业务请求</h3><p className="req">{state.case.request}</p><p className="fine-print">只呈现开发模板的公开事实。业务语义与模板仍待 A/C/D 审核。</p></div>
+      {state.orders.slice(0, 2).map((order, index) => <div className="cell" key={order.order_id}>
+        <h3>订单 {index + 1} · {({ paid: '已支付', partially_refunded: '部分退款', refunded: '已退款' })[order.status]}</h3>
+        <p className="kv">实付 {money(order.paid_cents)} ｜ 已退 {money(order.refunded_cents)}</p>
+        <p className="big">{money(order.remaining_cents)}<small>{order.remaining_cents > 0 && !order.items.some(item => item.eligible) ? '资格未满足' : '原路退回'}</small></p>
+      </div>)}
+    </section>
     <div className="business-columns">
       <section className="panel messages"><div className="section-head"><h2>售后消息</h2><span>{state.case.messages.length} 条公开记录</span></div>
         {state.case.messages.map((message, index) => <article className="message" key={message.message_id}>
@@ -195,6 +202,10 @@ export default function App() {
   }, [sid, offline, refresh]);
 
   useEffect(() => {
+    document.querySelector('main')?.scrollTo(0, 0);
+  }, [area]);
+
+  useEffect(() => {
     const next = buildViewHash(area, sid || null, offline);
     if (window.location.hash !== next) history.replaceState(null, '', window.location.pathname + window.location.search + next);
   }, [area, sid, offline]);
@@ -328,7 +339,7 @@ export default function App() {
       <button className="sub-import" onClick={() => input.current?.click()}>导入回放</button><input ref={input} className="file-input" type="file" accept="application/json,.json" aria-label="导入证据文件" onChange={importFile}/>
       {!offline && <details className="filter-disclosure"><summary>筛选运行 · 已加载 {sessions.length} 条</summary><div className="run-filters"><label>筛选已加载运行<input aria-label="筛选已加载运行" value={runFilter} onChange={e => setRunFilter(e.target.value)} placeholder="case / session / episode / 配置"/></label><label>执行来源<select aria-label="执行来源筛选" value={sourceFilter} onChange={e => setSourceFilter(e.target.value)}><option value="all">全部来源</option>{['scripted_test','mock_agent','observed_agent_execution'].map(value => <option key={value} value={value}>{value}</option>)}</select></label><span>已加载 {sessions.length}，匹配 {visibleRuns.length}。{nextOffset !== null ? '还有后续页，可继续加载。' : '目录已完整加载。'}</span>{visibleRuns.length === 0 && catalogReady && <span role="status">没有匹配的已加载运行；当前选择保持不变。</span>}</div></details>}
     </div>
-    <main><header className="page-header"><div><span className="breadcrumb">ABCD 本地联合验收 / L0 候选</span><h1>{areas.find(item => item.id === area)?.title}</h1><span className="chapter">第{areas.find(item => item.id === area)?.mark}章 · {areas.find(item => item.id === area)?.subtitle}</span><p>按具体 session / episode 阅读业务、执行、核验与研究理算。</p></div></header>
+    <main><header className="page-header"><div><h1>{areas.find(item => item.id === area)?.title}</h1><span className="chapter">第{areas.find(item => item.id === area)?.mark}章 · {areas.find(item => item.id === area)?.subtitle}</span><p>按具体 session / episode 阅读业务、执行、核验与研究理算。</p></div><span className="zone-chips"><span className="breadcrumb">ABCD 本地联合验收 / L0 候选</span>{area === 'lab' && <Badge tone="warning">开发数据 · 待审</Badge>}</span></header>
       {offline && <div className="notice warning" role="status"><strong>{replaySource === 'delivery' ? 'A/C 交付证据只读视图' : '离线只读回放'}</strong>　{replaySource === 'delivery' ? '内容来自已校验的本地交付目录，属于开发运行；不会连接原 C 实例。' : '内容来自所选文件，未经签名认证；不代表本机最新状态。'} 切换功能区不会调用 B，也不会重新执行退款。<button onClick={returnToService}>返回本机服务</button></div>}
       {actionError && <div role="alert" className="notice error">{actionError}</div>}
       {routeNotice && <div role="status" className="notice warning">{routeNotice}<button onClick={() => setRouteNotice('')}>知道了</button></div>}
@@ -344,16 +355,16 @@ export default function App() {
         {area === 'evidence' && <Evidence key={sid} evidence={current} events={events} more={!offline && events.length < current.events.length} onMore={moreEvents} paging={paging} pageError={pageError} onOrder={showOrder}/>}
       </>}
       {(area === 'risk' || area === 'cost') && <ResultModule area={area} sid={sid} offline={offline} evidence={state === 'ready' ? current : null} runs={integrationRuns} selectedId={integrationId} onSelect={setIntegrationId} detail={integration} loadState={integrationState} error={integrationError} onRetry={() => setIntegrationRefresh(value => value + 1)} onLoadEvidence={loadDeliveredEvidence}/>}
-      <div className="exitrow">
-        <span className="exit-cap">读完这一段，出口就在手边</span>
-        <div className="exit-plate">
-          {prevArea ? <a className="back" href={buildViewHash(prevArea.id, sid || null, offline)} onClick={e => { e.preventDefault(); jump(prevArea.id); }}>‹ 回看：<b>{prevArea.mark}</b> {prevArea.title}</a> : <span className="back">‹ 回看：无（第 1 站）</span>}
-          {nextArea ? <a className="go" href={buildViewHash(nextArea.id, sid || null, offline)} onClick={e => { e.preventDefault(); jump(nextArea.id); }}>前往下一站 <b>{nextArea.mark}</b> {nextArea.title}<small>约 1 分钟</small></a> : <a className="go" href={buildViewHash('lab', sid || null, offline)} onClick={e => { e.preventDefault(); jump('lab'); }}>走完了 · 回到 <b>Ⅰ</b> 企业实验场<small>从头再看 · 约 3–5 分钟</small></a>}
-          <span className="arrow" aria-hidden="true">{nextArea ? '→' : '↺'}</span>
-        </div>
-      </div>
       <footer><p>开发模板和 C L0 运行不属于正式任务或 Gold；A/C 契约仍是 candidate，正式实验与全队签收尚未完成。</p><div className="footnote-strip"><Badge>ABCD 本机集成</Badge><span>工程事实可追溯</span><span>业务 Gold 仍待审核</span><span>bc-0.3 · C L0 · A0</span><span>七工具 · 模拟资金</span></div></footer>
     </main>
+    <div className="exitrow">
+      <span className="exit-cap">读完这一段，出口就在手边</span>
+      <div className="exit-plate">
+        {prevArea ? <a className="back" href={buildViewHash(prevArea.id, sid || null, offline)} onClick={e => { e.preventDefault(); jump(prevArea.id); }}>‹ 回看：<b>{prevArea.mark}</b> {prevArea.title}</a> : <span className="back">‹ 回看：无（第 1 站）</span>}
+        {nextArea ? <a className="go" href={buildViewHash(nextArea.id, sid || null, offline)} onClick={e => { e.preventDefault(); jump(nextArea.id); }}>前往下一站 <b>{nextArea.mark}</b> {nextArea.title}<small>约 1 分钟</small></a> : <a className="go" href={buildViewHash('lab', sid || null, offline)} onClick={e => { e.preventDefault(); jump('lab'); }}>走完了 · 回到 <b>Ⅰ</b> 企业实验场<small>从头再看 · 约 3–5 分钟</small></a>}
+        <span className="arrow" aria-hidden="true">{nextArea ? '→' : '↺'}</span>
+      </div>
+    </div>
   </div>;
 }
 
