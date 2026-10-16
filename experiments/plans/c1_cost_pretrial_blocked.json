@@ -1,0 +1,21 @@
+{
+  "batch_prefix": "c1-cost-pretrial-blocked",
+  "experiment_id": "c-l1-cost-pretrial",
+  "status": "blocked",
+  "counts_as_formal_run": false,
+  "launch_paid_api": false,
+  "frozen": false,
+  "observed_dev_runs_counted_toward_pretrial": 3,
+  "pretrial_target": 10,
+  "pretrial_counts_toward_formal_56": false,
+  "purpose": "补满 10 次开发成本预试的占位。只使用两个公开开发模板，不读取 Gold。预算确认前不得调用付费接口。",
+  "runs": [
+    {"label": "pretrial_04_v1", "config": "configs/runner/deepseek-dev-v0.1.json", "fixture_id": "dev-refund-v1"},
+    {"label": "pretrial_05_v2", "config": "configs/runner/deepseek-dev-v0.1.json", "fixture_id": "dev-refund-v2"},
+    {"label": "pretrial_06_v1", "config": "configs/runner/deepseek-dev-v0.1.json", "fixture_id": "dev-refund-v1"},
+    {"label": "pretrial_07_v2", "config": "configs/runner/deepseek-dev-v0.1.json", "fixture_id": "dev-refund-v2"},
+    {"label": "pretrial_08_v1", "config": "configs/runner/deepseek-dev-v0.1.json", "fixture_id": "dev-refund-v1"},
+    {"label": "pretrial_09_v2", "config": "configs/runner/deepseek-dev-v0.1.json", "fixture_id": "dev-refund-v2"},
+    {"label": "pretrial_10_v1", "config": "configs/runner/deepseek-dev-v0.1.json", "fixture_id": "dev-refund-v1"}
+  ]
+}

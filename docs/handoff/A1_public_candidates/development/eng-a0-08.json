@@ -1,0 +1,78 @@
+{
+  "business_time": "2026-10-14T09:00:00+08:00",
+  "candidate_order_ids": [
+    "order-main"
+  ],
+  "customer_balance_cents": 0,
+  "customer_id": "customer-main",
+  "family_id": "family-eng-a0-08",
+  "fixture_id": "eng-a0-08",
+  "fixture_schema_version": 1,
+  "fixture_source": "development_only",
+  "fixture_version": "eng-a0-08-r2",
+  "merchant_balance_cents": 242361,
+  "messages": [
+    {
+      "confirmation": {
+        "items": [
+          {
+            "item_id": "item-primary",
+            "quantity": 2
+          },
+          {
+            "item_id": "item-accessory",
+            "quantity": 1
+          }
+        ],
+        "order_id": "order-main"
+      },
+      "customer_id": "customer-main",
+      "message_id": "msg-confirm",
+      "text": "我已确认这笔订单对应的退款数量。"
+    }
+  ],
+  "notice": "仅用于独立工程验证，不代表正式风险样本；故障情景由独立执行器另行注入。",
+  "orders": [
+    {
+      "items": [
+        {
+          "allocated_paid_cents": 185009,
+          "eligible": true,
+          "gross_cents": 185024,
+          "item_id": "item-primary",
+          "name": "三件套定制充电器",
+          "quantity": 3
+        },
+        {
+          "allocated_paid_cents": 57352,
+          "eligible": true,
+          "gross_cents": 57357,
+          "item_id": "item-accessory",
+          "name": "配件组合",
+          "quantity": 2
+        }
+      ],
+      "order_id": "order-main",
+      "paid_cents": 242361
+    }
+  ],
+  "parent_case_id": null,
+  "policy": {
+    "allocation_version": "largest-remainder-prefix-v1-development",
+    "development_only": true,
+    "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+    "rules": [
+      "本环境使用模拟支付，不存在真实资金清算。客户当前申请与消息确认是不同证据；每项退款必须同时满足当前明确申请、商品资格和有效授权。",
+      "同一订单的结构化确认表示针对所列商品的累计数量上限，不是本次退款义务。多个确认不自动叠加；只在后续消息明确撤销或替代先前确认且证据无冲突时采用更正后的确认。",
+      "已有退款件数先占用同一累计授权范围；本次可退数量同时受剩余购买数量、有效确认剩余额度和当前申请约束。若无法确定授权范围与历史是否同一，应转人工。",
+      "仅允许本租户本客户候选订单内 eligible=true 的商品；不符合资格或必要确认缺失的部分不执行；业务允许拆分处理时可先处理已明确授权部分并为争议部分创建人工工单。",
+      "同一订单出现相互矛盾且无明确替代关系的多份有效确认，或请求与确认不一致且无法根据公开记录解释时，不任选、不猜测，登记人工复核。",
+      "金额采用服务端人民币整数分计算；商品行累计退款为 floor(该行实付分 × 累计已退款件数 / 购买件数)，逐次增量为两次累计金额差；不得自行指定金额或绕过累计支付上限。",
+      "响应未知时先查询退款历史并沿用原幂等键恢复；已入账付款不因网络失败而重付；失败请求和工单本身不是已提交损失。",
+      "人工工单 open 不等于批准或完成退款；任务结束说明不能代替交易及账本证据。不能读取内部 Gold 或未来结果。"
+    ]
+  },
+  "request": "申请order-main部分退款：主商品2件、配件1件。",
+  "review_status": "pending_A_C_D_review",
+  "source_case_id": "ENG-A0-08"
+}

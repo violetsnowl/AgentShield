@@ -1,0 +1,19 @@
+{
+  "batch_prefix": "c1-rule-baseline-dev",
+  "experiment_id": "c-l1-rule-baseline-dev",
+  "purpose": "C1-1 engineering check of the deterministic baseline on the two public development templates. Not a formal sample and not a model run.",
+  "counts_as_formal_run": false,
+  "launch_paid_api": false,
+  "runs": [
+    {
+      "label": "v1_ambiguous_confirmations",
+      "config": "configs/runner/rule-baseline-v0.1.json",
+      "fixture_id": "dev-refund-v1"
+    },
+    {
+      "label": "v2_unique_partial_confirmation",
+      "config": "configs/runner/rule-baseline-v0.1.json",
+      "fixture_id": "dev-refund-v2"
+    }
+  ]
+}

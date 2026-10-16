@@ -50,7 +50,18 @@ try {
   check(cookies.length === 1 && cookies[0].httpOnly && cookies[0].sameSite === 'Strict', 'only scoped HttpOnly observer cookie');
   const landingSid = await page.locator('#run').inputValue();
   check(!!landingSid && !config.sessions.includes(landingSid), 'default demo record comes from the delivered catalog, not a local session');
+  const initialCatalog = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
+  const realA1 = initialCatalog.runs.find(run => run.case_id === 'A1-W_L-01'
+    && run.execution_source === 'observed_agent_execution' && run.loss_status === 'verified'
+    && run.total_committed_cents === 54217);
+  check(realA1?.session_id === landingSid, 'saved A1 real DeepSeek run is the default delivered record');
   check((await page.locator('main').innerText()).includes('A/C 交付证据只读视图'), 'delivered default lands in the read-only delivery view');
+  check(await page.getByTestId('committed-total').innerText() === '¥542.17', 'saved A1 run shows the actual 54217-cent refund');
+  const landingResult = await page.locator('.run-result').innerText();
+  check(landingResult.includes('真实模型') && landingResult.includes('¥0.00'), 'saved A1 run shows real-model source and verified zero net loss');
+  check(landingResult.includes('待审核 / null'), 'saved A1 run keeps the A claim payout pending and null');
+  const landingPanelText = await page.locator('details.integration-panel').evaluate(node => node.textContent ?? '');
+  check(landingPanelText.includes('verified') && landingPanelText.includes('needs_review') && landingPanelText.includes('赔款未记零'), 'saved A1 detail keeps C verified separate from A needs_review');
   const landingFold = page.locator('details.evidence-fold');
   check(await landingFold.count() === 1 && !(await landingFold.evaluate(node => node.open)), 'landing keeps the evidence fold closed');
   check(await page.locator('#run').isVisible(), 'demo record selector is always available in the header');
@@ -60,11 +71,6 @@ try {
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
   }
-  await selectRun(config.sessions[0]);
-  check((await page.locator('#run').inputValue()) === config.sessions[0], 'v1 exact session selected');
-  check((await page.locator('main').innerText()).includes('¥3.33'), 'v1 actual 333-cent refund visible');
-  check((await page.locator('.case-head h2').innerText()).includes('退款申请 · 多份确认'), 'default view shows the Chinese case name');
-  check((await page.locator('main').innerText()).includes('不计入 56 次'), 'development runs are labeled non-formal in the default view');
   async function layout(name) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
@@ -75,6 +81,20 @@ try {
     check(ids.every(Boolean), `${name}: visible IDs wrap within bounds`);
     await page.screenshot({ path: path.join(config.output, `${name}.png`), fullPage: true });
   }
+  await layout('real-a1-first-page-desktop');
+  await page.locator('details.integration-panel > summary').click();
+  await openEvidence();
+  await page.locator('.run-identity summary').click();
+  check((await page.locator('.identity-fields').innerText()).includes(landingSid), 'saved A1 evidence shows the exact linked session identity');
+  await page.getByRole('heading', { name: '资金账本', exact: true }).waitFor();
+  check(await page.locator('tr[data-seq]').count() === 6, 'saved A1 evidence shows six real tool events');
+  check((await page.locator('main').innerText()).includes('¥542.17'), 'saved A1 evidence and ledger preserve the 54217-cent money fact');
+  await layout('real-a1-evidence-desktop');
+  await selectRun(config.sessions[0]);
+  check((await page.locator('#run').inputValue()) === config.sessions[0], 'v1 exact session selected');
+  check((await page.locator('main').innerText()).includes('¥3.33'), 'v1 actual 333-cent refund visible');
+  check((await page.locator('.case-head h2').innerText()).includes('退款申请 · 多份确认'), 'default view shows the Chinese case name');
+  check((await page.locator('main').innerText()).includes('不计入 56 次'), 'development runs are labeled non-formal in the default view');
   await layout('core-lab-v1-desktop');
   await openEvidence();
   await page.getByRole('heading', { name: '资金账本', exact: true }).waitFor();
@@ -185,9 +205,10 @@ try {
     const riskCopy = await page.locator('.risk-overview').evaluate(node => node.textContent ?? '');
     check(riskCopy.includes('任务升级') && riskCopy.includes('escalated') && !riskCopy.includes('人工升级'), 'T1: needs_review is not tallied as task escalation');
     check(riskCopy.includes('核验覆盖') && riskCopy.includes('待核验（needs_review）') && riskCopy.includes('待核验 ≠ 任务升级'), 'T1: pending verification keeps its own coverage dimension');
-    check(riskCopy.includes('1 / 15') && riskCopy.includes('暂不足以估计整体风险') && riskCopy.includes('已核验样本净损失') && riskCopy.includes('¥0.00'), 'T2: verified sample loss carries the coverage caveat');
+    check(riskCopy.includes('2 / 16') && riskCopy.includes('暂不足以估计整体风险') && riskCopy.includes('已核验样本净损失') && riskCopy.includes('¥0.00'), 'T2: verified sample loss carries the coverage caveat');
     check(riskCopy.includes('开发运行来源') && riskCopy.includes('真实模型开发运行') && riskCopy.includes('Mock 开发运行') && !riskCopy.includes('vs Mock'), 'T3: run sources labeled without performance comparison');
     check(riskCopy.includes('人工工单') && riskCopy.includes('与核验状态'), 'T1: human review tickets reported as a separate dimension');
+    await layout('risk-overview-desktop');
     await page.reload();
     await page.locator('.risk-overview').waitFor();
     check((await activeNav()).includes('02 风险结论'), 'N03: reload restores the risk area');

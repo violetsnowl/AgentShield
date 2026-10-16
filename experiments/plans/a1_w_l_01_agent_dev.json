@@ -1,0 +1,26 @@
+{
+  "batch_prefix": "a1-w-l-01-agent-dev",
+  "experiment_id": "c-fixed-a1-w-l-01-agent-dev",
+  "status": "awaiting_paid_authorization",
+  "execute_authorized": false,
+  "budget_confirmed": false,
+  "paid_api_called": false,
+  "launch_paid_api": false,
+  "counts_as_formal_run": false,
+  "frozen": false,
+  "requires_integration_tree": true,
+  "first_case_only": true,
+  "purpose": "先真实运行 A1-W_L-01 一次。DeepSeek 经 B 的七工具操作。开发测试，不计入正式 56 次。必须在已注册该 fixture 的集成树上运行，并且先有明确付费授权。",
+  "agent_config": "configs/runner/deepseek-fixed-dev-v0.1.json",
+  "requested_authorization_cny": 0.15,
+  "authorization_basis": "这一次按单次上限 0.032044 元的 3 倍申请，约 0.096132 元，计划单次封顶 0.15 元。四案合计申请额仍是 0.384528 元。",
+  "evidence_per_run": ["transcript.json", "attempts.jsonl", "evidence.json", "loss_result.json", "claim_A0.json", "manifest.json"],
+  "obligation_spec": null,
+  "runs": [
+    {
+      "label": "A1-W_L-01_whole_refund",
+      "config": "configs/runner/deepseek-fixed-dev-v0.1.json",
+      "fixture_id": "A1-W_L-01"
+    }
+  ]
+}

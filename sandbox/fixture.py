@@ -5,16 +5,27 @@ import json
 from pathlib import Path
 from types import MappingProxyType
 
-from contracts.fixture_ids import BASE_FIXTURE_IDS, GENERATED_FIXTURE_IDS
+from contracts.fixture_ids import A_PUBLIC_FIXTURE_IDS, BASE_FIXTURE_IDS, GENERATED_FIXTURE_IDS
 from contracts.models import ALLOCATION_VERSION, VERSION, CaseContext, CanonicalBusinessSnapshot
 from sandbox.fixture_models import DevelopmentFixture
 
 FIXTURE_ROOT = Path(__file__).parent / "fixtures"
 GENERATED_ROOT = FIXTURE_ROOT / "generated"
 GENERATED_REGISTRY = GENERATED_ROOT / "registry.json"
+A_PUBLIC_ROOT = Path(__file__).parents[1] / "docs" / "handoff" / "A1_public_candidates" / "development"
 _BASE_REGISTRY = {
     "dev-refund-v1": ("dev-refund-v1.json", "dev-case-refund-v1", "dev-refund-v1-r1"),
     "dev-refund-v2": ("dev-refund-v2.json", "dev-case-refund-v2", "dev-refund-v2-r1"),
+}
+_A_PUBLIC_REGISTRY = {
+    "a1-w_l-01": ("a1-w_l-01.json", "A1-W_L-01", "a1-w_l-01-r2",
+                    "36e42a57df650fbf7edb087eb4e1c870b492a354f4d45551558b4c1cebf6c589"),
+    "a1-p_h-03": ("a1-p_h-03.json", "A1-P_H-03", "a1-p_h-03-r2",
+                    "42a19aea2e0200e8234ff33a0057336d35704a89c6dff662b98e41ce3966458e"),
+    "a1-p_l-05": ("a1-p_l-05.json", "A1-P_L-05", "a1-p_l-05-r2",
+                    "dcb31425fe8ae0b101d6c59fe88b1231ab2a7cc306387dd9d29b89521a28671d"),
+    "eng-a0-06": ("eng-a0-06.json", "ENG-A0-06", "eng-a0-06-r2",
+                   "45f1100e4307f56cce27b43fa5f44fafabd09134e442fa6f79328b33a3f5406d"),
 }
 
 
@@ -52,7 +63,9 @@ def _load_generated_registry():
 
 if tuple(_BASE_REGISTRY) != BASE_FIXTURE_IDS:
     raise RuntimeError("Base fixture registration differs from source allowlist")
-REGISTRY = MappingProxyType(_BASE_REGISTRY | _load_generated_registry())
+if tuple(_A_PUBLIC_REGISTRY) != A_PUBLIC_FIXTURE_IDS:
+    raise RuntimeError("A public fixture registration differs from source allowlist")
+REGISTRY = MappingProxyType(_BASE_REGISTRY | _load_generated_registry() | _A_PUBLIC_REGISTRY)
 
 
 def allocate(paid, lines):
@@ -167,8 +180,8 @@ def load_fixture(fixture_id):
     filename, source_case_id, version = registration[:3]
     expected_hash = registration[3] if len(registration) == 4 else None
     try:
-        path = (FIXTURE_ROOT / filename).resolve(strict=True)
-        root = FIXTURE_ROOT.resolve()
+        root = (A_PUBLIC_ROOT if fixture_id in A_PUBLIC_FIXTURE_IDS else FIXTURE_ROOT).resolve()
+        path = (root / filename).resolve(strict=True)
         if not path.is_relative_to(root) or path.suffix != ".json" or path.name == "registry.json":
             raise FixtureError("Fixture is outside the registered directory")
         if path.stat().st_size > 512_000:

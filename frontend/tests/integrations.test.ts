@@ -39,6 +39,14 @@ describe('versioned A/C presentation boundary', () => {
     expect(detail.claim.payout_cents).toBeNull();
     expect(() => parseIntegrationDetail({ summary, evidence: {}, loss_result: { ...loss, identity: { ...loss.identity, session_id: 'other' } }, claim, contract, quote_result: quote })).toThrow(/身份不一致/);
   });
+  it('accepts deterministic rule-baseline runs recorded as scripted_test', () => {
+    const [row] = parseIntegrationCatalog({
+      contract_version: 'abcd-integration-0.1-candidate',
+      runs: [{ ...summary, execution_source: 'scripted_test', provider: 'rule_baseline', model: 'deterministic' }],
+    });
+    expect(row.execution_source).toBe('scripted_test');
+    expect(row.provider).toBe('rule_baseline');
+  });
   it('keeps all required V1.1 unavailable states readable without numeric results', () => {
     expect(Object.keys(evidenceStatePresentation)).toEqual(['not_fitted', 'insufficient_evidence', 'partial', 'out_of_scope']);
     expect(evidenceStatePresentation.insufficient_evidence.text).toContain('null');
