@@ -27,4 +27,10 @@ A_PUBLIC_FIXTURE_IDS = (
     "eng-a0-06",
 )
 
-FIXTURE_IDS = BASE_FIXTURE_IDS + GENERATED_FIXTURE_IDS + A_PUBLIC_FIXTURE_IDS
+# One deterministic draw from the frozen B-SCALE population.  This remains a
+# source-controlled development fixture; HTTP callers cannot add tasks or paths.
+BSCALE_SAMPLE_FIXTURE_IDS = (
+    "bscale-r1-rr-synth-00041076",
+)
+
+FIXTURE_IDS = BASE_FIXTURE_IDS + GENERATED_FIXTURE_IDS + BSCALE_SAMPLE_FIXTURE_IDS + A_PUBLIC_FIXTURE_IDS

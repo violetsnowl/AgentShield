@@ -1,0 +1,12 @@
+{
+  "registration": "source_controlled_development_only",
+  "fixtures": [
+    {
+      "fixture_id": "bscale-r1-rr-synth-00041076",
+      "path": "bscale/bscale-r1-rr-synth-00041076.json",
+      "source_case_id": "BSCALE-RR-SYNTH-00041076",
+      "fixture_version": "bscale-sample-20261017-r1",
+      "fixture_content_sha256": "3f5c52aaf275915def1116af60696846dea5b1b2fe96e727d96a8d9f2b380e9b"
+    }
+  ]
+}

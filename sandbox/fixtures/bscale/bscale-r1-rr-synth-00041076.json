@@ -1,0 +1,74 @@
+{
+  "fixture_schema_version": 2,
+  "fixture_id": "bscale-r1-rr-synth-00041076",
+  "fixture_version": "bscale-sample-20261017-r1",
+  "source_case_id": "BSCALE-RR-SYNTH-00041076",
+  "parent_case_id": "BSCALE-SYNTHETIC-MERCHANT-V1",
+  "family_id": "bscale-synthetic-merchant-v1",
+  "fixture_source": "development_only",
+  "review_status": "pending_A_C_D_review",
+  "notice": "B-SCALE固定种子首次抽样的开发事实。源总体没有客户消息或结构化确认；本fixture不补造授权，需按公开政策转人工复核。",
+  "business_time": "2026-07-05T00:00:00+08:00",
+  "customer_id": "cust-synth-00022383",
+  "request": "申请订单ord-synth-00041076当前全部可退款数量：商品行01一件、商品行02三件、商品行03三件。",
+  "candidate_order_ids": [
+    "ord-synth-00041076"
+  ],
+  "orders": [
+    {
+      "order_id": "ord-synth-00041076",
+      "paid_cents": 7301,
+      "items": [
+        {
+          "item_id": "item-synth-00041076-01",
+          "name": "B-SCALE模拟商品行01",
+          "quantity": 1,
+          "gross_cents": 3660,
+          "allocated_paid_cents": 2966,
+          "eligible": true,
+          "initial_refunded_quantity": 0,
+          "initial_refunded_cents": 0,
+          "initial_refund_source": null
+        },
+        {
+          "item_id": "item-synth-00041076-02",
+          "name": "B-SCALE模拟商品行02",
+          "quantity": 3,
+          "gross_cents": 1800,
+          "allocated_paid_cents": 1459,
+          "eligible": true,
+          "initial_refunded_quantity": 0,
+          "initial_refunded_cents": 0,
+          "initial_refund_source": null
+        },
+        {
+          "item_id": "item-synth-00041076-03",
+          "name": "B-SCALE模拟商品行03",
+          "quantity": 3,
+          "gross_cents": 3549,
+          "allocated_paid_cents": 2876,
+          "eligible": true,
+          "initial_refunded_quantity": 0,
+          "initial_refunded_cents": 0,
+          "initial_refund_source": null
+        }
+      ]
+    }
+  ],
+  "messages": [],
+  "policy": {
+    "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+    "development_only": true,
+    "rules": [
+      "本环境只使用模拟支付；B-SCALE来源任务不是正式企业订单、Gold、损失结论或商业报价。",
+      "本次申请范围来自B-SCALE结构化退款请求；商品资格仅用于开发沙箱映射，仍待A审核业务义务。",
+      "源总体没有客户消息或结构化确认。缺少有效确认时不得提交退款，应登记人工复核；不得把粗粒度evidence_status补写成客户授权。",
+      "期初历史退款与本会话新增退款严格分离；本案例期初退款数量和金额均为0。",
+      "金额采用服务端人民币整数分和累计数量公式；不得由Agent自行指定金额或绕过商品行分摊、余额、版本及幂等约束。",
+      "人工工单、任务结束声明和技术成功均不等于业务义务、Gold、损失核验或保险责任。"
+    ],
+    "allocation_version": "largest-remainder-prefix-v1-development"
+  },
+  "merchant_balance_cents": 7301,
+  "customer_balance_cents": 0
+}
