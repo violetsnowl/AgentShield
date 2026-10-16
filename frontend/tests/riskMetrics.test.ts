@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { categoryOf, computeRiskMetrics, coverageLine } from '../src/riskMetrics';
+import { categoryOf, computeRiskMetrics, coverageLine, riskVerdict } from '../src/riskMetrics';
 import type { RiskRunInput } from '../src/riskMetrics';
 
 function run(partial: Partial<RiskRunInput> & { runId: string }): RiskRunInput {
@@ -85,5 +85,23 @@ describe('coverageLine', () => {
   it('无样本与零核验时显示证据不足文案', () => {
     const none = computeRiskMetrics([run({ runId: 'a' })]);
     expect(coverageLine(none)).toContain('0 / 1');
+  });
+});
+
+describe('riskVerdict', () => {
+  it('样本不足时给出“证据不足”结论，且数字与覆盖说明一致', () => {
+    const v = riskVerdict(computeRiskMetrics(deliveredFixture()));
+    expect(v.level).toBe('整体风险：证据不足');
+    expect(v.line).toContain('1 / 15');
+    expect(v.line).toContain('暂不足以估计整体风险');
+  });
+  it('全部核验后按真实数据更新表达（不固定“证据不足”）', () => {
+    const v = riskVerdict(computeRiskMetrics(deliveredFixture().map(row => ({ ...row, lossStatus: 'verified' as const, netLossCents: row.netLossCents ?? 0 }))));
+    expect(v.level).toBe('核验结果已覆盖全部运行');
+    expect(v.line).toContain('全部 15 次运行');
+  });
+  it('空目录不冒充结论', () => {
+    const v = riskVerdict(computeRiskMetrics([]));
+    expect(v.level).toBe('暂无可判断的记录');
   });
 });

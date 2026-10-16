@@ -74,7 +74,7 @@
 - `RECEIVE_AND_RUN.md` — 克隆、环境安装、完整检查命令、启动工作台、接收回执要素。
 
 **docs/manuals/**
-- `FRONTEND_USER_MANUAL.md` — 工作台操作手册（启动、三页信息架构、单一运行选择器、导入回放）。
+- `FRONTEND_USER_MANUAL.md` — 工作台操作手册（启动、演示三页结构、演示记录选择器、回放与开发工具）。
 
 **docs/modules/**
 - `B_sandbox_backend.md` — B 交易底座：七工具、账本/幂等、迁移、证据契约（原 README_B）。
@@ -95,6 +95,7 @@
 - `BD_observer_v0.1.md` — 观察者适配（observer-0.1-candidate）。
 - `IA_V3_case_display_names.md` — IA v3 案例中文显示名映射（公开业务事实，无答案暗示）。
 - `IA_V3_navigation.md` — IA v3 三页导航 / 单一运行选择器 / 深链接 / 护栏决策（批C）。
+- `UI_DEMO_REDESIGN_2026-10-16.md` — 演示 UI 重构与规范豁免（面向评委的极简三页；含 A/B/C 测试映射与退役清单；工作树内、未提交）。
 
 **docs/business/**
 - `business_policy_A_candidate.md` — A0 业务规则候选与决策表（待双签）。
@@ -121,5 +122,6 @@
 - `feature/bd-integration`：**领先 main 3 个提交（`25b82ee` 批C IA v3 与风险/保险修复、`9071713` UI 收口轮、`7cf8d1d` 结项收尾；另含本次状态修正提交），尚未合并（等用户指示）**。D 线设计档案（`PRODUCT.md`、`DESIGN.md`、`frontend/design/`、`.impeccable/`）已随 2026-10-15 合并进入 main；在途新文档：`docs/decisions/IA_V3_case_display_names.md`、`docs/decisions/IA_V3_navigation.md`、`docs/validation/IA_V3_test_migration_map.md`、`docs/validation/UI_ROUND_2026-10-16.md`、根 `FRONTEND_RISK_INSURANCE_FIXES.md`。
 - `feature/c-agent-evaluation`：`docs/handoff/C_C1_CHECKPOINT.md`、`C_C1_to_A/B/D.md`。
 - `feature/a-gold-actuarial`：待 A 开工，暂无文档。
+- （bd · 已推送）2026-10-16 演示 UI 重构批：`docs/decisions/UI_DEMO_REDESIGN_2026-10-16.md`、`docs/manuals/FRONTEND_USER_MANUAL.md` 与 `frontend/README.md` 同步修订、`frontend/src/{App.tsx,style.css,riskMetrics.ts}` 重排、四份前端/回归测试改写；**main 未合并，等待用户验收**。
 
 > 合并后请把新增文档登入本索引（维护规则第 2 条）。

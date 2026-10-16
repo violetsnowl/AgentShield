@@ -18,13 +18,18 @@ try {
     await fold.waitFor({ state: 'attached', timeout: 20000 });
     if (!(await fold.evaluate(node => node.open))) await fold.locator('summary').first().click();
   }
-  async function openRunBar() {
-    const bar = page.locator('details.subbar-details');
-    if (await bar.count() && !(await bar.evaluate(node => node.open))) await bar.evaluate(node => { node.open = true; });
+  async function openDevTools() {
+    const fold = page.locator('details.dev-tools');
+    if (await fold.count() && !(await fold.evaluate(node => node.open))) await fold.evaluate(node => { node.open = true; });
   }
+  const navTo = async name => { await page.getByRole('link', { name, exact: true }).click(); };
   await page.goto(`${config.origin}/#pair=${config.grant}`);
+  await page.getByTestId('committed-total').waitFor({ timeout: 20000 });
   await openEvidence();
-  await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+  await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor({ timeout: 20000 });
+  // 初始落地为交付只读视图；创建/回放流程需要本机会话（live），先显式切到 v1。
+  await Promise.all([page.waitForResponse(r => r.url().endsWith(`/sessions/${config.sessions[0]}/evidence`)), page.selectOption('#run', config.sessions[0])]);
+  await page.getByTestId('committed-total').waitFor();
   const v1 = JSON.parse(await fs.readFile(path.join(config.output, 'dev-refund-v1_evidence.json')));
   const v2 = JSON.parse(await fs.readFile(path.join(config.output, 'dev-refund-v2_evidence.json')));
   const importData = async (data, name = 'replay.json') => page.locator('input[type=file]').setInputFiles({ name, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(data)) });
@@ -34,7 +39,7 @@ try {
     await page.waitForFunction(sid => document.querySelector('.run-identity')?.textContent.includes(sid), data.final_snapshot.session.session_id);
   }
   async function snapshot(name) {
-    await page.evaluate(() => scrollTo(0, 0));
+    await page.evaluate(() => { const m = document.querySelector('main'); if (m) m.scrollTop = 0; });
     await page.screenshot({ path: path.join(config.output, name + '.png'), fullPage: true });
     if (name === 'integration-v2-lab-1366') await page.screenshot({ path: path.join(config.output, 'integration-first-screen-1366.png') });
     const amounts = await page.locator('td.money').evaluateAll(nodes => nodes.filter(n => n.clientWidth > 0).map(n => ({ aligned: getComputedStyle(n).textAlign === 'right', fits: n.scrollWidth <= n.clientWidth + 1 })));
@@ -49,6 +54,7 @@ try {
     const response = await route.fetch(); created = await response.json(); responseReady.resolve();
     await release.promise; await route.fulfill({ response });
   });
+  await openDevTools();
   await page.getByRole('button', { name: '创建业务会话', exact: true }).click();
   await responseReady.promise;
   await importData(v2); await imported(v2); await snapshot('create-pending-imported-v2');
@@ -99,7 +105,8 @@ try {
     await importData(v1, 'slow-return.json');
     await page.waitForFunction(() => !!window.fileReleases['slow-return.json']);
     await page.getByRole('button', { name: '返回本机服务', exact: true }).click();
-    await page.getByRole('button', { name: /Agent 测试/ }).click();
+    await navTo('01 测试案例');
+    await page.getByTestId('committed-total').waitFor();
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
     await page.evaluate(() => window.fileReleases['slow-return.json']()); await page.waitForTimeout(150);
@@ -120,83 +127,61 @@ try {
     }
     await context.setOffline(false);
     await page.getByRole('button', { name: '返回本机服务', exact: true }).click();
-    await page.getByRole('button', { name: /Agent 测试/ }).click();
+    await navTo('01 测试案例');
+    await page.getByTestId('committed-total').waitFor();
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
-    await openRunBar();
-    await page.locator('.filter-disclosure summary').click();
-    await page.getByRole('textbox', { name: '筛选已加载运行', exact: true }).fill('dev-case-refund-v2');
-    check(await page.locator('#run option').filter({ hasText: 'dev-case-refund-v1' }).count() === 0, 'case filter selects candidates without merging runs');
-    await openRunBar();
+    const v2Response = page.waitForResponse(r => r.url().endsWith(`/sessions/${config.sessions[1]}/evidence`));
     await page.selectOption('#run', config.sessions[1]);
-    await page.waitForResponse(r => r.url().endsWith(`/sessions/${config.sessions[1]}/evidence`));
+    await v2Response;
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
-    await openRunBar();
-    await page.locator('.filter-disclosure summary').click();
     await snapshot('integration-v2-lab-1366');
-    await openRunBar();
-    await page.locator('.filter-disclosure summary').click();
-    await page.getByRole('combobox', { name: '执行来源筛选', exact: true }).selectOption('observed_agent_execution');
-    await page.getByRole('status').filter({ hasText: '没有匹配的已加载运行' }).waitFor();
-    check(await page.locator('#run').inputValue() === config.sessions[1], 'source filter never silently changes selected session');
-    await page.getByRole('combobox', { name: '执行来源筛选', exact: true }).selectOption('all');
-    await page.getByRole('textbox', { name: '筛选已加载运行', exact: true }).fill('');
-    await openRunBar();
-    await page.locator('.filter-disclosure summary').click();
-    await openRunBar();
+    await openEvidence();
     await page.locator('.run-identity summary').click();
     check((await page.locator('.run-identity').innerText()).includes(v2.final_snapshot.session.episode_id), 'exact episode visible in identity disclosure');
-    await page.getByRole('button', { name: '复制运行身份', exact: true }).click();
-    await page.getByRole('button', { name: '已复制身份', exact: true }).waitFor();
-    await openRunBar();
-    await page.locator('.run-identity summary').click();
-    await openEvidence();
-    await page.getByRole('button', { name: '加载后续事件', exact: true }).click(); await page.locator('tr[data-seq="8"]').waitFor();
-    await page.selectOption('#event-filter', 'replayed');
-    check(await page.locator('tr[data-seq]').count() === 1 && (await page.locator('tr[data-seq]').innerText()).includes('¥0.00'), 'replay filter shows zero new funds');
-    check(await page.getByTestId('committed-total').innerText() === '¥2.50', 'filter does not change transaction total');
-    await page.getByRole('button', { name: '关联交易', exact: true }).click();
+    await page.locator('tr[data-seq="8"]').waitFor({ timeout: 15000 });
+    const replayRows = page.locator('tr[data-seq]').filter({ hasText: '原键重放' });
+    check(await replayRows.count() === 1 && (await replayRows.innerText()).includes('¥0.00'), 'replayed refund row shows zero new funds');
+    check(await page.getByTestId('committed-total').innerText() === '¥2.50', 'event rendering does not change the transaction total');
+    await page.getByRole('button', { name: '关联交易', exact: true }).first().click();
     await page.getByRole('button', { name: '查看关联订单', exact: true }).click();
     check((await page.locator('.order.highlighted').innerText()).includes(v2.refunds[0].order_id), 'event -> refund -> ledger -> exact runtime order');
     await snapshot('integration-order-trace-1366');
-    await openEvidence();
-    await page.selectOption('#event-filter', 'error');
-    await page.getByText('已加载事件中没有匹配项', { exact: true }).waitFor();
-    await snapshot('integration-no-matching-events-1366');
     // Use existing real historical B evidence for all four statuses (never fabricate a production score).
     const currentExample = JSON.parse(await fs.readFile(path.join(config.output, 'fault-injection-evidence.json')));
     await importData(currentExample); await imported(currentExample);
-    await page.selectOption('#event-filter', 'error');
     check(currentExample.events.some(e => e.status === 'error'), 'QA-only real HTTP storage fault produced B error event');
-    check((await page.locator('tr[data-seq]').innerText()).includes('未新增提交'), 'error event displayed as error without payment');
-    await page.selectOption('#event-filter', 'all');
+    const errorRow = page.locator('tr[data-seq]').filter({ hasText: '错误 / error' }).first();
+    check((await errorRow.innerText()).includes('未新增提交'), 'error event displayed as error without payment');
     await snapshot('integration-ledger-desktop');
-    await page.getByRole('button', { name: /Agent 测试/ }).click();
-    const noMatchCard = await page.locator('.result-cards').innerText();
+    await navTo('01 测试案例');
+    const noMatchCard = await page.locator('.run-result').innerText();
     check(noMatchCard.includes('暂无核验结果') && noMatchCard.includes('暂无理算结果'), 'fault-injection session without delivered counterpart shows no foreign numbers');
     await snapshot('integration-risk-candidate');
-    await page.getByRole('button', { name: /保险方案/ }).click();
+    await navTo('03 保险方案');
     await snapshot('integration-cost-candidate');
     await page.getByRole('button', { name: '返回本机服务', exact: true }).click();
+    await navTo('01 测试案例');
+    await page.getByTestId('committed-total').waitFor();
     const deliveredList = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
     const deliveredMock = deliveredList.runs.filter(run => run.execution_source === 'mock_agent')[0];
     const deliveredWait = page.waitForResponse(response => response.url().endsWith(`/observer/api/integration-runs/${deliveredMock.run_id}`));
-    await openRunBar();
     await page.selectOption('#run', deliveredMock.session_id);
     await deliveredWait;
-    await page.locator('.integration-panel').waitFor();
-    const disclosure = page.locator('.integration-foot details');
-    if (!(await disclosure.evaluate(node => node.open))) await disclosure.locator('summary').click();
-    const panel = await page.locator('.integration-panel').innerText();
+    await page.waitForFunction(() => document.querySelector('.nav-link.active')?.textContent?.includes('01 测试案例'));
+    await page.locator('details.integration-panel').waitFor();
+    const panel = await page.locator('.integration-panel').evaluate(node => node.textContent ?? '');
     check(['not_fitted','insufficient_evidence','partial','out_of_scope','commercial_quote=false'].every(value => panel.includes(value)), 'candidate panel contains required honest state explanations');
     check(panel.includes('counts_as_formal_run=false') || panel.includes('不计入 56 次'), 'delivered runs remain explicitly non-formal');
+    await page.locator('details.integration-panel > summary').click();
     check(await page.getByRole('button', { name: '加载关联业务证据', exact: true }).isEnabled(), 'validated C result can open exact B evidence');
     check(await page.getByRole('button', { name: '重新理算', exact: true }).isDisabled(), 'no browser-side insurance execution enabled');
     await snapshot('integration-delivered-panel');
     // Lost create response after a real commit: do not announce that creation failed.
     await page.getByRole('button', { name: '返回本机服务', exact: true }).click();
-    await page.getByRole('button', { name: /Agent 测试/ }).click();
+    await page.getByTestId('committed-total').waitFor();
+    await navTo('01 测试案例');
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
     let unknownCreated;
@@ -204,18 +189,18 @@ try {
       if (route.request().method() !== 'POST') return route.continue();
       const response = await route.fetch(); unknownCreated = await response.json(); await route.abort();
     });
+    await openDevTools();
     await page.getByRole('button', { name: '创建业务会话', exact: true }).click();
     await page.getByRole('alert').filter({ hasText: '会话可能已经建立' }).waitFor();
     check(!!unknownCreated.session.session_id, 'create response loss occurs after real server creation');
     await snapshot('create-response-unknown-test');
     await page.unroute(sessionsRoute); await page.reload();
+    await page.getByTestId('committed-total').waitFor();
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
     check(await page.locator(`#run option[value="${unknownCreated.session.session_id}"]`).count() === 1, 'directory recovers actual session after lost create response without re-creating');
     await importData(v2); await imported(v2);
-    await page.getByRole('button', { name: /Agent 测试/ }).click();
-    await page.setViewportSize({ width: 390, height: 844 }); await snapshot('integration-mobile');
-    await page.screenshot({ path: path.join(config.output, 'integration-mobile-first-screen.png') });
+    await navTo('01 测试案例');
   }
   check(errors.length === 0, 'no uncaught browser errors');
   for (const r of requests) {

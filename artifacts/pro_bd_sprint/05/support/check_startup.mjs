@@ -16,24 +16,16 @@ try {
     await fold.waitFor({ state: 'attached', timeout: 20000 });
     if (!(await fold.evaluate(node => node.open))) await fold.locator('summary').first().click();
   }
-
-  async function openRunBar() {
-    const bar = page.locator('details.subbar-details');
-    if (await bar.count() && !(await bar.evaluate(node => node.open))) await bar.evaluate(node => { node.open = true; });
-  }
   await page.goto(config.url);
   step = 'initial UI';
+  await page.getByTestId('committed-total').waitFor({ timeout: 20000 });
   await openEvidence();
   await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor({ timeout: 20000 });
   const bootHash = new URL(page.url()).hash;
   assert(!bootHash.includes('pair='));
   assert(bootHash.startsWith('#area=test'));
-  assert.equal(await page.getByRole('button', { name: '启动 Agent', exact: true }).isDisabled(), true);
   step = 'catalog';
-  while (await page.getByRole('button', { name: '加载更多运行', exact: true }).count()) {
-    await page.getByRole('button', { name: '加载更多运行', exact: true }).click();
-    await page.waitForFunction(() => document.querySelectorAll('#run option[value]:not([value=""])').length >= 2);
-  }
+  await page.waitForFunction(() => document.querySelectorAll('#run optgroup[label="本机会话"] option[value]:not([value=""])').length >= 2);
   const options = await page.locator('#run optgroup[label="本机会话"] option').evaluateAll(nodes => nodes.filter(n => n.value).map(n => ({ id: n.value, label: n.textContent })));
   const ids = options.map(n => n.id);
   assert.equal(ids.length, 2);
@@ -42,7 +34,6 @@ try {
     step = `live template ${caseId}`;
     const selected = options.find(option => option.label.startsWith(caseId + ' '));
     assert(selected, `missing exact case ${caseId}`);
-    await openRunBar();
     await page.locator('#run').selectOption(selected.id);
     await page.waitForFunction(value => document.querySelector('main')?.textContent?.includes(value), amount);
     await openEvidence();
@@ -62,7 +53,7 @@ try {
     await page.locator('input[type=file]').setInputFiles({ name: `schema-${schema}.json`, mimeType: 'application/json', buffer });
     await page.getByText('离线只读回放', { exact: true }).waitFor();
     await page.waitForFunction(s => document.querySelector('main')?.textContent?.includes(s), JSON.parse(buffer).final_snapshot.session.session_id);
-    assert.equal(await page.getByRole('button', { name: '创建业务会话', exact: true }).count(), 0);
+    assert.equal(await page.locator('button:has-text("创建业务会话")').count(), 0);
   }
   await page.screenshot({ path: path.join(config.output, `fresh-replay-${config.index}.png`), fullPage: true });
   assert.deepEqual(await page.evaluate(() => [localStorage.length, sessionStorage.length, document.cookie]), [0, 0, '']);

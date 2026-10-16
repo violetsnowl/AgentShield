@@ -1,6 +1,6 @@
 # ABCD 本地集成工作台（2026-10-13）
 
-当前工作区已把已交付的 A0/C L0 候选结果接入原 B/D 工作台：B 仍使用 **bc-0.3-candidate**、七个公开工具和 EvidenceBundle schema 3；D 通过受控观察者读取固定目录 `artifacts/c_l0/runs`，展示 C `LossResult`、A0 `ClaimCalculationResult`、关联的 B session/episode，以及单独标明为工程示例的 A `QuoteResult`。浏览器不能提供文件路径，不能调用 Agent、核验器或保险公式，也拿不到 B 管理员令牌。
+当前工作区已把已交付的 A0/C L0 候选结果接入原 B/D 工作台：B 仍使用 **bc-0.3-candidate**、七个公开工具和 EvidenceBundle schema 3；D 通过受控观察者读取固定目录 `artifacts/c_l0/runs`，展示 C `LossResult`、A0 `ClaimCalculationResult`、关联的 B session/episode，以及单独标明为工程示例的 A `QuoteResult`。浏览器不能提供文件路径，不能调用 Agent、核验器或保险公式，也拿不到 B 管理员令牌。（2026-10-16 演示重构版说明：界面为极简三页；规范豁免、退役项与测试映射见 `docs/decisions/UI_DEMO_REDESIGN_2026-10-16.md`，当前界面描述以 `docs/manuals/FRONTEND_USER_MANUAL.md` 为准。）
 
 从项目根目录构建并使用独立预览库启动：
 
@@ -12,7 +12,7 @@ npm.cmd --prefix frontend run build
   --seed-development
 ```
 
-启动器会自动打开带一次性本机观察授权的 `http://127.0.0.1:8810`。风险区可选择已交付的 Mock 或历史 `observed_agent_execution` 开发运行，并用“加载关联业务证据”追溯到精确的 B case/session/episode。`needs_review` 的净损失与赔付保持 `null`，不会补造结论；“启动 Agent”和“重新理算”保持禁用。所有当前结果均为 `counts_as_formal_run=false`，不代表 Gold、正式 L1 或商业报价。
+启动器会自动打开带一次性本机观察授权的 `http://127.0.0.1:8810`。风险区可选择已交付的 Mock 或历史 `observed_agent_execution` 开发运行，并用“加载关联业务证据”追溯到精确的 B case/session/episode。`needs_review` 的净损失与赔付保持 `null`，不会补造结论；“重新理算”保持禁用（前端不执行保险公式），“启动 Agent”按钮已随 2026-10-16 演示重构删除（端点未接通，注记移入页脚「开发工具」）。所有当前结果均为 `counts_as_formal_run=false`，不代表 Gold、正式 L1 或商业报价。
 
 本次集成实测：后端 115 项、前端 42 项、核心浏览器 419 条检查、异常/回放浏览器 101 条检查均通过；完整记录未随仓库分发（存档于制作方工作区）。下方阶段 03—05 内容保留为历史说明；其中“A/C 待接入”描述的是当时停止点。
 

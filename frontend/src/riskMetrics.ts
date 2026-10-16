@@ -97,3 +97,10 @@ export function coverageLine(metrics: RiskMetrics): string {
   if (verified.length < total) return `当前只有 ${verified.length} / ${total} 次运行具有已核验损失结果，暂不足以估计整体风险。`;
   return `全部 ${total} 次运行均具有已核验损失结果。`;
 }
+
+/** 页首结论（动态）：证据不足时说清楚不足，数据充分时按真实结果更新表达，不固定文案。 */
+export function riskVerdict(metrics: RiskMetrics): { level: string; line: string } {
+  if (metrics.total === 0) return { level: '暂无可判断的记录', line: coverageLine(metrics) };
+  if (metrics.verified.length < metrics.total) return { level: '整体风险：证据不足', line: coverageLine(metrics) };
+  return { level: '核验结果已覆盖全部运行', line: coverageLine(metrics) };
+}
