@@ -42,8 +42,9 @@ export type RiskMetrics = {
 
 export function categoryOf(caseId: string): string {
   const match = /bcp2-(l\d)-(whole|partial)-(low|high)-/.exec(caseId);
-  if (!match) return '开发模板（未分类）';
-  return `${match[2] === 'whole' ? '整单' : '部分'} · ${match[3] === 'low' ? '小额' : '大额'}`;
+  if (match) return `${match[2] === 'whole' ? '整单' : '部分'} · ${match[3] === 'low' ? '小额' : '大额'}`;
+  if (/^dev-/.test(caseId)) return '开发模板（未分类）';
+  return '未归类 · 待审';
 }
 
 export function computeRiskMetrics(inputs: RiskRunInput[]): RiskMetrics {

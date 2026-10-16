@@ -77,6 +77,7 @@ describe('computeRiskMetrics', () => {
     expect(categoryOf('bcp2-l1-whole-low-04')).toBe('整单 · 小额');
     expect(categoryOf('bcp2-l2-partial-high-01')).toBe('部分 · 大额');
     expect(categoryOf('dev-case-refund-v1')).toBe('开发模板（未分类）');
+    expect(categoryOf('mystery-case-42')).toBe('未归类 · 待审');
   });
 });
 

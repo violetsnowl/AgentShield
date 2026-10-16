@@ -34,6 +34,10 @@ try {
     await fold.waitFor({ state: 'attached', timeout: 20000 });
     if (!(await fold.evaluate(node => node.open))) await fold.locator('summary').first().click();
   }
+  async function openRunBar() {
+    const bar = page.locator('details.subbar-details');
+    if (await bar.count() && !(await bar.evaluate(node => node.open))) await bar.evaluate(node => { node.open = true; });
+  }
   await page.goto(`${config.origin}/#pair=${config.grant}`);
   await openEvidence();
   await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor({ timeout: 20000 });
@@ -55,6 +59,17 @@ try {
     check(ids.every(Boolean), `${name}: visible IDs wrap within bounds`);
     await page.screenshot({ path: path.join(config.output, `${name}.png`), fullPage: true });
   }
+    // UI 收口：运行条默认收起 / 切换运行入口 / 可再收起（真实交互）
+    const subbarBox = page.locator('details.subbar-details');
+    check(await subbarBox.count() === 1 && !(await subbarBox.evaluate(node => node.open)), 'run bar is collapsed by default');
+    check(!(await page.locator('#run').isVisible()), 'run selector stays hidden until expanded');
+    const runLine = await page.locator('.subbar-line').innerText();
+    check(runLine.includes('当前运行') && runLine.includes('退款申请 · 多份确认'), 'compact bar shows the Chinese case name');
+    await page.getByRole('button', { name: '切换运行' }).click();
+    check(await subbarBox.evaluate(node => node.open), '切换运行 expands the run bar');
+    check(await page.locator('#run').isVisible(), 'run selector becomes visible after 切换运行');
+    await subbarBox.locator('summary.subbar-line').click({ position: { x: 30, y: 10 } });
+    check(!(await subbarBox.evaluate(node => node.open)), 'run bar collapses back');
   await layout('core-lab-v1-desktop');
   await openEvidence();
   await openEvidence();
@@ -71,6 +86,7 @@ try {
   await layout('core-ledger-v1-desktop');
   if (config.phase === 'final') {
     const downloadPromise = page.waitForEvent('download');
+    await openRunBar();
     await page.locator('details.more-menu > summary').click();
     await page.getByRole('button', { name: '保存证据回放', exact: true }).click();
     const download = await downloadPromise;
@@ -80,6 +96,7 @@ try {
     check(recorded.final_snapshot.session.session_id === config.sessions[0], 'saved replay identifies exact v1 run');
     check(recorded.refunds.length === 1 && recorded.refunds[0].amount_cents === 333, 'saved replay preserves one 333-cent transaction');
     async function selectRun(sid) {
+      await openRunBar();
       await Promise.all([page.waitForResponse(response => response.url().endsWith(`/sessions/${sid}/evidence`)), page.selectOption('#run', sid)]);
       await openEvidence();
       await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
@@ -98,16 +115,17 @@ try {
     check(!(await page.locator('.integration-panel').count()), 'no candidate panel is shown for runs without a delivered counterpart');
     await layout('risk-candidate-desktop');
     await page.getByRole('button', { name: /保险方案/ }).click();
-    await page.getByText('AgentShield 操作差错基础保障').waitFor();
+    await page.getByRole('heading', { name: 'AgentShield 操作差错基础保障' }).waitFor();
     const planGrid = await page.locator('.plan-grid').innerText();
     check(planGrid.includes('待定') && planGrid.includes('操作差错增强保障') && !planGrid.includes('¥'), 'plans show pending values instead of invented premiums');
-    check((await page.locator('main').innerText()).includes('非商业报价') && (await page.locator('main').innerText()).includes('commercial_quote=false'), 'plans remain explicitly non-commercial');
+    check((await page.locator('main').innerText()).includes('非商业报价') && (await page.locator('main').innerText()).includes('方案参数待审'), 'plans remain explicitly non-commercial');
     await layout('cost-candidate-desktop');
     const deliveredCatalog = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
     const mockRuns = deliveredCatalog.runs.filter(run => run.execution_source === 'mock_agent');
     check(mockRuns.length >= 4, 'Mock delivery catalog contains complete runs');
     const selectedMock = mockRuns[0];
     const detailResponse = page.waitForResponse(response => response.url().endsWith(`/observer/api/integration-runs/${selectedMock.run_id}`));
+    await openRunBar();
     await page.selectOption('#run', selectedMock.session_id);
     const delivered = await (await detailResponse).json();
     await page.getByRole('button', { name: /Agent 测试/ }).click();
@@ -121,7 +139,9 @@ try {
     check(await page.getByRole('button', { name: '重新理算', exact: true }).isDisabled(), 'browser does not recalculate insurance');
     await page.getByRole('button', { name: '加载关联业务证据', exact: true }).click();
     await page.getByRole('status').filter({ hasText: 'A/C 交付证据只读视图' }).waitFor();
+    await openRunBar();
     await page.locator('.run-identity summary').click();
+    await openRunBar();
     check((await page.locator('.identity-fields').innerText()).includes(delivered.summary.session_id), 'A/C result opens the exact linked B session');
     check(await page.getByTestId('committed-total').innerText() === new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(delivered.summary.total_committed_cents / 100), 'linked evidence money matches LossResult summary');
     await layout('delivered-mock-evidence-desktop');
@@ -172,23 +192,25 @@ try {
     await page.locator('.risk-overview').waitFor();
     check(page.url().includes('area=risk'), 'N03: area recorded in URL hash');
     const riskCopy = await page.locator('.risk-overview').innerText();
-    check(riskCopy.includes('任务升级') && riskCopy.includes('task_outcome=escalated') && !riskCopy.includes('人工升级'), 'T1: needs_review is not tallied as task escalation');
+    check(riskCopy.includes('任务升级') && riskCopy.includes('escalated') && !riskCopy.includes('人工升级'), 'T1: needs_review is not tallied as task escalation');
     check(riskCopy.includes('核验覆盖') && riskCopy.includes('待核验（needs_review）') && riskCopy.includes('待核验 ≠ 任务升级'), 'T1: pending verification keeps its own coverage dimension');
     check(riskCopy.includes('1 / 15') && riskCopy.includes('暂不足以估计整体风险') && riskCopy.includes('已核验样本净损失') && riskCopy.includes('¥0.00'), 'T2: verified sample loss carries the coverage caveat');
     check(riskCopy.includes('开发运行来源') && riskCopy.includes('真实模型开发运行') && riskCopy.includes('Mock 开发运行') && !riskCopy.includes('vs Mock'), 'T3: run sources labeled without performance comparison');
-    check(riskCopy.includes('人工工单') && riskCopy.includes('human_reviews'), 'T1: human review tickets reported as a separate dimension');
+    check(riskCopy.includes('人工工单') && riskCopy.includes('与核验状态'), 'T1: human review tickets reported as a separate dimension');
     await page.reload();
     await page.locator('.risk-overview').waitFor();
     check((await page.locator('h1').innerText()).includes('风险'), 'N03: reload restores the risk area');
     await page.waitForFunction(sid => document.querySelector('#run').value === sid, config.sessions[0]);
     check(true, 'N03: reload restores the selected run');
     // N02: 切换运行保持当前区；无交付结果的运行不残留旧结果。
+    await openRunBar();
     await Promise.all([
       page.waitForResponse(response => response.url().endsWith(`/sessions/${config.sessions[1]}/evidence`)),
       page.selectOption('#run', config.sessions[1]),
     ]);
     check((await page.locator('h1').innerText()).includes('风险'), 'N02: switching run stays in the current area');
     check(page.url().includes('run=' + config.sessions[1]), 'N03: run switch recorded in URL');
+    await openRunBar();
     await Promise.all([
       page.waitForResponse(response => response.url().endsWith(`/sessions/${newSid}/evidence`)),
       page.selectOption('#run', newSid),
@@ -199,6 +221,7 @@ try {
     const n04Catalog = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
     const n04DeliveredOnly = n04Catalog.runs.find(run => !config.sessions.includes(run.session_id)) ?? n04Catalog.runs[0];
     const n04Response = page.waitForResponse(response => response.url().endsWith(`/observer/api/integration-runs/${n04DeliveredOnly.run_id}`));
+    await openRunBar();
     await page.selectOption('#run', n04DeliveredOnly.session_id);
     await n04Response;
     await page.locator('h1', { hasText: 'Agent 测试' }).waitFor();
@@ -209,7 +232,7 @@ try {
     // N03: 深链接直接恢复区+运行；前进/后退恢复区域。
     await page.goto('about:blank');
     await page.goto(`${config.origin}/#area=insurance&run=${config.sessions[1]}`);
-    await page.getByText('AgentShield 操作差错基础保障').waitFor();
+    await page.getByRole('heading', { name: 'AgentShield 操作差错基础保障' }).waitFor();
     check((await page.locator('h1').innerText()).includes('保险'), 'N03: deep link opens the requested area');
     await page.waitForFunction(sid => document.querySelector('#run').value === sid, config.sessions[1]);
     check(true, 'N03: deep link restores the requested run');
@@ -251,6 +274,7 @@ try {
     let release;
     let gate = new Promise(resolve => { release = resolve; });
     await page.route(evidenceRoute, async route => { await gate; await route.continue().catch(() => {}); });
+    await openRunBar();
     await page.selectOption('#run', config.sessions[1]);
     await page.getByRole('status').filter({ hasText: '正在读取本次运行' }).waitFor();
     check(await page.locator('.orders').count() === 0, 'loading hides previous run facts');
@@ -283,6 +307,7 @@ try {
     const delayed = `**/observer/api/sessions/${config.sessions[0]}/evidence`;
     gate = new Promise(resolve => { release = resolve; });
     await page.route(delayed, async route => { await gate; await route.continue().catch(() => {}); });
+    await openRunBar();
     await page.selectOption('#run', config.sessions[0]);
     await page.getByRole('status').filter({ hasText: '正在读取本次运行' }).waitFor();
     await selectRun(config.sessions[1]);
@@ -302,6 +327,7 @@ try {
       await page.locator('input[type=file]').setInputFiles(path.join(config.root, filename));
       await page.getByRole('button', { name: /Agent 测试/ }).click();
       await page.getByText('旧证据未记录案例上下文', { exact: true }).waitFor();
+      await openRunBar();
       check((await page.locator('.content-toolbar').innerText()).includes(`schema ${schemaVersion}`), `legacy schema ${schemaVersion} shown without upgrading historical facts`);
       check(await page.locator('.hash').count() === 0, `legacy schema ${schemaVersion} has no invented hash`);
       await layout(`offline-schema${schemaVersion}-desktop`);
@@ -346,14 +372,17 @@ try {
     const guardTarget = guardCatalog.runs.find(run => run.session_id !== liveSid) ?? guardCatalog.runs[0];
     check(!!guardTarget, 'IA3-04: 交付目录可用');
     const guardResponse = page.waitForResponse(response => response.url().endsWith(`/observer/api/integration-runs/${guardTarget.run_id}`));
+    await openRunBar();
     await page.selectOption('#run', guardTarget.session_id);
     await guardResponse;
     await page.getByRole('button', { name: /Agent 测试/ }).click();
     await page.locator('.integration-panel').waitFor();
+    await openRunBar();
     await page.locator('.run-identity summary').click();
     const guardIdentity = await page.locator('.identity-fields').innerText();
     check(guardIdentity.includes(guardTarget.session_id), 'IA3-04: 运行身份与所选交付运行一致');
     check(!guardIdentity.includes(config.sessions[0]) || guardTarget.session_id === config.sessions[0], 'IA3-04: 不残留其他运行的核验/赔款');
+    await openRunBar();
     await page.locator('.run-identity summary').click();
     check((await page.getByTestId('committed-total').innerText()) === new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(guardTarget.total_committed_cents / 100), 'IA3-04: 结果卡金额指向同一运行');
     const unauthorized = await browser.newContext({ viewport: { width: 1440, height: 1000 } });

@@ -18,6 +18,10 @@ try {
     await fold.waitFor({ state: 'attached', timeout: 20000 });
     if (!(await fold.evaluate(node => node.open))) await fold.locator('summary').first().click();
   }
+  async function openRunBar() {
+    const bar = page.locator('details.subbar-details');
+    if (await bar.count() && !(await bar.evaluate(node => node.open))) await bar.evaluate(node => { node.open = true; });
+  }
   await page.goto(`${config.origin}/#pair=${config.grant}`);
   await openEvidence();
   await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
@@ -119,26 +123,33 @@ try {
     await page.getByRole('button', { name: /Agent 测试/ }).click();
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+    await openRunBar();
     await page.locator('.filter-disclosure summary').click();
     await page.getByRole('textbox', { name: '筛选已加载运行', exact: true }).fill('dev-case-refund-v2');
     check(await page.locator('#run option').filter({ hasText: 'dev-case-refund-v1' }).count() === 0, 'case filter selects candidates without merging runs');
+    await openRunBar();
     await page.selectOption('#run', config.sessions[1]);
     await page.waitForResponse(r => r.url().endsWith(`/sessions/${config.sessions[1]}/evidence`));
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+    await openRunBar();
     await page.locator('.filter-disclosure summary').click();
     await snapshot('integration-v2-lab-1366');
+    await openRunBar();
     await page.locator('.filter-disclosure summary').click();
     await page.getByRole('combobox', { name: '执行来源筛选', exact: true }).selectOption('observed_agent_execution');
     await page.getByRole('status').filter({ hasText: '没有匹配的已加载运行' }).waitFor();
     check(await page.locator('#run').inputValue() === config.sessions[1], 'source filter never silently changes selected session');
     await page.getByRole('combobox', { name: '执行来源筛选', exact: true }).selectOption('all');
     await page.getByRole('textbox', { name: '筛选已加载运行', exact: true }).fill('');
+    await openRunBar();
     await page.locator('.filter-disclosure summary').click();
+    await openRunBar();
     await page.locator('.run-identity summary').click();
     check((await page.locator('.run-identity').innerText()).includes(v2.final_snapshot.session.episode_id), 'exact episode visible in identity disclosure');
     await page.getByRole('button', { name: '复制运行身份', exact: true }).click();
     await page.getByRole('button', { name: '已复制身份', exact: true }).waitFor();
+    await openRunBar();
     await page.locator('.run-identity summary').click();
     await openEvidence();
     await page.getByRole('button', { name: '加载后续事件', exact: true }).click(); await page.locator('tr[data-seq="8"]').waitFor();
@@ -171,6 +182,7 @@ try {
     const deliveredList = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
     const deliveredMock = deliveredList.runs.filter(run => run.execution_source === 'mock_agent')[0];
     const deliveredWait = page.waitForResponse(response => response.url().endsWith(`/observer/api/integration-runs/${deliveredMock.run_id}`));
+    await openRunBar();
     await page.selectOption('#run', deliveredMock.session_id);
     await deliveredWait;
     await page.locator('.integration-panel').waitFor();

@@ -16,6 +16,11 @@ try {
     await fold.waitFor({ state: 'attached', timeout: 20000 });
     if (!(await fold.evaluate(node => node.open))) await fold.locator('summary').first().click();
   }
+
+  async function openRunBar() {
+    const bar = page.locator('details.subbar-details');
+    if (await bar.count() && !(await bar.evaluate(node => node.open))) await bar.evaluate(node => { node.open = true; });
+  }
   await page.goto(config.url);
   step = 'initial UI';
   await openEvidence();
@@ -37,10 +42,11 @@ try {
     step = `live template ${caseId}`;
     const selected = options.find(option => option.label.startsWith(caseId + ' '));
     assert(selected, `missing exact case ${caseId}`);
+    await openRunBar();
     await page.locator('#run').selectOption(selected.id);
     await page.waitForFunction(value => document.querySelector('main')?.textContent?.includes(value), amount);
     await openEvidence();
-    assert((await page.locator('main').innerText()).includes('scripted_test'));
+    assert((await page.locator('main').innerText()).includes('规则基线'));
   }
   await page.screenshot({ path: path.join(config.output, `fresh-live-${config.index}.png`), fullPage: true });
   await context.setOffline(true);

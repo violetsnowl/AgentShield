@@ -17,10 +17,11 @@ type Area = 'test' | 'risk' | 'insurance';
 type LoadState = 'loading' | 'ready' | 'error';
 const areas: { id: Area; title: string; hint: string; mark: string }[] = [
   { id: 'test', title: 'Agent 测试', hint: '选择测试方式与业务案例，创建会话并查看单次测试结果。', mark: 'Ⅰ' },
-  { id: 'risk', title: '风险评估', hint: '跨运行的汇总统计与对照；每项标注数据范围与样本。', mark: 'Ⅱ' },
+  { id: 'risk', title: '风险评估', hint: '跨运行的汇总统计与对照；口径与样本范围见页底说明。', mark: 'Ⅱ' },
   { id: 'insurance', title: '保险方案', hint: 'A4 两套研究候选产品（Core / Plus）；参数待定项如实标注，非商业报价。', mark: 'Ⅲ' },
 ];
 const errorText = (value: unknown) => value instanceof Error ? value.message : '读取失败，请重试。';
+const executionSourceLabel = (value?: string | null) => value === 'observed_agent_execution' ? '真实模型' : value === 'mock_agent' ? 'Mock（接口模拟）' : value === 'scripted_test' || value === 'rule_baseline' ? '规则基线' : value ?? '来源未记录';
 function Badge({ children, tone = '' }: { children: ReactNode; tone?: string }) { return <span className={`badge ${tone}`}>{children}</span>; }
 function Id({ children }: { children: ReactNode }) { return <code className="id">{children ?? '未记录'}</code>; }
 function Empty({ title, children }: { title: string; children: ReactNode }) { return <div className="empty"><strong>{title}</strong><p>{children}</p></div>; }
@@ -143,6 +144,8 @@ export default function App() {
   const selection = useRef('');
   const replayMode = useRef(false);
   const interaction = useRef(0);
+  const subbarDetails = useRef<HTMLDetailsElement>(null);
+  const [subbarOpen, setSubbarOpen] = useState(false);
   const moreMenu = useRef<HTMLDetailsElement>(null);
   const filterRef = useRef<HTMLDetailsElement>(null);
   const pendingRun = useRef<string | null>(parseViewState(window.location.hash).run);
@@ -346,7 +349,8 @@ export default function App() {
   const visibleRuns = sessions.filter(row => (!runFilter || [row.case_id, row.session_id, row.episode_id, row.config_id].some(value => value.toLowerCase().includes(runFilter.toLowerCase()))) && (sourceFilter === 'all' || row.sources.execution_source === sourceFilter));
   const selectedOutsideFilter = sessions.find(row => row.session_id === sid && !visibleRuns.some(item => item.session_id === sid));
   const deliveredOptions = integrationRuns.filter(row => !sessions.some(item => item.session_id === row.session_id));
-  function revealRuns() { filterRef.current?.setAttribute('open', ''); document.getElementById('run')?.focus(); }
+  function openRunPicker() { subbarDetails.current?.setAttribute('open', ''); setSubbarOpen(true); window.setTimeout(() => document.getElementById('run')?.focus(), 0); }
+  function revealRuns() { openRunPicker(); filterRef.current?.setAttribute('open', ''); }
   function showOrder(id: string) {
     if (area !== 'test') setNavBack(area);
     setFocusedOrder(id); setArea('test'); setEvidenceOpen(true);
@@ -363,6 +367,7 @@ export default function App() {
   const integrationPending = !offline && !matchedIntegration && integrationRuns.some(row => row.session_id === sid) && integrationState !== 'error';
   const resultCommitted = current ? current.refunds.reduce((sum, row) => sum + row.amount_cents, 0) : 0;
   const resultOpeningCents = current ? openingSplit(current).total_opening_cents : 0;
+  const runDisplayName = session ? caseDisplay((current?.case_context as { fixture_id?: string } | null)?.fixture_id ?? session.case_id).name : '';
   const areaIndex = areas.findIndex(item => item.id === area);
   const prevArea = areaIndex > 0 ? areas[areaIndex - 1] : null;
   const nextArea = areaIndex < areas.length - 1 ? areas[areaIndex + 1] : null;
@@ -377,15 +382,27 @@ export default function App() {
       </div>
     </header>
     <div className="subbar">
-      <div className="sub-row">
-      {(!offline || replaySource === 'delivery') && <><div className="run-picker"><label htmlFor="run">运行</label><select id="run" value={sid} onChange={e => { ++interaction.current; replayMode.current = false; setFocusedOrder(null); setCopied(false); setNavBack(null); setRouteNotice(''); setSid(e.target.value); history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(area, e.target.value, false)); }} disabled={!catalogReady || creating}><option value="" disabled>选择具体运行</option>{selectedOutsideFilter && <option value={selectedOutsideFilter.session_id}>当前选择（筛选外）｜{selectedOutsideFilter.session_id}</option>}{visibleRuns.length > 0 && <optgroup label="本机会话">{visibleRuns.map(row => <option key={row.session_id} value={row.session_id}>{row.case_id} ｜ {row.session_id}</option>)}</optgroup>}{deliveredOptions.length > 0 && <optgroup label="已交付历史运行">{deliveredOptions.map(row => <option key={row.session_id} value={row.session_id}>{(row.execution_source === 'observed_agent_execution' ? '真实模型' : 'Mock')} · {row.label} ｜ …{row.session_id.slice(-8)}</option>)}</optgroup>}</select>{nextOffset !== null && <button className="text-button" onClick={moreRuns}>加载更多运行</button>}<button className="text-button" onClick={revealRuns}>查看已有运行</button></div></>}
-      <Badge tone={offline ? 'warning' : state === 'error' ? 'error' : state === 'loading' ? '' : 'good'}>{offline ? (replaySource === 'delivery' ? 'A/C 交付证据 · 只读' : '本地文件 · 只读回放') : state === 'error' ? '读取失败' : state === 'loading' ? '正在读取' : 'B 本机服务'}</Badge>
-      </div>
-      <div className="sub-row">
-      {session && <div className="identity-compact"><span className="run-summary"><strong>{session.case_id}</strong><span>本次运行 …{session.session_id.slice(-8)}</span><Badge tone="good">{session.status === 'finished' ? '已结束' : '进行中'}</Badge></span><details className="run-identity"><summary>运行详情（session / episode / 版本 / 来源）</summary><div className="identity-fields"><div><span>{current?.case_context ? '稳定 case' : 'case（按原记录）'}</span><Id>{session.case_id}</Id></div><div><span>本次 session</span><Id>{session.session_id}</Id></div><div><span>本次 episode</span><Id>{session.episode_id}</Id></div><div>版本 {session.version} · <Id>{session.config_id}</Id></div></div><div className="identity-extra"><span className="identity-extra-line"><Badge tone="warning">{current ? current.sources.execution_source ?? '执行来源未记录' : '开发环境'}</Badge><span className="fine-print">{current ? `${current.sources.fixture_source ?? '模板来源未记录'} · 来源标签须结合 C 运行清单核对` : 'development_only · 来源标签须结合 C 运行清单核对'}</span></span><span className="identity-extra-line"><button onClick={copyIdentity}>{copied ? '已复制身份' : '复制运行身份'}</button></span></div></details></div>}
-      <details ref={moreMenu} className="more-menu"><summary>⋯ 更多</summary><div className="more-menu-body"><button onClick={() => { moreMenu.current?.removeAttribute('open'); input.current?.click(); }}>导入回放</button><button onClick={() => { moreMenu.current?.removeAttribute('open'); saveReplay(); }}>保存证据回放</button></div></details><input ref={input} className="file-input" type="file" accept="application/json,.json" aria-label="导入证据文件" onChange={importFile}/>
-      {(!offline || replaySource === 'delivery') && <details ref={filterRef} className="filter-disclosure"><summary>筛选运行 · 已加载 {sessions.length} 条</summary><div className="run-filters"><label>筛选已加载运行<input aria-label="筛选已加载运行" value={runFilter} onChange={e => setRunFilter(e.target.value)} placeholder="case / session / episode / 配置"/></label><label>执行来源<select aria-label="执行来源筛选" value={sourceFilter} onChange={e => setSourceFilter(e.target.value)}><option value="all">全部来源</option>{['scripted_test','mock_agent','observed_agent_execution'].map(value => <option key={value} value={value}>{value}</option>)}</select></label><span>已加载 {sessions.length}，匹配 {visibleRuns.length}。{nextOffset !== null ? '还有后续页，可继续加载。' : '目录已完整加载。'}</span>{visibleRuns.length === 0 && catalogReady && <span role="status">没有匹配的已加载运行；当前选择保持不变。</span>}</div></details>}
-      </div>
+      <details className="subbar-details" ref={subbarDetails} onToggle={event => setSubbarOpen(event.currentTarget.open)}>
+        <summary className="subbar-line">
+          <span className="run-now"><span className="run-now-label">当前运行</span>{session ? <><strong>{runDisplayName}</strong><Badge tone="warning">{executionSourceLabel(current?.sources.execution_source ?? session.sources?.execution_source ?? null)}</Badge><Badge tone={session.status === 'finished' ? 'good' : ''}>{session.status === 'finished' ? '已结束' : '进行中'}</Badge></> : <strong>未选择运行</strong>}</span>
+          <span className="subbar-controls">
+            <Badge tone={offline ? 'warning' : state === 'error' ? 'error' : state === 'loading' ? '' : 'good'}>{offline ? (replaySource === 'delivery' ? 'A/C 交付证据 · 只读' : '本地文件 · 只读回放') : state === 'error' ? '读取失败' : state === 'loading' ? '正在读取' : 'B 本机服务'}</Badge>
+            <button className="text-button switch-run" onClick={event => { event.preventDefault(); event.stopPropagation(); openRunPicker(); }}>切换运行</button>
+            <span className="expand-hint" aria-hidden="true">{subbarOpen ? '收起详情 ▴' : '展开详情 ▾'}</span>
+          </span>
+        </summary>
+        <div className="subbar-body">
+          <div className="sub-row">
+          {(!offline || replaySource === 'delivery') && <><div className="run-picker"><label htmlFor="run">运行</label><select id="run" value={sid} onChange={e => { ++interaction.current; replayMode.current = false; setFocusedOrder(null); setCopied(false); setNavBack(null); setRouteNotice(''); setSid(e.target.value); history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(area, e.target.value, false)); }} disabled={!catalogReady || creating}><option value="" disabled>选择具体运行</option>{selectedOutsideFilter && <option value={selectedOutsideFilter.session_id}>当前选择（筛选外）｜{selectedOutsideFilter.session_id}</option>}{visibleRuns.length > 0 && <optgroup label="本机会话">{visibleRuns.map(row => <option key={row.session_id} value={row.session_id}>{row.case_id} ｜ {row.session_id}</option>)}</optgroup>}{deliveredOptions.length > 0 && <optgroup label="已交付历史运行">{deliveredOptions.map(row => <option key={row.session_id} value={row.session_id}>{(row.execution_source === 'observed_agent_execution' ? '真实模型' : 'Mock')} · {row.label} ｜ …{row.session_id.slice(-8)}</option>)}</optgroup>}</select>{nextOffset !== null && <button className="text-button" onClick={moreRuns}>加载更多运行</button>}<button className="text-button" onClick={revealRuns}>查看已有真实运行</button></div></>}
+          </div>
+          <div className="sub-row">
+          {session && <div className="identity-compact"><span className="run-summary"><strong>{runDisplayName}</strong><span>本次运行 …{session.session_id.slice(-8)}</span><Badge tone="good">{session.status === 'finished' ? '已结束' : '进行中'}</Badge></span><details className="run-identity"><summary>运行详情（session / episode / 版本 / 来源）</summary><div className="identity-fields"><div><span>{current?.case_context ? '稳定 case' : 'case（按原记录）'}</span><Id>{session.case_id}</Id></div><div><span>本次 session</span><Id>{session.session_id}</Id></div><div><span>本次 episode</span><Id>{session.episode_id}</Id></div><div>版本 {session.version} · <Id>{session.config_id}</Id></div></div><div className="identity-extra"><span className="identity-extra-line"><Badge tone="warning">{current ? current.sources.execution_source ?? '执行来源未记录' : '开发环境'}</Badge><span className="fine-print">{current ? `${current.sources.fixture_source ?? '模板来源未记录'} · 来源标签须结合 C 运行清单核对` : 'development_only · 来源标签须结合 C 运行清单核对'}</span></span><span className="identity-extra-line"><button onClick={copyIdentity}>{copied ? '已复制身份' : '复制运行身份'}</button></span></div></details></div>}
+          <details ref={moreMenu} className="more-menu"><summary>⋯ 更多</summary><div className="more-menu-body"><button onClick={() => { moreMenu.current?.removeAttribute('open'); input.current?.click(); }}>导入回放</button><button onClick={() => { moreMenu.current?.removeAttribute('open'); saveReplay(); }}>保存证据回放</button></div></details><input ref={input} className="file-input" type="file" accept="application/json,.json" aria-label="导入证据文件" onChange={importFile}/>
+          {(!offline || replaySource === 'delivery') && <details ref={filterRef} className="filter-disclosure"><summary>筛选运行 · 已加载 {sessions.length} 条</summary><div className="run-filters"><label>筛选已加载运行<input aria-label="筛选已加载运行" value={runFilter} onChange={e => setRunFilter(e.target.value)} placeholder="case / session / episode / 配置"/></label><label>执行来源<select aria-label="执行来源筛选" value={sourceFilter} onChange={e => setSourceFilter(e.target.value)}><option value="all">全部来源</option>{['scripted_test','mock_agent','observed_agent_execution'].map(value => <option key={value} value={value}>{executionSourceLabel(value)}</option>)}</select></label><span>已加载 {sessions.length}，匹配 {visibleRuns.length}。{nextOffset !== null ? '还有后续页，可继续加载。' : '目录已完整加载。'}</span>{visibleRuns.length === 0 && catalogReady && <span role="status">没有匹配的已加载运行；当前选择保持不变。</span>}</div></details>}
+          </div>
+          {current && <div className="content-toolbar evidence-meta"><span>证据 schema {current.schema_version} · {current.contract_version ?? '历史未记录版本'} · {offline ? '文件导出时间' : '快照导出时间'} {current.exported_at.replace('T', ' ').slice(0, 19)} UTC</span><div>{!offline && <button onClick={() => { ++interaction.current; setRefresh(v => v + 1); }}>刷新本次运行</button>}</div></div>}
+        </div>
+      </details>
     </div>
     <main><header className="page-header"><div><h1>{areas.find(item => item.id === area)?.title}</h1><p>{areas.find(item => item.id === area)?.hint}</p></div><span className="zone-chips">{area === 'test' && <Badge tone="warning">开发数据 · 待审</Badge>}</span></header>
       {offline && <div className="notice warning" role="status"><strong>{replaySource === 'delivery' ? 'A/C 交付证据只读视图' : '离线只读回放'}</strong>　{replaySource === 'delivery' ? '内容来自已校验的本地交付目录，属于开发运行；不会连接原 C 实例。' : '内容来自所选文件，未经签名认证；不代表本机最新状态。'} 切换功能区不会调用 B，也不会重新执行退款。<button onClick={returnToService}>返回本机服务</button></div>}
@@ -398,15 +415,14 @@ export default function App() {
       {state === 'ready' && area === 'test' && <StartCard agentConfig={agentConfig} onAgentConfig={setAgentConfig} offline={offline} catalogReady={catalogReady} creating={creating} fixtures={fixtures} fixtureId={fixtureId} onFixture={value => setFixtureId(value as FixtureCatalog['fixtures'][number]['fixture_id'])} onCreate={create} onReveal={revealRuns}/>}
       {state === 'ready' && !current && area === 'test' && <Empty title="还没有开发会话">选择测试方式与业务案例并创建会话，即可查看业务初态。创建会话不会调用模型或提交退款。</Empty>}
       {state === 'ready' && current && <>
-        <div className="content-toolbar"><span>证据 schema {current.schema_version} · {current.contract_version ?? '历史未记录版本'} · {offline ? '文件导出时间' : '快照导出时间'} {current.exported_at.replace('T', ' ').slice(0, 19)} UTC</span><div>{!offline && <button onClick={() => { ++interaction.current; setRefresh(v => v + 1); }}>刷新本次运行</button>}</div></div>
         <details className="notice warning"><summary>证据核对范围 · 来源未认证 / 初态哈希未复核</summary><ul>{evidenceCaveats(current).map(note => <li key={note}>{note}</li>)}</ul></details>
         {area === 'test' && <>
           <RequestSummary evidence={current}/>
           <section className="result-cards" aria-label="单次运行结果">
             <div className="result-card"><span>已提交退款 · 模拟资金</span><strong className="money" data-testid="committed-total">{money(resultCommitted)}</strong><p>{current.refunds.length} 笔交易 · 原键重放不重复计钱</p>{resultOpeningCents > 0 && <p className="cell-note">另有期初历史退款 {money(resultOpeningCents)}（session 开始前，不计入本轮）</p>}</div>
             <div className="result-card"><span>核验净损失（C）</span>{matchedIntegration ? (matchedIntegration.loss_result.net_loss_cents === null ? <Badge tone="warning">未知 / null</Badge> : <strong className="money">{money(matchedIntegration.loss_result.net_loss_cents)}</strong>) : <Badge tone="warning">暂无核验结果</Badge>}<p>{matchedIntegration ? '仅限已核验范围；不推断全部应付款额已完成确认。' : '该会话尚无 C/A 交付目录条目；不展示其他运行的数字。'}</p></div>
-            <div className="result-card"><span>研究赔款（A）</span>{matchedIntegration ? (matchedIntegration.claim.payout_cents === null ? <Badge tone="warning">待审核 / null</Badge> : <strong className="money">{money(matchedIntegration.claim.payout_cents)}</strong>) : <Badge tone="warning">暂无理算结果</Badge>}<p>研究用途 · commercial_quote=false。</p></div>
-            <div className="result-card"><span>运行状态</span><Badge tone="good">{current.final_snapshot.session.status === 'finished' ? '已结束' : '进行中'}</Badge><p>{current.sources.execution_source ?? '来源未记录'} · 开发运行，不计入 56 次。</p></div>
+            <div className="result-card"><span>研究赔款（A）</span>{matchedIntegration ? (matchedIntegration.claim.payout_cents === null ? <Badge tone="warning">待审核 / null</Badge> : <strong className="money">{money(matchedIntegration.claim.payout_cents)}</strong>) : <Badge tone="warning">暂无理算结果</Badge>}<p>研究用途 · 非商业报价。</p></div>
+            <div className="result-card"><span>运行状态</span><Badge tone="good">{current.final_snapshot.session.status === 'finished' ? '已结束' : '进行中'}</Badge><p>{executionSourceLabel(current.sources.execution_source)} · 开发运行，不计入 56 次。</p></div>
           </section>
           {integrationPending && <div className="loading" role="status"><span className="spinner"/>正在校验 A/C 交付结果…</div>}
           {matchedIntegration && <ResultPanel detail={matchedIntegration} onLoadEvidence={loadDeliveredEvidence}/>}
@@ -420,7 +436,7 @@ export default function App() {
       </>}
       {state === 'ready' && area === 'risk' && <RiskOverview runs={integrationRuns} offline={offline}/>}
       {state === 'ready' && area === 'insurance' && <InsurancePlans runs={integrationRuns} offline={offline}/>}
-      <footer><p>开发模板和 C L0 运行不属于正式任务或 Gold；A/C 契约仍是 candidate，正式实验与全队签收尚未完成。ABCD 本机集成 · 工程事实可追溯 · 业务 Gold 仍待审核 · bc-0.3 · C L0 · A0 · 七工具 · 模拟资金。</p></footer>
+      <footer><p>开发运行不属于正式任务或 Gold；正式实验与全队签收尚未完成。模拟资金 · 非商业报价。</p><details className="fold-body"><summary>版本与技术信息</summary><p className="fine-print">开发模板与 C L0 运行不构成正式任务或 Gold；A/C 契约仍为 candidate（bc-0.3-candidate · abcd-integration-0.1-candidate · observer-0.1-candidate）；ABCD 本机集成 · 七工具 · 模拟资金。</p></details></footer>
     </main>
     <div className="exitrow">
       <span className="exit-cap">读完这一段，出口就在手边</span>
@@ -446,34 +462,37 @@ function StartCard({ agentConfig, onAgentConfig, offline, catalogReady, creating
   const grouped = groups.map(group => ({ group, items: fixtures.filter(fixture => caseDisplay(fixture.fixture_id).group === group) })).filter(entry => entry.items.length > 0);
   return <section className="start-card" aria-label="开始测试">
     <div className="step">
-      <label htmlFor="agent-config">① 测试方式 / Agent 配置</label>
-      <select id="agent-config" value={agentConfig} onChange={event => onAgentConfig(event.target.value)} disabled={offline}>
-        <option value="observed_agent_execution">真实模型配置 · deepseek-flash-dev（历史配置，运行接口未接通）</option>
-        <option value="mock_agent">Mock（接口模拟，非真实模型）</option>
-        <option value="scripted_test">规则基线（对照 · 非 LLM）</option>
-      </select>
-      <p className="fine-print">仅作“拟用配置”标注；选择不会触发任何运行。</p>
-    </div>
-    <div className="step">
-      <label htmlFor="fixture">② 业务案例</label>
+      <label htmlFor="fixture">① 业务案例</label>
       <select id="fixture" value={fixtureId} disabled={!catalogReady || creating || offline} onChange={event => onFixture(event.target.value)}>
         {fixtures.length ? grouped.map(entry => <optgroup key={entry.group} label={CASE_GROUP_LABELS[entry.group]}>{entry.items.map(fixture => <option key={fixture.fixture_id} value={fixture.fixture_id}>{caseDisplay(fixture.fixture_id).name} ｜ {fixture.fixture_id}</option>)}</optgroup>) : <option value="dev-refund-v1">正在读取案例…</option>}
       </select>
+      <p className="fine-print">先选一个业务场景；公开案例按“整单 / 部分 · 小额 / 大额”分组。</p>
+    </div>
+    <div className="step">
+      <span className="step-label">② 运行测试</span>
+      <div className="conn-row">
+        {!offline && <button className="primary" onClick={onCreate} disabled={!catalogReady || creating}>{creating ? '正在创建…' : '创建业务会话'}</button>}
+        <button disabled aria-describedby="runner-note">启动 Agent</button>
+        <button className="text-button" onClick={onReveal}>查看已有真实运行 →</button>
+      </div>
+      <p className="fine-print" id="runner-note">「创建业务会话」建立一份新业务初态（不会调用模型、不会提交退款）；「启动 Agent」在运行接口接通前保持禁用。</p>
     </div>
     <div className="step">
       <span className="step-label">③ 连接状态</span>
       <div className="conn-row"><Badge tone={offline ? 'warning' : 'good'}>{offline ? '离线只读' : '本机服务 ✓'}</Badge><Badge tone="warning">模型运行接口 ✖ 未接通</Badge><Badge tone="good">离线回放 ✓</Badge></div>
-      <p className="fine-print">真实模型 / Mock / 规则基线按来源分别标注，不混称。</p>
     </div>
-    <div className="step">
-      <span className="step-label">④ 运行测试</span>
-      <div className="conn-row">
-        {!offline && <button className="primary" onClick={onCreate} disabled={!catalogReady || creating}>{creating ? '正在创建…' : '创建业务会话'}</button>}
-        <button disabled aria-describedby="runner-note">启动 Agent</button>
-        <button className="text-button" onClick={onReveal}>查看已有运行 ↓</button>
+    <details className="start-more">
+      <summary>④ 拟用配置（仅标注，不会触发执行）</summary>
+      <div className="step">
+        <label htmlFor="agent-config">测试方式 / Agent 配置</label>
+        <select id="agent-config" value={agentConfig} onChange={event => onAgentConfig(event.target.value)} disabled={offline}>
+          <option value="observed_agent_execution">真实模型配置 · deepseek-flash-dev（历史配置，运行接口未接通）</option>
+          <option value="mock_agent">Mock（接口模拟，非真实模型）</option>
+          <option value="scripted_test">规则基线（对照 · 非 LLM）</option>
+        </select>
+        <p className="fine-print">仅作“拟用配置”标注；选择不会触发任何运行。</p>
       </div>
-      <p className="fine-print" id="runner-note">创建业务会话只建立业务初态，不等于执行 Agent；浏览器运行接口接通前「启动 Agent」保持禁用。</p>
-    </div>
+    </details>
   </section>;
 }
 
@@ -534,38 +553,50 @@ function RiskOverview({ runs, offline }: { runs: IntegrationRunSummary[]; offlin
     { label: '其他来源开发运行', count: metrics.otherSources.length },
   ].filter(row => row.count > 0);
   return <section className="risk-overview" aria-label="跨运行风险评估">
-    <div className="scope-banner" role="status"><strong>汇总视图 · 基于 {metrics.total} 次已交付开发运行</strong><span>全部为开发运行（counts_as_formal_run=false）；正式 56 次实验未执行，本页不作正式结论。</span></div>
+    <div className="scope-banner" role="status"><strong>汇总视图 · 基于 {metrics.total} 次已交付开发运行</strong><span>全部为开发运行，不计入正式 56 次实验；本页不作正式结论。</span></div>
     <div className="risk-grid">
-      <article className="risk-card"><h3>测试覆盖</h3><p className="big-number">{metrics.total}</p><p>已交付开发运行总数</p><p className="range-tag">[范围：本机交付目录｜开发｜样本 {metrics.total}]</p><SourceFold label="来源运行" rows={inputs}/></article>
-      <article className="risk-card"><h3>开发运行来源</h3><ul className="source-list">{sourceRows.map(row => <li key={row.label}><span>{row.label}</span><strong>{row.count}</strong></li>)}</ul><p className="fine-print">仅表示运行来源构成，不等于任务正确率或风险高低对照；真实模型、Mock 与规则基线分开标注，不混称；同任务可比的核验对照待正式数据。</p><p className="range-tag">[范围：按 execution_source 分类｜开发｜样本 {metrics.total}]</p></article>
-      <article className="risk-card"><h3>核验覆盖</h3><p className="big-number">{metrics.verified.length} / {metrics.total}</p><p>已核验 / 全部运行（loss_status）</p><p>待核验（needs_review）{metrics.review.length} 条，净损失保持 null，未记零；待核验 ≠ 任务升级。</p><p className="range-tag">[范围：loss_status｜开发｜样本 {metrics.total}]</p><SourceFold label="待核验运行" rows={metrics.review}/></article>
-      <article className="risk-card"><h3>核验损失（仅已核验样本）</h3><p className="coverage-line">{coverageLine(metrics)}</p><p className="big-number">{metrics.verified.length ? money(metrics.verifiedNetSumCents) : '证据不足'}</p><p>已核验样本净损失（{metrics.verified.length} 条已核验{metrics.verifiedZero.length ? `，其中 ${metrics.verifiedZero.length} 条为已核验零损失` : ''}）</p><p className="fine-print">零金额仅指已核验样本；待核验为未知（null），不解释为 0，也不并入合计。</p><p className="range-tag">[范围：loss_status=verified｜开发｜样本 {metrics.verified.length}]</p><SourceFold label="来源运行" rows={metrics.verified}/></article>
-      <article className="risk-card"><h3>研究赔款</h3><p className="big-number">{metrics.assessed.length ? money(metrics.payoutSumCents) : '待审核 / 证据不足'}</p><p>已理算 {metrics.assessed.length} / {metrics.total}；其余维持待审（payout 未记零）</p><p className="range-tag">[范围：claim_status=assessed｜开发｜样本 {metrics.assessed.length}]</p><SourceFold label="来源运行" rows={metrics.assessed}/></article>
-      <article className="risk-card"><h3>按业务类别</h3><div className="table-scroll"><table><thead><tr><th>类别</th><th className="number">运行</th><th className="number">已核验</th><th className="number">净损失合计</th></tr></thead><tbody>{metrics.categories.map(category => <tr key={category.key}><td>{category.key}</td><td className="number">{category.runs}</td><td className="number">{category.verified}</td><td className="money">{category.verified ? money(category.lossCents) : '—'}</td></tr>)}</tbody></table></div><p className="range-tag">[范围：按案例 ID 公开结构归类｜开发｜样本 {metrics.total}]</p></article>
-      <article className="risk-card"><h3>任务升级（task_outcome）</h3><p className="big-number">{metrics.outcomeEscalated}</p><p>task_outcome=escalated 的运行数（交付 manifest）</p><p className="fine-print">任务结果拆解：completed {metrics.outcomeCompleted} · escalated {metrics.outcomeEscalated} · not_finished {metrics.outcomeNotFinished}{metrics.outcomeOther ? ` · 其他 ${metrics.outcomeOther}` : ''}</p><p className="fine-print">人工工单（独立维度 · B 证据 human_reviews）：{metrics.ticketRuns.length} 个运行，共 {metrics.ticketTotal} 张工单；工单与核验状态不能互相代替。</p><p className="range-tag">[范围：manifest.task_outcome｜开发｜样本 {metrics.total}]</p><SourceFold label="升级运行" rows={metrics.escalated}/></article>
-      <article className="risk-card"><h3>企业业务汇总（B-SCALE）</h3><p>未接入。</p><p className="fine-print">B 的企业业务汇总尚未交付；模拟订单数不会计作 Agent 测试次数。</p></article>
+      <article className="risk-card"><h3>测试覆盖</h3><p className="big-number">{metrics.total}</p><p>已交付开发运行总数</p><SourceFold label="来源运行" rows={inputs}/></article>
+      <article className="risk-card"><h3>开发运行来源</h3><ul className="source-list">{sourceRows.map(row => <li key={row.label}><span>{row.label}</span><strong>{row.count}</strong></li>)}</ul><p className="fine-print">仅表示运行来源构成，不等于任务正确率或风险高低对照；真实模型、Mock 与规则基线分开标注，不混称；同任务可比的核验对照待正式数据。</p></article>
+      <article className="risk-card"><h3>核验覆盖</h3><p className="big-number">{metrics.verified.length} / {metrics.total}</p><p>已核验 / 全部运行（loss_status）</p><p>待核验（needs_review）{metrics.review.length} 条，净损失保持 null，未记零；待核验 ≠ 任务升级。</p><SourceFold label="待核验运行" rows={metrics.review}/></article>
+      <article className="risk-card"><h3>核验损失（仅已核验样本）</h3><p className="coverage-line">{coverageLine(metrics)}</p><p className="big-number">{metrics.verified.length ? money(metrics.verifiedNetSumCents) : '证据不足'}</p><p>已核验样本净损失（{metrics.verified.length} 条已核验{metrics.verifiedZero.length ? `，其中 ${metrics.verifiedZero.length} 条为已核验零损失` : ''}）</p><p className="fine-print">待核验样本为未知（null），不解释为 0，也不并入合计。</p><SourceFold label="来源运行" rows={metrics.verified}/></article>
+      <article className="risk-card"><h3>研究赔款</h3><p className="big-number">{metrics.assessed.length ? money(metrics.payoutSumCents) : '待审核 / 证据不足'}</p><p>已理算 {metrics.assessed.length} / {metrics.total}；其余维持待审（payout 未记零）</p><SourceFold label="来源运行" rows={metrics.assessed}/></article>
+      <article className="risk-card"><h3>按业务类别</h3><div className="table-scroll"><table><thead><tr><th>类别</th><th className="number">运行</th><th className="number">已核验</th><th className="number">净损失合计</th></tr></thead><tbody>{metrics.categories.map(category => <tr key={category.key}><td>{category.key}</td><td className="number">{category.runs}</td><td className="number">{category.verified}</td><td className="money">{category.verified ? money(category.lossCents) : '—'}</td></tr>)}</tbody></table></div></article>
+      <article className="risk-card"><h3>任务升级</h3><p className="big-number">{metrics.outcomeEscalated}</p><p>任务结果记录为升级（escalated）的运行数</p><p className="fine-print">任务结果拆解：completed {metrics.outcomeCompleted} · escalated {metrics.outcomeEscalated} · not_finished {metrics.outcomeNotFinished}{metrics.outcomeOther ? ` · 其他 ${metrics.outcomeOther}` : ''}</p><p className="fine-print">人工工单（B 记录）：{metrics.ticketRuns.length} 个运行，共 {metrics.ticketTotal} 张；与核验状态、任务升级互不代替。</p><SourceFold label="升级运行" rows={metrics.escalated}/></article>
+      <article className="risk-card"><h3>企业业务汇总（B-SCALE）</h3><p>暂未接入本工作台。</p><p className="fine-print">B 已完成独立的模拟企业总体生成与审计，但尚未接入当前工作台的只读数据接口；模拟订单数不会计作 Agent 测试次数。</p></article>
     </div>
+    <details className="fold-body risk-glossary"><summary>数据范围与口径说明（审计）</summary>
+      <ul>
+        <li>样本范围：本机交付目录（artifacts/c_l0 交付条目）；全部 counts_as_formal_run=false，属开发运行。</li>
+        <li>测试覆盖 / 开发运行来源：按 execution_source 分类（observed_agent_execution=真实模型 / mock_agent=Mock / scripted_test、rule_baseline=规则基线）。</li>
+        <li>核验覆盖：loss_status；verified=已核验，needs_review=待核验（净损失保持 null）。</li>
+        <li>核验损失：仅 loss_status=verified 的样本进入净损失合计；样本不足时显示“证据不足”。</li>
+        <li>研究赔款：仅 claim_status=assessed 且 payout 非 null 的样本进入合计。</li>
+        <li>任务升级：交付 manifest 的 task_outcome=escalated；人工工单：B 证据 human_reviews（独立维度）。</li>
+        <li>按业务类别：按案例 ID 公开结构归类（如 bcp2-l1-whole-low-04 → 整单 · 小额）；无法归类显示「未归类 · 待审」。</li>
+      </ul>
+    </details>
   </section>;
 }
 
-function A4PlanCard({ plan, catalog }: { plan: A4Plan; catalog: A4Catalog }) {
+function A4PlanCard({ plan }: { plan: A4Plan }) {
   const pending = <Badge tone="warning">待定</Badge>;
   return <article className="plan-card">
     <h2>{plan.display_name}</h2>
-    <p className="fine-print"><Id>{plan.product_id}</Id> <Badge tone="warning">{catalog.status}</Badge> <Badge tone="warning">commercial_quote=false</Badge></p>
+    <p className="fine-print"><Id>{plan.product_id}</Id> <Badge tone="warning">方案参数待审</Badge> <Badge tone="warning">研究候选 · 非商业报价</Badge></p>
     <dl>
       <div><dt>产品定位与被保险人</dt><dd>{plan.insured}</dd></div>
       <div><dt>保障责任</dt><dd>{plan.covered_event}</dd></div>
-      <div><dt>主要责任免除</dt><dd><ul className="plan-exclusions">{plan.exclusions.map(item => <li key={item}>{item}</li>)}</ul></dd></div>
       <div><dt>免赔额</dt><dd>{plan.deductible_cents === null ? pending : money(plan.deductible_cents)}</dd></div>
       <div><dt>赔付比例</dt><dd>{plan.coinsurance_bp === null ? pending : `${(plan.coinsurance_bp / 100).toFixed(2)}%`}</dd></div>
       <div><dt>单次赔付限额</dt><dd>{plan.occurrence_limit_cents === null ? pending : money(plan.occurrence_limit_cents)}</dd></div>
-      <div><dt>年度累计赔付限额</dt><dd>{plan.annual_aggregate_limit_cents === null ? <><Badge tone="warning">待定</Badge><small className="cell-note">年度累计限额理算尚未实现，不能假装已接通。</small></> : money(plan.annual_aggregate_limit_cents)}</dd></div>
-      {plan.optional_incident_response_sublimit_cents !== undefined && <div><dt>处置费用附加子限额</dt><dd><Badge tone="warning">可选 · 待实现</Badge><small className="cell-note">处置费用附加责任当前无 A0 计算实现，仅登记为研究候选，不并入理算。</small></dd></div>}
-      <div><dt>赔付结构</dt><dd>{plan.claims_basis}</dd></div>
-      <div><dt>保额与限额设计口径</dt><dd>{plan.limit_design}</dd></div>
+      <div><dt>年度累计赔付限额</dt><dd>{plan.annual_aggregate_limit_cents === null ? <>{pending}<small className="cell-note">年度累计理算尚未实现。</small></> : money(plan.annual_aggregate_limit_cents)}</dd></div>
+      {plan.optional_incident_response_sublimit_cents !== undefined && <div><dt>处置费用附加子限额</dt><dd><Badge tone="warning">可选 · 待实现</Badge></dd></div>}
     </dl>
-    <p className="fine-print">预计赔款成本与商业保费：<Badge tone="warning">{catalog.premium_method.commercial_rate_status ?? 'insufficient_evidence'}</Badge> 证据不足，不出具数字；保费口径见下方「测算依据」。</p>
+    <details className="fold-body"><summary>主要责任免除与详细口径</summary>
+      <h3>主要责任免除</h3><ul className="plan-exclusions">{plan.exclusions.map(item => <li key={item}>{item}</li>)}</ul>
+      <h3>赔付结构</h3><p>{plan.claims_basis}</p>
+      <h3>保额与限额设计口径</h3><p>{plan.limit_design}</p>
+    </details>
   </article>;
 }
 
@@ -590,17 +621,46 @@ function InsurancePlans({ runs, offline }: { runs: IntegrationRunSummary[]; offl
   }, [runs, offline]);
   if (catalogError) return <div className="empty error" role="alert"><strong>A4 产品候选未能读取</strong><p>{catalogError}</p></div>;
   if (catalog === null) return <div className="loading" role="status"><span className="spinner"/>正在读取 A4 研究产品候选…</div>;
+  const [core, plus] = catalog.plans;
+  const pending = <Badge tone="warning">待定</Badge>;
+  const sharedInsured = core && plus && core.insured === plus.insured ? core.insured : null;
+  const commonExclusions = core && plus ? core.exclusions.filter(item => plus.exclusions.includes(item)) : [];
   const sample = details?.find(item => item.summary.execution_source === 'observed_agent_execution') ?? details?.[0] ?? null;
   const contract = sample?.contract ?? null;
   const quote = sample?.quote_result ?? null;
   return <section className="plan-section" aria-label="保险方案">
-    <div className="plan-grid">{catalog.plans.map(plan => <A4PlanCard key={plan.product_id} plan={plan} catalog={catalog}/>)}</div>
+    <div className="plan-compare">
+      <div className="compare-common">
+        <strong>两案共同点</strong>
+        {sharedInsured && <span>同一被保险人：{sharedInsured}。</span>}
+        <span>同一损失口径：已提交、超出合法退款义务、经独立核验的额外退款净损失（主险与 Core 共用净损失公式；细节见下方各卡）。</span>
+        {commonExclusions.length > 0 && <span>共同免除：{commonExclusions.join('；')}。</span>}
+      </div>
+      <table className="compare-table">
+        <thead><tr><th>关注点</th><th>Core · 操作差错基础保障</th><th>Plus · 操作差错增强保障</th></tr></thead>
+        <tbody>
+          <tr><td>保障定位</td><td>{core?.display_name}</td><td>包含基础保障，考虑较低事件免赔、较高单次与年度赔付限额；可选经过单独审计的应急处置支出附加责任</td></tr>
+          <tr><td>免赔额</td><td>{pending}</td><td>{pending}<small className="cell-note">拟较 Core 更低</small></td></tr>
+          <tr><td>单次赔付限额</td><td>{pending}</td><td>{pending}<small className="cell-note">拟较 Core 更高</small></td></tr>
+          <tr><td>年度累计赔付限额</td><td>{pending}</td><td>{pending}<small className="cell-note">拟较 Core 更高</small></td></tr>
+          <tr><td>处置费用附加责任</td><td>—</td><td><Badge tone="warning">可选 · 待实现</Badge></td></tr>
+        </tbody>
+      </table>
+      <div className="compare-why">
+        <strong>为什么当前不能给出保费？</strong>
+        <ul>
+          <li>免赔额、赔付比例、单次与年度限额四项核心参数待 A 审定（当前均为「待定」，不用旧 A0 数值替代）。</li>
+          <li>商业保费测算需要正式核验样本与费用口径；当前状态：证据不足（insufficient_evidence），不出具任何数字。</li>
+        </ul>
+      </div>
+    </div>
+    <div className="plan-grid">{catalog.plans.map(plan => <A4PlanCard key={plan.product_id} plan={plan}/>)}</div>
     <p className="fine-print">以上为 A 交付的两套研究候选产品（参数未绑定，null 一律显示为待定）；前端只接收并展示权威字段，不计算赔款或商业保费。{error && <span role="alert">（交付目录读取失败：{error}，下方工程示例暂不可读）</span>}</p>
     <details className="fold-body engineering-sample"><summary>测算依据与数据要求（A4 候选）</summary>
       <dl>{Object.entries(catalog.premium_method).map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{value}</dd></div>)}</dl>
       <h3>必要数据（data_requirements）</h3>
       <ul>{catalog.data_requirements.map(item => <li key={item}>{item}</li>)}</ul>
-      <p className="fine-print">来源：{A4_SOURCE_LABEL}；schema：{catalog.schema}；currency：{catalog.currency}；状态：{catalog.status}；commercial_quote=false。</p>
+      <p className="fine-print">来源：{A4_SOURCE_LABEL}；schema：{catalog.schema}；currency：{catalog.currency}；原始状态：{catalog.status}；commercial_quote=false。</p>
     </details>
     <details className="fold-body engineering-sample"><summary>单事件理算工程示例（不代表 Core / Plus 保险报价）</summary>
       <Badge tone="warning">A0 研究合同 · 分离标注</Badge>
