@@ -302,3 +302,26 @@ pre { font-family: Consolas, monospace; font-size: 12px; line-height: 1.7; backg
   .dev-grid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; } }
+
+/* ===== 第一页：新建一次测试与测试记录列表（2026-10-16 随机抽样重构） ===== */
+.new-test { margin-top: 22px; }
+.new-test-toggle { border: 2px solid var(--ink); border-radius: 6px; background: #fff; color: var(--ink); font-weight: 700; padding: 8px 16px; }
+.new-test-toggle:hover { background: #f4f4f4; }
+.new-test-panel { margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 16px 18px; display: grid; gap: 8px; justify-items: start; max-width: 880px; }
+.agent-pick { display: grid; gap: 6px; font-size: 13px; width: 100%; }
+.agent-pick > span { font-size: 12.5px; color: var(--muted); }
+.agent-pick select { width: 100%; max-width: 720px; padding: 6px 8px; border: 1px solid #c6c6c6; border-radius: 6px; background: #fff; }
+.primary-run { min-height: 38px; padding: 8px 22px; font-size: 14px; font-weight: 700; border: 2px solid var(--ink); border-radius: 6px; background: var(--yw); color: var(--ink); }
+.primary-run:disabled { background: #f1f1f1; border-color: #d8d8d8; color: #9a9a9a; }
+.new-test .fine-print { margin-top: 0; }
+.result-list { margin-top: 26px; }
+.list-tabs { display: flex; gap: 6px; border-bottom: 2px solid var(--ink); }
+.list-tab { border: 0; border-bottom: 0; border-radius: 6px 6px 0 0; background: #ededed; color: #3d3d3d; font-weight: 600; font-size: 13px; padding: 8px 16px; min-height: 34px; }
+.list-tab:hover:not(:disabled) { background: #e8e8e8; }
+.list-tab.active { background: var(--ink); color: #fff; }
+.list-empty { border: 1px dashed #d8d8d8; border-top: 0; border-radius: 0 0 8px 8px; background: #fff; color: var(--muted); padding: 18px 20px; font-size: 12.5px; line-height: 1.8; margin: 0; }
+.result-list .table-scroll { border: 1px solid var(--line); border-top: 0; border-radius: 0 0 8px 8px; background: #fff; }
+.rec-table th { white-space: nowrap; }
+.rec-table tr.selected td { background: #fffbe8; }
+.rec-table tr.selected td:first-child { box-shadow: inset 3px 0 0 var(--yw); }
+.rec-table .text-button { display: inline-block; }

@@ -1,0 +1,57 @@
+[
+  {
+    "config_id": "c-deepseek-flash-dev-v0.1",
+    "adapter": "openai_compatible",
+    "execution_source": "observed_agent_execution",
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "frozen": false,
+    "max_run_cost_cny": 0.5,
+    "notes": "Development pre-trial configuration for L0. Not frozen; formal L1 config must be frozen separately.",
+    "source_path": "configs/runner/deepseek-dev-v0.1.json"
+  },
+  {
+    "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+    "adapter": "openai_compatible",
+    "execution_source": "observed_agent_execution",
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "frozen": false,
+    "max_run_cost_cny": 0.5,
+    "notes": "Unfrozen development config for four public fixed cases. Not authorized to launch from this checkout. Rule baseline wire label stays scripted_test plus config_id c-rule-baseline-v0.1.",
+    "source_path": "configs/runner/deepseek-fixed-dev-v0.1.json"
+  },
+  {
+    "config_id": "c-deepseek-flash-l1-v0.1",
+    "adapter": "openai_compatible",
+    "execution_source": "observed_agent_execution",
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "frozen": false,
+    "max_run_cost_cny": 0.5,
+    "notes": "Proposed L1 agent config. Not frozen. Do not launch until tasks, Gold, prompt, and budget are confirmed. The three L0 development runs are not formal samples.",
+    "source_path": "configs/runner/deepseek-l1-v0.1.json"
+  },
+  {
+    "config_id": "c-mock-v0.1",
+    "adapter": "mock",
+    "execution_source": "mock_agent",
+    "provider": null,
+    "model": null,
+    "frozen": false,
+    "max_run_cost_cny": null,
+    "notes": "Deterministic scripted adapter for engineering checks. Not a model; never counted as a formal run.",
+    "source_path": "configs/runner/mock-v0.1.json"
+  },
+  {
+    "config_id": "c-rule-baseline-v0.1",
+    "adapter": "rule_baseline",
+    "execution_source": "scripted_test",
+    "provider": null,
+    "model": null,
+    "frozen": false,
+    "max_run_cost_cny": null,
+    "notes": "Deterministic C1-1 baseline. Not a model, not a formal sample, and not signed by A/D. Wire execution_source remains scripted_test until B adds a rule_baseline label.",
+    "source_path": "configs/runner/rule-baseline-v0.1.json"
+  }
+]

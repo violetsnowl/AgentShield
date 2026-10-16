@@ -10,6 +10,8 @@ import { CASE_GROUP_LABELS, caseDisplay } from './caseNames';
 import type { CaseGroup } from './caseNames';
 import { loadA4Products, A4_SOURCE_LABEL } from './data/a4Products';
 import type { A4Catalog, A4Plan } from './data/a4Products';
+import { loadRunnerConfigs, agentConfigLabel } from './data/runnerConfigs';
+import type { RunnerConfig } from './data/runnerConfigs';
 import { computeRiskMetrics, riskVerdict } from './riskMetrics';
 import type { RiskRunInput } from './riskMetrics';
 
@@ -347,6 +349,107 @@ function decimalCents(value: string | null) {
   return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(Number(value) / 100);
 }
 
+const SAMPLING_UNAVAILABLE_NOTE = '不可用：抽样执行接口尚未接入——后端任务抽样（B-SCALE 任务池）与受控执行链路未接通；在此之前本按钮不会新增任何记录。接通后每次运行独立建会话、不重复提交资金；真实模型调用另需独立的付费授权与预算约束。';
+
+type LedgerSlot = { state: 'loading' | 'ready' | 'error'; committedCents: number | null; tradeCount: number | null };
+type LossSlot = { state: 'loading' | 'ready' | 'error'; netLossCents: number | null; legalDue: number | null; payoutCents: number | null };
+
+/** C 义务口径候选应退：仅当每条义务都带合法应退金额时求和；否则 null（待核验），不补零。 */
+function legalDueSum(obligations: unknown[]): number | null {
+  if (obligations.length === 0) return null;
+  let sum = 0;
+  for (const item of obligations) {
+    const value = (item as { legally_due_cents?: unknown } | null)?.legally_due_cents;
+    if (typeof value !== 'number' || !Number.isSafeInteger(value)) return null;
+    sum += value;
+  }
+  return sum;
+}
+
+function NewTestPanel({ open, onToggle, configs, selected, onSelect }: {
+  open: boolean; onToggle: () => void; configs: RunnerConfig[] | null; selected: string; onSelect: (value: string) => void;
+}) {
+  const current = configs?.find(config => config.config_id === selected) ?? null;
+  return <section className="new-test" aria-label="新建一次测试">
+    <button className="new-test-toggle" data-testid="new-test-toggle" aria-expanded={open} onClick={onToggle}>＋新建一次测试</button>
+    {open && <div className="new-test-panel">
+      <label className="agent-pick"><span>Agent（仅真实已注册配置）</span>
+        <select id="agent-config" aria-label="选择 Agent 配置" value={selected} disabled={configs === null} onChange={event => onSelect(event.target.value)}>
+          {configs === null ? <option value="">正在读取已注册配置…</option> : configs.map(config => <option key={config.config_id} value={config.config_id}>{agentConfigLabel(config)}</option>)}
+        </select></label>
+      {current && <p className="fine-print">来源 {current.source_path} · {current.frozen ? '已冻结' : '未冻结'} · 单次成本上限（配置）{current.max_run_cost_cny === null ? '—' : `¥${current.max_run_cost_cny.toFixed(2)}`}</p>}
+      <button className="primary-run" id="sample-run" data-testid="sample-run" disabled aria-describedby="sample-run-note">随机抽样并运行</button>
+      <p className="fine-print" id="sample-run-note">{SAMPLING_UNAVAILABLE_NOTE}</p>
+      <p className="fine-print">抽样与执行由后端负责（总体版本、随机种子、任务 ID、批次与类别随记录落盘）；普通界面不提供事项类别或具体案例的手动选择。</p>
+    </div>}
+  </section>;
+}
+
+function TestRecordList({ sessions, runs, selected, onSelect, tab, onTab, ledgerBySession, lossByRun }: {
+  sessions: SessionStatus[]; runs: IntegrationRunSummary[]; selected: string; onSelect: (sid: string) => void;
+  tab: 'local' | 'history'; onTab: (tab: 'local' | 'history') => void;
+  ledgerBySession: Record<string, LedgerSlot>; lossByRun: Record<string, LossSlot>;
+}) {
+  const ledgerCell = (slot: LedgerSlot | undefined) => slot === undefined || slot.state === 'loading'
+    ? <span className="cell-note">读取中…</span>
+    : slot.state === 'error' ? <span className="cell-note">读取失败</span>
+    : <><strong className="money">{money(slot.committedCents ?? 0)}</strong><span className="cell-note">{slot.tradeCount} 笔交易</span></>;
+  const localRows = sessions.map(session => {
+    const display = caseDisplay(session.case_id);
+    return <tr key={session.session_id} data-sid={session.session_id} className={selected === session.session_id ? 'selected' : ''}>
+      <td><strong>{display.name}</strong><span className="cell-note">{session.case_id}</span></td>
+      <td><Badge>{session.status === 'finished' ? '已结束' : '未运行'}</Badge><span className="cell-note">{session.config_id ?? '未指定配置'} · 本机开发会话</span></td>
+      <td className="number">{ledgerCell(ledgerBySession[session.session_id])}</td>
+      <td className="number"><span className="cell-note">未接入</span></td>
+      <td className="number"><span className="cell-note">未接入</span></td>
+      <td className="number"><span className="cell-note">未接入</span></td>
+      <td><button className="text-button" onClick={() => onSelect(session.session_id)}>详情</button></td>
+    </tr>;
+  });
+  const historyRows = runs.map(run => {
+    const display = caseDisplay(run.case_id);
+    const slot = lossByRun[run.run_id];
+    let dueCell: ReactNode; let lossCell: ReactNode; let claimCell: ReactNode;
+    if (slot === undefined || slot.state === 'loading') {
+      const loading = <span className="cell-note">读取中…</span>;
+      dueCell = loading; lossCell = loading; claimCell = loading;
+    } else if (slot.state === 'error') {
+      const failed = <span className="cell-note">读取失败</span>;
+      dueCell = failed; lossCell = failed; claimCell = failed;
+    } else {
+      dueCell = slot.legalDue === null ? <Badge tone="warning">待核验</Badge> : <><strong className="money">{money(slot.legalDue)}</strong><span className="cell-note">C 义务口径 · 待审</span></>;
+      lossCell = slot.netLossCents === null ? <Badge tone="warning">待核验 / null</Badge> : <strong className="money">{money(slot.netLossCents)}</strong>;
+      claimCell = slot.payoutCents === null ? <Badge tone="warning">待审核 / null</Badge> : <strong className="money">{money(slot.payoutCents)}</strong>;
+    }
+    return <tr key={run.run_id} data-sid={run.session_id} className={selected === run.session_id ? 'selected' : ''}>
+      <td><strong>{display.name}</strong><span className="cell-note">{run.case_id} · {run.label}</span></td>
+      <td><Badge tone={run.execution_source === 'observed_agent_execution' ? 'good' : ''}>{executionSourceLabel(run.execution_source)}</Badge><span className="cell-note">{run.provider ? `${run.provider} / ${run.model ?? '—'}` : '无模型调用'} · {run.run_status === 'finished' ? '已结束' : run.run_status}{run.task_outcome ? ` · ${run.task_outcome}` : ''}</span></td>
+      <td className="number"><strong className="money">{money(run.total_committed_cents)}</strong><span className="cell-note">B 账本事实</span></td>
+      <td className="number">{dueCell}</td>
+      <td className="number">{lossCell}</td>
+      <td className="number">{claimCell}</td>
+      <td><button className="text-button" onClick={() => onSelect(run.session_id)}>详情</button></td>
+    </tr>;
+  });
+  const table = (rows: typeof localRows) => <div className="table-scroll"><table className="rec-table"><thead><tr>
+    <th>业务事项</th><th>Agent / 运行状态</th><th className="number">已提交退款（B）</th><th className="number">候选应退（C）</th><th className="number">核验净损失（C）</th><th className="number">研究赔款（A）</th><th>操作</th>
+  </tr></thead><tbody>{rows}</tbody></table></div>;
+  return <section className="result-list" aria-label="测试记录">
+    <div className="list-tabs" role="tablist" aria-label="测试记录分组">
+      <button role="tab" aria-selected={tab === 'local'} className={tab === 'local' ? 'list-tab active' : 'list-tab'} onClick={() => onTab('local')}>本机测试记录（{sessions.length}）</button>
+      <button role="tab" aria-selected={tab === 'history'} className={tab === 'history' ? 'list-tab active' : 'list-tab'} onClick={() => onTab('history')}>历史测试（{runs.length}）</button>
+    </div>
+    {tab === 'local'
+      ? (sessions.length === 0
+        ? <p className="list-empty">本机还没有新建的测试记录。执行接口接通前「＋新建一次测试」不会产生记录；可切到「历史测试」查看已交付运行。</p>
+        : table(localRows))
+      : (runs.length === 0
+        ? <p className="list-empty">交付目录中还没有已交付运行。</p>
+        : table(historyRows))}
+    <p className="fine-print">「历史测试」为已交付运行的只读查看（开发运行，不计入 56 次），不会与本机新建记录混列；「本机测试记录」尚未接入 C 核验与 A 理算链路（未接入 ≠ 零损失）。保险赔款与商户退款是两个概念，金额均按各自口径标注。</p>
+  </section>;
+}
+
 export default function App() {
   const [area, setArea] = useState<Area>(() => parseViewState(window.location.hash).area ?? 'test');
   const [fixtures, setFixtures] = useState<FixtureCatalog['fixtures']>([]);
@@ -372,6 +475,13 @@ export default function App() {
   const [integrationError, setIntegrationError] = useState('');
   const [integrationRefresh, setIntegrationRefresh] = useState(0);
   const [replaySource, setReplaySource] = useState<'file' | 'delivery'>('file');
+  const [newTestOpen, setNewTestOpen] = useState(false);
+  const [runnerConfigs, setRunnerConfigs] = useState<RunnerConfig[] | null>(null);
+  const [agentConfigId, setAgentConfigId] = useState('');
+  const [listTab, setListTab] = useState<'local' | 'history'>('history');
+  const [ledgerBySession, setLedgerBySession] = useState<Record<string, LedgerSlot>>({});
+  const [lossByRun, setLossByRun] = useState<Record<string, LossSlot>>({});
+  const fileReplay = offline && replaySource === 'file';
   const [evidenceOpen, setEvidenceOpen] = useState(() => parseViewState(window.location.hash).evidenceFocus);
   const input = useRef<HTMLInputElement>(null);
   const selection = useRef('');
@@ -505,6 +615,50 @@ export default function App() {
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, [sessions, integrationRuns]);
+  useEffect(() => {
+    if (fileReplay) return;
+    let active = true;
+    loadRunnerConfigs()
+      .then(list => { if (active) { setRunnerConfigs(list); setAgentConfigId(current => current || ((list.find(config => config.config_id === 'c-deepseek-flash-fixed-dev-v0.1') ?? list[0])?.config_id ?? '')); } })
+      .catch(() => { if (active) setRunnerConfigs([]); });
+    return () => { active = false; };
+  }, [fileReplay]);
+  useEffect(() => {
+    if (fileReplay || !catalogReady) return;
+    const pending = sessions.filter(row => !(row.session_id in ledgerBySession));
+    if (pending.length === 0) return;
+    pending.forEach(row => setLedgerBySession(map => row.session_id in map ? map : { ...map, [row.session_id]: { state: 'loading', committedCents: null, tradeCount: null } }));
+    void (async () => {
+      for (const row of pending) {
+        try {
+          const ledger = await api<Ledger>(`api/sessions/${row.session_id}/ledger`);
+          const committed = ledger.entries.reduce((sum, entry) => sum + (-entry.merchant_delta_cents), 0);
+          setLedgerBySession(map => ({ ...map, [row.session_id]: { state: 'ready', committedCents: committed, tradeCount: ledger.entries.length } }));
+        } catch {
+          setLedgerBySession(map => ({ ...map, [row.session_id]: { state: 'error', committedCents: null, tradeCount: null } }));
+        }
+      }
+    })();
+  }, [sessions, catalogReady, fileReplay, ledgerBySession]);
+  useEffect(() => {
+    if (fileReplay || !catalogReady || area !== 'test') return;
+    const pending = integrationRuns.filter(row => !(row.run_id in lossByRun));
+    if (pending.length === 0) return;
+    pending.forEach(row => setLossByRun(map => row.run_id in map ? map : { ...map, [row.run_id]: { state: 'loading', netLossCents: null, legalDue: null, payoutCents: null } }));
+    void Promise.all(pending.map(async row => {
+      try {
+        const detail = parseIntegrationDetail(await api<unknown>(`api/integration-runs/${row.run_id}`));
+        setLossByRun(map => ({ ...map, [row.run_id]: { state: 'ready', netLossCents: detail.loss_result.net_loss_cents, legalDue: legalDueSum(detail.loss_result.obligations), payoutCents: detail.claim.payout_cents } }));
+      } catch {
+        setLossByRun(map => ({ ...map, [row.run_id]: { state: 'error', netLossCents: null, legalDue: null, payoutCents: null } }));
+      }
+    }));
+  }, [integrationRuns, catalogReady, fileReplay, area, lossByRun]);
+  useEffect(() => {
+    if (sid === '') return;
+    if (sessions.some(row => row.session_id === sid)) setListTab('local');
+    else if (integrationRuns.some(row => row.session_id === sid)) setListTab('history');
+  }, [sid, sessions, integrationRuns]);
   async function loadService(epoch: number, preferDelivered = true) {
     setState('loading'); setError('');
     try {
@@ -573,6 +727,14 @@ export default function App() {
     setBundle(evidence); setEvents(orderedEvents(evidence.events)); setState('ready'); setError(''); setActionError(''); setArea('test'); setEvidenceOpen(true); window.setTimeout(() => document.getElementById('evidence-fold')?.scrollIntoView({ block: 'start' }), 0);
   }
   const deliveredOptions = integrationRuns.filter(row => !sessions.some(item => item.session_id === row.session_id));
+  function chooseRun(next: string) {
+    if (!next || next === sid) return;
+    ++interaction.current; replayMode.current = false; setFocusedOrder(null); setNavBack(null); setRouteNotice('');
+    if (offline) { setOffline(false); setReplaySource('file'); }
+    defaultLanding.current = null;
+    setSid(next);
+    history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(area, next, false));
+  }
   function showOrder(id: string) {
     if (area !== 'test') setNavBack(area);
     setFocusedOrder(id); setArea('test'); setEvidenceOpen(true);
@@ -596,13 +758,7 @@ export default function App() {
       <nav className="site-nav" aria-label="页面导航">{areas.map(item => <a key={item.id} className={area === item.id ? 'nav-link active' : 'nav-link'} aria-current={area === item.id ? 'page' : undefined} href={buildViewHash(item.id, sid || null, offline)} onClick={event => { event.preventDefault(); setNavBack(null); setArea(item.id); history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(item.id, sid || null, offline)); }}>{item.nav}</a>)}</nav>
       <div className="head-side">
         {(!offline || replaySource === 'delivery') && <label className="run-pick"><span className="run-pick-label">演示记录</span>
-          <select id="run" aria-label="选择演示记录" value={sid} disabled={!catalogReady || creating} onChange={event => {
-            ++interaction.current; replayMode.current = false; setFocusedOrder(null); setNavBack(null); setRouteNotice('');
-            if (offline) { setOffline(false); setReplaySource('file'); }
-            defaultLanding.current = null;
-            setSid(event.target.value);
-            history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(area, event.target.value, false));
-          }}>
+          <select id="run" aria-label="选择演示记录" value={sid} disabled={!catalogReady || creating} onChange={event => chooseRun(event.target.value)}>
             <option value="" disabled>选择具体运行</option>
             {sessions.length > 0 && <optgroup label="本机会话">{sessions.map(row => <option key={row.session_id} value={row.session_id}>{row.case_id} ｜ {row.session_id}</option>)}</optgroup>}
             {deliveredOptions.length > 0 && <optgroup label="已交付历史运行">{deliveredOptions.map(row => <option key={row.session_id} value={row.session_id}>{(row.execution_source === 'observed_agent_execution' ? '真实模型' : 'Mock')} · {row.label} ｜ …{row.session_id.slice(-8)}</option>)}</optgroup>}
@@ -621,8 +777,11 @@ export default function App() {
 
       {state === 'loading' && <div className="loading" role="status" aria-live="polite"><span className="spinner"/>正在读取本次运行的真实数据…</div>}
       {state === 'error' && <div role="alert" className="empty error"><strong>当前数据未能加载</strong><p>{error}</p><button onClick={retry}>重试读取</button><p className="fine-print">也可以导入已保存的证据，进行离线只读回放。</p></div>}
-      {state === 'ready' && !current && area === 'test' && <Empty title="还没有开发会话">可在下方「开发工具」中创建业务初态，或在上方「演示记录」选择一个已有运行。创建会话不会调用模型或提交退款。</Empty>}
-      {state === 'ready' && current && area === 'test' && <>
+      {state === 'ready' && area === 'test' && <>
+        {!fileReplay && <NewTestPanel open={newTestOpen} onToggle={() => setNewTestOpen(value => !value)} configs={runnerConfigs} selected={agentConfigId} onSelect={setAgentConfigId}/>}
+        {!fileReplay && (sessions.length > 0 || integrationRuns.length > 0) && <TestRecordList sessions={sessions} runs={integrationRuns} selected={sid} onSelect={chooseRun} tab={listTab} onTab={setListTab} ledgerBySession={ledgerBySession} lossByRun={lossByRun}/>}
+        {!current && <Empty title="还没有开发会话">可在下方「开发工具」中创建业务初态，或在上方「演示记录」选择一个已有运行。创建会话不会调用模型或提交退款。</Empty>}
+        {current && <>
         <CaseSummary evidence={current} name={runName}/>
         <RunResult evidence={current} matched={matchedIntegration} pending={integrationPending} hasEntry={integrationRuns.some(row => row.session_id === sid)} integrationError={integrationError} onRetry={() => setIntegrationRefresh(value => value + 1)}/>
         {matchedIntegration && <ResultPanel detail={matchedIntegration} onLoadEvidence={loadDeliveredEvidence}/>}
@@ -644,6 +803,7 @@ export default function App() {
             <Evidence key={sid} evidence={current} events={events} onOrder={showOrder}/>
           </div>
         </details>
+        </>}
       </>}
       {state === 'ready' && area === 'risk' && <RiskOverview runs={integrationRuns} offline={offline && replaySource !== 'delivery'}/>}
       {state === 'ready' && area === 'insurance' && <InsurancePlans runs={integrationRuns} offline={offline && replaySource !== 'delivery'}/>}
@@ -653,7 +813,7 @@ export default function App() {
       </nav>
       <footer className="site-foot">
         <p>开发运行不属于正式任务或 Gold；正式实验与全队签收尚未完成。模拟资金 · 非商业报价。</p>
-        <details className="dev-tools"><summary>开发工具（演示默认不展开）</summary>
+        <details className="dev-tools"><summary>开发工具 · 调试入口（演示默认不展开；用于固定案例回归）</summary>
           <div className="dev-grid">
             <div className="dev-item"><span className="dev-label">当前运行</span><div className="dev-row"><button onClick={() => { ++interaction.current; setRefresh(value => value + 1); }} disabled={offline || !current}>刷新本次运行</button></div><p className="fine-print">重新读取所选运行的证据；不改变任何业务事实。</p></div>
             {!offline && <div className="dev-item"><span className="dev-label">新建业务初态</span><div className="dev-row">

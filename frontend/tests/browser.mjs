@@ -90,6 +90,31 @@ try {
   check(await page.locator('tr[data-seq]').count() === 6, 'saved A1 evidence shows six real tool events');
   check((await page.locator('main').innerText()).includes('¥542.17'), 'saved A1 evidence and ledger preserve the 54217-cent money fact');
   await layout('real-a1-evidence-desktop');
+  // P1 随机抽样重构：普通界面无类别/案例挑选；Agent 选择器 + 诚实不可用态 + 记录列表分组。
+  check(await page.locator('[data-testid="new-test-toggle"]').count() === 1, 'P1: new-test entry is present on the case page');
+  check(await page.locator('#agent-config').count() === 0, 'P1: agent selector stays hidden until the new-test panel opens');
+  await page.locator('[data-testid="new-test-toggle"]').click();
+  await page.locator('#agent-config').waitFor();
+  const agentOptions = await page.locator('#agent-config option').evaluateAll(nodes => nodes.map(node => ({ value: node.value, label: node.textContent ?? '' })).filter(option => option.value));
+  check(agentOptions.length === 5 && agentOptions.some(option => option.value === 'c-deepseek-flash-fixed-dev-v0.1') && agentOptions.some(option => option.value === 'c-rule-baseline-v0.1'), 'P1: agent selector lists exactly the registered runner configs');
+  check(agentOptions.some(option => option.label.includes('规则基线')) && agentOptions.some(option => option.label.includes('需付费授权')), 'P1: agent options label model cost honestly');
+  check(await page.locator('#sample-run').isDisabled(), 'P1: sample-and-run is disabled while the sampling interface is not connected');
+  check((await page.locator('#sample-run-note').innerText()).includes('抽样执行接口尚未接入'), 'P1: the disabled sampling action carries its accurate reason');
+  check(await page.locator('.new-test select#fixture').count() === 0, 'P1: no case picker inside the new-test flow');
+  check(await page.locator('.result-list').count() === 1, 'P1: test record list is present');
+  await page.waitForFunction(() => document.querySelector('.list-tab.active')?.textContent?.includes('历史测试'));
+  check(true, 'P1: delivered record keeps the history view active');
+  check(await page.locator(`.result-list tr[data-sid="${landingSid}"]`).count() === 1, 'P1: history view shows the selected delivered record');
+  await page.getByRole('tab', { name: /本机测试记录/ }).click();
+  await page.waitForFunction(() => document.querySelector('.list-tab.active')?.textContent?.includes('本机测试记录'));
+  check(await page.locator('.result-list tbody tr').count() === config.sessions.length, 'P1: local tab lists exactly the local sessions');
+  check(await page.locator(`.result-list tr[data-sid="${config.sessions[0]}"]`).count() === 1, 'P1: local records are addressable per exact session');
+  check(await page.locator(`.result-list tr[data-sid="${landingSid}"]`).count() === 0, 'P1: delivered runs never appear in the local tab');
+  await page.getByRole('tab', { name: /历史测试/ }).click();
+  await page.waitForFunction(() => document.querySelector('.list-tab.active')?.textContent?.includes('历史测试'));
+  await page.locator('[data-testid="new-test-toggle"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('#agent-config').length === 0);
+  check(true, 'P1: new-test panel closes without side effects');
   await selectRun(config.sessions[0]);
   check((await page.locator('#run').inputValue()) === config.sessions[0], 'v1 exact session selected');
   check((await page.locator('main').innerText()).includes('¥3.33'), 'v1 actual 333-cent refund visible');
@@ -187,6 +212,24 @@ try {
     await navTo('01 测试案例');
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+    // P1 随机抽样重构：记录列表行可直接选择运行（选择后为本机会话/live 模式）；调试入口（#fixture）只存在于开发工具折叠内。
+    await page.getByRole('tab', { name: /本机测试记录/ }).click();
+    await page.waitForFunction(() => document.querySelector('.list-tab.active')?.textContent?.includes('本机测试记录'));
+    const listTarget = config.sessions[0];
+    if ((await page.locator('#run').inputValue()) !== listTarget) {
+      const rowResponse = page.waitForResponse(response => response.url().endsWith(`/sessions/${listTarget}/evidence`));
+      await page.locator(`.result-list tr[data-sid="${listTarget}"] button`).click();
+      await rowResponse;
+      await page.getByTestId('committed-total').waitFor();
+      check(await page.locator('#run').inputValue() === listTarget, 'P1: clicking a record row selects that exact run');
+      check(((await page.locator(`.result-list tr[data-sid="${listTarget}"]`).getAttribute('class')) ?? '').includes('selected'), 'P1: the selected record row is highlighted');
+    } else {
+      await page.locator(`.result-list tr[data-sid="${listTarget}"] button`).click();
+      check(await page.locator('#run').inputValue() === listTarget, 'P1: clicking the already-selected row keeps the same run');
+    }
+    check(await page.locator('#fixture').count() === 1 && await page.locator('details.dev-tools #fixture').count() === 1, 'P1: case picker exists only inside the dev-tools debug fold');
+    await page.getByRole('tab', { name: /历史测试/ }).click();
+    await page.waitForFunction(() => document.querySelector('.list-tab.active')?.textContent?.includes('历史测试'));
     if ((await page.locator('#run').inputValue()) !== config.sessions[0]) await selectRun(config.sessions[0]);
     await page.getByText('查看原始政策文案 · dev-policy-v1', { exact: true }).click();
     check((await page.locator('.policy').innerText()).includes('本批人工工单工具尚未接入'), 'v1 historical policy preserved literally');

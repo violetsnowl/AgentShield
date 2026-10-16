@@ -58,7 +58,11 @@ export const caseNames: Record<string, CaseDisplay> = {
   'bcp2-l1-stress-maximum': { name: '压力案例 · 订单上限 · L1', group: 'stress' },
 };
 
-/** 未收录的案例原样显示 fixture id，归入「其它案例」，不虚构名称。 */
+/** 未收录的案例原样显示 fixture id，归入「其它案例」，不虚构名称。
+ * 另支持 B 侧 source_case_id 的确定性别名：`case-<fixture id>` 与 `dev-case-refund-v1/v2`。 */
 export function caseDisplay(id: string): CaseDisplay {
-  return caseNames[id] ?? { name: id, group: 'other' };
+  return caseNames[id]
+    ?? (id.startsWith('case-') ? caseNames[id.slice('case-'.length)] : undefined)
+    ?? (id.startsWith('dev-case-') ? caseNames[`dev-${id.slice('dev-case-'.length)}`] : undefined)
+    ?? { name: id, group: 'other' };
 }
