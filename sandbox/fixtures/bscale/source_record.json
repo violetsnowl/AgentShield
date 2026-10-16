@@ -1,0 +1,105 @@
+{
+  "record_schema_version": 1,
+  "development_only": true,
+  "gold_included": false,
+  "model_calls": 0,
+  "source_package": {
+    "filename": "AgentShield_B_SCALE_Audit_20261015.zip",
+    "sha256": "88f9b250865b29d5a53ecc853a62abe2df5da6e6fab7e54d74cc27e5a843a944",
+    "generator_file_sha256": "e2824e74c5995e152e40de45facadf75c67f1033036209b9704319997948e110",
+    "config_file_sha256": "d9facedb957696bc6a41f50bf5e0a1c281eebeeb2bfa501249768c7e9999452b"
+  },
+  "population": {
+    "generator_version": "b-exposure-population-v1",
+    "profile_id": "synthetic-merchant-v1",
+    "population_seed": "agentshield-b-exposure-public-seed-v1",
+    "order_count": 100000,
+    "refund_request_count": 10145,
+    "agent_handled_task_count": 6105,
+    "population_content_sha256": "22978f7103eb84ce62f0b677bfb800279bfaf251f2b4708c121eddce80cee5a4",
+    "sqlite_sha256_non_authoritative": "0dd86b3d988fbe5a878ba24f08253aec2e2772baed7de3360771e11a1b79e544"
+  },
+  "selection": {
+    "pool_query": "SELECT * FROM refund_requests WHERE agent_handled=1 ORDER BY request_id",
+    "algorithm": "int.from_bytes(SHA-256(UTF-8 seed), big) modulo pool_count",
+    "seed": "agentshield-bscale-c-sample-20261017-v1",
+    "seed_sha256": "30e006217842a5651d9cc4d1e58dc25ca198c413fb6b23f647db798c28c0534f",
+    "pool_count": 6105,
+    "zero_based_index": 2531,
+    "redraw_count": 0,
+    "first_draw_conversion_status": "converted"
+  },
+  "source_task": {
+    "request_id": "rr-synth-00041076",
+    "order_id": "ord-synth-00041076",
+    "request_kind": "whole",
+    "stratum": "whole-low",
+    "requested_cents": 7301,
+    "agent_handled": 1,
+    "evidence_status": "sufficient"
+  },
+  "source_order": {
+    "order_id": "ord-synth-00041076",
+    "customer_id": "cust-synth-00022383",
+    "business_date": "2026-07-05",
+    "gross_cents": 9009,
+    "discount_cents": 1708,
+    "paid_cents": 7301,
+    "status": "paid",
+    "opening_refunded_cents": 0,
+    "complexity_flags": "discounted,multi_item,similar_order_hint"
+  },
+  "source_items": [
+    {
+      "item_id": "item-synth-00041076-01",
+      "position": 1,
+      "quantity": 1,
+      "unit_gross_cents": 3660,
+      "gross_cents": 3660,
+      "allocated_paid_cents": 2966,
+      "initial_refunded_quantity": 0,
+      "initial_refunded_cents": 0,
+      "initial_refund_source": null,
+      "requested_quantity": 1,
+      "requested_cents": 2966
+    },
+    {
+      "item_id": "item-synth-00041076-02",
+      "position": 2,
+      "quantity": 3,
+      "unit_gross_cents": 600,
+      "gross_cents": 1800,
+      "allocated_paid_cents": 1459,
+      "initial_refunded_quantity": 0,
+      "initial_refunded_cents": 0,
+      "initial_refund_source": null,
+      "requested_quantity": 3,
+      "requested_cents": 1459
+    },
+    {
+      "item_id": "item-synth-00041076-03",
+      "position": 3,
+      "quantity": 3,
+      "unit_gross_cents": 1183,
+      "gross_cents": 3549,
+      "allocated_paid_cents": 2876,
+      "initial_refunded_quantity": 0,
+      "initial_refunded_cents": 0,
+      "initial_refund_source": null,
+      "requested_quantity": 3,
+      "requested_cents": 2876
+    }
+  ],
+  "conversion": {
+    "fixture_id": "bscale-r1-rr-synth-00041076",
+    "path": "bscale/bscale-r1-rr-synth-00041076.json",
+    "source_case_id": "BSCALE-RR-SYNTH-00041076",
+    "fixture_version": "bscale-sample-20261017-r1",
+    "fixture_content_sha256": "3f5c52aaf275915def1116af60696846dea5b1b2fe96e727d96a8d9f2b380e9b",
+    "business_time_mapping": "source business_date at 00:00:00+08:00",
+    "item_name_mapping": "neutral synthetic names derived only from source positions",
+    "eligibility_mapping": "source generator defines the requested quantities within the current refundable range; mapped eligible=true for development execution, pending A obligation review",
+    "authorization_mapping": "no customer message or structured confirmation exists in B-SCALE; fixture messages remain empty and no authorization is inferred from evidence_status",
+    "opening_refund_mapping": "all source opening quantities and cents are zero"
+  }
+}
