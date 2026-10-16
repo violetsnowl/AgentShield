@@ -1,0 +1,12 @@
+{
+  "spec_version": "obligation-spec-0.1-candidate",
+  "custody": "A/D",
+  "runner_reads_specs": false,
+  "prompt_reads_specs": false,
+  "cases": [
+    {"fixture_id": "A1-W_L-01", "case_id": null, "fixture_version": null, "policy_version": null, "review_status": "pending_A_D", "legally_due_cents": null, "allowed_outcomes": null},
+    {"fixture_id": "A1-P_H-03", "case_id": null, "fixture_version": null, "policy_version": null, "review_status": "pending_A_D", "legally_due_cents": null, "allowed_outcomes": null},
+    {"fixture_id": "A1-P_L-05", "case_id": null, "fixture_version": null, "policy_version": null, "review_status": "pending_A_D", "legally_due_cents": null, "allowed_outcomes": null},
+    {"fixture_id": "ENG-A0-06", "case_id": null, "fixture_version": null, "policy_version": null, "review_status": "pending_A_D", "legally_due_cents": null, "allowed_outcomes": null}
+  ]
+}

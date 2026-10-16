@@ -1,0 +1,38 @@
+{
+  "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+  "config_version": "c-deepseek-flash-fixed-dev-v0.1",
+  "adapter": "openai_compatible",
+  "execution_source": "observed_agent_execution",
+  "provider": "deepseek",
+  "base_url": "https://api.deepseek.com",
+  "model": "deepseek-flash",
+  "api_key_env": "DEEPSEEK_API_KEY",
+  "request_params": {
+    "thinking": {"type": "disabled"},
+    "temperature": 0
+  },
+  "unsupported_params": [
+    "seed: not documented for DeepSeek Chat Completions; not sent, no bitwise reproducibility claim"
+  ],
+  "prompt_file": "runners/prompts/system_v0.1.md",
+  "prompt_version": "system_v0.1",
+  "kickoff": "你已被分配一个电商售后退款案例。请自己调用工具阅读公开请求、消息、订单、规则和本回合退款历史，再决定退款或转人工。不要假设已有标准答案。",
+  "budget": {
+    "max_turns": 12,
+    "max_tool_calls": 24,
+    "api_timeout_s": 60,
+    "run_timeout_s": 300,
+    "api_retries": 2,
+    "transport_retries": 2,
+    "max_total_tokens": 80000,
+    "max_output_tokens": 2048,
+    "max_run_cost_cny": 0.5
+  },
+  "pricing": {
+    "input_per_million": 2.0,
+    "output_per_million": 8.0,
+    "basis": "upper_bound: DeepSeek deepseek-flash peak CNY list price (cache-miss input 2 元/百万, output 8 元/百万), api-docs.deepseek.com/zh-cn/quick_start/pricing read 2026-10-13; off-peak and cache hits are cheaper"
+  },
+  "frozen": false,
+  "notes": "Unfrozen development config for four public fixed cases. Not authorized to launch from this checkout. Rule baseline wire label stays scripted_test plus config_id c-rule-baseline-v0.1."
+}

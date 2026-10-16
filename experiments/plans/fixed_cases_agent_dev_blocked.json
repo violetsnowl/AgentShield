@@ -1,0 +1,30 @@
+{
+  "batch_prefix": "fixed-cases-agent-dev-blocked",
+  "experiment_id": "c-fixed-cases-agent-dev",
+  "status": "blocked",
+  "execute_authorized": false,
+  "budget_confirmed": false,
+  "paid_api_called": false,
+  "launch_paid_api": false,
+  "counts_as_formal_run": false,
+  "frozen": false,
+  "requires_integration_tree": true,
+  "integration_head_expected": "40da1d4957bbd3c4832b2bf0b7dad159f343bed3",
+  "purpose": "四个公开固定案例的真实模型开发测试占位。每案一次，不计入正式 56 次。只能在已注册这四个 fixture 的集成树上、并取得明确付费授权后运行。",
+  "agent_config": "configs/runner/deepseek-fixed-dev-v0.1.json",
+  "baseline_wire": {
+    "execution_source": "scripted_test",
+    "config_id": "c-rule-baseline-v0.1",
+    "provider": "rule_baseline"
+  },
+  "requested_authorization_cny": 0.384528,
+  "authorization_basis": "四次乘以已观测单次上限 0.032044 元再乘 3。这是申请额，不是已批准预算。",
+  "evidence_per_run": ["transcript.json", "attempts.jsonl", "evidence.json", "loss_result.json", "claim_A0.json", "manifest.json"],
+  "failure_policy": "基础设施失败可另开 episode 补跑一次，不增加业务样本。已完成的运行不得为了改分数重跑。",
+  "runs": [
+    {"label": "A1-W_L-01_whole_refund", "config": "configs/runner/deepseek-fixed-dev-v0.1.json", "fixture_id": "A1-W_L-01"},
+    {"label": "A1-P_H-03_partial_similar_orders", "config": "configs/runner/deepseek-fixed-dev-v0.1.json", "fixture_id": "A1-P_H-03"},
+    {"label": "A1-P_L-05_repeated_confirmation", "config": "configs/runner/deepseek-fixed-dev-v0.1.json", "fixture_id": "A1-P_L-05"},
+    {"label": "ENG-A0-06_ineligible_escalation", "config": "configs/runner/deepseek-fixed-dev-v0.1.json", "fixture_id": "ENG-A0-06"}
+  ]
+}
