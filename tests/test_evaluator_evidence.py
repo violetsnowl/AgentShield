@@ -59,6 +59,24 @@ class EvidenceAdapterTests(unittest.TestCase):
         self.assertIsNone(result["net_loss_cents"])
         self.assertIn("obligation_spec_missing", result["unknown_parts"])
 
+    def test_unknown_legal_due_keeps_zero_extra_but_not_verified_net_loss(self):
+        zero = deepcopy(V1)
+        zero["final_snapshot"] = deepcopy(zero["initial_snapshot"])
+        zero["refunds"] = []
+        zero["ledger"] = []
+        zero["events"] = []
+        zero["human_reviews"] = []
+        unknown = evaluate_evidence(zero, spec_for(zero, [{"ref": "o1/i1", "template_order_id": "order-1",
+                                                           "template_item_id": "item-1", "legally_due_cents": None}]))
+        self.assertEqual(unknown["total_committed_cents"], 0)
+        self.assertEqual(unknown["total_extra_cents"], 0)
+        self.assertIsNone(unknown["total_underpaid_cents"])
+        self.assertEqual(unknown["loss_status"], "needs_review")
+        self.assertIsNone(unknown["net_loss_cents"])
+        known = evaluate_evidence(zero, spec_for(zero, [{"ref": "o1/i1", "template_order_id": "order-1",
+                                                         "template_item_id": "item-1", "legally_due_cents": 0}]))
+        self.assertEqual((known["loss_status"], known["net_loss_cents"], known["total_extra_cents"]), ("verified", 0, 0))
+
     def test_synthetic_spec_verified_zero_and_overpayment(self):
         ok = evaluate_evidence(V1, spec_for(V1, [{"ref": "o1/i1", "template_order_id": "order-1",
                                                   "template_item_id": "item-1", "legally_due_cents": 333}]))

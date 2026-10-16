@@ -89,6 +89,11 @@ def evaluate_evidence(raw_bundle: dict[str, Any], spec: dict[str, Any] | None = 
     # distinguish "no loss" from "an unperformed or underpaid obligation".
     if spec is None:
         loss_status = "needs_review"
+    elif any(row["legally_due_cents"] is None for row in obligations):
+        # Zero extra outflow is an arithmetic fact. Unknown legal due still
+        # leaves underpayment unresolved, so the whole result stays unverified.
+        loss_status = "needs_review"
+        notes.append("legally_due_cents is null; extra outflow is recorded but net loss is not verified")
     record = {
         "oracle_version": ORACLE_VERSION, "computed_at": _now(), "identity": identity,
         "obligation_source": source, "obligation_spec_id": spec_id, "horizon": horizon,
