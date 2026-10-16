@@ -5,13 +5,19 @@ import json
 from pathlib import Path
 from types import MappingProxyType
 
-from contracts.fixture_ids import A_PUBLIC_FIXTURE_IDS, BASE_FIXTURE_IDS, GENERATED_FIXTURE_IDS
+from contracts.fixture_ids import (
+    A_PUBLIC_FIXTURE_IDS,
+    BASE_FIXTURE_IDS,
+    BSCALE_SAMPLE_FIXTURE_IDS,
+    GENERATED_FIXTURE_IDS,
+)
 from contracts.models import ALLOCATION_VERSION, VERSION, CaseContext, CanonicalBusinessSnapshot
 from sandbox.fixture_models import DevelopmentFixture
 
 FIXTURE_ROOT = Path(__file__).parent / "fixtures"
 GENERATED_ROOT = FIXTURE_ROOT / "generated"
 GENERATED_REGISTRY = GENERATED_ROOT / "registry.json"
+BSCALE_SAMPLE_REGISTRY = FIXTURE_ROOT / "bscale" / "registry.json"
 A_PUBLIC_ROOT = Path(__file__).parents[1] / "docs" / "handoff" / "A1_public_candidates" / "development"
 _BASE_REGISTRY = {
     "dev-refund-v1": ("dev-refund-v1.json", "dev-case-refund-v1", "dev-refund-v1-r1"),
@@ -61,11 +67,39 @@ def _load_generated_registry():
         raise FixtureError("Generated fixture registry is invalid") from error
 
 
+def _load_bscale_sample_registry():
+    """Load the pinned B-SCALE draw without exposing a runtime registration path."""
+    try:
+        raw = json.loads(BSCALE_SAMPLE_REGISTRY.read_text(encoding="utf-8"))
+        entries = raw["fixtures"]
+        if raw.get("registration") != "source_controlled_development_only" or not isinstance(entries, list):
+            raise FixtureError("Invalid B-SCALE sample registry")
+        result = {}
+        for entry in entries:
+            if set(entry) != {"fixture_id", "path", "source_case_id", "fixture_version", "fixture_content_sha256"}:
+                raise FixtureError("Unexpected B-SCALE sample registry fields")
+            fixture_id = entry["fixture_id"]
+            if fixture_id in result:
+                raise FixtureError("Duplicate B-SCALE sample registration")
+            result[fixture_id] = (
+                entry["path"], entry["source_case_id"], entry["fixture_version"], entry["fixture_content_sha256"]
+            )
+        if tuple(result) != BSCALE_SAMPLE_FIXTURE_IDS:
+            raise FixtureError("B-SCALE sample registry differs from the source allowlist")
+        return result
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        if isinstance(error, FixtureError):
+            raise
+        raise FixtureError("B-SCALE sample registry is invalid") from error
+
+
 if tuple(_BASE_REGISTRY) != BASE_FIXTURE_IDS:
     raise RuntimeError("Base fixture registration differs from source allowlist")
 if tuple(_A_PUBLIC_REGISTRY) != A_PUBLIC_FIXTURE_IDS:
     raise RuntimeError("A public fixture registration differs from source allowlist")
-REGISTRY = MappingProxyType(_BASE_REGISTRY | _load_generated_registry() | _A_PUBLIC_REGISTRY)
+REGISTRY = MappingProxyType(
+    _BASE_REGISTRY | _load_generated_registry() | _load_bscale_sample_registry() | _A_PUBLIC_REGISTRY
+)
 
 
 def allocate(paid, lines):

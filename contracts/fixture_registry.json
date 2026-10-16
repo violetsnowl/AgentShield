@@ -547,6 +547,19 @@
       "source_case_id": "case-bcp2-l1-stress-ineligible"
     },
     {
+      "business_initial_hash": "f77dcd21b7f1ecabb9dede0b38d41ecf3662a1041639ed6676d782fe3e7b6c77",
+      "environment_version": "sandbox-rules-v1-development",
+      "family_id": "bscale-synthetic-merchant-v1",
+      "fixture_content_sha256": "3f5c52aaf275915def1116af60696846dea5b1b2fe96e727d96a8d9f2b380e9b",
+      "fixture_id": "bscale-r1-rr-synth-00041076",
+      "fixture_source": "development_only",
+      "fixture_version": "bscale-sample-20261017-r1",
+      "parent_case_id": "BSCALE-SYNTHETIC-MERCHANT-V1",
+      "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+      "review_status": "pending_A_C_D_review",
+      "source_case_id": "BSCALE-RR-SYNTH-00041076"
+    },
+    {
       "business_initial_hash": "fa3418dded9877a2962e56734b88e1bdcf28347883845558f1a134550135e310",
       "environment_version": "sandbox-rules-v1-development",
       "family_id": "family-a1-w_l-01",
