@@ -122,6 +122,8 @@ components:
     width: "52px"
 ---
 
+> **状态注记（2026-10-16）**：本视觉系统（机场导视落地件：常驻运行条、出口牌、粗黑框面板等）已被《演示 UI 重构》取代——实施以 `docs/decisions/UI_DEMO_REDESIGN_2026-10-16.md` 为准；本文件保留作历史设计记录。
+
 # Design System: AgentShield 保险风险评测工作台
 
 ## Overview

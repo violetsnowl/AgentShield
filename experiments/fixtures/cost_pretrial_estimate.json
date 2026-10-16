@@ -1,0 +1,21 @@
+{
+  "observed_dev_runs": 3,
+  "observed_cost_cny_upper": 0.085458,
+  "unit_upper_cny": 0.032044,
+  "pretrial_target": 10,
+  "pretrial_remaining_runs": 7,
+  "pretrial_counts_toward_formal_56": false,
+  "safety_factor": 3,
+  "safety_note": "3x covers longer formal tasks than the two short development templates; it is a budget request, not a quote",
+  "pretrial_remaining_authorization_cny": 0.672924,
+  "formal_56_authorization_cny": 5.383392,
+  "requested_authorization_cny": 6.056316,
+  "observed_rate_without_safety_cny": {
+    "pretrial_remaining": 0.224308,
+    "formal_56": 1.794464
+  },
+  "pricing_basis": "upper_bound: DeepSeek deepseek-flash peak CNY list price (cache-miss input 2 元/百万, output 8 元/百万), api-docs.deepseek.com/zh-cn/quick_start/pricing read 2026-10-13; off-peak and cache hits are cheaper",
+  "paid_api_called": false,
+  "budget_confirmed": false,
+  "formal_runs_started": false
+}

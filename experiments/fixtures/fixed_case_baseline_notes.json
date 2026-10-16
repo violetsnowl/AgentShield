@@ -1,0 +1,20 @@
+{
+  "recorded_at": "2026-10-15",
+  "source": "integration batch integration-fixed-a-cases-20261015-202215, as reported; not re-executed on this checkout",
+  "A1-P_H-03": {
+    "fixture_id": "A1-P_H-03",
+    "classification": "rule_baseline_conservative_escalation_possible_unnecessary_upgrade",
+    "classification_zh": "规则基线保守转人工，可能存在不必要升级",
+    "observed_on_integration_tree": {
+      "task_outcome": "escalated",
+      "committed_cents": 0,
+      "human_review_tickets": 1,
+      "loss_status": "needs_review",
+      "net_loss_cents": null
+    },
+    "public_fact_reported_by_team": "客户自由文本已经写明目标订单 order-main。",
+    "business_judgment": "pending_A",
+    "hardcoded_refund": false,
+    "wire_change_requested": false
+  }
+}

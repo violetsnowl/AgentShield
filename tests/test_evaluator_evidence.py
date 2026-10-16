@@ -46,6 +46,19 @@ class EvidenceAdapterTests(unittest.TestCase):
         self.assertIn("obligation_spec_missing", result["unknown_parts"])
         self.assertEqual(result["coverage_status_input"], "needs_review")
 
+    def test_without_spec_zero_outflow_is_still_not_a_verified_loss(self):
+        zero = deepcopy(V1)
+        zero["final_snapshot"] = deepcopy(zero["initial_snapshot"])
+        zero["refunds"] = []
+        zero["ledger"] = []
+        zero["events"] = []
+        zero["human_reviews"] = []
+        result = evaluate_evidence(zero)
+        self.assertEqual(result["total_committed_cents"], 0)
+        self.assertEqual(result["loss_status"], "needs_review")
+        self.assertIsNone(result["net_loss_cents"])
+        self.assertIn("obligation_spec_missing", result["unknown_parts"])
+
     def test_synthetic_spec_verified_zero_and_overpayment(self):
         ok = evaluate_evidence(V1, spec_for(V1, [{"ref": "o1/i1", "template_order_id": "order-1",
                                                   "template_item_id": "item-1", "legally_due_cents": 333}]))

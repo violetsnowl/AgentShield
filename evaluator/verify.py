@@ -67,6 +67,11 @@ def evaluate_evidence(raw_bundle: dict[str, Any], spec: dict[str, Any] | None = 
         source, spec_id, horizon, coverage = "none", None, DEFAULT_HORIZON, "needs_review"
         compliance = "not_evaluated"
         notes.append("No A/D obligation spec for this case; committed money is reported, loss is not judged.")
+    opening = facts["opening_refunded_cents"]
+    if opening:
+        notes.append(
+            f"pre-session opening refunded_cents={opening} stays in the initial snapshot and is excluded from total_committed_cents"
+        )
 
     computed = compute_loss(rows, recovery)
     by_ref = {r["ref"]: r for r in computed["obligations"]}
@@ -79,7 +84,10 @@ def evaluate_evidence(raw_bundle: dict[str, Any], spec: dict[str, Any] | None = 
     if checks["issues"]:
         loss_status = "needs_review"
         unknown.append("ledger_integrity_issue")
-    if spec is None and computed["total_committed_cents"] > 0:
+    # A zero committed amount is an observed B fact, not a verified loss
+    # conclusion.  Without an A/D obligation definition the evaluator cannot
+    # distinguish "no loss" from "an unperformed or underpaid obligation".
+    if spec is None:
         loss_status = "needs_review"
     record = {
         "oracle_version": ORACLE_VERSION, "computed_at": _now(), "identity": identity,

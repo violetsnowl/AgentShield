@@ -1,0 +1,67 @@
+{
+  "schema": "AgentShield.two_research_products.v0.1",
+  "currency": "CNY",
+  "commercial_quote": false,
+  "status": "product_design_candidate_not_bound",
+  "plans": [
+    {
+      "product_id": "AgentShield-Core",
+      "display_name": "AgentShield 操作差错基础保障",
+      "insured": "企业商户（经核实为经济损失承担者）",
+      "covered_event": "登记Agent、指定工具和授权范围内非故意操作错误导致的、符合条款的已提交额外退款资金流出，扣可追溯追回额",
+      "exclusions": [
+        "故意欺诈与明知越权",
+        "未经登记的模型/工具/权限变更",
+        "仅有尝试错误但未出款",
+        "应退未退、延误服务、罚款、声誉及机会成本",
+        "不可证实的争议损失"
+      ],
+      "claims_basis": "单事件净损失L_H；一次事件扣一次免赔并按比例赔，单次限额",
+      "deductible_cents": null,
+      "coinsurance_bp": null,
+      "occurrence_limit_cents": null,
+      "annual_aggregate_limit_cents": null,
+      "limit_design": "按客户年度Agent业务量和目标损失尾部分位数设置单次及年度赔付限额；未有可靠尾部损失时不得用观测最大值当商业上限"
+    },
+    {
+      "product_id": "AgentShield-Plus",
+      "display_name": "AgentShield 操作差错增强保障",
+      "insured": "企业商户（经核实为经济损失承担者）",
+      "covered_event": "包含基础保障，考虑较低事件免赔、较高单次与年度赔付限额；可选经过单独审计的应急处置支出附加责任",
+      "exclusions": [
+        "故意欺诈与明知越权",
+        "未登记Agent/版本或未经批准的权限提升",
+        "未发生经济损失的失败尝试",
+        "未经证据核实的应急成本",
+        "监管罚款、人身损害、声誉及机会成本"
+      ],
+      "claims_basis": "主险与Core共用净损失公式；附加处置费用须单独核验、分别设子限额，当前不并入既有A0理算结果",
+      "deductible_cents": null,
+      "coinsurance_bp": null,
+      "occurrence_limit_cents": null,
+      "annual_aggregate_limit_cents": null,
+      "optional_incident_response_sublimit_cents": null,
+      "limit_design": "在基础方案上基于损失尾部、共同故障聚集风险与企业最大可承受自留额设置增强层，不能直接对年均赔款套单次限额"
+    }
+  ],
+  "premium_method": {
+    "risk_exposure": "V = 年潜在Agent售后任务数；w_g = 四类业务占比；10万模拟订单及6105潜在任务只代表模拟总体，不等于实测事故",
+    "per_case_repetition": "同一case重复运行先求样本均赔款，按独立case聚合，不得将重复当独立任务",
+    "loss_cost": "PureCost = V * sum_g(w_g * E[covered event indemnity | g])；只在有效样本与合同参数齐备时计算",
+    "annual_aggregate": "先在按时序模拟的年度事件赔款路径上逐笔扣年度剩余额度，再求年赔款均值；不能在期望赔款上直接取min",
+    "premium_candidate": "Premium = (PureCost + expenses + reinsurance + capital_charge + contingency_loading)/(1-target_profit_ratio)；费税和利润顺序需按团队最终口径确定",
+    "risk_uncertainty": "样本独立性、零损失、稀有大额损失与模型更换导致的外推不确定性必须单列，不能由固定样本硬报年度商业保费",
+    "commercial_rate_status": "insufficient_evidence"
+  },
+  "data_requirements": [
+    "经双人审核且与实际B账本对应的Gold和LossResult",
+    "Agent配置/工具/版本/权限及失败与转人工记录",
+    "至少按业务类别的独立估计和留出样本、重复运行",
+    "核实的业务组合V,w_g、历史平均金额与单任务损失",
+    "追回率和观察时点H",
+    "投保企业年度可保Agent业务范围和任务量",
+    "大额/共同事故聚集、累计限额分析",
+    "渠道运营成本、理赔费用、再保成本、资本附加及目标利润"
+  ]
+}
+

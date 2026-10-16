@@ -1,0 +1,29 @@
+{
+  "batch_prefix": "integration-fixed-a-cases",
+  "experiment_id": "integration-fixed-a-cases-20261015",
+  "purpose": "Fixed public A cases through real B HTTP, C deterministic baseline and verifier, and A research claim calculation. Non-formal; no model and no Gold.",
+  "counts_as_formal_run": false,
+  "launch_paid_api": false,
+  "runs": [
+    {
+      "label": "A1-W_L-01_clear_whole_refund",
+      "config": "configs/runner/rule-baseline-v0.1.json",
+      "fixture_id": "a1-w_l-01"
+    },
+    {
+      "label": "A1-P_H-03_similar_order_needs_structured_request",
+      "config": "configs/runner/rule-baseline-v0.1.json",
+      "fixture_id": "a1-p_h-03"
+    },
+    {
+      "label": "A1-P_L-05_duplicate_confirmation",
+      "config": "configs/runner/rule-baseline-v0.1.json",
+      "fixture_id": "a1-p_l-05"
+    },
+    {
+      "label": "ENG-A0-06_ineligible_manual_review",
+      "config": "configs/runner/rule-baseline-v0.1.json",
+      "fixture_id": "eng-a0-06"
+    }
+  ]
+}

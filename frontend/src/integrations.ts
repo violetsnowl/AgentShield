@@ -4,7 +4,7 @@ export const boundaryVersion = 'abcd-results-boundary-0.2-candidate' as const;
 
 export type IntegrationRunSummary = {
   run_id: string; batch_id: string; label: string; case_id: string; session_id: string; episode_id: string; config_id: string;
-  execution_source: 'mock_agent' | 'observed_agent_execution'; provider: string | null; model: string | null; run_status: string;
+  execution_source: 'scripted_test' | 'mock_agent' | 'observed_agent_execution'; provider: string | null; model: string | null; run_status: string;
   task_outcome: string | null; loss_status: 'verified' | 'needs_review'; claim_status: 'assessed' | 'not_covered' | 'needs_review';
   counts_as_formal_run: false; total_committed_cents: number;
   evidence_digest_status: 'raw_file_match' | 'canonical_json_match_raw_delivery_differs';
@@ -54,7 +54,7 @@ const strings = (value: unknown, label: string) => { if (!Array.isArray(value) |
 
 function parseSummary(value: unknown): IntegrationRunSummary {
   const row = object(value, '集成运行摘要'); const source = text(row.execution_source, 'execution_source');
-  if (!['mock_agent', 'observed_agent_execution'].includes(source)) throw new Error('未知执行来源。');
+  if (!['scripted_test', 'mock_agent', 'observed_agent_execution'].includes(source)) throw new Error('未知执行来源。');
   const loss = text(row.loss_status, 'loss_status'); const claim = text(row.claim_status, 'claim_status');
   if (!['verified', 'needs_review'].includes(loss) || !['assessed', 'not_covered', 'needs_review'].includes(claim)) throw new Error('未知核验或理算状态。');
   if (row.counts_as_formal_run !== false) throw new Error('开发运行不得标记为正式实验。');

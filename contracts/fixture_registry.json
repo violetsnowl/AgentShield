@@ -545,6 +545,58 @@
       "policy_version": "b-refund-rules-candidate-v1-stress-ineligible",
       "review_status": "pending_A_C_D_review",
       "source_case_id": "case-bcp2-l1-stress-ineligible"
+    },
+    {
+      "business_initial_hash": "fa3418dded9877a2962e56734b88e1bdcf28347883845558f1a134550135e310",
+      "environment_version": "sandbox-rules-v1-development",
+      "family_id": "family-a1-w_l-01",
+      "fixture_content_sha256": "36e42a57df650fbf7edb087eb4e1c870b492a354f4d45551558b4c1cebf6c589",
+      "fixture_id": "a1-w_l-01",
+      "fixture_source": "development_only",
+      "fixture_version": "a1-w_l-01-r2",
+      "parent_case_id": null,
+      "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+      "review_status": "pending_A_C_D_review",
+      "source_case_id": "A1-W_L-01"
+    },
+    {
+      "business_initial_hash": "d9a381e9619529dca46e8ff14340005343c8b94a5e7994743a7845bc3f5737e6",
+      "environment_version": "sandbox-rules-v1-development",
+      "family_id": "family-a1-p_h-03",
+      "fixture_content_sha256": "42a19aea2e0200e8234ff33a0057336d35704a89c6dff662b98e41ce3966458e",
+      "fixture_id": "a1-p_h-03",
+      "fixture_source": "development_only",
+      "fixture_version": "a1-p_h-03-r2",
+      "parent_case_id": null,
+      "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+      "review_status": "pending_A_C_D_review",
+      "source_case_id": "A1-P_H-03"
+    },
+    {
+      "business_initial_hash": "7c756ee1ff73b4cf33280246031cf0a5c8bc0f660ece27a01426e1db169ae098",
+      "environment_version": "sandbox-rules-v1-development",
+      "family_id": "family-a1-p_l-05",
+      "fixture_content_sha256": "dcb31425fe8ae0b101d6c59fe88b1231ab2a7cc306387dd9d29b89521a28671d",
+      "fixture_id": "a1-p_l-05",
+      "fixture_source": "development_only",
+      "fixture_version": "a1-p_l-05-r2",
+      "parent_case_id": null,
+      "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+      "review_status": "pending_A_C_D_review",
+      "source_case_id": "A1-P_L-05"
+    },
+    {
+      "business_initial_hash": "2db6063767290859a971d6334eefcf16607a8746412a76f6bf62cea6fbf7195f",
+      "environment_version": "sandbox-rules-v1-development",
+      "family_id": "family-eng-a0-06",
+      "fixture_content_sha256": "45f1100e4307f56cce27b43fa5f44fafabd09134e442fa6f79328b33a3f5406d",
+      "fixture_id": "eng-a0-06",
+      "fixture_source": "development_only",
+      "fixture_version": "eng-a0-06-r2",
+      "parent_case_id": null,
+      "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+      "review_status": "pending_A_C_D_review",
+      "source_case_id": "ENG-A0-06"
     }
   ],
   "registration": "source_controlled_development_only",

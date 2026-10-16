@@ -1,0 +1,106 @@
+{
+  "version": "a3-public-patch-v0.3",
+  "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+  "files": [
+    {
+      "path": "docs/handoff/A1_public_candidates/PUBLIC_INDEX.json",
+      "sha256": "0c84d2430733bdcc9716cd01acb8a2b98adf5e3908a0e5e83bbb9c8272944227"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-p_h-01.json",
+      "sha256": "9e49cd505df3c619214df25b8f8ecff3a84ded4f0fc2b9ed636e2a4f3ebd4423"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-p_h-03.json",
+      "sha256": "42a19aea2e0200e8234ff33a0057336d35704a89c6dff662b98e41ce3966458e"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-p_h-05.json",
+      "sha256": "2420bb92e8d225d658a2003ce73f1ed7dc2fd8aea6c039381178e32933d59832"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-p_l-01.json",
+      "sha256": "c56af02a2c70d146b159eceb3ea6dcb724dc292411a5d26327135bc6cfafa9a8"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-p_l-03.json",
+      "sha256": "99e01b511e4c2d18dcf876197c74e8c4af6759dcc203ce6a47b3edaac4361041"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-p_l-05.json",
+      "sha256": "dcb31425fe8ae0b101d6c59fe88b1231ab2a7cc306387dd9d29b89521a28671d"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-w_h-01.json",
+      "sha256": "6cb5a8261296ecd326f666ea0d735a43a92e23a9afcb46f4ebfcd73fd04c0f11"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-w_h-03.json",
+      "sha256": "87fb26ed63d521013a7843c7d1491d787554e06f8ea172f91037ed6f1f639b57"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-w_h-05.json",
+      "sha256": "ce295a7ad152a85459f74d1dfba4dde533915caca753bb474412e27a64f4a62e"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-w_l-01.json",
+      "sha256": "36e42a57df650fbf7edb087eb4e1c870b492a354f4d45551558b4c1cebf6c589"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-w_l-03.json",
+      "sha256": "151b1964f54512673f01611c9b984a269e9c5e32139d9fed7ba5d06ada0ca85a"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/a1-w_l-05.json",
+      "sha256": "392cbc5802e3adf8ac27a7972cad27fdca8c48024057c05132705d82de010a92"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-01.json",
+      "sha256": "f6dd780cbea37fcc9cc6f6c9693793b5b53df600a47ba7a4a8d347e8741352e4"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-02.json",
+      "sha256": "b0f0ac9355256199ab52683863c9cc94ec5721c941b58ef545d1d8ca20836d57"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-03.json",
+      "sha256": "18446247defc38f3687867bdfb4461ee6e202459bf64efef1f874c1a5979efc9"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-04.json",
+      "sha256": "94283a34a94fc1a205bf7b88fd1acb0565346f79f220a0901f70e1f3f6b80053"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-05.json",
+      "sha256": "7cdc3521db09d5c2efce3a163a7858c471d7b0e3eac1f564ce4db1d55d62d722"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-06.json",
+      "sha256": "45f1100e4307f56cce27b43fa5f44fafabd09134e442fa6f79328b33a3f5406d"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-07.json",
+      "sha256": "6c44c99b3e78b0aa85ec29e90cd9bf1b90710874cafea81056b6b3e0370a51b5"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-08.json",
+      "sha256": "49abf2a717de1358cf6684871c83192785eb56d51af41940ad71e0339abb4ba9"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-09.json",
+      "sha256": "f52fe5dab1f64026cbbd7f923b70ff696cd683830eb5b9f60a03d15fbf47f394"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-10.json",
+      "sha256": "9ad2a654b182a453876fcc7f224173dc501500fd34f425e87a2b90ebc34a91bc"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-11.json",
+      "sha256": "958c0e4c43a858d62e4db7b28748c3dee30463e87920959e5c8893fdc8689b0f"
+    },
+    {
+      "path": "docs/handoff/A1_public_candidates/development/eng-a0-12.json",
+      "sha256": "7779bcfbf7de7173f2a6f79c0ba1c1f8c4d1ccd2318cb4142691e3a71ff13d55"
+    }
+  ]
+}

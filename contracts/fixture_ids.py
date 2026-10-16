@@ -17,4 +17,14 @@ L1_FIXTURE_IDS = tuple(
 ) + tuple(f"bcp2-l1-stress-{name}" for name in _STRESS)
 
 GENERATED_FIXTURE_IDS = L0_FIXTURE_IDS + L1_FIXTURE_IDS
-FIXTURE_IDS = BASE_FIXTURE_IDS + GENERATED_FIXTURE_IDS
+
+# Public A fixtures admitted for this fixed-case integration only.  Keeping the
+# IDs in source code means an HTTP caller still cannot register a file or path.
+A_PUBLIC_FIXTURE_IDS = (
+    "a1-w_l-01",
+    "a1-p_h-03",
+    "a1-p_l-05",
+    "eng-a0-06",
+)
+
+FIXTURE_IDS = BASE_FIXTURE_IDS + GENERATED_FIXTURE_IDS + A_PUBLIC_FIXTURE_IDS

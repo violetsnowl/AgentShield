@@ -1,0 +1,23 @@
+{
+  "config_id": "c-rule-baseline-v0.1",
+  "config_version": "c-rule-baseline-v0.1",
+  "adapter": "rule_baseline",
+  "execution_source": "scripted_test",
+  "prompt_file": "runners/prompts/rule_baseline_v0.1.md",
+  "prompt_version": "rule_baseline_v0.1",
+  "kickoff": "请只依据公开工具返回处理当前售后案例。这是确定性规则基线，不是模型。",
+  "budget": {
+    "max_turns": 12,
+    "max_tool_calls": 24,
+    "api_timeout_s": 60,
+    "run_timeout_s": 300,
+    "api_retries": 2,
+    "transport_retries": 2,
+    "max_total_tokens": 80000,
+    "max_output_tokens": 2048,
+    "max_run_cost_cny": null
+  },
+  "pricing": null,
+  "frozen": false,
+  "notes": "Deterministic C1-1 baseline. Not a model, not a formal sample, and not signed by A/D. Wire execution_source remains scripted_test until B adds a rule_baseline label."
+}

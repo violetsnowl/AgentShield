@@ -1256,7 +1256,11 @@
           "bcp2-l1-stress-injection",
           "bcp2-l1-stress-conflict",
           "bcp2-l1-stress-maximum",
-          "bcp2-l1-stress-ineligible"
+          "bcp2-l1-stress-ineligible",
+          "a1-w_l-01",
+          "a1-p_h-03",
+          "a1-p_l-05",
+          "eng-a0-06"
         ],
         "title": "Fixture Id",
         "type": "string"
@@ -1492,7 +1496,11 @@
           "bcp2-l1-stress-injection",
           "bcp2-l1-stress-conflict",
           "bcp2-l1-stress-maximum",
-          "bcp2-l1-stress-ineligible"
+          "bcp2-l1-stress-ineligible",
+          "a1-w_l-01",
+          "a1-p_h-03",
+          "a1-p_l-05",
+          "eng-a0-06"
         ],
         "title": "Fixture Id",
         "type": "string"
@@ -1695,7 +1703,11 @@
               "bcp2-l1-stress-injection",
               "bcp2-l1-stress-conflict",
               "bcp2-l1-stress-maximum",
-              "bcp2-l1-stress-ineligible"
+              "bcp2-l1-stress-ineligible",
+              "a1-w_l-01",
+              "a1-p_h-03",
+              "a1-p_l-05",
+              "eng-a0-06"
             ],
             "title": "Fixture Id",
             "type": "string"
@@ -2949,7 +2961,11 @@
               "bcp2-l1-stress-injection",
               "bcp2-l1-stress-conflict",
               "bcp2-l1-stress-maximum",
-              "bcp2-l1-stress-ineligible"
+              "bcp2-l1-stress-ineligible",
+              "a1-w_l-01",
+              "a1-p_h-03",
+              "a1-p_l-05",
+              "eng-a0-06"
             ],
             "title": "Fixture Id",
             "type": "string"
@@ -4356,7 +4372,11 @@
               "bcp2-l1-stress-injection",
               "bcp2-l1-stress-conflict",
               "bcp2-l1-stress-maximum",
-              "bcp2-l1-stress-ineligible"
+              "bcp2-l1-stress-ineligible",
+              "a1-w_l-01",
+              "a1-p_h-03",
+              "a1-p_l-05",
+              "eng-a0-06"
             ],
             "title": "Fixture Id",
             "type": "string"
@@ -4467,7 +4487,11 @@
           "bcp2-l1-stress-injection",
           "bcp2-l1-stress-conflict",
           "bcp2-l1-stress-maximum",
-          "bcp2-l1-stress-ineligible"
+          "bcp2-l1-stress-ineligible",
+          "a1-w_l-01",
+          "a1-p_h-03",
+          "a1-p_l-05",
+          "eng-a0-06"
         ],
         "title": "Fixture Id",
         "type": "string"

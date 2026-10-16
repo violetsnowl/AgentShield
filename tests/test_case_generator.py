@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from actuarial.claims import calculate_claim
 from api.app import create_app
 from contracts import models as m
-from contracts.fixture_ids import GENERATED_FIXTURE_IDS
+from contracts.fixture_ids import A_PUBLIC_FIXTURE_IDS, FIXTURE_IDS, GENERATED_FIXTURE_IDS
 from evaluator.verify import claim_event, evaluate_evidence
 from sandbox.case_generator import GeneratorError, build_library, load_config, write_library
 from sandbox.fixture import REGISTRY, FixtureError, canonical_snapshot, load_fixture, validate_fixture
@@ -212,7 +212,8 @@ class GeneratedFixtureHttpTests(unittest.TestCase):
         catalog = self.client.get("/api/v1/admin/fixtures", headers=self.admin)
         self.assertEqual(catalog.status_code, 200)
         self.assertEqual([row["fixture_id"] for row in catalog.json()["fixtures"]], list(REGISTRY))
-        self.assertEqual(tuple(REGISTRY)[2:], GENERATED_FIXTURE_IDS)
+        self.assertEqual(tuple(REGISTRY), FIXTURE_IDS)
+        self.assertEqual(tuple(REGISTRY)[-len(A_PUBLIC_FIXTURE_IDS):], A_PUBLIC_FIXTURE_IDS)
         for body in (
             {"tenant_id": "x", "fixture_id": "../generated/bcp2-l0-whole-low-01.json"},
             {"tenant_id": "x", "fixture_id": "https://example.invalid/case.json"},

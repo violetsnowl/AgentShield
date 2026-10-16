@@ -1,0 +1,27 @@
+{
+  "batch_prefix": "l1-formal-blocked",
+  "experiment_id": "c-l1-formal",
+  "status": "blocked",
+  "execute_authorized": false,
+  "counts_as_formal_run": false,
+  "launch_paid_api": false,
+  "frozen": false,
+  "agent_config": "configs/runner/deepseek-l1-v0.1.json",
+  "baseline_config": "configs/runner/rule-baseline-v0.1.json",
+  "regular_tasks": 24,
+  "stress_tasks": 4,
+  "repeats_per_config": 2,
+  "agent_run_slots": 56,
+  "baseline_run_slots": 28,
+  "independent_business_samples": 28,
+  "repeat_counting": "同一任务的两次重复是配对观察，不是两个独立业务样本。",
+  "gates": {
+    "tasks_frozen": false,
+    "gold_frozen": false,
+    "held_out_isolated": false,
+    "budget_confirmed": false,
+    "decision_table_signed": false
+  },
+  "runs": [],
+  "purpose": "L1 正式规模的占位清单。任务和 Gold 未冻结，本文件不包含案例编号，也不能启动。"
+}

@@ -25,6 +25,7 @@ from runners.sandbox_client import AdminTransport, SessionTransport
 from runners.tools import model_tool_specs, tool_specs_sha256
 
 from .b_process import IsolatedB
+from .formal_gates import dev_launch_block
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_ROOT = ROOT / "artifacts/c_l0/runs"
@@ -169,6 +170,10 @@ def main():
     args = parser.parse_args()
     plan_path = ROOT / args.plan
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    blocked = dev_launch_block(plan)
+    if blocked:
+        print(blocked)
+        raise SystemExit(2)
     batch_id = f"{plan['batch_prefix']}-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
     batch_dir = OUT_ROOT / batch_id
     batch_dir.mkdir(parents=True, exist_ok=False)
