@@ -118,7 +118,7 @@
 
 ## 六、在途（在分支上、尚未合入 main 的文档）
 
-- `feature/bd-integration`：**领先 main 2 个提交（`25b82ee` 批C IA v3 与风险/保险修复、`9071713` UI 收口轮），尚未合并（等用户指示）**。D 线设计档案（`PRODUCT.md`、`DESIGN.md`、`frontend/design/`、`.impeccable/`）已随 2026-10-15 合并进入 main；在途新文档：`docs/decisions/IA_V3_case_display_names.md`、`docs/decisions/IA_V3_navigation.md`、`docs/validation/IA_V3_test_migration_map.md`、`docs/validation/UI_ROUND_2026-10-16.md`、根 `FRONTEND_RISK_INSURANCE_FIXES.md`。
+- `feature/bd-integration`：**领先 main 3 个提交（`25b82ee` 批C IA v3 与风险/保险修复、`9071713` UI 收口轮、`7cf8d1d` 结项收尾；另含本次状态修正提交），尚未合并（等用户指示）**。D 线设计档案（`PRODUCT.md`、`DESIGN.md`、`frontend/design/`、`.impeccable/`）已随 2026-10-15 合并进入 main；在途新文档：`docs/decisions/IA_V3_case_display_names.md`、`docs/decisions/IA_V3_navigation.md`、`docs/validation/IA_V3_test_migration_map.md`、`docs/validation/UI_ROUND_2026-10-16.md`、根 `FRONTEND_RISK_INSURANCE_FIXES.md`。
 - `feature/c-agent-evaluation`：`docs/handoff/C_C1_CHECKPOINT.md`、`C_C1_to_A/B/D.md`。
 - `feature/a-gold-actuarial`：待 A 开工，暂无文档。
 
