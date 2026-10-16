@@ -1,0 +1,47 @@
+{
+  "schema": "AgentShield.P0_two_research_contracts.v0.1",
+  "version": "A-P0-study-contracts-v0.1-candidate",
+  "currency": "CNY",
+  "status": "illustrative_parameters_not_commercially_approved",
+  "commercial_quote": false,
+  "annual_aggregate_enforced_in_A0": false,
+  "parameter_origin": "Deliberately chosen research scenario levels; not estimated from Agent incidents, commercial claims or actuarial credibility data",
+  "plans": [
+    {
+      "product_id": "AgentShield-Core",
+      "display_name": "AgentShield Core 基础保障（研究演示）",
+      "contract_version": "a-p0-core-study-v0.1",
+      "currency": "CNY",
+      "commercial_quote": false,
+      "deductible_cents": 10000,
+      "coinsurance_bp": 8000,
+      "occurrence_limit_cents": 100000,
+      "annual_aggregate_limit_cents": 10000000,
+      "annual_aggregate_limit_status": "display_only_not_enforced",
+      "covered_loss": "Subject to A's independent coverage review, verified net extra refund cash outflow caused by a non-intentional error within registered Agent/model/tools/permissions; less traceable recoveries at pre-registered H",
+      "exclusions": ["uncommitted attempted refund", "underpayment/non-service", "fraud or intentional violation", "unregistered agent or permissions", "unverified damages, fines, reputation and opportunity costs"],
+      "optional_response_expense_covered": false,
+      "basis": "Keep the original A0 engineering deductible of CNY100 and occurrence limit of CNY1000, but apply 80% participation to illustrate merchant co-insurance. Annual CNY100000 is a visibly hypothetical exposure ceiling, not a fitted value."
+    },
+    {
+      "product_id": "AgentShield-Plus",
+      "display_name": "AgentShield Plus 增强保障（研究演示）",
+      "contract_version": "a-p0-plus-study-v0.1",
+      "currency": "CNY",
+      "commercial_quote": false,
+      "deductible_cents": 5000,
+      "coinsurance_bp": 10000,
+      "occurrence_limit_cents": 500000,
+      "annual_aggregate_limit_cents": 50000000,
+      "annual_aggregate_limit_status": "display_only_not_enforced",
+      "covered_loss": "Same verified primary refund loss as Core, with lower deductible, full post-deductible participation and higher per-event limit",
+      "exclusions": ["uncommitted attempted refund", "underpayment/non-service", "fraud or intentional violation", "unregistered agent or permissions", "unverified damages, fines, reputation and opportunity costs"],
+      "optional_response_expense_covered": false,
+      "optional_response_expense_sublimit_cents": null,
+      "basis": "CNY50 deductible is half of Core; 100% participation and CNY5000 occurrence cap reflect the original research order-value ceiling, NOT an empirically estimated tail. Annual CNY500000 is display-only hypothetical. Incident-response expenses are NOT included in this calculation."
+    }
+  ],
+  "shared_formula": "I = min(occurrence_limit, ROUND_HALF_UP((max(L_H - deductible, 0)) * coinsurance), L_H)",
+  "annual_aggregate_caveat": "Annual cap requires separate chronological aggregation and claim handling; not applied by the A0 single-event code and must not be represented as a calculated yearly paid amount.",
+  "premium_status": "insufficient_evidence"
+}

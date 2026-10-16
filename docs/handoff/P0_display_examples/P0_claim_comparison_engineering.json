@@ -1,0 +1,179 @@
+{
+  "schema": "AgentShield.A_P0_display_bundle.v0.1",
+  "contracts_version": "A-P0-study-contracts-v0.1-candidate",
+  "commercial_quote": false,
+  "data_status": "engineering_samples_and_explicit_unknown_placeholder_only",
+  "examples": [
+    {
+      "display_schema": "AgentShield.A_P0_claim_comparison.v0.1",
+      "label": "normal_refund_no_extra_loss",
+      "source_type": "engineering_case",
+      "status": "engineering_illustration",
+      "commercial_quote": false,
+      "real_agent_insurance_claim": false,
+      "event_id": "ENGINEERING-NORMAL-80-80",
+      "net_loss_cents": 0,
+      "loss_status": "verified",
+      "coverage_status": "covered",
+      "claims": [
+        {
+          "product_id": "AgentShield-Core",
+          "contract_version": "a-p0-core-study-v0.1",
+          "deductible_cents": 10000,
+          "coinsurance_bp": 8000,
+          "occurrence_limit_cents": 100000,
+          "annual_aggregate_limit_cents": 10000000,
+          "annual_aggregate_calculation_status": "display_only_not_enforced",
+          "event_id": "ENGINEERING-NORMAL-80-80",
+          "currency": "CNY",
+          "net_loss_cents": 0,
+          "loss_status": "verified",
+          "coverage_status": "covered",
+          "claim_status": "assessed",
+          "payout_cents": 0,
+          "retained_loss_cents": 0,
+          "commercial_quote": false
+        },
+        {
+          "product_id": "AgentShield-Plus",
+          "contract_version": "a-p0-plus-study-v0.1",
+          "deductible_cents": 5000,
+          "coinsurance_bp": 10000,
+          "occurrence_limit_cents": 500000,
+          "annual_aggregate_limit_cents": 50000000,
+          "annual_aggregate_calculation_status": "display_only_not_enforced",
+          "event_id": "ENGINEERING-NORMAL-80-80",
+          "currency": "CNY",
+          "net_loss_cents": 0,
+          "loss_status": "verified",
+          "coverage_status": "covered",
+          "claim_status": "assessed",
+          "payout_cents": 0,
+          "retained_loss_cents": 0,
+          "commercial_quote": false
+        }
+      ],
+      "notes": [
+        "Both products use unchanged actuarial.claims.calculate_claim",
+        "An annual aggregate limit is displayed but is not applied in this event calculation",
+        "Zero verified event-level economic loss is not the same as fully completed business service"
+      ]
+    },
+    {
+      "display_schema": "AgentShield.A_P0_claim_comparison.v0.1",
+      "label": "overrefund_and_traceable_recovery",
+      "source_type": "engineering_case",
+      "status": "engineering_illustration",
+      "commercial_quote": false,
+      "real_agent_insurance_claim": false,
+      "event_id": "ENGINEERING-80-800-RECOVER-200",
+      "net_loss_cents": 52000,
+      "loss_status": "verified",
+      "coverage_status": "covered",
+      "claims": [
+        {
+          "product_id": "AgentShield-Core",
+          "contract_version": "a-p0-core-study-v0.1",
+          "deductible_cents": 10000,
+          "coinsurance_bp": 8000,
+          "occurrence_limit_cents": 100000,
+          "annual_aggregate_limit_cents": 10000000,
+          "annual_aggregate_calculation_status": "display_only_not_enforced",
+          "event_id": "ENGINEERING-80-800-RECOVER-200",
+          "currency": "CNY",
+          "net_loss_cents": 52000,
+          "loss_status": "verified",
+          "coverage_status": "covered",
+          "claim_status": "assessed",
+          "payout_cents": 33600,
+          "retained_loss_cents": 18400,
+          "commercial_quote": false
+        },
+        {
+          "product_id": "AgentShield-Plus",
+          "contract_version": "a-p0-plus-study-v0.1",
+          "deductible_cents": 5000,
+          "coinsurance_bp": 10000,
+          "occurrence_limit_cents": 500000,
+          "annual_aggregate_limit_cents": 50000000,
+          "annual_aggregate_calculation_status": "display_only_not_enforced",
+          "event_id": "ENGINEERING-80-800-RECOVER-200",
+          "currency": "CNY",
+          "net_loss_cents": 52000,
+          "loss_status": "verified",
+          "coverage_status": "covered",
+          "claim_status": "assessed",
+          "payout_cents": 47000,
+          "retained_loss_cents": 5000,
+          "commercial_quote": false
+        }
+      ],
+      "notes": [
+        "Both products use unchanged actuarial.claims.calculate_claim",
+        "An annual aggregate limit is displayed but is not applied in this event calculation",
+        "Zero verified event-level economic loss is not the same as fully completed business service"
+      ]
+    },
+    {
+      "display_schema": "AgentShield.A_P0_claim_comparison.v0.1",
+      "label": "observed_case_without_approved_coverage",
+      "source_type": "observed_agent_execution_pending_review",
+      "status": "observed_run_not_formally_admitted",
+      "commercial_quote": false,
+      "real_agent_insurance_claim": false,
+      "event_id": "A1-W_L-01-REAL-EVIDENCE-NOT-SUPPLIED",
+      "net_loss_cents": null,
+      "loss_status": "needs_review",
+      "coverage_status": "needs_review",
+      "claims": [
+        {
+          "product_id": "AgentShield-Core",
+          "contract_version": "a-p0-core-study-v0.1",
+          "deductible_cents": 10000,
+          "coinsurance_bp": 8000,
+          "occurrence_limit_cents": 100000,
+          "annual_aggregate_limit_cents": 10000000,
+          "annual_aggregate_calculation_status": "display_only_not_enforced",
+          "event_id": "A1-W_L-01-REAL-EVIDENCE-NOT-SUPPLIED",
+          "currency": "CNY",
+          "net_loss_cents": null,
+          "loss_status": "needs_review",
+          "coverage_status": "needs_review",
+          "claim_status": "needs_review",
+          "payout_cents": null,
+          "retained_loss_cents": null,
+          "commercial_quote": false
+        },
+        {
+          "product_id": "AgentShield-Plus",
+          "contract_version": "a-p0-plus-study-v0.1",
+          "deductible_cents": 5000,
+          "coinsurance_bp": 10000,
+          "occurrence_limit_cents": 500000,
+          "annual_aggregate_limit_cents": 50000000,
+          "annual_aggregate_calculation_status": "display_only_not_enforced",
+          "event_id": "A1-W_L-01-REAL-EVIDENCE-NOT-SUPPLIED",
+          "currency": "CNY",
+          "net_loss_cents": null,
+          "loss_status": "needs_review",
+          "coverage_status": "needs_review",
+          "claim_status": "needs_review",
+          "payout_cents": null,
+          "retained_loss_cents": null,
+          "commercial_quote": false
+        }
+      ],
+      "notes": [
+        "Both products use unchanged actuarial.claims.calculate_claim",
+        "An annual aggregate limit is displayed but is not applied in this event calculation",
+        "Zero verified event-level economic loss is not the same as fully completed business service"
+      ]
+    }
+  ],
+  "premium": {
+    "status": "insufficient_evidence",
+    "annual_pure_risk_cost_cents": null,
+    "commercial_premium_cents": null,
+    "reason": "No admissible representative stratum-level natural Agent loss estimates"
+  }
+}

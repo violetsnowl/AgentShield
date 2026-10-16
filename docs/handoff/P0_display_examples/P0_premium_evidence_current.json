@@ -1,0 +1,14 @@
+{
+  "schema": "AgentShield.A_P0_premium_evidence.v0.1",
+  "status": "insufficient_evidence",
+  "annual_pure_risk_cost_cents": null,
+  "commercial_premium_cents": null,
+  "missing_inputs": [
+    "AgentShield-Core valid nonnegative payout means",
+    "AgentShield-Plus valid nonnegative payout means",
+    "annual_agent_task_volume",
+    "estimate_source (research_assumption or reviewed_estimation_sample)",
+    "target_weights numeric validity"
+  ],
+  "commercial_quote": false
+}

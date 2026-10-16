@@ -1,0 +1,20 @@
+{
+  "schema": "AgentShield.A_P0_premium_input.v0.1",
+  "annual_agent_task_volume": null,
+  "target_weights": {
+    "whole_low": null,
+    "whole_high": null,
+    "partial_low": null,
+    "partial_high": null
+  },
+  "estimate_source": null,
+  "reviewed_estimation_reference": null,
+  "estimated_payout_cents_per_task_by_product": {
+    "AgentShield-Core": {
+      "whole_low": null, "whole_high": null, "partial_low": null, "partial_high": null
+    },
+    "AgentShield-Plus": {
+      "whole_low": null, "whole_high": null, "partial_low": null, "partial_high": null
+    }
+  }
+}

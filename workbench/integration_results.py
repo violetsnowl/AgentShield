@@ -73,6 +73,7 @@ class IntegrationResults:
         self._runs: dict[str, dict[str, Any]] = {}
         self.contract = self._load_contract()
         self.quote_result = self._load_quote()
+        self.p0_products = self._load_p0_products()
         self._scan()
 
     def _load_contract(self) -> dict[str, Any]:
@@ -86,6 +87,27 @@ class IntegrationResults:
         Draft202012Validator(schema).validate(raw)
         if raw.get("commercial_quote") is not False or raw.get("status") != "illustrative":
             raise ValueError("A engineering QuoteResult must remain illustrative and non-commercial")
+        return raw
+
+    def _load_p0_products(self) -> dict[str, Any]:
+        raw = _read_json(self.project_root / "configs/insurance/research_products_P0_v0.1.json")
+        if (raw.get("schema") != "AgentShield.P0_two_research_contracts.v0.1"
+                or raw.get("commercial_quote") is not False
+                or raw.get("annual_aggregate_enforced_in_A0") is not False
+                or raw.get("premium_status") != "insufficient_evidence"):
+            raise ValueError("invalid A-P0 research product boundary")
+        plans = raw.get("plans")
+        if not isinstance(plans, list) or {plan.get("product_id") for plan in plans} != {
+                "AgentShield-Core", "AgentShield-Plus"}:
+            raise ValueError("invalid A-P0 research product set")
+        for plan in plans:
+            if (plan.get("commercial_quote") is not False
+                    or plan.get("annual_aggregate_limit_status") != "display_only_not_enforced"):
+                raise ValueError("A-P0 products must remain non-commercial and display-only")
+            for key in ("deductible_cents", "coinsurance_bp", "occurrence_limit_cents",
+                        "annual_aggregate_limit_cents"):
+                if not isinstance(plan.get(key), int) or plan[key] < 0:
+                    raise ValueError(f"invalid A-P0 product amount: {key}")
         return raw
 
     def _scan(self) -> None:
@@ -130,6 +152,40 @@ class IntegrationResults:
         if loss["loss_status"] == "needs_review" and (loss["net_loss_cents"] is not None or claim["payout_cents"] is not None):
             raise ValueError(f"unreviewed run exposes a loss or payout: {relative}")
 
+        p0_claims = None
+        p0_path = folder / "claim_core_plus.json"
+        if p0_path.is_file():
+            p0_claims = _read_json(p0_path)
+            if _has_secret_key(p0_claims):
+                raise ValueError(f"credential-shaped field in A-P0 result: {relative}")
+            if (p0_claims.get("display_schema") != "AgentShield.A_P0_claim_comparison.v0.1"
+                    or p0_claims.get("commercial_quote") is not False
+                    or p0_claims.get("real_agent_insurance_claim") is not False
+                    or p0_claims.get("source_type") != "observed_agent_execution_pending_review"
+                    or p0_claims.get("event_id") != expected_event
+                    or p0_claims.get("loss_status") != loss["loss_status"]
+                    or p0_claims.get("net_loss_cents") != loss["net_loss_cents"]
+                    or p0_claims.get("coverage_status") != loss["coverage_status_input"]):
+                raise ValueError(f"A-P0 result identity or status mismatch: {relative}")
+            rows = p0_claims.get("claims")
+            if not isinstance(rows, list) or {row.get("product_id") for row in rows} != {
+                    "AgentShield-Core", "AgentShield-Plus"}:
+                raise ValueError(f"A-P0 result product set mismatch: {relative}")
+            versions = {plan["product_id"]: plan["contract_version"] for plan in self.p0_products["plans"]}
+            for row in rows:
+                if (row.get("contract_version") != versions[row["product_id"]]
+                        or row.get("event_id") != expected_event
+                        or row.get("commercial_quote") is not False
+                        or row.get("loss_status") != loss["loss_status"]
+                        or row.get("net_loss_cents") != loss["net_loss_cents"]
+                        or row.get("coverage_status") != loss["coverage_status_input"]):
+                    raise ValueError(f"A-P0 claim mismatch: {relative}")
+                if loss["loss_status"] == "needs_review" and (
+                        row.get("claim_status") != "needs_review"
+                        or row.get("payout_cents") is not None
+                        or row.get("retained_loss_cents") is not None):
+                    raise ValueError(f"unreviewed A-P0 claim exposes money: {relative}")
+
         summary = {
             "run_id": run_id,
             "batch_id": relative.split("/", 1)[0],
@@ -159,6 +215,8 @@ class IntegrationResults:
             "claim": claim,
             "contract": self.contract,
             "quote_result": self.quote_result,
+            "p0_products": self.p0_products,
+            "p0_claim_comparison": p0_claims,
         }
 
     def catalog(self) -> dict[str, Any]:

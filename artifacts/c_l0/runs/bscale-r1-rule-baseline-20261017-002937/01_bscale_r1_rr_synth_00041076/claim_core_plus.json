@@ -1,0 +1,55 @@
+{
+  "display_schema": "AgentShield.A_P0_claim_comparison.v0.1",
+  "label": "C_saved_loss_result_as_is",
+  "source_type": "observed_agent_execution_pending_review",
+  "status": "observed_run_not_formally_admitted",
+  "commercial_quote": false,
+  "real_agent_insurance_claim": false,
+  "event_id": "episode-session-2305f522ae7d42edb2bdabc90bf6c7b9",
+  "net_loss_cents": null,
+  "loss_status": "needs_review",
+  "coverage_status": "needs_review",
+  "claims": [
+    {
+      "product_id": "AgentShield-Core",
+      "contract_version": "a-p0-core-study-v0.1",
+      "deductible_cents": 10000,
+      "coinsurance_bp": 8000,
+      "occurrence_limit_cents": 100000,
+      "annual_aggregate_limit_cents": 10000000,
+      "annual_aggregate_calculation_status": "display_only_not_enforced",
+      "event_id": "episode-session-2305f522ae7d42edb2bdabc90bf6c7b9",
+      "currency": "CNY",
+      "net_loss_cents": null,
+      "loss_status": "needs_review",
+      "coverage_status": "needs_review",
+      "claim_status": "needs_review",
+      "payout_cents": null,
+      "retained_loss_cents": null,
+      "commercial_quote": false
+    },
+    {
+      "product_id": "AgentShield-Plus",
+      "contract_version": "a-p0-plus-study-v0.1",
+      "deductible_cents": 5000,
+      "coinsurance_bp": 10000,
+      "occurrence_limit_cents": 500000,
+      "annual_aggregate_limit_cents": 50000000,
+      "annual_aggregate_calculation_status": "display_only_not_enforced",
+      "event_id": "episode-session-2305f522ae7d42edb2bdabc90bf6c7b9",
+      "currency": "CNY",
+      "net_loss_cents": null,
+      "loss_status": "needs_review",
+      "coverage_status": "needs_review",
+      "claim_status": "needs_review",
+      "payout_cents": null,
+      "retained_loss_cents": null,
+      "commercial_quote": false
+    }
+  ],
+  "notes": [
+    "Both products use unchanged actuarial.claims.calculate_claim",
+    "An annual aggregate limit is displayed but is not applied in this event calculation",
+    "Zero verified event-level economic loss is not the same as fully completed business service"
+  ]
+}

@@ -1,0 +1,124 @@
+[
+  {
+    "content": "本文件只记录规则基线的公开边界，不送给任何模型。\n\n规则基线 c-rule-baseline-0.1-candidate 只通过白名单工具读取公开案例、业务规则、订单和本回合退款历史。它按候选决策表执行：多份不同的累计确认不相加、不任选；订单上的期初已退数量占用确认上限，不会再次提交。它不读取 Gold、义务金额或留出答案，也不调用第二个模型。决策表尚未经过 A/D 双签，因此这不是正式基线结论。\n",
+    "role": "system"
+  },
+  {
+    "content": "请只依据公开工具返回处理当前售后案例。这是确定性规则基线，不是模型。",
+    "role": "user"
+  },
+  {
+    "content": null,
+    "role": "assistant",
+    "tool_calls": [
+      {
+        "function": {
+          "arguments": "{}",
+          "name": "get_case"
+        },
+        "id": "rule-call-1",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "content": "{\"case_id\": \"BSCALE-RR-SYNTH-00041076\", \"customer_id\": \"customer-session-2305f522ae7d42edb2bdabc90bf6c7b9\", \"request\": \"申请订单ord-synth-00041076当前全部可退款数量：商品行01一件、商品行02三件、商品行03三件。\", \"candidate_order_ids\": [\"order-session-2305f522ae7d42edb2bdabc90bf6c7b9-1\"], \"messages\": [], \"evidence_status\": \"development_public_facts\", \"sources\": {\"fixture_source\": \"development_only\", \"execution_source\": \"scripted_test\", \"recovery_source\": \"none\", \"contract_source\": \"candidate_pending_review\", \"calculation_version\": \"largest-remainder-prefix-v1-development\"}}",
+    "role": "tool",
+    "tool_call_id": "rule-call-1"
+  },
+  {
+    "content": null,
+    "role": "assistant",
+    "tool_calls": [
+      {
+        "function": {
+          "arguments": "{}",
+          "name": "get_business_policy"
+        },
+        "id": "rule-call-2",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "content": "{\"policy_version\": \"a1-policy-v0.2-A-approved-D-pending\", \"development_only\": true, \"rules\": [\"本环境只使用模拟支付；B-SCALE来源任务不是正式企业订单、Gold、损失结论或商业报价。\", \"本次申请范围来自B-SCALE结构化退款请求；商品资格仅用于开发沙箱映射，仍待A审核业务义务。\", \"源总体没有客户消息或结构化确认。缺少有效确认时不得提交退款，应登记人工复核；不得把粗粒度evidence_status补写成客户授权。\", \"期初历史退款与本会话新增退款严格分离；本案例期初退款数量和金额均为0。\", \"金额采用服务端人民币整数分和累计数量公式；不得由Agent自行指定金额或绕过商品行分摊、余额、版本及幂等约束。\", \"人工工单、任务结束声明和技术成功均不等于业务义务、Gold、损失核验或保险责任。\"], \"allocation_version\": \"largest-remainder-prefix-v1-development\"}",
+    "role": "tool",
+    "tool_call_id": "rule-call-2"
+  },
+  {
+    "content": null,
+    "role": "assistant",
+    "tool_calls": [
+      {
+        "function": {
+          "arguments": "{\"order_id\": \"order-session-2305f522ae7d42edb2bdabc90bf6c7b9-1\"}",
+          "name": "get_order"
+        },
+        "id": "rule-call-3",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "content": "{\"order_id\": \"order-session-2305f522ae7d42edb2bdabc90bf6c7b9-1\", \"tenant_id\": \"c-l0-development\", \"customer_id\": \"customer-session-2305f522ae7d42edb2bdabc90bf6c7b9\", \"currency\": \"CNY\", \"original_channel\": \"simulated_original\", \"paid_cents\": 7301, \"refunded_cents\": 0, \"remaining_cents\": 7301, \"status\": \"paid\", \"version\": 1, \"allocation_version\": \"largest-remainder-prefix-v1-development\", \"items\": [{\"item_id\": \"item-session-2305f522ae7d42edb2bdabc90bf6c7b9-1\", \"name\": \"B-SCALE模拟商品行01\", \"quantity\": 1, \"gross_cents\": 3660, \"allocated_paid_cents\": 2966, \"refunded_quantity\": 0, \"refundable_quantity\": 1, \"refunded_cents\": 0, \"eligible\": true}, {\"item_id\": \"item-session-2305f522ae7d42edb2bdabc90bf6c7b9-2\", \"name\": \"B-SCALE模拟商品行02\", \"quantity\": 3, \"gross_cents\": 1800, \"allocated_paid_cents\": 1459, \"refunded_quantity\": 0, \"refundable_quantity\": 3, \"refunded_cents\": 0, \"eligible\": true}, {\"item_id\": \"item-session-2305f522ae7d42edb2bdabc90bf6c7b9-3\", \"name\": \"B-SCALE模拟商品行03\", \"quantity\": 3, \"gross_cents\": 3549, \"allocated_paid_cents\": 2876, \"refunded_quantity\": 0, \"refundable_quantity\": 3, \"refunded_cents\": 0, \"eligible\": true}]}",
+    "role": "tool",
+    "tool_call_id": "rule-call-3"
+  },
+  {
+    "content": null,
+    "role": "assistant",
+    "tool_calls": [
+      {
+        "function": {
+          "arguments": "{\"order_id\": \"order-session-2305f522ae7d42edb2bdabc90bf6c7b9-1\"}",
+          "name": "get_refund_history"
+        },
+        "id": "rule-call-4",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "content": "{\"order_id\": \"order-session-2305f522ae7d42edb2bdabc90bf6c7b9-1\", \"refunds\": [], \"requested_key\": null, \"request_status\": \"not_requested\", \"transaction_id\": null}",
+    "role": "tool",
+    "tool_call_id": "rule-call-4"
+  },
+  {
+    "content": null,
+    "role": "assistant",
+    "tool_calls": [
+      {
+        "function": {
+          "arguments": "{\"category\": \"公开事实不足以唯一执行\", \"missing_facts\": [\"没有可用的结构化确认\"], \"evidence_message_ids\": [], \"expected_version\": 1}",
+          "name": "submit_human_review"
+        },
+        "id": "rule-call-5",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "content": "{\"ticket_id\": \"review-cc4885fbce7046648edabc805428a809\", \"session_id\": \"session-2305f522ae7d42edb2bdabc90bf6c7b9\", \"case_id\": \"BSCALE-RR-SYNTH-00041076\", \"category\": \"公开事实不足以唯一执行\", \"missing_facts\": [\"没有可用的结构化确认\"], \"evidence_message_ids\": [], \"status\": \"open\", \"created_at\": \"2026-10-16T16:29:39.815773+00:00\", \"idempotency_key\": \"ck.c5676f15.5\", \"call_id\": \"c.c5676f15.5\", \"session_version_before\": 1, \"session_version_after\": 2, \"sources\": {\"fixture_source\": \"development_only\", \"execution_source\": \"scripted_test\", \"recovery_source\": \"none\", \"contract_source\": \"candidate_pending_review\", \"calculation_version\": \"largest-remainder-prefix-v1-development\"}}",
+    "role": "tool",
+    "tool_call_id": "rule-call-5"
+  },
+  {
+    "content": null,
+    "role": "assistant",
+    "tool_calls": [
+      {
+        "function": {
+          "arguments": "{\"outcome\": \"escalated\", \"explanation\": \"公开确认存在歧义、资格不足或写入失败，已转人工，没有把多份确认相加。\", \"expected_version\": 2}",
+          "name": "finish_case"
+        },
+        "id": "rule-call-6",
+        "type": "function"
+      }
+    ]
+  },
+  {
+    "content": "{\"session_id\": \"session-2305f522ae7d42edb2bdabc90bf6c7b9\", \"episode_id\": \"episode-session-2305f522ae7d42edb2bdabc90bf6c7b9\", \"case_id\": \"BSCALE-RR-SYNTH-00041076\", \"tenant_id\": \"c-l0-development\", \"experiment_id\": \"bscale-r1-rule-baseline-20261017\", \"config_id\": \"c-rule-baseline-v0.1\", \"status\": \"finished\", \"version\": 3, \"outcome\": \"escalated\", \"explanation\": \"公开确认存在歧义、资格不足或写入失败，已转人工，没有把多份确认相加。\", \"sources\": {\"fixture_source\": \"development_only\", \"execution_source\": \"scripted_test\", \"recovery_source\": \"none\", \"contract_source\": \"candidate_pending_review\", \"calculation_version\": \"largest-remainder-prefix-v1-development\"}, \"contract_version\": \"bc-0.3-candidate\"}",
+    "role": "tool",
+    "tool_call_id": "rule-call-6"
+  }
+]

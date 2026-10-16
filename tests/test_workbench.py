@@ -130,6 +130,19 @@ class ObserverTests(unittest.TestCase):
         for key in ("events", "refunds", "ledger", "human_reviews", "initial_snapshot", "final_snapshot"):
             self.assertEqual(before[key], after[key])
 
+        bscale = next(row for row in rows if row["case_id"] == "BSCALE-RR-SYNTH-00041076")
+        detail = self.client.get(f"/observer/api/integration-runs/{bscale['run_id']}", headers=self.headers)
+        self.assertEqual(detail.status_code, 200)
+        payload = detail.json()
+        self.assertEqual(payload["loss_result"]["loss_status"], "needs_review")
+        self.assertIsNone(payload["loss_result"]["net_loss_cents"])
+        self.assertEqual(payload["p0_products"]["premium_status"], "insufficient_evidence")
+        self.assertEqual({row["product_id"] for row in payload["p0_claim_comparison"]["claims"]},
+                         {"AgentShield-Core", "AgentShield-Plus"})
+        for row in payload["p0_claim_comparison"]["claims"]:
+            self.assertEqual(row["claim_status"], "needs_review")
+            self.assertIsNone(row["payout_cents"])
+
     def test_actual_catalog_admin_auth_session_list_and_event_pagination(self):
         self.assertEqual(self.b.get("/api/v1/admin/fixtures").status_code, 401)
         self.assertEqual(self.b.get("/api/v1/admin/fixtures", headers={"Authorization": "Bearer " + self.own["session_token"]}).status_code, 403)

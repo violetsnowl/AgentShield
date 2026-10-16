@@ -1,0 +1,145 @@
+{
+  "adapter": {
+    "baseline_version": "c-rule-baseline-0.1-candidate",
+    "decision_table": "docs/business/business_policy_A_v0.2.md#2",
+    "decision_table_signed": false,
+    "execution_source_note": "config_id distinguishes this program from B scripted tests and mock scenarios",
+    "execution_source_wire": "scripted_test",
+    "llm": false,
+    "model": "deterministic-decision-table-v0.1",
+    "paid": false,
+    "provider": "rule_baseline",
+    "reads_gold": false
+  },
+  "budget": {
+    "api_retries": 2,
+    "api_timeout_s": 60,
+    "max_output_tokens": 2048,
+    "max_run_cost_cny": null,
+    "max_tool_calls": 24,
+    "max_total_tokens": 80000,
+    "max_turns": 12,
+    "run_timeout_s": 300,
+    "transport_retries": 2
+  },
+  "case_id": "BSCALE-RR-SYNTH-00041076",
+  "claim_status": "needs_review",
+  "completion_tokens": 0,
+  "config_file": "configs/runner/rule-baseline-v0.1.json",
+  "config_id": "c-rule-baseline-v0.1",
+  "config_sha256": "a6cb16d2090629b1b2f1a857b2e6fc84c1a822a9c0b5b0580dff734148fbac6e",
+  "cost_basis": "not_applicable",
+  "cost_cny": 0.0,
+  "counts_as_formal_run": false,
+  "elapsed_s": 0.118,
+  "episode_id": "episode-session-2305f522ae7d42edb2bdabc90bf6c7b9",
+  "evidence_sha256": "fbb6899ac50b6db59f69faf53ec20ae761f95265b1321e89dff9d35d58a46158",
+  "execution_source": "scripted_test",
+  "final_text": null,
+  "finished_at": "2026-10-16T16:29:39.855883+00:00",
+  "fixture_id": "bscale-r1-rr-synth-00041076",
+  "injected_faults": {},
+  "label": "01_bscale_r1_rr_synth_00041076",
+  "local_rejections": 0,
+  "loss_status": "needs_review",
+  "net_loss_cents": null,
+  "payout_cents": null,
+  "pricing": null,
+  "private_reasoning_turns": 0,
+  "prompt_sha256": "e5c0522824a544e6fcea0a95d25b25804fde092a3cc0c561cf3c23e42e011838",
+  "prompt_tokens": 0,
+  "prompt_version": "rule_baseline_v0.1",
+  "provider_calls": [
+    {
+      "finish_reason": null,
+      "http_attempts": 0,
+      "latency_ms": null,
+      "provider": "rule_baseline",
+      "request_id": "rule-1",
+      "requested_model": "c-rule-baseline-0.1-candidate",
+      "returned_model": "c-rule-baseline-0.1-candidate",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0
+      }
+    },
+    {
+      "finish_reason": null,
+      "http_attempts": 0,
+      "latency_ms": null,
+      "provider": "rule_baseline",
+      "request_id": "rule-2",
+      "requested_model": "c-rule-baseline-0.1-candidate",
+      "returned_model": "c-rule-baseline-0.1-candidate",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0
+      }
+    },
+    {
+      "finish_reason": null,
+      "http_attempts": 0,
+      "latency_ms": null,
+      "provider": "rule_baseline",
+      "request_id": "rule-3",
+      "requested_model": "c-rule-baseline-0.1-candidate",
+      "returned_model": "c-rule-baseline-0.1-candidate",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0
+      }
+    },
+    {
+      "finish_reason": null,
+      "http_attempts": 0,
+      "latency_ms": null,
+      "provider": "rule_baseline",
+      "request_id": "rule-4",
+      "requested_model": "c-rule-baseline-0.1-candidate",
+      "returned_model": "c-rule-baseline-0.1-candidate",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0
+      }
+    },
+    {
+      "finish_reason": null,
+      "http_attempts": 0,
+      "latency_ms": null,
+      "provider": "rule_baseline",
+      "request_id": "rule-5",
+      "requested_model": "c-rule-baseline-0.1-candidate",
+      "returned_model": "c-rule-baseline-0.1-candidate",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0
+      }
+    },
+    {
+      "finish_reason": null,
+      "http_attempts": 0,
+      "latency_ms": null,
+      "provider": "rule_baseline",
+      "request_id": "rule-6",
+      "requested_model": "c-rule-baseline-0.1-candidate",
+      "returned_model": "c-rule-baseline-0.1-candidate",
+      "usage": {
+        "completion_tokens": 0,
+        "prompt_tokens": 0
+      }
+    }
+  ],
+  "run_status": "completed",
+  "scenario": null,
+  "scheduled_at": "2026-10-16T16:29:39.216403+00:00",
+  "session_id": "session-2305f522ae7d42edb2bdabc90bf6c7b9",
+  "started_at": "2026-10-16T16:29:39.713325+00:00",
+  "stop_reason": "finish_case_tool",
+  "task_outcome": "escalated",
+  "tool_calls_dispatched": 6,
+  "tool_calls_requested": 6,
+  "tool_specs_sha256": "3e7173b6b1b7fde5f2755ec5f1fe0974ec53f014fc5b65b726f06b66526fa10b",
+  "total_committed_cents": 0,
+  "turns": 6,
+  "unresolved_write": null
+}

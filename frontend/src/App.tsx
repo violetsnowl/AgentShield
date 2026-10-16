@@ -314,9 +314,34 @@ function InsurancePlans({ runs, offline }: { runs: IntegrationRunSummary[]; offl
   if (catalogError) return <div className="empty error" role="alert"><strong>A4 产品候选未能读取</strong><p>{catalogError}</p></div>;
   if (catalog === null) return <div className="loading" role="status"><span className="spinner"/>正在读取 A4 研究产品候选…</div>;
   const sample = details?.find(item => item.summary.execution_source === 'observed_agent_execution') ?? details?.[0] ?? null;
+  const p0Sample = details?.find(item => item.p0_claim_comparison !== null) ?? null;
   const contract = sample?.contract ?? null;
   const quote = sample?.quote_result ?? null;
   return <section className="plan-section" aria-label="保险方案">
+    {p0Sample?.p0_claim_comparison && p0Sample.p0_products && <details className="fold-body engineering-sample" open>
+      <summary>A-P0 Core / Plus · B-SCALE 随机样本研究理算</summary>
+      <p><strong>{p0Sample.summary.case_id}</strong> · <Badge tone="warning">开发运行·待审</Badge></p>
+      <dl>
+        <div><dt>执行来源</dt><dd>{executionSourceLabel(p0Sample.summary.execution_source)} / {p0Sample.summary.provider}</dd></div>
+        <div><dt>C 净损失</dt><dd>{p0Sample.p0_claim_comparison.net_loss_cents === null ? '待业务审核' : money(p0Sample.p0_claim_comparison.net_loss_cents)}</dd></div>
+        <div><dt>保险责任</dt><dd>{p0Sample.p0_claim_comparison.coverage_status}</dd></div>
+        <div><dt>商业报价</dt><dd>未生成（commercial_quote=false）</dd></div>
+      </dl>
+      <div className="plan-grid">{p0Sample.p0_claim_comparison.claims.map(result => {
+        const plan = p0Sample.p0_products?.plans.find(item => item.product_id === result.product_id);
+        return <article className="plan-card" key={result.product_id}>
+          <h3>{plan?.display_name ?? result.product_id}</h3>
+          <p><Badge tone="warning">{result.claim_status}</Badge></p>
+          <dl>
+            <div><dt>单事件免赔</dt><dd>{money(result.deductible_cents)}</dd></div>
+            <div><dt>赔付比例</dt><dd>{(result.coinsurance_bp / 100).toFixed(2)}%</dd></div>
+            <div><dt>单事件限额</dt><dd>{money(result.occurrence_limit_cents)}</dd></div>
+            <div><dt>研究赔款</dt><dd>{result.payout_cents === null ? '待审核' : money(result.payout_cents)}</dd></div>
+          </dl>
+          <p className="fine-print">年累计限额仅展示，未执行扣减；不是商业报价或已赔付结论。</p>
+        </article>;
+      })}</div>
+    </details>}
     <div className="plan-grid">{catalog.plans.map(plan => <A4PlanCard key={plan.product_id} plan={plan}/>)}</div>
     {error !== '' && <p className="fine-print" role="alert">A/C 交付目录读取失败：{error}，下方工程示例暂不可读。</p>}
     <details className="fold-body engineering-sample"><summary>查看保障条款与测算依据（A4 候选）</summary>
@@ -761,7 +786,7 @@ export default function App() {
           <select id="run" aria-label="选择演示记录" value={sid} disabled={!catalogReady || creating} onChange={event => chooseRun(event.target.value)}>
             <option value="" disabled>选择具体运行</option>
             {sessions.length > 0 && <optgroup label="本机会话">{sessions.map(row => <option key={row.session_id} value={row.session_id}>{row.case_id} ｜ {row.session_id}</option>)}</optgroup>}
-            {deliveredOptions.length > 0 && <optgroup label="已交付历史运行">{deliveredOptions.map(row => <option key={row.session_id} value={row.session_id}>{(row.execution_source === 'observed_agent_execution' ? '真实模型' : 'Mock')} · {row.label} ｜ …{row.session_id.slice(-8)}</option>)}</optgroup>}
+            {deliveredOptions.length > 0 && <optgroup label="已交付历史运行">{deliveredOptions.map(row => <option key={row.session_id} value={row.session_id}>{executionSourceLabel(row.execution_source)} · {row.label} ｜ …{row.session_id.slice(-8)}</option>)}</optgroup>}
           </select></label>}
         {navBack && navBack !== area && <button className="nav-back-button" title={`回到${areas.find(item => item.id === navBack)?.title ?? '上一位置'}`} onClick={() => { const target = navBack; setNavBack(null); setArea(target); }}>← 返回上一位置</button>}
       </div>

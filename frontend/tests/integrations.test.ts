@@ -39,6 +39,19 @@ describe('versioned A/C presentation boundary', () => {
     expect(detail.claim.payout_cents).toBeNull();
     expect(() => parseIntegrationDetail({ summary, evidence: {}, loss_result: { ...loss, identity: { ...loss.identity, session_id: 'other' } }, claim, contract, quote_result: quote })).toThrow(/身份不一致/);
   });
+  it('keeps A-P0 Core and Plus pending when C loss and coverage are unresolved', () => {
+    const p0Products = { schema: 'AgentShield.P0_two_research_contracts.v0.1', version: 'A-P0-study-contracts-v0.1-candidate', currency: 'CNY', commercial_quote: false, annual_aggregate_enforced_in_A0: false, premium_status: 'insufficient_evidence', plans: [
+      { product_id: 'AgentShield-Core', display_name: 'Core', contract_version: 'core-v1', currency: 'CNY', commercial_quote: false, deductible_cents: 10000, coinsurance_bp: 8000, occurrence_limit_cents: 100000, annual_aggregate_limit_cents: 10000000, annual_aggregate_limit_status: 'display_only_not_enforced', covered_loss: 'candidate', exclusions: [] },
+      { product_id: 'AgentShield-Plus', display_name: 'Plus', contract_version: 'plus-v1', currency: 'CNY', commercial_quote: false, deductible_cents: 5000, coinsurance_bp: 10000, occurrence_limit_cents: 500000, annual_aggregate_limit_cents: 50000000, annual_aggregate_limit_status: 'display_only_not_enforced', covered_loss: 'candidate', exclusions: [] },
+    ] };
+    const base = { event_id: 'episode-1', currency: 'CNY', annual_aggregate_calculation_status: 'display_only_not_enforced', net_loss_cents: null, loss_status: 'needs_review', coverage_status: 'needs_review', claim_status: 'needs_review', payout_cents: null, retained_loss_cents: null, commercial_quote: false };
+    const comparison = { display_schema: 'AgentShield.A_P0_claim_comparison.v0.1', label: 'saved', source_type: 'observed_agent_execution_pending_review', status: 'observed_run_not_formally_admitted', commercial_quote: false, real_agent_insurance_claim: false, event_id: 'episode-1', net_loss_cents: null, loss_status: 'needs_review', coverage_status: 'needs_review', claims: [
+      { ...base, product_id: 'AgentShield-Core', contract_version: 'core-v1', deductible_cents: 10000, coinsurance_bp: 8000, occurrence_limit_cents: 100000, annual_aggregate_limit_cents: 10000000 },
+      { ...base, product_id: 'AgentShield-Plus', contract_version: 'plus-v1', deductible_cents: 5000, coinsurance_bp: 10000, occurrence_limit_cents: 500000, annual_aggregate_limit_cents: 50000000 },
+    ], notes: [] };
+    const detail = parseIntegrationDetail({ summary, evidence: {}, loss_result: loss, claim, contract, quote_result: quote, p0_products: p0Products, p0_claim_comparison: comparison });
+    expect(detail.p0_claim_comparison?.claims.map(row => row.payout_cents)).toEqual([null, null]);
+  });
   it('accepts deterministic rule-baseline runs recorded as scripted_test', () => {
     const [row] = parseIntegrationCatalog({
       contract_version: 'abcd-integration-0.1-candidate',
