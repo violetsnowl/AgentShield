@@ -107,6 +107,8 @@
 
 **docs/validation/**
 - `N01-N16_acceptance.md` — 前端 N 项验收矩阵（D 线，批B：批A 改动 `bd5546f`/`6e83d01` 的自动化证据；批C（IA v3）行已同步新检查名）。
+- `IA_V3_test_migration_map.md` — IA v3 测试迁移映射（旧检查 → 新检查名/进入路径；行为断言零删除）。
+- `UI_ROUND_2026-10-16.md` — UI-first 收口轮交付记录（紧凑运行条、三页体验收口、Core vs Plus 对比区；含修改清单、验证数字与遗留项）。
 
 **docs/spec/AgentShield_v1.1_Package/**（历史） — 计划书 V1.1（`.md`/`.docx`）、`delivery_levels_v1.1.json`、`role_cards/`（A/B/C/D 四份任务卡）。
 
@@ -116,7 +118,7 @@
 
 ## 六、在途（在分支上、尚未合入 main 的文档）
 
-- `feature/bd-integration`（2026-10-15 起直接合并 main）：D 线设计档案（`PRODUCT.md`、`DESIGN.md`、`frontend/design/`、`.impeccable/`）与完成审查证据随本轮收尾并入 main（合并后即登入本索引）。
+- `feature/bd-integration`：**领先 main 2 个提交（`25b82ee` 批C IA v3 与风险/保险修复、`9071713` UI 收口轮），尚未合并（等用户指示）**。D 线设计档案（`PRODUCT.md`、`DESIGN.md`、`frontend/design/`、`.impeccable/`）已随 2026-10-15 合并进入 main；在途新文档：`docs/decisions/IA_V3_case_display_names.md`、`docs/decisions/IA_V3_navigation.md`、`docs/validation/IA_V3_test_migration_map.md`、`docs/validation/UI_ROUND_2026-10-16.md`、根 `FRONTEND_RISK_INSURANCE_FIXES.md`。
 - `feature/c-agent-evaluation`：`docs/handoff/C_C1_CHECKPOINT.md`、`C_C1_to_A/B/D.md`。
 - `feature/a-gold-actuarial`：待 A 开工，暂无文档。
 

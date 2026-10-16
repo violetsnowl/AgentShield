@@ -53,6 +53,13 @@
 - 新增、移动、改名文档前先读 `docs/README.md` 的规范；改动必须同步更新索引与全部引用（用搜索确认）。
 - 历史文档不删除：移入 `docs/archive/` 并在索引登记。
 
+## 仓库工程约定（易踩坑，2026-10-16 增补）
+
+- **行尾风格是混合的**：`frontend/src/App.tsx`、`style.css`、`frontend/tests/browser.mjs`、`stage04-browser.mjs` 为 CRLF；`frontend/src/riskMetrics.ts`、`frontend/tests/riskMetrics.test.ts`、`artifacts/pro_bd_sprint/05/support/check_startup.mjs` 等为 LF。批量重写文件前先比对原文件 EOL 并保持一致；提交前用 `git diff --cached --ignore-cr-at-eol --stat` 自查——某文件行数骤降 = EOL 被整文件翻转，须转回原风格再提交。
+- **gitignore 目录内的 tracked 文件**（如 `artifacts/pro_bd_sprint/05/support/check_startup.mjs`）：`git add <path>` 会被整体拒绝（提示 "paths are ignored"，同批其它文件也不入暂存）——须 `git add -f` 且单独一条命令。
+- **折叠（`<details>`）改造后的浏览器检查迁移**：关闭的 details 内元素对 Playwright 不可见（click/selectOption/innerText 失效；textContent/count 不受影响）。做法：幂等 helper 先 `evaluate(node => { node.open = true; })` 展开再交互；helper 插入点须落在语句行之前，避开多行 `Promise.all([...])` 内部。
+- **新增 UI 文案与既有文案重名会触发 Playwright strict-mode 冲突**（如对比表单元格 vs 卡片标题）：等待/定位改用 `getByRole('heading'|'cell'|'button', { name })` 等角色化选择器。
+
 ## 硬性禁区（与计划书一致）
 
 - 付费模型默认关闭（`enable_paid_runs=false`、`max_cost=0`）；正式实验需负责人批准。
