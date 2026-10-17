@@ -242,6 +242,16 @@ pre { font-family: Consolas, monospace; font-size: 12px; line-height: 1.7; backg
 .source-list li { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line-soft); padding: 5px 0; margin: 0; }
 .source-list strong { font-variant-numeric: tabular-nums; }
 .glossary { font-size: 12.5px; color: #555; display: grid; gap: 4px; }
+.scenario-result { margin-top: 24px; padding: 22px; border: 1px solid var(--line); border-left: 5px solid var(--yw); border-radius: 8px; background: #fff; }
+.scenario-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; }
+.scenario-heading h2 { font-size: 19px; }
+.scenario-heading > strong { font-size: 30px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.scenario-parameters { display: flex; gap: 24px; flex-wrap: wrap; padding: 16px 0; margin-top: 12px; border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); font-size: 13px; }
+.scenario-categories { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+.scenario-categories > div { padding: 10px 12px; background: #fafafa; border-radius: 6px; }
+.scenario-categories span, .scenario-categories strong { display: block; font-size: 12px; }
+.scenario-categories strong { margin-top: 4px; }
+.scenario-note { margin-top: 14px; font-size: 13px; font-weight: 700; }
 
 /* ---------- 第三页：保险方案 ---------- */
 .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 28px; }
@@ -258,6 +268,8 @@ pre { font-family: Consolas, monospace; font-size: 12px; line-height: 1.7; backg
 .plan-exclusions { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; font-size: 12.5px; }
 .plan-card .fold-body { padding: 8px 0 0; }
 .plan-card .fold-body h3 { margin-top: 10px; }
+.premium-amount { font-size: 21px; font-weight: 900; }
+.contract-generate { width: 100%; margin-top: 16px; }
 .engineering-sample { border: 1px solid var(--line); border-radius: 8px; background: #fff; margin-top: 16px; }
 .engineering-sample > summary { padding: 12px 18px; font-size: 13px; }
 .engineering-sample > :not(summary) { padding-left: 18px; padding-right: 18px; }
@@ -265,6 +277,25 @@ pre { font-family: Consolas, monospace; font-size: 12px; line-height: 1.7; backg
 .engineering-sample dl > div { display: grid; grid-template-columns: 160px 1fr; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line-soft); font-size: 12.5px; }
 .engineering-sample dt { color: var(--muted); }
 .engineering-sample > .fine-print { padding-bottom: 12px; }
+.contract-document { max-width: 920px; margin: 24px auto 0; padding: 34px 42px; border: 1px solid var(--line); background: #fff; color: #222; }
+.contract-toolbar { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+.contract-head { text-align: center; padding-bottom: 22px; border-bottom: 2px solid #222; }
+.contract-head p { font-size: 12px; letter-spacing: .12em; color: var(--muted); }
+.contract-head h2 { margin: 8px 0; font-size: 25px; }
+.contract-head span { font-size: 12px; color: var(--muted); }
+.contract-document section { margin-top: 22px; }
+.contract-document section h3 { margin-bottom: 8px; font-size: 15px; }
+.contract-document section p, .contract-document li { font-size: 13px; line-height: 1.75; }
+.contract-document ul, .contract-document ol { padding-left: 22px; }
+.contract-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+.contract-fields > div { display: grid; grid-template-columns: 100px 1fr; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line-soft); font-size: 13px; }
+.contract-fields dt { color: var(--muted); }
+.contract-document table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.contract-document th, .contract-document td { border: 1px solid var(--line); padding: 9px 12px; text-align: left; }
+.contract-document th { background: #fafafa; font-weight: 600; }
+.contract-caveat { margin-top: 8px; color: #555; }
+.contract-declaration { padding: 14px 16px; border: 1px solid #ead8a9; background: #fffdf6; }
+.contract-document footer { display: flex; justify-content: space-between; gap: 18px; margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12px; }
 
 /* ---------- 分步导航 ---------- */
 .stepper { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin: 38px 0 4px; padding-top: 18px; border-top: 1px solid var(--line); flex-wrap: wrap; }
@@ -294,6 +325,7 @@ pre { font-family: Consolas, monospace; font-size: 12px; line-height: 1.7; backg
   .core-facts > div { border-right: 0; border-bottom: 1px solid var(--line); }
   .core-facts > div:last-child { border-bottom: 0; }
   .plan-grid { grid-template-columns: 1fr; }
+  .scenario-categories, .contract-fields { grid-template-columns: 1fr; }
   .run-result { grid-template-columns: 1fr; }
   .identity-fields { grid-template-columns: 1fr 1fr; }
   .ledger-summary { grid-template-columns: 1fr; }
@@ -302,6 +334,14 @@ pre { font-family: Consolas, monospace; font-size: 12px; line-height: 1.7; backg
   .dev-grid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; } }
+
+@media print {
+  body { background: #fff; }
+  .site-head, .page-head, .notice, .stepper, .site-foot, .no-print { display: none !important; }
+  main { max-width: none; padding: 0; }
+  .contract-document { max-width: none; margin: 0; padding: 0; border: 0; }
+  .contract-document section { break-inside: avoid; }
+}
 
 /* ===== 第一页：新建一次测试与测试记录列表（2026-10-16 随机抽样重构） ===== */
 .new-test { margin-top: 22px; }

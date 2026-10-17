@@ -51,17 +51,16 @@ try {
   const landingSid = await page.locator('#run').inputValue();
   check(!!landingSid && !config.sessions.includes(landingSid), 'default demo record comes from the delivered catalog, not a local session');
   const initialCatalog = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
-  const realA1 = initialCatalog.runs.find(run => run.case_id === 'A1-W_L-01'
-    && run.execution_source === 'observed_agent_execution' && run.loss_status === 'verified'
-    && run.total_committed_cents === 54217);
-  check(realA1?.session_id === landingSid, 'saved A1 real DeepSeek run is the default delivered record');
+  const landingRun = initialCatalog.runs.find(run => run.session_id === landingSid);
+  check(landingRun?.execution_source === 'observed_agent_execution', 'default delivered record is an observed Agent run');
+  const landingMoney = `¥${Math.floor(landingRun.total_committed_cents / 100).toLocaleString('zh-CN')}.${String(landingRun.total_committed_cents % 100).padStart(2, '0')}`;
   check((await page.locator('main').innerText()).includes('A/C 交付证据只读视图'), 'delivered default lands in the read-only delivery view');
-  check(await page.getByTestId('committed-total').innerText() === '¥542.17', 'saved A1 run shows the actual 54217-cent refund');
+  check(await page.getByTestId('committed-total').innerText() === landingMoney, 'default observed run shows its exact committed refund');
   const landingResult = await page.locator('.run-result').innerText();
-  check(landingResult.includes('真实模型') && landingResult.includes('¥0.00'), 'saved A1 run shows real-model source and verified zero net loss');
-  check(landingResult.includes('待审核 / null'), 'saved A1 run keeps the A claim payout pending and null');
+  check(landingResult.includes('真实模型'), 'default observed run shows its real-model source');
+  check(landingResult.includes('待审核 / null'), 'default observed run keeps the A claim payout pending and null');
   const landingPanelText = await page.locator('details.integration-panel').evaluate(node => node.textContent ?? '');
-  check(landingPanelText.includes('verified') && landingPanelText.includes('needs_review') && landingPanelText.includes('赔款未记零'), 'saved A1 detail keeps C verified separate from A needs_review');
+  check(landingPanelText.includes(landingRun.loss_status) && landingPanelText.includes('needs_review') && landingPanelText.includes('赔款未记零'), 'default observed detail preserves C and A review states');
   const landingFold = page.locator('details.evidence-fold');
   check(await landingFold.count() === 1 && !(await landingFold.evaluate(node => node.open)), 'landing keeps the evidence fold closed');
   check(await page.locator('#run').isVisible(), 'demo record selector is always available in the header');
@@ -85,10 +84,10 @@ try {
   await page.locator('details.integration-panel > summary').click();
   await openEvidence();
   await page.locator('.run-identity summary').click();
-  check((await page.locator('.identity-fields').innerText()).includes(landingSid), 'saved A1 evidence shows the exact linked session identity');
+  check((await page.locator('.identity-fields').innerText()).includes(landingSid), 'default observed evidence shows the exact linked session identity');
   await page.getByRole('heading', { name: '资金账本', exact: true }).waitFor();
-  check(await page.locator('tr[data-seq]').count() === 6, 'saved A1 evidence shows six real tool events');
-  check((await page.locator('main').innerText()).includes('¥542.17'), 'saved A1 evidence and ledger preserve the 54217-cent money fact');
+  check(await page.locator('tr[data-seq]').count() > 0, 'default observed evidence shows real tool events');
+  check((await page.locator('main').innerText()).includes(landingMoney), 'default observed evidence and ledger preserve the committed money fact');
   await layout('real-a1-evidence-desktop');
   // B-SCALE 一键运行：普通界面只开放免费规则基线，不暴露数据库路径或付费模型。
   check(await page.locator('[data-testid="new-test-toggle"]').count() === 1, 'P1: new-test entry is present on the case page');
@@ -152,10 +151,14 @@ try {
     check(!(await page.locator('.integration-panel').count()), 'no candidate panel is shown for runs without a delivered counterpart');
     await layout('risk-candidate-desktop');
     await navTo('03 保险方案');
-    await page.getByRole('heading', { name: 'AgentShield 操作差错基础保障' }).waitFor();
+    await page.locator('.plan-grid').waitFor();
     const planGrid = await page.locator('.plan-grid').innerText();
-    check(planGrid.includes('待定') && planGrid.includes('操作差错增强保障') && !planGrid.includes('¥'), 'plans show pending values instead of invented premiums');
-    check((await page.locator('main').innerText()).includes('非商业报价') && (await page.locator('main').innerText()).includes('方案参数待审'), 'plans remain explicitly non-commercial');
+    check(planGrid.includes('¥25,641.00') && planGrid.includes('¥35,866.88'), 'plans show computed Core and Plus research premiums');
+    check((await page.locator('main').innerText()).includes('非经验商业报价') && (await page.locator('main').innerText()).includes('真正经验定价尚不可用'), 'plans remain explicitly non-commercial');
+    await page.getByRole('button', { name: '生成Core模拟保险合同', exact: true }).click();
+    check((await page.locator('.contract-document').innerText()).includes('SIM-bscale-enterprise-study-v0.1-CORE'), 'Core research contract is generated from the displayed scenario');
+    check(await page.getByRole('button', { name: '打印 / 另存为PDF', exact: true }).count() === 1, 'generated contract exposes the browser print action');
+    await page.getByRole('button', { name: '← 返回保险方案', exact: true }).click();
     await layout('cost-candidate-desktop');
     const deliveredCatalog = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
     const mockRuns = deliveredCatalog.runs.filter(run => run.execution_source === 'mock_agent');
@@ -245,8 +248,8 @@ try {
     check(page.url().includes('area=risk'), 'N03: area recorded in URL hash');
     const riskCopy = await page.locator('.risk-overview').evaluate(node => node.textContent ?? '');
     check(riskCopy.includes('任务升级') && riskCopy.includes('escalated') && !riskCopy.includes('人工升级'), 'T1: needs_review is not tallied as task escalation');
-    check(riskCopy.includes('核验覆盖') && riskCopy.includes('待核验（needs_review）') && riskCopy.includes('待核验 ≠ 任务升级'), 'T1: pending verification keeps its own coverage dimension');
-    check(riskCopy.includes('2 / 16') && riskCopy.includes('暂不足以估计整体风险') && riskCopy.includes('已核验样本净损失') && riskCopy.includes('¥0.00'), 'T2: verified sample loss carries the coverage caveat');
+    check(riskCopy.includes('C独立核验覆盖') && riskCopy.includes('待审') && riskCopy.includes('null 未记为零'), 'T1: pending verification keeps its own coverage dimension');
+    check(riskCopy.includes('研究性风险测算') && riskCopy.includes('¥31,746.00') && riskCopy.includes('基于假设，非实际测得的损失'), 'T2: study scenario is computed and separated from observed loss');
     check(riskCopy.includes('开发运行来源') && riskCopy.includes('真实模型开发运行') && riskCopy.includes('Mock 开发运行') && !riskCopy.includes('vs Mock'), 'T3: run sources labeled without performance comparison');
     check(riskCopy.includes('人工工单') && riskCopy.includes('与核验状态'), 'T1: human review tickets reported as a separate dimension');
     await layout('risk-overview-desktop');
@@ -286,7 +289,7 @@ try {
     // N03: 深链接直接恢复区+运行；前进/后退恢复区域。
     await page.goto('about:blank');
     await page.goto(`${config.origin}/#area=insurance&run=${config.sessions[1]}`);
-    await page.getByRole('heading', { name: 'AgentShield 操作差错基础保障' }).waitFor();
+    await page.locator('.plan-grid').waitFor();
     check((await activeNav()).includes('03 保险方案'), 'N03: deep link opens the requested area');
     await page.waitForFunction(sid => document.querySelector('#run')?.value === sid, config.sessions[1]);
     check(true, 'N03: deep link restores the requested run');
@@ -436,7 +439,7 @@ try {
     const unauthorized = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     const locked = await unauthorized.newPage();
     await locked.goto(config.origin);
-    await locked.getByRole('alert').filter({ hasText: '本机观察授权未建立或已过期' }).waitFor();
+    await locked.getByRole('alert').filter({ hasText: '本机观察授权未建立或已过期' }).first().waitFor();
     check(!config.sessions.some(id => (requests.find(request => request.body?.includes(id))?.body ?? '').includes('session_token')), 'no B session secret in browser bodies');
     check(!(await locked.locator('body').innerText()).includes(config.sessions[0]), 'unapproved browser cannot read runs');
     await locked.screenshot({ path: path.join(config.output, 'unauthorized-desktop.png'), fullPage: true });

@@ -179,6 +179,17 @@ class ObserverTests(unittest.TestCase):
         self.assertEqual(results.status_code, 200)
         self.assertEqual(results.json()["runs"], [])
 
+    def test_research_scenario_uses_shared_calculation(self):
+        self.assertEqual(self.client.get("/observer/api/research-scenario", headers=self.headers).status_code, 401)
+        self.pair()
+        response = self.client.get("/observer/api/research-scenario", headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["expected_annual_economic_loss_cents"], 3174600)
+        premiums = {row["product_id"]: row["annual_reference_premium_cents"] for row in payload["plans"]}
+        self.assertEqual(premiums, {"AgentShield-Core": 2564100, "AgentShield-Plus": 3586688})
+        self.assertFalse(payload["commercial_quote"])
+
     def test_actual_catalog_admin_auth_session_list_and_event_pagination(self):
         self.assertEqual(self.b.get("/api/v1/admin/fixtures").status_code, 401)
         self.assertEqual(self.b.get("/api/v1/admin/fixtures", headers={"Authorization": "Bearer " + self.own["session_token"]}).status_code, 403)

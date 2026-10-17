@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, ReactNode } from 'react';
 import { api, pairFromFragment } from './api';
 import { buildViewHash, parseViewState } from './routing';
@@ -8,12 +8,12 @@ import { eventMeaning, evidenceCaveats, money, openingSplit, orderedEvents, pars
 import type { EvidenceBundle, EventPage, FixtureCatalog, Ledger, SessionPage, SessionStatus, ToolEvent } from './generated/contract';
 import { CASE_GROUP_LABELS, caseDisplay } from './caseNames';
 import type { CaseGroup } from './caseNames';
-import { loadA4Products, A4_SOURCE_LABEL } from './data/a4Products';
-import type { A4Catalog, A4Plan } from './data/a4Products';
 import { loadRunnerConfigs, agentConfigLabel } from './data/runnerConfigs';
 import type { RunnerConfig } from './data/runnerConfigs';
-import { computeRiskMetrics, riskVerdict } from './riskMetrics';
+import { computeRiskMetrics } from './riskMetrics';
 import type { RiskRunInput } from './riskMetrics';
+import { parseResearchScenario } from './researchScenario';
+import type { ResearchPlan, ResearchScenario } from './researchScenario';
 
 type Area = 'test' | 'risk' | 'insurance';
 type LoadState = 'loading' | 'ready' | 'error';
@@ -195,7 +195,7 @@ function SourceFold({ label, rows }: { label: string; rows: RiskRunInput[] }) {
   return <details className="fold-body"><summary>{label}（{rows.length}）</summary><ul>{rows.map(row => <li key={row.runId}><Id>{row.runId}</Id><span className="cell-note">{row.label} · …{row.sessionId.slice(-8)}</span></li>)}</ul></details>;
 }
 
-function RiskOverview({ runs, offline }: { runs: IntegrationRunSummary[]; offline: boolean }) {
+function RiskOverview({ runs, offline, scenario }: { runs: IntegrationRunSummary[]; offline: boolean; scenario: ResearchScenario | null }) {
   const [details, setDetails] = useState<IntegrationRunDetail[] | null>(null);
   const [error, setError] = useState('');
   useEffect(() => {
@@ -209,7 +209,7 @@ function RiskOverview({ runs, offline }: { runs: IntegrationRunSummary[]; offlin
   }, [runs, offline]);
   if (offline) return <Empty title="离线只读模式">跨运行汇总需要本机服务；离线时不会发起任何请求。</Empty>;
   if (error) return <div className="empty error" role="alert"><strong>汇总数据未能读取</strong><p>{error}</p></div>;
-  if (details === null) return <div className="loading" role="status"><span className="spinner"/>正在汇总已交付开发运行…</div>;
+  if (details === null || scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在汇总测试与研究情景…</div>;
   if (details.length === 0) return <Empty title="暂无可汇总的已交付运行">目录里没有完整的 A/C 交付条目；不会用开发会话冒充统计样本。</Empty>;
   const inputs: RiskRunInput[] = details.map(detail => ({
     runId: detail.summary.run_id, label: detail.summary.label, sessionId: detail.summary.session_id, caseId: detail.summary.case_id,
@@ -222,7 +222,7 @@ function RiskOverview({ runs, offline }: { runs: IntegrationRunSummary[]; offlin
     humanTickets: Array.isArray((detail.evidence as { human_reviews?: unknown[] } | null)?.human_reviews) ? (detail.evidence as { human_reviews: unknown[] }).human_reviews.length : 0,
   }));
   const metrics = computeRiskMetrics(inputs);
-  const verdict = riskVerdict(metrics);
+  const actualRefundCents = details.reduce((sum, detail) => sum + detail.summary.total_committed_cents, 0);
   const sourceRows = [
     { label: '真实模型开发运行', count: metrics.observed.length },
     { label: 'Mock 开发运行', count: metrics.mock.length },
@@ -232,26 +232,30 @@ function RiskOverview({ runs, offline }: { runs: IntegrationRunSummary[]; offlin
   ].filter(row => row.count > 0);
   return <section className="risk-overview" aria-label="跨运行风险评估">
     <div className="verdict">
-      <h2>{verdict.level}</h2>
-      <p>{verdict.line}</p>
-      <p className="fine-print">全部为开发运行，不计入正式 56 次实验；本页不作正式结论。</p>
+      <h2>实际测试结果</h2>
+      <p>当前批次共 {metrics.total} 条规则基线开发运行：正常退款 {metrics.outcomeCompleted} 条，转人工 {metrics.outcomeEscalated} 条。</p>
     </div>
     <div className="core-facts">
-      <div><span>运行数量</span><strong>{metrics.total} 次</strong><p>已交付开发运行；真实模型与 Mock 分开标注，不作性能比较。</p></div>
-      <div><span>独立核验覆盖</span><strong>{metrics.verified.length} / {metrics.total}</strong><p>已核验 / 全部运行（loss_status）；待核验（needs_review）{metrics.review.length} 条，净损失保持 null，未记零。待核验 ≠ 任务升级。</p></div>
-      <div><span>已核验样本净损失</span><strong>{metrics.verified.length ? money(metrics.verifiedNetSumCents) : '证据不足'}</strong><p>{metrics.verified.length ? `${metrics.verified.length} 条已核验${metrics.verifiedZero.length ? `，其中 ${metrics.verifiedZero.length} 条为已核验零损失` : ''}；仅限已核验范围，零损失不等于整体风险为零。` : '当前没有已核验样本，无法汇总。'}</p></div>
+      <div><span>运行数量</span><strong>{metrics.total} 次</strong><p>正常退款 {metrics.outcomeCompleted} · 转人工 {metrics.outcomeEscalated}</p></div>
+      <div><span>B账本实际退款总额</span><strong>{money(actualRefundCents)}</strong><p>模拟退款资金事实，不解释为经济损失。</p></div>
+      <div><span>C独立核验覆盖</span><strong>{metrics.verified.length} / {metrics.total}</strong><p>待审 {metrics.review.length} 条；null 未记为零。</p></div>
     </div>
-    <ol className="evidence-chain" aria-label="证据链">
-      <li><span>Agent 执行记录</span><em>{metrics.total} 条已交付运行 · 全部为开发运行</em></li>
-      <li><span>独立损失核验</span><em>{metrics.verified.length} 条已核验 · {metrics.review.length} 条待审核</em></li>
-      <li><span>研究保险理算</span><em>{metrics.assessed.length} 条已理算 · 其余赔款待审核（未记零）</em></li>
-    </ol>
+    <section className="scenario-result" aria-label="研究性风险测算">
+      <div className="scenario-heading"><div><p className="eyebrow">统一研究情景</p><h2>研究性风险测算</h2></div><strong>{money(scenario.expected_annual_economic_loss_cents)}</strong></div>
+      <div className="scenario-parameters">
+        <span>年度Agent任务 <b>{scenario.annual_agent_task_volume.toLocaleString('zh-CN')}</b></span>
+        <span>假设事故概率 <b>{(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}%</b></span>
+        <span>假设平均事故损失 <b>{money(scenario.categories[0].average_accident_loss_cents)}</b></span>
+      </div>
+      <div className="scenario-categories">{scenario.categories.map(category => <div key={category.key}><span>{category.label}</span><strong>{category.task_count.toLocaleString('zh-CN')}项 · {(Number(category.weight) * 100).toFixed(2)}%</strong></div>)}</div>
+      <p className="scenario-note">{scenario.assumption_notice}</p>
+    </section>
     <details className="audit"><summary>查看完整统计与数据口径</summary>
       <div className="audit-body">
         <article><h3>开发运行来源</h3><ul className="source-list">{sourceRows.map(row => <li key={row.label}><span>{row.label}</span><strong>{row.count}</strong></li>)}</ul><p className="fine-print">仅表示运行来源构成，不等于任务正确率或风险高低对照；真实模型、Mock 与规则基线分开标注，不混称；同任务可比的核验对照待正式数据。</p></article>
         <article><h3>任务升级与人工工单</h3><p>任务结果记录为升级（escalated）的运行数：<strong>{metrics.outcomeEscalated}</strong></p><p className="fine-print">任务结果拆解：completed {metrics.outcomeCompleted} · escalated {metrics.outcomeEscalated} · not_finished {metrics.outcomeNotFinished}{metrics.outcomeOther ? ` · 其他 ${metrics.outcomeOther}` : ''}</p><p className="fine-print">人工工单（B 记录）：{metrics.ticketRuns.length} 个运行，共 {metrics.ticketTotal} 张；与核验状态、任务升级互不代替。</p><SourceFold label="升级运行" rows={metrics.escalated}/><SourceFold label="待核验运行" rows={metrics.review}/><SourceFold label="来源运行" rows={metrics.verified}/></article>
         <article><h3>按业务类别</h3><div className="table-scroll"><table><thead><tr><th>类别</th><th className="number">运行</th><th className="number">已核验</th><th className="number">净损失合计</th></tr></thead><tbody>{metrics.categories.map(category => <tr key={category.key}><td>{category.key}</td><td className="number">{category.runs}</td><td className="number">{category.verified}</td><td className="money">{category.verified ? money(category.lossCents) : '—'}</td></tr>)}</tbody></table></div></article>
-        <article><h3>企业业务汇总（B-SCALE）</h3><p>暂未接入本工作台。</p><p className="fine-print">B 已完成独立的模拟企业总体生成与审计，但尚未接入当前工作台的只读数据接口；模拟订单数不会计作 Agent 测试次数。</p></article>
+        <article><h3>企业业务汇总（B-SCALE）</h3><p>年度潜在Agent任务：<strong>{scenario.annual_agent_task_volume.toLocaleString('zh-CN')}</strong> 项；四类权重按冻结模拟总体任务数计算。</p></article>
         <article><h3>数据范围与口径说明（审计）</h3>
           <ul className="glossary">
             <li>样本范围：本机交付目录（artifacts/c_l0 交付条目）；全部 counts_as_formal_run=false，属开发运行。</li>
@@ -259,6 +263,7 @@ function RiskOverview({ runs, offline }: { runs: IntegrationRunSummary[]; offlin
             <li>核验覆盖：loss_status；verified=已核验，needs_review=待核验（净损失保持 null）。</li>
             <li>核验损失：仅 loss_status=verified 的样本进入净损失合计；样本不足时显示“证据不足”。</li>
             <li>研究赔款：仅 claim_status=assessed 且 payout 非 null 的样本进入合计。</li>
+            <li>研究情景：{scenario.risk_formula}；与实际批次核验结果分开。</li>
             <li>任务升级：交付 manifest 的 task_outcome=escalated；人工工单：B 证据 human_reviews（独立维度）。</li>
             <li>按业务类别：按案例 ID 公开结构归类（如 bcp2-l1-whole-low-04 → 整单 · 小额）；无法归类显示「未归类 · 待审」。</li>
           </ul>
@@ -268,40 +273,65 @@ function RiskOverview({ runs, offline }: { runs: IntegrationRunSummary[]; offlin
   </section>;
 }
 
-function A4PlanCard({ plan }: { plan: A4Plan }) {
-  const pending = <Badge tone="warning">待定</Badge>;
+function ResearchPlanCard({ plan, onGenerate }: { plan: ResearchPlan; onGenerate: () => void }) {
+  const scenarioPayout = Object.values(plan.scenario_event_payout_cents)[0];
   return <article className="plan-card">
     <div className="plan-title-row"><h2>{plan.display_name}</h2><span className="plan-tag">{plan.product_id.replace('AgentShield-', '')}</span></div>
-    <p className="plan-role">被保险人：{plan.insured}</p>
-    <p className="plan-covered">{plan.covered_event}</p>
+    <p className="plan-covered">{plan.covered_loss}</p>
     <dl>
-      <div><dt>参考保费</dt><dd>{pending}<small className="cell-note">参数审定与核验样本齐备后测算；研究用途 · 非商业报价。</small></dd></div>
-      <div><dt>免赔额</dt><dd>{plan.deductible_cents === null ? pending : money(plan.deductible_cents)}</dd></div>
-      <div><dt>赔付比例</dt><dd>{plan.coinsurance_bp === null ? pending : `${(plan.coinsurance_bp / 100).toFixed(2)}%`}</dd></div>
-      <div><dt>单次赔付限额</dt><dd>{plan.occurrence_limit_cents === null ? pending : money(plan.occurrence_limit_cents)}</dd></div>
-      <div><dt>年度累计赔付限额</dt><dd>{plan.annual_aggregate_limit_cents === null ? <>{pending}<small className="cell-note">年度累计理算尚未实现。</small></> : money(plan.annual_aggregate_limit_cents)}</dd></div>
-      {plan.optional_incident_response_sublimit_cents !== undefined && <div><dt>处置费用附加责任</dt><dd><Badge tone="warning">可选 · 待实现</Badge></dd></div>}
+      <div><dt>年度参考保费</dt><dd><strong className="money premium-amount">{money(plan.annual_reference_premium_cents)}</strong><small className="cell-note">研究情景参考值，非经验商业报价。</small></dd></div>
+      <div><dt>免赔额</dt><dd>{money(plan.deductible_cents)}</dd></div>
+      <div><dt>赔付比例</dt><dd>{(plan.coinsurance_bp / 100).toFixed(2)}%</dd></div>
+      <div><dt>单次赔付限额</dt><dd>{money(plan.occurrence_limit_cents)}</dd></div>
+      <div><dt>年度累计赔付限额</dt><dd>{money(plan.annual_aggregate_limit_cents)}<small className="cell-note">合同限额展示；未参与本次风险成本计算。</small></dd></div>
+      <div><dt>¥520情景单次赔款</dt><dd>{money(scenarioPayout)}</dd></div>
+      <div><dt>年度纯风险成本</dt><dd>{money(plan.annual_pure_risk_cost_cents)}</dd></div>
     </dl>
-    <p className="plan-badges"><Badge tone="warning">方案参数待审</Badge> <Badge tone="warning">研究候选 · 非商业报价</Badge></p>
+    <button className="primary-run contract-generate" onClick={onGenerate}>生成{plan.product_id === 'AgentShield-Core' ? 'Core' : 'Plus'}模拟保险合同</button>
+    <p className="plan-badges"><Badge tone="warning">模拟研究合同</Badge> <Badge tone="warning">非正式承保</Badge></p>
     <details className="fold-body"><summary>查看保障条款与细节</summary>
       <h3>主要责任免除</h3><ul className="plan-exclusions">{plan.exclusions.map(item => <li key={item}>{item}</li>)}</ul>
-      <h3>赔付结构</h3><p>{plan.claims_basis}</p>
-      <h3>保额与限额设计口径</h3><p>{plan.limit_design}</p>
+      <h3>赔付公式</h3><p>I = min(单次限额, 赔付比例 × max(损失 − 免赔额, 0))</p>
       <p className="fine-print">product_id：<Id>{plan.product_id}</Id></p>
     </details>
   </article>;
 }
 
-function InsurancePlans({ runs, offline }: { runs: IntegrationRunSummary[]; offline: boolean }) {
+function InsuranceContract({ scenario, plan, onClose }: { scenario: ResearchScenario; plan: ResearchPlan; onClose: () => void }) {
+  const name = plan.product_id === 'AgentShield-Core' ? 'Core' : 'Plus';
+  const context = scenario.contract_context;
+  return <article className="contract-document" aria-label={`${name}模拟保险合同`}>
+    <div className="contract-toolbar no-print"><button onClick={onClose}>← 返回保险方案</button><button className="primary-run" onClick={() => window.print()}>打印 / 另存为PDF</button></div>
+    <header className="contract-head"><p>AgentShield 研究合同</p><h2>{plan.display_name}模拟保险合同</h2><span>合同编号：SIM-{scenario.scenario_version}-{name.toUpperCase()}</span></header>
+    <section><h3>一、合同主体与保险期间</h3><dl className="contract-fields">
+      <div><dt>模拟投保人</dt><dd>{context.policyholder}</dd></div><div><dt>模拟被保险人</dt><dd>{context.insured}</dd></div>
+      <div><dt>模拟承保方</dt><dd>AgentShield保险研究项目</dd></div><div><dt>保险期间</dt><dd>{context.insurance_period}</dd></div>
+    </dl></section>
+    <section><h3>二、指定Agent及业务范围</h3><p>指定Agent：{context.designated_agent}。</p><p>承保业务范围：{context.business_scope}。仅限已登记身份、工具权限、会话和业务政策版本内的非故意操作差错。</p></section>
+    <section><h3>三、保险责任</h3><p>{plan.covered_loss}</p><p>{plan.claims_basis}。保险事故须由独立核验确认经济净损失及责任归属；正常、合法退款本身不构成经济损失。</p></section>
+    <section><h3>四、责任免除</h3><ul>{plan.exclusions.map(item => <li key={item}>{item}</li>)}</ul></section>
+    <section><h3>五、免赔、赔付比例与限额</h3><table><tbody>
+      <tr><th>单事件免赔额</th><td>{money(plan.deductible_cents)}</td><th>赔付比例</th><td>{(plan.coinsurance_bp / 100).toFixed(2)}%</td></tr>
+      <tr><th>单事件限额</th><td>{money(plan.occurrence_limit_cents)}</td><th>年度累计限额</th><td>{money(plan.annual_aggregate_limit_cents)}</td></tr>
+    </tbody></table><p>{plan.limit_design}</p><p className="contract-caveat">年度累计限额属于模拟合同约定，尚未参与本次风险成本及参考保费计算，也未实现逐事故年度扣减。</p></section>
+    <section><h3>六、事故认定与理赔证据</h3><ol>
+      <li>B退款沙箱的session、episode、订单初态及适用业务政策；</li><li>Agent完整工具调用轨迹和finish_case结果；</li>
+      <li>退款交易、幂等键及双边守恒资金账本；</li><li>C独立LossResult及合法应退义务来源；</li>
+      <li>追回记录、观察时点和未决争议；</li><li>A对保险责任、除外责任和同一事故聚合的审核结论。</li>
+    </ol></section>
+    <section><h3>七、损失与赔款计算</h3><p>经济净损失由独立核验确定。单次赔款：<strong>{scenario.claim_formula}</strong>。</p><p>本研究情景假设单次事故损失 {money(scenario.categories[0].average_accident_loss_cents)}，本方案对应单次赔款 {money(Object.values(plan.scenario_event_payout_cents)[0])}。</p></section>
+    <section><h3>八、研究情景参考保费</h3><p>年度参考保费：<strong className="premium-amount">{money(plan.annual_reference_premium_cents)}</strong>；年度纯风险成本：{money(plan.annual_pure_risk_cost_cents)}。</p>
+      <p>假设：年度任务 {scenario.annual_agent_task_volume.toLocaleString('zh-CN')} 项、各类事故概率 {(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}%、平均事故损失 {money(scenario.categories[0].average_accident_loss_cents)}、附加比例 {(Number(scenario.premium_loading_ratio) * 100).toFixed(2)}%。</p>
+      <p>保费公式：{scenario.premium_formula}。</p></section>
+    <section className="contract-declaration"><h3>九、模拟研究声明</h3><p>本合同仅用于AgentShield研究演示，不构成正式保险要约、承保承诺、商业报价、电子保单或赔付决定；不接入保险公司、支付或电子签章。真正经验定价状态：尚不可用。</p></section>
+    <footer><span>模拟投保人：________________</span><span>研究项目：________________</span><span>日期：________________</span></footer>
+  </article>;
+}
+
+function InsurancePlans({ runs, offline, scenario }: { runs: IntegrationRunSummary[]; offline: boolean; scenario: ResearchScenario | null }) {
   const [details, setDetails] = useState<IntegrationRunDetail[] | null>(null);
   const [error, setError] = useState('');
-  const [catalog, setCatalog] = useState<A4Catalog | null>(null);
-  const [catalogError, setCatalogError] = useState('');
-  useEffect(() => {
-    let active = true;
-    loadA4Products().then(value => { if (active) setCatalog(value); }).catch(e => { if (active) setCatalogError(errorText(e)); });
-    return () => { active = false; };
-  }, []);
+  const [contractProduct, setContractProduct] = useState<ResearchPlan['product_id'] | null>(null);
   useEffect(() => {
     if (offline) { setDetails(null); setError(''); return; }
     let active = true;
@@ -311,15 +341,15 @@ function InsurancePlans({ runs, offline }: { runs: IntegrationRunSummary[]; offl
     } catch (e) { if (active) setError(errorText(e)); } })();
     return () => { active = false; };
   }, [runs, offline]);
-  if (catalogError) return <div className="empty error" role="alert"><strong>A4 产品候选未能读取</strong><p>{catalogError}</p></div>;
-  if (catalog === null) return <div className="loading" role="status"><span className="spinner"/>正在读取 A4 研究产品候选…</div>;
-  const sample = details?.find(item => item.summary.execution_source === 'observed_agent_execution') ?? details?.[0] ?? null;
+  if (scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在计算研究保险方案…</div>;
+  const generated = scenario.plans.find(plan => plan.product_id === contractProduct) ?? null;
+  if (generated) return <InsuranceContract scenario={scenario} plan={generated} onClose={() => setContractProduct(null)}/>;
   const p0Sample = details?.find(item => item.p0_claim_comparison !== null) ?? null;
-  const contract = sample?.contract ?? null;
-  const quote = sample?.quote_result ?? null;
   return <section className="plan-section" aria-label="保险方案">
-    {p0Sample?.p0_claim_comparison && p0Sample.p0_products && <details className="fold-body engineering-sample" open>
-      <summary>A-P0 Core / Plus · B-SCALE 随机样本研究理算</summary>
+    <div className="verdict"><h2>年度研究保险方案</h2><p>两档参考保费均由同一研究情景和A-P0单次理赔公式计算；真正经验定价尚不可用。</p></div>
+    <div className="plan-grid">{scenario.plans.map(plan => <ResearchPlanCard key={plan.product_id} plan={plan} onGenerate={() => setContractProduct(plan.product_id)}/>)}</div>
+    {p0Sample?.p0_claim_comparison && p0Sample.p0_products && <details className="fold-body engineering-sample">
+      <summary>当前批次单条理赔状态（与研究情景定价分开）</summary>
       <p><strong>{p0Sample.summary.case_id}</strong> · <Badge tone="warning">开发运行·待审</Badge></p>
       <dl>
         <div><dt>执行来源</dt><dd>{executionSourceLabel(p0Sample.summary.execution_source)} / {p0Sample.summary.provider}</dd></div>
@@ -342,30 +372,7 @@ function InsurancePlans({ runs, offline }: { runs: IntegrationRunSummary[]; offl
         </article>;
       })}</div>
     </details>}
-    <div className="plan-grid">{catalog.plans.map(plan => <A4PlanCard key={plan.product_id} plan={plan}/>)}</div>
-    {error !== '' && <p className="fine-print" role="alert">A/C 交付目录读取失败：{error}，下方工程示例暂不可读。</p>}
-    <details className="fold-body engineering-sample"><summary>查看保障条款与测算依据（A4 候选）</summary>
-      <dl>{Object.entries(catalog.premium_method).map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{value}</dd></div>)}</dl>
-      <h3>必要数据（data_requirements）</h3>
-      <ul>{catalog.data_requirements.map(item => <li key={item}>{item}</li>)}</ul>
-      <p className="fine-print">来源：{A4_SOURCE_LABEL}；schema：{catalog.schema}；currency：{catalog.currency}；原始状态：{catalog.status}；commercial_quote=false。</p>
-    </details>
-    <details className="fold-body engineering-sample"><summary>单事件理算工程示例（不代表 Core / Plus 保险报价）</summary>
-      <p><strong>A0 工程理算示例，不代表 Core / Plus 产品报价。</strong></p>
-      <p className="fine-print">旧 A0 默认研究合同的单事件工程理算与情景样例，仅用于验证展示链路与计算口径；其参数未被 Core / Plus 采用。年度累计限额理算尚未实现。</p>
-      <dl>
-        <div><dt>合同版本</dt><dd>{contract ? <Id>{contract.contract_version}</Id> : '样例未读取'}</dd></div>
-        <div><dt>单事件免赔额（A0 示例）</dt><dd>{contract ? money(contract.deductible_cents) : '—'}</dd></div>
-        <div><dt>赔付比例（A0 示例）</dt><dd>{contract ? `${(contract.coinsurance_bp / 100).toFixed(2)}%` : '—'}</dd></div>
-        <div><dt>单次赔付限额（A0 示例）</dt><dd>{contract ? money(contract.occurrence_limit_cents) : '—'}</dd></div>
-        <div><dt>B0 均值</dt><dd>{quote ? decimalCents(quote.methods.B0.estimated_mean_cents_decimal) : '样例未读取'}</dd></div>
-        <div><dt>B0 情景成本</dt><dd>{quote ? decimalCents(quote.methods.B0.scenario_cost_cents_decimal) : '样例未读取'}</dd></div>
-        <div><dt>B1 均值</dt><dd>{quote ? decimalCents(quote.methods.B1.estimated_mean_cents_decimal) : '样例未读取'}</dd></div>
-        <div><dt>B1 情景成本</dt><dd>{quote ? decimalCents(quote.methods.B1.scenario_cost_cents_decimal) : '样例未读取'}</dd></div>
-        <div><dt>B2</dt><dd>{quote ? quote.methods.B2.status : '样例未读取'}</dd></div>
-      </dl>
-      <p className="fine-print">illustrative · 非本次运行 · commercial_quote=false；示例参数（免赔/比例/限额）与 Core / Plus 的「待定」无关。</p>
-    </details>
+    {error !== '' && <p className="fine-print" role="alert">当前批次理赔记录读取失败：{error}；研究情景方案仍可独立查看。</p>}
   </section>;
 }
 
@@ -517,6 +524,7 @@ export default function App() {
   const [newTestOpen, setNewTestOpen] = useState(true);
   const [runnerConfigs, setRunnerConfigs] = useState<RunnerConfig[] | null>(null);
   const [agentConfigId, setAgentConfigId] = useState('');
+  const [researchScenario, setResearchScenario] = useState<ResearchScenario | null>(null);
   const [listTab, setListTab] = useState<'batch' | 'local' | 'history'>('history');
   const [batchStatus, setBatchStatus] = useState<BScaleBatchStatus>(idleBatch);
   const [ledgerBySession, setLedgerBySession] = useState<Record<string, LedgerSlot>>({});
@@ -664,6 +672,14 @@ export default function App() {
     loadRunnerConfigs()
       .then(list => { if (active) { setRunnerConfigs(list); setAgentConfigId((list.find(config => config.adapter === 'rule_baseline')?.config_id ?? '')); } })
       .catch(() => { if (active) setRunnerConfigs([]); });
+    return () => { active = false; };
+  }, [fileReplay]);
+  useEffect(() => {
+    if (fileReplay) return;
+    let active = true;
+    api<unknown>('api/research-scenario')
+      .then(raw => { if (active) setResearchScenario(parseResearchScenario(raw)); })
+      .catch(e => { if (active) setActionError(`研究情景读取失败：${errorText(e)}`); });
     return () => { active = false; };
   }, [fileReplay]);
   useEffect(() => {
@@ -827,7 +843,10 @@ export default function App() {
   const current = bundle?.final_snapshot.session.session_id === sid ? bundle : null;
   const session = current?.final_snapshot.session ?? sessions.find(row => row.session_id === sid);
   const matchedIntegration = integration && integration.summary.session_id === sid ? integration : null;
-  const currentBatchRuns = batchStatus.batch_id === null ? integrationRuns : integrationRuns.filter(row => row.batch_id === batchStatus.batch_id);
+  const currentBatchRuns = useMemo(
+    () => batchStatus.batch_id === null ? integrationRuns : integrationRuns.filter(row => row.batch_id === batchStatus.batch_id),
+    [batchStatus.batch_id, integrationRuns],
+  );
   const integrationPending = !offline && !matchedIntegration && integrationRuns.some(row => row.session_id === sid) && integrationState !== 'error';
   const runName = session ? caseDisplay((current?.case_context as { fixture_id?: string } | null)?.fixture_id ?? session.case_id).name : '';
   const areaIndex = areas.findIndex(item => item.id === area);
@@ -890,8 +909,8 @@ export default function App() {
         </details>
         </>}
       </>}
-      {state === 'ready' && area === 'risk' && <RiskOverview runs={currentBatchRuns} offline={offline && replaySource !== 'delivery'}/>}
-      {state === 'ready' && area === 'insurance' && <InsurancePlans runs={currentBatchRuns} offline={offline && replaySource !== 'delivery'}/>}
+      {state === 'ready' && area === 'risk' && <RiskOverview runs={currentBatchRuns} offline={offline && replaySource !== 'delivery'} scenario={researchScenario}/>}
+      {state === 'ready' && area === 'insurance' && <InsurancePlans runs={currentBatchRuns} offline={offline && replaySource !== 'delivery'} scenario={researchScenario}/>}
       <nav className="stepper" aria-label="分步导航">
         {prevArea ? <a className="step-link prev" href={buildViewHash(prevArea.id, sid || null, offline)} onClick={event => { event.preventDefault(); jump(prevArea.id); }}>← 上一步：{prevArea.nav}</a> : <span className="step-link disabled">已经是第一步</span>}
         {nextArea ? <a className="step-link next" href={buildViewHash(nextArea.id, sid || null, offline)} onClick={event => { event.preventDefault(); jump(nextArea.id); }}>下一步：{nextArea.nav} →</a> : <a className="step-link next" href={buildViewHash('test', sid || null, offline)} onClick={event => { event.preventDefault(); jump('test'); }}>回到第一步：01 测试案例 ↺</a>}

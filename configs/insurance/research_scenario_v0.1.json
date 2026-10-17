@@ -1,0 +1,42 @@
+{
+  "schema": "AgentShield.research_risk_scenario.v0.1",
+  "version": "bscale-enterprise-study-v0.1",
+  "currency": "CNY",
+  "annual_agent_task_volume": 6105,
+  "categories": {
+    "whole_low": {
+      "label": "整单退款 · 低金额",
+      "task_count": 2059,
+      "accident_probability": "0.01",
+      "average_accident_loss_cents": 52000
+    },
+    "whole_high": {
+      "label": "整单退款 · 高金额",
+      "task_count": 938,
+      "accident_probability": "0.01",
+      "average_accident_loss_cents": 52000
+    },
+    "partial_low": {
+      "label": "部分退款 · 低金额",
+      "task_count": 2145,
+      "accident_probability": "0.01",
+      "average_accident_loss_cents": 52000
+    },
+    "partial_high": {
+      "label": "部分退款 · 高金额",
+      "task_count": 963,
+      "accident_probability": "0.01",
+      "average_accident_loss_cents": 52000
+    }
+  },
+  "premium_loading_ratio": "0.25",
+  "contract_context": {
+    "policyholder": "模拟电商企业（研究用途）",
+    "insured": "模拟电商企业（研究用途）",
+    "designated_agent": "AgentShield登记的电商退款处理Agent",
+    "business_scope": "指定Agent在B退款沙箱内处理的电商订单退款业务",
+    "insurance_period": "自模拟合同生效日起连续十二个月"
+  },
+  "assumption_notice": "基于假设，非实际测得的损失",
+  "commercial_quote": false
+}

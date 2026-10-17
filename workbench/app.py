@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 import httpx
 from pydantic import Field
 
+from actuarial.research_scenario import load_research_scenario
 from contracts import models as m
 from workbench.bscale_batches import BScaleBatchManager, BatchAlreadyRunning
 from workbench.integration_results import IntegrationResults
@@ -221,6 +222,10 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
     @app.get("/observer/api/integration-runs", dependencies=[Depends(authorized)])
     def integration_runs():
         return results.catalog()
+
+    @app.get("/observer/api/research-scenario", dependencies=[Depends(authorized)])
+    def research_scenario():
+        return load_research_scenario()
 
     @app.post("/observer/api/bscale-batches", dependencies=[Depends(authorized)], status_code=202)
     def start_bscale_batch():
