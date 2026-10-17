@@ -354,7 +354,7 @@ function InsuranceContract({ scenario, plan, onClose, kind = 'demo', sample = nu
 }
 
 function AdviceCard({ advice }: { advice: InsuranceAdvice }) {
-  const badge = advice.kind === 'no_need' ? '无需投保' : advice.kind === 'evaluate' ? '建议评估' : '数据不足';
+  const badge = advice.kind === 'no_need' ? '继续观察' : advice.kind === 'evaluate' ? '建议评估' : '数据不足';
   return <article className={`advice-card advice-${advice.kind}`} data-testid="insurance-advice" role="status">
     <div className="advice-head"><h3>AgentShield 保险配置建议</h3><Badge tone={advice.kind === 'evaluate' ? 'warning' : ''}>{badge}</Badge></div>
     <p className="advice-title">{advice.title}</p>

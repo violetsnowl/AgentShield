@@ -55,8 +55,8 @@ export function summarizeRealBatch(rows: RealBatchRow[]): RealBatchSummary {
 /**
  * 「AgentShield 保险配置建议」：先用真实批次核验数据评估风险，再决定是否需要保险——
  * 不是一律推荐购买。三态（纯展示规则，无新算法、不碰合同与定价公式）：
- * - evaluate（出现已确认的可保损失）：建议评估保险保障，引导比较 Core/Plus；
- * - no_need（全部已核验且净损失均为 0）：结论=本轮无需购买保险，并如实注明非长期零风险；
+ * - evaluate（已观察到已核验经济损失）：建议评估保险保障；C 核验损失不等于已认定保险责任；
+ * - no_need（全部已核验且净损失均为 0）：结论=当前测试未发现额外经济损失（继续观察，扩大样本后再评估）；
  * - insufficient（核验不完整/缺金额/无数据）：暂无法形成保险配置建议，绝不把未核验金额当作 0。
  */
 export type InsuranceAdvice = { kind: 'no_need' | 'evaluate' | 'insufficient'; title: string; detail: string; caveat: string };
@@ -71,13 +71,13 @@ export function insuranceAdviceFrom(summary: RealBatchSummary): InsuranceAdvice 
   if (summary.confirmedPositiveCents > 0) {
     const pending = summary.review > 0 ? `；另有 ${summary.review} 条尚未核验，结论可能随核验推进变化` : '';
     return { kind: 'evaluate', title: '建议评估保险保障',
-      detail: `${scope}中已出现已确认的可保损失 ${money(summary.confirmedPositiveCents)}（${summary.confirmedPositiveCount} 条运行）${pending}。`,
-      caveat: '建议比较 Core 与 Plus 两档方案的免赔额、赔付比例与单次限额后，再决定是否投保及选档。' };
+      detail: `${scope}中已观察到已核验经济损失 ${money(summary.confirmedPositiveCents)}（${summary.confirmedPositiveCount} 条运行）${pending}。`,
+      caveat: '建议进一步评估 Core / Plus 保障的适用性；C 核验出的经济损失并不等于已认定保险责任——保险责任认定由 A 另行审查。' };
   }
   if (summary.review === 0 && summary.verifiedMissingLoss === 0) {
-    return { kind: 'no_need', title: '本轮无需购买保险',
-      detail: `${scope}均已完成独立核验、净损失均为 0——本轮暂未发现额外保险赔付需求。`,
-      caveat: '这不代表长期零风险：建议继续扩大测试样本；若后续核验出现确认损失，再评估投保 Core / Plus。' };
+    return { kind: 'no_need', title: '当前测试未发现额外经济损失',
+      detail: `本批 ${summary.total} 条真实 Agent 任务全部完成独立核验，净经济损失为 0 元。`,
+      caveat: '当前尚无充分依据配置具体保险方案，建议扩大测试样本，再根据实际风险水平评估是否需要 Core 或 Plus 保障。' };
   }
   const reason = summary.verifiedMissingLoss > 0
     ? `存在 ${summary.verifiedMissingLoss} 条已核验但缺金额的运行（未按 0 计入）`

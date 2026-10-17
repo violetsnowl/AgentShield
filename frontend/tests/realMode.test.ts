@@ -118,26 +118,31 @@ describe('extrapolatePremium', () => {
 
 describe('insuranceAdviceFrom（保险配置建议：先评估风险，再决定是否投保）', () => {
   const summaryOf = (rows: RealBatchRow[]) => summarizeRealBatch(rows);
-  it('全部核验且净损失均为 0 → 本轮无需购买保险，且如实注明非长期零风险', () => {
+  it('全部核验且净损失均为 0 → 当前测试未发现额外经济损失（继续观察；N 动态；零风险不当长期结论）', () => {
     const advice = insuranceAdviceFrom(summaryOf([
       row({ runId: 'a', runStatus: 'completed', lossStatus: 'verified', netLossCents: 0 }),
       row({ runId: 'b', runStatus: 'completed', lossStatus: 'verified', netLossCents: 0 }),
     ]));
     expect(advice.kind).toBe('no_need');
-    expect(advice.title).toBe('本轮无需购买保险');
-    expect(advice.detail).toContain('暂未发现额外保险赔付需求');
-    expect(advice.caveat).toContain('不代表长期零风险');
+    expect(advice.title).toBe('当前测试未发现额外经济损失');
+    expect(advice.detail).toContain('本批 2 条真实 Agent 任务');  // N 按批次动态生成，不写死
+    expect(advice.detail).toContain('净经济损失为 0 元');
     expect(advice.caveat).toContain('扩大测试样本');
+    expect(advice.caveat).toContain('Core 或 Plus 保障');
+    expect(advice.title + advice.caveat).not.toContain('无需购买');
   });
-  it('出现已确认的可保损失 → 建议评估保险保障（含金额与条数）', () => {
+  it('出现已核验经济损失 → 建议评估保险保障；不把 C 核验损失当作已认定保险责任', () => {
     const advice = insuranceAdviceFrom(summaryOf([
       row({ runId: 'a', runStatus: 'completed', lossStatus: 'verified', netLossCents: 0 }),
       row({ runId: 'b', runStatus: 'completed', lossStatus: 'verified', netLossCents: 800 }),
     ]));
     expect(advice.kind).toBe('evaluate');
     expect(advice.title).toBe('建议评估保险保障');
+    expect(advice.detail).toContain('已核验经济损失');
     expect(advice.detail).toContain('¥8.00');
     expect(advice.detail).toContain('1 条运行');
+    expect(advice.detail).not.toContain('可保损失');
+    expect(advice.caveat).toContain('不等于已认定保险责任');
   });
   it('存在待核验或缺金额 → 暂无法形成建议（绝不把未核验金额当作 0）', () => {
     expect(insuranceAdviceFrom(summaryOf([row({ runId: 'a', runStatus: 'completed' })])).kind).toBe('insufficient');
