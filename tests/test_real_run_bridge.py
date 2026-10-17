@@ -47,6 +47,11 @@ class PlanAndGateTests(unittest.TestCase):
         self.assertEqual(bridge.requested_cap(5), 1.5)
         self.assertEqual(bridge.requested_cap(2), 1.0)
 
+    def test_incremental_process_cap_deducts_prior_ledger(self):
+        # 本轮新增 ¥1.50 + 既有台账 ¥0.136644 → 进程硬顶 ¥1.636644（剩余恰为新增额度）
+        self.assertEqual(bridge.process_cap_for(1.5, 0.136644), 1.636644)
+        self.assertEqual(bridge.process_cap_for(0.5, 0.0), 0.5)
+
     def test_paid_gate_requires_approval_cap_and_key(self):
         with self.assertRaisesRegex(bridge.RealBatchError, "budget approval"):
             bridge.authorize_paid(0.5, None, {"DEEPSEEK_API_KEY": "x"})

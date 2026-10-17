@@ -25,6 +25,7 @@ if str(ROOT) not in sys.path:
 
 from evaluator.obligations import load_spec  # noqa: E402
 from experiments.reverify_evidence import reverify  # noqa: E402
+from experiments.run_dev import prior_paid_cost  # noqa: E402
 from runners.env import load_runner_env  # noqa: E402
 from sandbox.bscale_authorization import fixture_id_for, select_task_ids  # noqa: E402
 from scripts.a_bscale_auto_gold_batch import main as gold_batch_main  # noqa: E402
@@ -69,6 +70,15 @@ def resolve_source(explicit: str | None) -> Path:
 
 def requested_cap(count: int) -> float:
     return STAGE_CAPS.get(count, round(PER_RUN_CAP_CNY * count, 2))
+
+
+def process_cap_for(allowance: float, prior: float) -> float:
+    """增量口径：进程全局硬顶 = 既有台账支出 + 本轮新增额度。
+
+    run_dev 会用「进程硬顶 − 台账累计」得到剩余额度，因此该组合保证：
+    本轮新增花费恰好被封在 allowance 之内（超过即在回合间/回合内立即停止）。
+    """
+    return round(allowance + prior, 6)
 
 
 def load_approval(path: Path | None = None) -> float | None:
@@ -153,7 +163,8 @@ def main(argv: list[str] | None = None) -> int:
     work_dir = Path(args.work_dir)
     state: dict = {"batch_id": None, "prefix": args.prefix, "count": args.count, "seed": args.seed,
                    "stage": "starting", "runs": [], "batch_dir": None, "error": None,
-                   "paid": bool(args.paid), "cap_cny": args.cap, "started_at": now(), "finished_at": None}
+                   "paid": bool(args.paid), "cap_cny": args.cap, "process_cap_cny": None, "prior_paid_cny": None,
+                   "started_at": now(), "finished_at": None}
 
     def update(**kw) -> None:
         state.update(kw)
@@ -161,11 +172,17 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         cap = None
+        process_cap = None
         if args.paid:
             cap = authorize_paid(args.cap, load_approval(), load_runner_env())
+            prior, known = prior_paid_cost()
+            if not known:
+                raise RealBatchError("earlier paid cost unknown; refusing to exceed the stage allowance blindly")
+            process_cap = process_cap_for(cap, prior)
         gold_dir = ensure_private_dir(Path(args.gold_dir))
         source = resolve_source(args.source_db)
-        update(stage="sampling", paid=bool(args.paid), cap_cny=cap)
+        update(stage="sampling", paid=bool(args.paid), cap_cny=cap,
+               process_cap_cny=process_cap, prior_paid_cny=(prior if args.paid else None))
         request_ids = select_task_ids(source, args.count, args.seed)
         job_dir = work_dir / (args.prefix + "-" + datetime.now().strftime("%Y%m%d-%H%M%S-") + secrets.token_hex(3))
         update(request_ids=request_ids)
@@ -177,7 +194,7 @@ def main(argv: list[str] | None = None) -> int:
         child_env["AGENTSHIELD_BSCALE_DB"] = str(source)
         if args.paid:
             child_env["C_ENABLE_PAID_RUNS"] = "true"
-            child_env["C_MAX_COST_CNY"] = str(cap)
+            child_env["C_MAX_COST_CNY"] = str(process_cap)
         else:
             for key in ("C_ENABLE_PAID_RUNS", "C_MAX_COST_CNY"):
                 child_env.pop(key, None)
