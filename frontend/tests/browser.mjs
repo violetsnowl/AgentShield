@@ -388,9 +388,17 @@ try {
     check(await page.getByTestId('mode-demo').getAttribute('aria-checked') === 'true', '模式：默认为研究情景演示');
     await page.getByTestId('mode-real').click();
     check(page.url().includes('mode=real'), '模式：real 写入 URL');
-    check(await page.getByTestId('real-run-one').isDisabled() && await page.getByTestId('real-run-batch').isDisabled(), '模式：真实 Agent 实测按钮明确不可用');
-    const realNote = await page.getByTestId('real-run-note').innerText();
-    check(realNote.includes('未接通') && realNote.includes('付费授权') && realNote.includes('B-SCALE'), '模式：不可用原因逐条列明');
+    const realBudget = await page.getByTestId('real-run-budget').innerText();
+    check(realBudget.includes('历史付费合计') && realBudget.includes('单次硬顶'), '模式：真实运行预算区显示批准上限/硬顶/历史付费合计');
+    check(await page.locator('#real-run-hundred').isDisabled(), '模式：100 条保持扩展入口、不可直接运行');
+    if (await page.getByTestId('real-run-one').isDisabled()) {
+      check(await page.getByTestId('real-run-batch').isDisabled(), '模式：真实 Agent 实测按钮随授权状态一致禁用');
+      const realNote = await page.getByTestId('real-run-note').innerText();
+      check(realNote.includes('未授权') || realNote.includes('未配置'), '模式：不可用原因逐条列明（未授权/未配置）');
+    } else {
+      check(await page.getByTestId('real-run-batch').isEnabled(), '模式：已授权时小批量按钮可用');
+      check(realBudget.includes('批准上限') && !realBudget.includes('未批准'), '模式：已授权时预算区显示批准上限');
+    }
     await navTo('02 风险结论');
     await page.locator('.risk-overview').waitFor();
     const realRisk = await page.locator('.risk-overview').innerText();

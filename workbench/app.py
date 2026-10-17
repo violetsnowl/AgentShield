@@ -19,6 +19,7 @@ from actuarial.research_scenario import load_research_scenario
 from contracts import models as m
 from workbench.bscale_batches import BScaleBatchManager, BatchAlreadyRunning
 from workbench.integration_results import IntegrationResults
+from workbench.real_runs import RealRunAlreadyRunning, RealRunManager, RealRunNotAuthorized
 
 ROOT = Path(__file__).resolve().parents[1]
 COOKIE = "agentshield_observer"
@@ -77,10 +78,14 @@ class CreateDevelopmentRun(m.Wire):
     fixture_id: m.FixtureId
 
 
+class StartRealRun(m.Wire):
+    count: int = Field(ge=1, le=10)
+
+
 def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:8810",
                     tenant_id="workbench-development", frontend_dir=None, transport=None,
                     dev_origin=None, integration_root=None, batch_manager=None,
-                    bscale_batch_size=100):
+                    bscale_batch_size=100, real_run_manager=None):
     local_origin(base_url)
     origins = {local_origin(origin)}
     if dev_origin:
@@ -97,6 +102,10 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
     batches = batch_manager or BScaleBatchManager(
         ROOT, count=bscale_batch_size, on_complete=results.refresh_batch,
     )
+    real_runs = real_run_manager or RealRunManager(ROOT, on_complete=results.refresh_batch)
+    if real_run_manager is not None and getattr(real_run_manager, "on_complete", None) is None:
+        # 注入式管理器（QA/测试）也要能刷新权威目录，否则新批次要等到下次重启才可见。
+        real_run_manager.on_complete = results.refresh_batch
 
     @asynccontextmanager
     async def lifespan(app):
@@ -107,6 +116,7 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
                   openapi_url=None, lifespan=lifespan)
     app.state.authority = authority
     app.state.batch_manager = batches
+    app.state.real_run_manager = real_runs
 
     @app.middleware("http")
     async def boundary(request, call_next):
@@ -245,6 +255,21 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
         status = app.state.batch_manager.status()
         rows = [row for row in results.catalog()["runs"] if row["batch_id"] == status.get("batch_id")]
         return {"contract_version": "abcd-integration-0.1-candidate", "runs": rows}
+
+    @app.post("/observer/api/real-runs", dependencies=[Depends(authorized)], status_code=202)
+    def start_real_run(body: StartRealRun):
+        try:
+            return app.state.real_run_manager.start(body.count)
+        except RealRunAlreadyRunning:
+            raise ObserverError("REAL_RUN_ALREADY_RUNNING", 409) from None
+        except RealRunNotAuthorized as error:
+            return JSONResponse({"code": "REAL_RUN_NOT_AUTHORIZED", "reasons": error.reasons}, status_code=403)
+        except (OSError, ValueError):
+            raise ObserverError("REAL_RUN_UNAVAILABLE", 503) from None
+
+    @app.get("/observer/api/real-runs/current", dependencies=[Depends(authorized)])
+    def current_real_run():
+        return app.state.real_run_manager.status()
 
     @app.get("/observer/api/integration-runs/{run_id}", dependencies=[Depends(authorized)])
     def integration_run(run_id: str):

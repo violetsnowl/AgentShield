@@ -17,6 +17,8 @@ import { parseResearchScenario } from './researchScenario';
 import type { ResearchPlan, ResearchScenario } from './researchScenario';
 import { extrapolatePremium, realBatchIdOf, summarizeRealBatch } from './realMode';
 import type { ExtrapolatedPremium, RealBatchRow } from './realMode';
+import { canStartRealRun, parseRealRunStatus, realRunBusy, realRunDisabledReasons, realRunStageLabel } from './realRun';
+import type { RealRunStatus } from './realRun';
 
 type Area = 'test' | 'risk' | 'insurance';
 type LoadState = 'loading' | 'ready' | 'error';
@@ -451,9 +453,10 @@ function legalDueSum(obligations: unknown[]): number | null {
   return sum;
 }
 
-function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onStart, mode, onMode }: {
+function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onStart, mode, onMode, realRun, onStartRealRun }: {
   open: boolean; onToggle: () => void; configs: RunnerConfig[] | null; selected: string; onSelect: (value: string) => void;
   batch: BScaleBatchStatus; onStart: () => void; mode: ModeId; onMode: (value: ModeId) => void;
+  realRun: RealRunStatus | null; onStartRealRun: (count: number) => void;
 }) {
   const freeConfigs = configs?.filter(config => config.adapter === 'rule_baseline') ?? null;
   const current = freeConfigs?.find(config => config.config_id === selected) ?? null;
@@ -479,17 +482,22 @@ function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onSt
       <p className="fine-print">抽样与执行由后端负责（总体版本、随机种子、任务 ID、批次与类别随记录落盘）；普通界面不提供事项类别或具体案例的手动选择。</p>
       </>}
       {mode === 'real' && <div className="real-panel" data-testid="real-panel">
-        <p className="fine-print">执行器：deepseek / deepseek-flash（配置 c-deepseek-flash-fixed-dev-v0.1 · 未冻结）。真实调用必须经由 C 后端 Runner；前端绝不直连模型、不持有 API Key。</p>
-        <div className="real-actions">
-          <button className="primary-run" id="real-run-one" data-testid="real-run-one" disabled aria-describedby="real-run-note">运行 1 条（单条贯通）</button>
-          <button className="primary-run" id="real-run-batch" data-testid="real-run-batch" disabled aria-describedby="real-run-note">运行小批量（≤10 条）</button>
-        </div>
-        <ul className="fine-print" id="real-run-note" data-testid="real-run-note">
-          <li>未接通：C 后端真实运行接口尚未接入——接通前按钮保持不可用，绝不用假结果伪装成功执行。</li>
-          <li>未授权：付费模型调用默认关闭；需要逐次明确的付费授权与预算上限。</li>
-          <li>未配置：B-SCALE 冻结源数据与任务池需先按线下渠道配置到本机。</li>
-        </ul>
-        <p className="fine-print">接通后的执行顺序：先运行 1 条贯穿三页，再扩到小批量；批次 ID 与随机种子由后端记录并贯穿第一、二、三页。</p>
+        <p className="fine-print">执行器：deepseek / deepseek-flash（配置 c-deepseek-flash-fixed-dev-v0.1 · 未冻结）。真实调用由本机后端 Runner 子进程在预算批准范围内发起；前端绝不直连模型、不持有 API Key。</p>
+        {realRun === null ? <p className="fine-print">正在读取真实运行状态…</p> : <>
+          <p className="fine-print" data-testid="real-run-budget">预算：本阶段批准上限 {realRun.authorization.approval_cap_cny === null ? '未批准' : `¥${realRun.authorization.approval_cap_cny.toFixed(2)}`} · 单次硬顶 {`¥${realRun.authorization.per_run_cap_cny.toFixed(2)}`} · 本机历史付费合计 {realRun.authorization.prior_paid_known ? `¥${realRun.authorization.prior_paid_cny.toFixed(6)}` : '未知'}</p>
+          <div className="real-actions">
+            <button className="primary-run" id="real-run-one" data-testid="real-run-one" disabled={!canStartRealRun(realRun)} aria-describedby="real-run-note" onClick={() => onStartRealRun(1)}>运行 1 条（单条贯通）</button>
+            <button className="primary-run" id="real-run-batch" data-testid="real-run-batch" disabled={!canStartRealRun(realRun)} aria-describedby="real-run-note" onClick={() => onStartRealRun(5)}>运行小批量（5 条）</button>
+            <button className="primary-run" id="real-run-hundred" disabled title="扩展目标：需单独批准预算并按每批 10 条生成 Gold；本轮不执行。">运行 100 条（扩展目标）</button>
+          </div>
+          {realRunDisabledReasons(realRun).length > 0 && <ul className="fine-print" id="real-run-note" data-testid="real-run-note">
+            {realRunDisabledReasons(realRun).map(reason => <li key={reason}>{reason}</li>)}
+          </ul>}
+          {realRunBusy(realRun) && <div className="batch-progress" role="status" aria-live="polite"><progress value={realRun.runs.length} max={realRun.count ?? 1}/><strong>{realRunStageLabel(realRun.stage)} · 已完成 {realRun.runs.length}/{realRun.count ?? '—'}</strong><span>批次 {realRun.batch_id ?? '分配中'} · 随机种子与任务 ID 由后端记录</span></div>}
+          {realRun.status === 'completed' && <div className="batch-progress batch-complete" role="status"><strong>真实批次已完成 {realRun.runs.length}/{realRun.count}</strong><span>批次 {realRun.batch_id} · 已自动接入 A 自动 Gold 核验；结果贯穿第二、三页</span>{realRun.runs.map(row => <span key={row.label}>{row.label}：{row.run_status ?? '—'} · 核验 {row.loss_status ?? '—'} · 赔款认定由 A 线下审查</span>)}</div>}
+          {realRun.status === 'failed' && <p className="notice error" role="alert">真实批次失败（{realRun.error_code ?? '未知原因'}）；已完成记录保留，请查看本机日志。</p>}
+        </>}
+        <p className="fine-print">执行顺序：先运行 1 条贯穿三页，再扩到小批量；批次 ID 与随机种子由后端记录并贯穿第一、二、三页。新案例保险责任由 A 线下审查；未确定前第三页显示「数据不足」，不冒充 0。</p>
       </div>}
     </div>}
   </section>;
@@ -601,6 +609,7 @@ export default function App() {
   const [scenarioError, setScenarioError] = useState('');
   const [listTab, setListTab] = useState<'batch' | 'local' | 'history'>('history');
   const [batchStatus, setBatchStatus] = useState<BScaleBatchStatus>(idleBatch);
+  const [realRun, setRealRun] = useState<RealRunStatus | null>(null);
   const [mode, setMode] = useState<ModeId>(() => parseViewState(window.location.hash).mode ?? 'demo');
   const [ledgerBySession, setLedgerBySession] = useState<Record<string, LedgerSlot>>({});
   const [runDetails, setRunDetails] = useState<Record<string, DetailSlot>>({});
@@ -629,8 +638,9 @@ export default function App() {
     let active = true; const epoch = interaction.current;
     (async () => { try { await pairFromFragment(); const { sessions: list, integrated } = await catalog(epoch);
       const batch = parseBScaleBatchStatus(await api<unknown>('api/bscale-batches/current'));
+      const realStatus = parseRealRunStatus(await api<unknown>('api/real-runs/current'));
       if (!active || !currentIntent(epoch) || replayMode.current) return;
-      setBatchStatus(batch); if (batch.batch_id !== null) setListTab('batch');
+      setBatchStatus(batch); setRealRun(realStatus); if (batch.batch_id !== null) setListTab('batch');
       if (list.length || integrated.length) {
         const wanted = pendingRun.current;
         pendingRun.current = null;
@@ -806,6 +816,37 @@ export default function App() {
     return () => { active = false; window.clearTimeout(timer); };
   }, [batchStatus.status, batchStatus.batch_id]);
   useEffect(() => {
+    if (!realRunBusy(realRun)) return;
+    let active = true;
+    let timer = 0;
+    const poll = async () => {
+      try {
+        const next = parseRealRunStatus(await api<unknown>('api/real-runs/current'));
+        if (!active) return;
+        if (next.status === 'completed' && next.batch_id !== null) {
+          // 与免费批次同理：先取权威目录、再更新状态，避免回填被 effect 清理自我取消。
+          const catalog = parseIntegrationCatalog(await api<unknown>('api/integration-runs'));
+          if (!active) return;
+          setRealRun(next);
+          setIntegrationRuns(catalog);
+          setListTab('history');
+        } else if (next.status === 'failed') {
+          setRealRun(next);
+        } else {
+          setRealRun(next);
+          timer = window.setTimeout(() => { void poll(); }, 1500);
+        }
+      } catch (error) {
+        if (active) {
+          setActionError(errorText(error));
+          timer = window.setTimeout(() => { void poll(); }, 3000);
+        }
+      }
+    };
+    timer = window.setTimeout(() => { void poll(); }, 1200);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [realRun?.status, realRun?.batch_id]);
+  useEffect(() => {
     if (fileReplay || !catalogReady) return;
     const pending = sessions.filter(row => !(row.session_id in ledgerBySession));
     if (pending.length === 0) return;
@@ -901,6 +942,17 @@ export default function App() {
       const started = parseBScaleBatchStatus(await api<unknown>('api/bscale-batches', { method: 'POST' }));
       setBatchStatus(started); setListTab('batch'); setNewTestOpen(true);
     } catch (e) { setActionError(errorText(e)); }
+  }
+  async function startRealRun(count: number) {
+    setActionError('');
+    try {
+      setRealRun(parseRealRunStatus(await api<unknown>('api/real-runs', { method: 'POST', body: { count } })));
+      setNewTestOpen(true);
+    } catch (e) {
+      const reasons = (e as { reasons?: string[] }).reasons;
+      setActionError(errorText(e) + (Array.isArray(reasons) && reasons.length ? ' ' + reasons.join(' ') : ''));
+      try { setRealRun(parseRealRunStatus(await api<unknown>('api/real-runs/current'))); } catch { /* 保留上次已知状态 */ }
+    }
   }
   async function create() {
     const epoch = ++interaction.current;
@@ -1012,7 +1064,7 @@ export default function App() {
       {state === 'loading' && <div className="loading" role="status" aria-live="polite"><span className="spinner"/>正在读取本次运行的真实数据…</div>}
       {state === 'error' && <div role="alert" className="empty error"><strong>当前数据未能加载</strong><p>{error}</p><button onClick={retry}>重试读取</button><p className="fine-print">也可以导入已保存的证据，进行离线只读回放。</p></div>}
       {state === 'ready' && area === 'test' && <>
-        {!fileReplay && <NewTestPanel open={newTestOpen} onToggle={() => setNewTestOpen(value => !value)} configs={runnerConfigs} selected={agentConfigId} onSelect={setAgentConfigId} batch={batchStatus} onStart={startBScaleBatch} mode={mode} onMode={setMode}/>}
+        {!fileReplay && <NewTestPanel open={newTestOpen} onToggle={() => setNewTestOpen(value => !value)} configs={runnerConfigs} selected={agentConfigId} onSelect={setAgentConfigId} batch={batchStatus} onStart={startBScaleBatch} mode={mode} onMode={setMode} realRun={realRun} onStartRealRun={startRealRun}/>}
         {!fileReplay && (sessions.length > 0 || integrationRuns.length > 0 || batchStatus.batch_id !== null) && <TestRecordList sessions={sessions} runs={integrationRuns} batchId={batchStatus.batch_id} selected={sid} onSelect={chooseRun} tab={listTab} onTab={setListTab} ledgerBySession={ledgerBySession} lossByRun={lossByRun} onRetryDetails={retryRunDetails}/>}
         {!current && <Empty title="还没有开发会话">可在下方「开发工具」中创建业务初态，或在上方「演示记录」选择一个已有运行。创建会话不会调用模型或提交退款。</Empty>}
         {current && <>

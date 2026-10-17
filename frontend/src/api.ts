@@ -8,6 +8,9 @@ const messages: Record<string, string> = {
   BATCH_ALREADY_RUNNING: '已有一批随机测试正在运行，请等待当前批次完成。',
   BSCALE_SOURCE_UNAVAILABLE: 'B-SCALE 冻结数据源未配置或不可读取，请检查本机启动配置。',
   BATCH_EXECUTION_FAILED: '随机测试批次执行失败，请查看本机服务日志。',
+  REAL_RUN_ALREADY_RUNNING: '已有一个真实批次正在运行，请等待其完成。',
+  REAL_RUN_NOT_AUTHORIZED: '真实模型运行未获授权或本机配置不完整。',
+  REAL_RUN_UNAVAILABLE: '真实运行暂不可用，请检查本机配置后重试。',
 };
 
 export async function api<T>(path: string, options: { method?: 'GET' | 'POST'; body?: unknown; signal?: AbortSignal } = {}): Promise<T> {
@@ -23,7 +26,13 @@ export async function api<T>(path: string, options: { method?: 'GET' | 'POST'; b
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
     });
     const value = await response.json();
-    if (!response.ok) throw new Error(messages[value.code as string] ?? '读取失败，请检查本机服务后重试。');
+    if (!response.ok) {
+      const failure = new Error(messages[value.code as string] ?? '读取失败，请检查本机服务后重试。') as Error & { reasons?: string[] };
+      if (Array.isArray((value as { reasons?: unknown }).reasons)) {
+        failure.reasons = (value as { reasons: string[] }).reasons.filter(reason => typeof reason === 'string');
+      }
+      throw failure;
+    }
     return value as T;
   } catch (error) {
     if (options.signal?.aborted) throw error;
