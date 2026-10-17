@@ -133,9 +133,9 @@ function RunResult({ evidence, matched, pending, hasEntry, integrationError, onR
       <p className="result-note">{evidence.refunds.length} 笔交易 · 原键重放不重复计钱{opening > 0 ? ` · 另有期初历史退款 ${money(opening)}（session 开始前，不计入本轮）` : ''}</p>
     </div>
     <dl className="result-facts">
-      <div><dt>运行状态</dt><dd><Badge tone={session.status === 'finished' ? 'good' : ''}>{session.status === 'finished' ? '已结束' : '进行中'}</Badge> {executionSourceLabel(evidence.sources.execution_source)} · 开发运行，不计入 56 次</dd></div>
-      <div><dt>独立核验（C）</dt><dd>{loss === null ? <Badge tone="warning">暂无核验结果</Badge> : loss.net_loss_cents === null ? <Badge tone="warning">未知 / null</Badge> : <strong className="money">{money(loss.net_loss_cents)}</strong>}<small className="cell-note">{loss === null ? '该记录尚无 C / A 交付条目；不显示其他运行的数字。' : loss.net_loss_cents === null ? '独立核验已执行，但缺少已审定义务定义；净损失保持 null，不直接等同于额外净损失。' : '仅限已核验范围；不推断全部应付款额已完成确认。'}</small></dd></div>
-      <div><dt>研究赔款（A）</dt><dd>{matched === null ? <Badge tone="warning">暂无理算结果</Badge> : matched.claim.payout_cents === null ? <Badge tone="warning">待审核 / null</Badge> : <strong className="money">{money(matched.claim.payout_cents)}</strong>}<small className="cell-note">研究用途 · 非商业报价。</small></dd></div>
+      <div><dt>运行状态</dt><dd><Badge tone={session.status === 'finished' ? 'good' : ''}>{session.status === 'finished' ? '已结束' : '进行中'}</Badge> {executionSourceLabel(evidence.sources.execution_source)} · 开发运行</dd></div>
+      <div><dt>独立核验（C）</dt><dd>{loss === null ? <Badge tone="warning">暂无核验结果</Badge> : loss.net_loss_cents === null ? <Badge tone="warning">未知 / null</Badge> : <strong className="money">{money(loss.net_loss_cents)}</strong>}<small className="cell-note">{loss === null ? '尚无 C / A 交付条目。' : loss.net_loss_cents === null ? '缺已审定义务定义；null 不直接等同于额外净损失。' : '仅限已核验范围。'}</small></dd></div>
+      <div><dt>研究赔款（A）</dt><dd>{matched === null ? <Badge tone="warning">暂无理算结果</Badge> : matched.claim.payout_cents === null ? <Badge tone="warning">待审核 / null</Badge> : <strong className="money">{money(matched.claim.payout_cents)}</strong>}</dd></div>
     </dl>
     {pending && <p className="loading-inline" role="status"><span className="spinner"/>正在校验 A/C 交付结果…</p>}
     {hasEntry && integrationError !== '' && matched === null && <div className="notice error inline" role="alert"><strong>A/C 结果已停止展示</strong> {integrationError}<button onClick={onRetry}>重试读取</button></div>}
@@ -144,9 +144,8 @@ function RunResult({ evidence, matched, pending, hasEntry, integrationError, onR
 
 function ResultPanel({ detail, onLoadEvidence }: { detail: IntegrationRunDetail; onLoadEvidence: () => void }) {
   const lossSlot = adaptResult('LossResult', detail.loss_result);
-  const quoteSlot = adaptResult('QuoteResult', detail.quote_result);
   return <details className="integration-panel" aria-label="单次核验与理算结果">
-    <summary className="ip-summary"><Badge tone="warning">C L0 候选</Badge> <Badge tone="warning">A0 研究候选</Badge><strong>{detail.loss_result.loss_status === 'needs_review' ? '独立核验已执行，损失仍待业务审核' : '独立核验已有可确认结果'}</strong><span className="expand-hint">查看核验与理算详情 ▾</span></summary>
+    <summary className="ip-summary"><Badge tone="warning">C 独立核验</Badge> <Badge tone="warning">A 研究理算</Badge><strong>{detail.loss_result.loss_status === 'needs_review' ? '独立核验已执行，损失仍待业务审核' : '独立核验已有可确认结果'}</strong><span className="expand-hint">查看核验与理算详情 ▾</span></summary>
     <div className="ip-body">
       <p className="ip-lead">{lossSlot.message} 结果已按 session / episode 与所选运行校验一致。</p>
       <dl className="ip-dl">
@@ -155,7 +154,7 @@ function ResultPanel({ detail, onLoadEvidence }: { detail: IntegrationRunDetail;
         <div><dt>义务来源</dt><dd>{detail.loss_result.obligation_source}</dd></div>
         <div><dt>理算状态（A0）</dt><dd>{detail.claim.claim_status}{detail.claim.payout_cents === null ? ' · 赔款未记零' : ''}</dd></div>
       </dl>
-      <p className="fine-print">退款总额只表示 B 已提交资金事实，绝不直接等同于额外净损失。执行来源：<Badge tone="warning">{detail.summary.execution_source}</Badge> {detail.summary.provider} / {detail.summary.model} · 开发运行，不计入 56 次（counts_as_formal_run=false）。</p>
+      <p className="fine-print">退款总额是 B 已提交资金事实，不直接等同于额外净损失。执行来源：<Badge tone="warning">{detail.summary.execution_source}</Badge> {detail.summary.provider} / {detail.summary.model} · 开发运行（counts_as_formal_run=false）。</p>
       <div className="ip-actions">
         <button onClick={onLoadEvidence}>加载关联业务证据</button>
         <button disabled aria-describedby="pending-cost">重新理算</button>
@@ -189,7 +188,7 @@ function ResultPanel({ detail, onLoadEvidence }: { detail: IntegrationRunDetail;
         </div>
       </details>
       <details className="ip-fold"><summary>证据状态说明</summary><div className="state-guide">{Object.entries(evidenceStatePresentation).map(([key, value]) => <div key={key}><Badge tone={value.tone}>{value.title} / {key}</Badge><p>{value.text}</p></div>)}</div></details>
-      <p className="fine-print">仅研究用途 · commercial_quote=false · 非商业报价。LossResult 适配状态：{lossSlot.state}；QuoteResult 工程样例适配状态：{quoteSlot.state}。</p>
+      <p className="fine-print">研究用途 · 非商业报价。</p>
       {detail.summary.evidence_digest_status !== 'raw_file_match' && <p className="fine-print">证据声明哈希匹配规范 JSON（排序键、LF）；交付文件实际为 CRLF，原始字节哈希由 C_DELIVERY_MANIFEST 另行保护。历史文件未被改写。</p>}
     </div>
   </details>;
@@ -240,10 +239,10 @@ function RiskOverview({ runs, offline, scenario, scenarioState, scenarioError, o
     { label: '其他来源开发运行', count: metrics.otherSources.length },
   ].filter(row => row.count > 0);
   return <section className="risk-overview" aria-label="跨运行风险评估">
-    <p className="mode-banner" role="status">模式：{mode === 'real' ? '真实 Agent 实测' : '研究情景演示'} · {batchId === null ? '尚未运行本机批次（以下覆盖全部已交付开发运行）' : `当前批次 ${batchId}`}</p>
+    <p className="mode-banner" role="status"><Badge tone={mode === 'real' ? 'warning' : ''}>{mode === 'real' ? '真实 Agent 实测' : '研究情景演示'}</Badge>{mode === 'real' && batchId !== null && <span className="cell-note">批次 {batchId}</span>}</p>
     <div className="verdict">
       <h2>实际测试结果</h2>
-      <p>{batchId === null ? '尚未运行本机批次；以下合计覆盖全部已交付开发运行（历史）：' : `当前批次共 ${metrics.total} 条${allRuleBaseline ? '规则基线' : ''}开发运行：`}正常退款 {metrics.outcomeCompleted} 条，转人工 {metrics.outcomeEscalated} 条。</p>
+      <p>{batchId === null ? '以下合计覆盖全部已交付开发运行。' : `当前批次共 ${metrics.total} 条${allRuleBaseline ? '规则基线' : ''}开发运行。`}</p>
     </div>
     {metrics.total === 0 && <Empty title="暂无可汇总的已交付运行">目录里没有完整的 A/C 交付条目；不会用开发会话冒充统计样本。</Empty>}
     <div className="core-facts">
@@ -252,19 +251,19 @@ function RiskOverview({ runs, offline, scenario, scenarioState, scenarioError, o
       <div><span>C独立核验覆盖</span><strong>{metrics.verified.length} / {metrics.total}</strong><p>待审 {metrics.review.length} 条；null 未记为零。</p></div>
     </div>
     {mode === 'real' && <section className="real-batch" aria-label="真实 Agent 批次结果">
-      <div className="scenario-heading"><div><p className="eyebrow">真实 Agent 实测 · 当前批次</p><h2>本批次执行结果</h2></div><Badge tone="warning">未接通 · 待数据</Badge></div>
-      {realSummary.total === 0 ? <p className="fine-print">当前批次尚无运行；接通 C 后端 Runner 后，这里将显示该批次的已核验数量、操作错误、损失发生率与经济损失。</p>
+      <div className="scenario-heading"><div><p className="eyebrow">真实 Agent 实测 · 当前批次</p><h2>本批次执行结果</h2></div></div>
+      {realSummary.total === 0 ? <p className="fine-print">当前批次尚无运行。</p>
         : <dl className="ip-dl">
           <div><dt>运行 / 已核验</dt><dd>{realSummary.total} 次 / {realSummary.verified} 条已核验（待核验 {realSummary.review} 条）</dd></div>
           <div><dt>操作错误（未正常完成 / 转人工）</dt><dd>{realSummary.notFinished} / {realSummary.escalated}</dd></div>
           <div><dt>损失发生率（已核验样本内）</dt><dd>{realSummary.lossIncidence.status === 'ok' && realSummary.lossIncidence.rate !== null ? `${(realSummary.lossIncidence.rate * 100).toFixed(2)}%` : <Badge tone="warning">数据不足</Badge>}<small className="cell-note">{realSummary.lossIncidence.reason}</small></dd></div>
           <div><dt>经济损失（已核验净损失合计）</dt><dd>{realSummary.economicLoss.status === 'ok' && realSummary.economicLoss.cents !== null ? money(realSummary.economicLoss.cents) : <Badge tone="warning">数据不足</Badge>}<small className="cell-note">{realSummary.economicLoss.reason}</small></dd></div>
         </dl>}
-      <p className="fine-print">真实模式不采用 1% 情景假设；核验不完整或保险责任未确定时保持「数据不足」，不以假设冒充实测。</p>
+      <p className="fine-print">核验不完整或保险责任未确定时保持「数据不足」，不用假设冒充实测。</p>
     </section>}
     <section className="scenario-result" aria-label="研究性风险测算">
       <div className="scenario-heading"><div><p className="eyebrow">统一研究情景</p><h2>研究性风险测算</h2></div><strong>{money(scenario.expected_annual_economic_loss_cents)}</strong></div>
-      {mode === 'real' && <p className="fine-print"><Badge tone="warning">演示用假设 · 非本批次实测</Badge> 本块是研究情景假设值，与上文本批次实测结果分开呈现。</p>}
+      {mode === 'real' && <p className="fine-print"><Badge tone="warning">演示用假设 · 非本批次实测</Badge></p>}
       <div className="scenario-parameters">
         <span>年度Agent任务 <b>{scenario.annual_agent_task_volume.toLocaleString('zh-CN')}</b></span>
         <span>假设事故概率 <b>{(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}%</b></span>
@@ -400,8 +399,8 @@ function InsurancePlans({ runs, scenario, scenarioState, scenarioError, onRetryS
   if (generated) return <InsuranceContract scenario={scenario} plan={generated} onClose={() => setContractProduct(null)}/>;
   const p0Sample = readyDetails.find(detail => detail.p0_claim_comparison !== null) ?? null;
   return <section className="plan-section" aria-label="保险方案">
-    <div className="verdict"><h2>{mode === 'real' ? '样本外推参考保费（研究）' : '年度研究保险方案'}</h2><p>{mode === 'real' ? '按当前批次 A 已核定的 Core / Plus 单事件赔款做小样本外推；核验不完整或保险责任未确定时保持数据不足。' : '两档参考保费均由同一研究情景和A-P0单次理赔公式计算；真正经验定价尚不可用。'}</p></div>
-    <p className="mode-banner" role="status">模式：{mode === 'real' ? '真实 Agent 实测' : '研究情景演示'} · {batchId === null ? '尚未运行本机批次' : `当前批次 ${batchId}`}</p>
+    <div className="verdict"><h2>{mode === 'real' ? '样本外推参考保费（研究）' : '年度研究保险方案'}</h2><p>{mode === 'real' ? '按本批次核定的 Core / Plus 单事件赔款做小样本外推；未核定时保持「数据不足」。' : '研究情景假设测算 · 非商业报价。'}</p></div>
+    <p className="mode-banner" role="status"><Badge tone={mode === 'real' ? 'warning' : ''}>{mode === 'real' ? '真实 Agent 实测' : '研究情景演示'}</Badge>{mode === 'real' && batchId !== null && <span className="cell-note">批次 {batchId}</span>}</p>
     {mode === 'real' && advice && <AdviceCard advice={advice}/>}
     {mode === 'real' && <>
       <div className="plan-grid">{scenario.plans.map(plan => {
@@ -417,10 +416,8 @@ function InsurancePlans({ runs, scenario, scenarioState, scenarioError, onRetryS
           {result.sampleSize <= 1 && <p className="fine-print">样本量仅 {result.sampleSize} 条 · 研究性估算：{result.eventCount === 0 ? '本样本无已核定正赔款事件，¥0.00 不代表年度零风险；' : ''}不构成经验费率或商业报价。</p>}
           {result.status !== 'ok' && <ul className="fine-print real-reasons">{result.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
           <button className="primary-run contract-generate" disabled={result.status !== 'ok'} onClick={() => setSampleContractProduct(plan.product_id)}>{result.status === 'ok' ? `生成${plan.product_id === 'AgentShield-Core' ? 'Core' : 'Plus'}样本外推参考合同` : '数据不足 · 不能生成合同'}</button>
-          <p className="plan-badges"><Badge tone="warning">样本外推 · 研究用途</Badge> <Badge tone="warning">非商业报价</Badge></p>
         </article>;
       })}</div>
-      <p className="fine-print">外推公式：P =（1 + 附加比例）× 年度任务量 ×（已核定正赔款事件数 ÷ 样本量）× 平均单次赔款；全部有效核验且赔款均为 0 时，样本参考保费为 0；核验不完整时不给出数字。</p>
     </>}
     {mode !== 'real' && <div className="plan-grid">{scenario.plans.map(plan => <ResearchPlanCard key={plan.product_id} plan={plan} onGenerate={() => setContractProduct(plan.product_id)}/>)}</div>}
     {p0Sample?.p0_claim_comparison && p0Sample.p0_products && <details className="fold-body engineering-sample">
@@ -492,20 +489,18 @@ function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onSt
         <button type="button" role="radio" aria-checked={mode === 'real'} data-testid="mode-real" className={mode === 'real' ? 'mode-option active' : 'mode-option'} onClick={() => onMode('real')}>真实 Agent 实测</button>
       </div>
       {mode === 'demo' && <>
-      <label className="agent-pick"><span>执行器（仅免费规则基线）</span>
+      <label className="agent-pick"><span>执行器 · 规则基线</span>
         <select id="agent-config" aria-label="选择 Agent 配置" value={selected} disabled={configs === null} onChange={event => onSelect(event.target.value)}>
           {freeConfigs === null ? <option value="">正在读取已注册配置…</option> : freeConfigs.map(config => <option key={config.config_id} value={config.config_id}>{agentConfigLabel(config)}</option>)}
         </select></label>
-      {current && <p className="fine-print">来源 {current.source_path} · {current.frozen ? '已冻结' : '未冻结'} · 单次成本上限（配置）{current.max_run_cost_cny === null ? '—' : `¥${current.max_run_cost_cny.toFixed(2)}`}</p>}
       <button className="primary-run" id="sample-run" data-testid="sample-run" disabled={running || current === null} onClick={onStart} aria-describedby="sample-run-note">随机抽取100项并运行</button>
-      <p className="fine-print" id="sample-run-note">仅运行免费确定性规则基线；不会调用真实模型或产生 API 费用。同一时间只允许一个批次。</p>
+      <p className="fine-print" id="sample-run-note">规则基线 · 不会调用真实模型或产生 API 费用。</p>
       {running && <div className="batch-progress" role="status" aria-live="polite"><progress value={batch.completed} max={batch.total}/><strong>已完成 {batch.completed}/{batch.total}</strong><span>正常退款 {batch.normal_refund} · 转人工 {batch.manual_review} · 失败 {batch.failed}</span></div>}
       {batch.status === 'completed' && <div className="batch-progress batch-complete" role="status"><strong>本批次已完成 {batch.completed}/{batch.total}</strong><span>正常退款 {batch.normal_refund} · 转人工 {batch.manual_review} · 失败 {batch.failed} · 退款总额 {money(batch.total_refund_cents)}</span></div>}
       {batch.status === 'failed' && <p className="notice error" role="alert">批次执行失败；已完成记录仍保留，请检查本机服务日志。</p>}
-      <p className="fine-print">抽样与执行由后端负责（总体版本、随机种子、任务 ID、批次与类别随记录落盘）；普通界面不提供事项类别或具体案例的手动选择。</p>
       </>}
       {mode === 'real' && <div className="real-panel" data-testid="real-panel">
-        <p className="fine-print">执行器：deepseek / deepseek-flash（配置 c-deepseek-flash-fixed-dev-v0.1 · 未冻结）。真实调用由本机后端 Runner 子进程在预算批准范围内发起；前端绝不直连模型、不持有 API Key。</p>
+        <p className="fine-print">执行器：DeepSeek Flash。</p>
         {realRun === null ? <p className="fine-print">正在读取真实运行状态…</p> : <>
           <p className="fine-print" data-testid="real-run-budget">预算：本阶段批准上限 {realRun.authorization.approval_cap_cny === null ? '未批准' : `¥${realRun.authorization.approval_cap_cny.toFixed(2)}`} · 单次硬顶 {`¥${realRun.authorization.per_run_cap_cny.toFixed(2)}`} · 本机历史付费合计 {realRun.authorization.prior_paid_known ? `¥${realRun.authorization.prior_paid_cny.toFixed(6)}` : '未知'}</p>
           <div className="real-actions">
@@ -516,11 +511,11 @@ function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onSt
           {realRunDisabledReasons(realRun).length > 0 && <ul className="fine-print" id="real-run-note" data-testid="real-run-note">
             {realRunDisabledReasons(realRun).map(reason => <li key={reason}>{reason}</li>)}
           </ul>}
-          {realRunBusy(realRun) && <div className="batch-progress" role="status" aria-live="polite"><progress value={realRun.runs.length} max={realRun.count ?? 1}/><strong>{realRunStageLabel(realRun.stage)} · 已完成 {realRun.runs.length}/{realRun.count ?? '—'}</strong><span>批次 {realRun.batch_id ?? '分配中'} · 随机种子与任务 ID 由后端记录</span></div>}
-          {realRun.status === 'completed' && <div className="batch-progress batch-complete" role="status"><strong>真实批次已完成 {realRun.runs.length}/{realRun.count}</strong><span>批次 {realRun.batch_id} · 已自动接入 A 自动 Gold 核验；结果贯穿第二、三页</span>{realRun.runs.map(row => <span key={row.label}>{row.label}：{row.run_status ?? '—'} · 核验 {row.loss_status ?? '—'} · 赔款认定由 A 线下审查</span>)}</div>}
+          {realRunBusy(realRun) && <div className="batch-progress" role="status" aria-live="polite"><progress value={realRun.runs.length} max={realRun.count ?? 1}/><strong>{realRunStageLabel(realRun.stage)} · 已完成 {realRun.runs.length}/{realRun.count ?? '—'}</strong><span>批次 {realRun.batch_id ?? '分配中'}</span></div>}
+          {realRun.status === 'completed' && <div className="batch-progress batch-complete" role="status"><strong>真实批次已完成 {realRun.runs.length}/{realRun.count}</strong><span>批次 {realRun.batch_id} · 已核验 {realRun.runs.filter(row => row.loss_status === 'verified').length}/{realRun.runs.length} · 赔款认定由 A 线下审查</span></div>}
           {realRun.status === 'failed' && <p className="notice error" role="alert">真实批次失败（{realRun.error_code ?? '未知原因'}）；已完成记录保留，请查看本机日志。</p>}
         </>}
-        <p className="fine-print">执行顺序：先运行 1 条贯穿三页，再扩到小批量；批次 ID 与随机种子由后端记录并贯穿第一、二、三页。新案例保险责任由 A 线下审查；未确定前第三页显示「数据不足」，不冒充 0。</p>
+        <p className="fine-print">新案例保险责任由 A 线下审查；未确定前第三页显示「数据不足」。</p>
       </div>}
     </div>}
   </section>;
@@ -565,7 +560,7 @@ function TestRecordList({ sessions, runs, batchId, selected, onSelect, tab, onTa
       claimCell = slot.payoutCents === null ? <Badge tone="warning">待审核 / null</Badge> : <strong className="money">{money(slot.payoutCents)}</strong>;
     }
     return <tr key={run.run_id} data-sid={run.session_id} className={selected === run.session_id ? 'selected' : ''}>
-      <td><strong>{display.name}</strong><span className="cell-note">{run.case_id} · {run.label}</span></td>
+      <td><strong>{display.name}</strong><span className="cell-note">{run.case_id}</span></td>
       <td><Badge tone={run.execution_source === 'observed_agent_execution' ? 'good' : ''}>{executionSourceLabel(run.execution_source)}</Badge><span className="cell-note">{run.provider ? `${run.provider} / ${run.model ?? '—'}` : '无模型调用'} · {run.run_status === 'finished' ? '已结束' : run.run_status}{run.task_outcome ? ` · ${run.task_outcome}` : ''}</span></td>
       <td className="number"><strong className="money">{money(run.total_committed_cents)}</strong><span className="cell-note">B 账本事实</span></td>
       <td className="number">{dueCell}</td>
@@ -595,7 +590,7 @@ function TestRecordList({ sessions, runs, batchId, selected, onSelect, tab, onTa
         ? <p className="list-empty">交付目录中还没有已交付运行。</p>
         : table(integrationRows(previousRuns)))}
     {Object.entries(lossByRun).some(([, slot]) => slot.state === 'error') && <p className="fine-print" role="alert">部分明细读取失败。<button className="text-button" onClick={() => onRetryDetails(Object.keys(lossByRun).filter(id => lossByRun[id].state === 'error'))}>重试读取失败明细</button></p>}
-    <p className="fine-print">「当前批次」只包含本次随机抽取结果；「历史测试」保留其他已交付开发运行。保险赔款与商户退款是两个概念，金额均按各自口径标注。</p>
+    <p className="fine-print">保险赔款与商户退款按各自口径标注；「历史测试」保留其他已交付开发运行。</p>
   </section>;
 }
 
@@ -1077,10 +1072,16 @@ export default function App() {
     </header>
     <main>
       <div className="page-head">
-        <p className="eyebrow">{currentArea.title}</p>
-        <h1>{currentArea.question}</h1>
+        <div className="page-head-text">
+          <p className="eyebrow">{currentArea.title}</p>
+          <h1>{currentArea.question}</h1>
+        </div>
+        <nav className="stepper top" aria-label="分步导航">
+          {prevArea && <a className="step-link prev" href={buildViewHash(prevArea.id, sid || null, offline, mode)} onClick={event => { event.preventDefault(); jump(prevArea.id); }}>← 上一步：{prevArea.nav}</a>}
+          {nextArea && <a className="step-link next" href={buildViewHash(nextArea.id, sid || null, offline, mode)} onClick={event => { event.preventDefault(); jump(nextArea.id); }}>下一步：{nextArea.nav} →</a>}
+        </nav>
       </div>
-      {offline && <div className="notice warning" role="status"><strong>{replaySource === 'delivery' ? 'A/C 交付证据只读视图' : '离线只读回放'}</strong>　{replaySource === 'delivery' ? '来自已校验的本地交付目录；属于开发运行，不会连接外部服务。' : '内容来自所选文件，未经签名认证；不代表本机最新状态。'}<button onClick={returnToService}>返回本机服务</button></div>}
+      {offline && replaySource === 'file' && <div className="notice warning" role="status"><strong>离线只读回放</strong>　内容来自所选文件，未经签名认证；不代表本机最新状态。<button onClick={returnToService}>返回本机服务</button></div>}
       {actionError && <div role="alert" className="notice error">{actionError}</div>}
       {routeNotice && <div role="status" className="notice warning">{routeNotice}<button onClick={() => setRouteNotice('')}>知道了</button></div>}
 
@@ -1116,12 +1117,8 @@ export default function App() {
       </>}
       {state === 'ready' && area === 'risk' && <RiskOverview runs={pageRuns} offline={offline && replaySource !== 'delivery'} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} details={runDetails} batchId={pageBatchId} mode={mode} onRetryDetails={retryRunDetails}/>}
       {state === 'ready' && area === 'insurance' && <InsurancePlans runs={pageRuns} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} details={runDetails} batchId={pageBatchId} mode={mode} onRetryDetails={retryRunDetails}/>}
-      <nav className="stepper" aria-label="分步导航">
-        {prevArea ? <a className="step-link prev" href={buildViewHash(prevArea.id, sid || null, offline, mode)} onClick={event => { event.preventDefault(); jump(prevArea.id); }}>← 上一步：{prevArea.nav}</a> : <span className="step-link disabled">已经是第一步</span>}
-        {nextArea ? <a className="step-link next" href={buildViewHash(nextArea.id, sid || null, offline, mode)} onClick={event => { event.preventDefault(); jump(nextArea.id); }}>下一步：{nextArea.nav} →</a> : <a className="step-link next" href={buildViewHash('test', sid || null, offline, mode)} onClick={event => { event.preventDefault(); jump('test'); }}>回到第一步：01 测试案例 ↺</a>}
-      </nav>
       <footer className="site-foot">
-        <p>开发运行不属于正式任务或 Gold；正式实验与全队签收尚未完成。模拟资金 · 非商业报价。</p>
+        <p>模拟资金 · 开发运行 · 非商业报价。</p>
         <details className="dev-tools"><summary>开发工具 · 调试入口（演示默认不展开；用于固定案例回归）</summary>
           <div className="dev-grid">
             <div className="dev-item"><span className="dev-label">当前运行</span><div className="dev-row"><button onClick={() => { ++interaction.current; setRefresh(value => value + 1); }} disabled={offline || !current}>刷新本次运行</button></div><p className="fine-print">重新读取所选运行的证据；不改变任何业务事实。</p></div>

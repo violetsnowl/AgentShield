@@ -179,7 +179,7 @@ try {
     check(await page.getByRole('button', { name: '重新理算', exact: true }).isDisabled(), 'no browser-side insurance execution enabled');
     await snapshot('integration-delivered-panel');
     // Lost create response after a real commit: do not announce that creation failed.
-    await page.getByRole('button', { name: '返回本机服务', exact: true }).click();
+    await page.selectOption('#run', config.sessions[0]);
     await page.getByTestId('committed-total').waitFor();
     await navTo('01 测试案例');
     await openEvidence();
