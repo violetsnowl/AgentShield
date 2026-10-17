@@ -77,6 +77,16 @@ artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/01_v1_refund/*
 !artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/01_v1_refund/evidence.json
 !artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/01_v1_refund/loss_result.json
 !artifacts/c_l0/runs/j2-deepseek-dev-20261013-203119/01_v1_refund/claim_A0.json
+# First real DeepSeek run on the unified B-SCALE first case (whitelist: core delivery files only).
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-155329-8f3a21/
+artifacts/c_l0/runs/bscale-web-deepseek-20261017-155329-8f3a21/*
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-155329-8f3a21/01_bscale_sim_rr_synth_00069697/
+artifacts/c_l0/runs/bscale-web-deepseek-20261017-155329-8f3a21/01_bscale_sim_rr_synth_00069697/*
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-155329-8f3a21/01_bscale_sim_rr_synth_00069697/manifest.json
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-155329-8f3a21/01_bscale_sim_rr_synth_00069697/evidence.json
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-155329-8f3a21/01_bscale_sim_rr_synth_00069697/loss_result.json
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-155329-8f3a21/01_bscale_sim_rr_synth_00069697/claim_A0.json
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-155329-8f3a21/01_bscale_sim_rr_synth_00069697/case_context.json
 
 # Public regression fixtures referenced by backend/frontend tests.
 !artifacts/b_bootstrap/

@@ -1,0 +1,117 @@
+{
+  "business_initial_hash": "aedad0cc6e115c37828e67b9351994342ee3f477206fdeaf598da00f5a6e02c3",
+  "canonical_initial": {
+    "business_time": "2026-04-01T00:00:00+08:00",
+    "canonical_version": "business-initial-v1",
+    "case": {
+      "candidate_order_ids": [
+        "ord-synth-00069697"
+      ],
+      "customer_id": "cust-synth-00032941",
+      "evidence_status": "development_public_facts",
+      "messages": [
+        {
+          "confirmation": {
+            "items": [
+              {
+                "item_id": "item-synth-00069697-01",
+                "quantity": 1
+              },
+              {
+                "item_id": "item-synth-00069697-02",
+                "quantity": 4
+              }
+            ],
+            "order_id": "ord-synth-00069697"
+          },
+          "customer_id": "cust-synth-00032941",
+          "message_id": "message-sim-auth-rr-synth-00069697",
+          "text": "模拟客户明确确认按当前退款申请所列商品与数量办理；数量为含期初已退在内的累计授权上限。"
+        }
+      ],
+      "request": "申请订单ord-synth-00069697退款：商品行011件、商品行024件。"
+    },
+    "customer_balance_cents": 0,
+    "environment_version": "sandbox-rules-v1-development",
+    "merchant_balance_cents": 7959,
+    "orders": [
+      {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "cust-synth-00032941",
+        "items": [
+          {
+            "allocated_paid_cents": 4722,
+            "eligible": true,
+            "gross_cents": 5427,
+            "item_id": "item-synth-00069697-01",
+            "name": "B-SCALE模拟商品行01",
+            "quantity": 1,
+            "refundable_quantity": 1,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 3237,
+            "eligible": true,
+            "gross_cents": 3720,
+            "item_id": "item-synth-00069697-02",
+            "name": "B-SCALE模拟商品行02",
+            "quantity": 4,
+            "refundable_quantity": 4,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          }
+        ],
+        "order_id": "ord-synth-00069697",
+        "original_channel": "simulated_original",
+        "paid_cents": 7959,
+        "refunded_cents": 0,
+        "remaining_cents": 7959,
+        "status": "paid",
+        "tenant_id": "template-tenant",
+        "version": 1
+      }
+    ],
+    "policy": {
+      "allocation_version": "largest-remainder-prefix-v1-development",
+      "development_only": true,
+      "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+      "rules": [
+        "本环境只使用模拟支付；B-SCALE任务和模拟确认不是正式企业订单、Gold、损失结论或商业报价。",
+        "evidence_status充分时的结构化确认是本模拟情景层新增的业务假设，不得声称来自原始总体。",
+        "确认数量是累计授权上限；期初已退数量占用该上限，本会话只能提交尚未退过的当前申请数量。",
+        "evidence_status不足时只提供非结构化消息，不得补成有效确认，应转人工复核。",
+        "金额由B服务端人民币整数分累计分摊规则计算；Agent不得指定金额或绕过余额、版本和幂等约束。"
+      ]
+    }
+  },
+  "case_id": "BSCALE-RR-SYNTH-00069697",
+  "environment_version": "sandbox-rules-v1-development",
+  "family_id": "bscale-synthetic-merchant-v1",
+  "fixture_content_sha256": "9076afceebcff5f70e86a507ac1632f6f1e6988e0279423c98bdd32b618c23f7",
+  "fixture_id": "bscale-sim-rr-synth-00069697",
+  "fixture_source": "development_only",
+  "fixture_version": "bscale-simulated-authorization-v1",
+  "hash_algorithm": "sha256-canonical-json-v1",
+  "identity_semantics": "development_case_candidate",
+  "object_mapping": {
+    "customers": {
+      "cust-synth-00032941": "customer-session-f476358c221c4609b378ad858472c71b"
+    },
+    "items": {
+      "item-synth-00069697-01": "item-session-f476358c221c4609b378ad858472c71b-1",
+      "item-synth-00069697-02": "item-session-f476358c221c4609b378ad858472c71b-2"
+    },
+    "messages": {
+      "message-sim-auth-rr-synth-00069697": "message-session-f476358c221c4609b378ad858472c71b-1"
+    },
+    "orders": {
+      "ord-synth-00069697": "order-session-f476358c221c4609b378ad858472c71b-1"
+    }
+  },
+  "parent_case_id": "BSCALE-SYNTHETIC-MERCHANT-V1",
+  "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+  "review_status": "pending_A_C_D_review",
+  "source_case_id": "BSCALE-RR-SYNTH-00069697"
+}
