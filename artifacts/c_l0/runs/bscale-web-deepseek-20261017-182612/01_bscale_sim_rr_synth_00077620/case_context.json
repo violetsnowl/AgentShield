@@ -1,0 +1,113 @@
+{
+  "business_initial_hash": "ea63b98688e19991a09ed9a6eb07dfc80af3235155fce57eec01ef2aeb227652",
+  "canonical_initial": {
+    "business_time": "2026-09-22T00:00:00+08:00",
+    "canonical_version": "business-initial-v1",
+    "case": {
+      "candidate_order_ids": [
+        "ord-synth-00077620"
+      ],
+      "customer_id": "cust-synth-00035599",
+      "evidence_status": "development_public_facts",
+      "messages": [
+        {
+          "confirmation": {
+            "items": [
+              {
+                "item_id": "item-synth-00077620-02",
+                "quantity": 2
+              }
+            ],
+            "order_id": "ord-synth-00077620"
+          },
+          "customer_id": "cust-synth-00035599",
+          "message_id": "message-sim-auth-rr-synth-00077620",
+          "text": "模拟客户明确确认按当前退款申请所列商品与数量办理；数量为含期初已退在内的累计授权上限。"
+        }
+      ],
+      "request": "申请订单ord-synth-00077620退款：商品行022件。"
+    },
+    "customer_balance_cents": 0,
+    "environment_version": "sandbox-rules-v1-development",
+    "merchant_balance_cents": 71031,
+    "orders": [
+      {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "cust-synth-00035599",
+        "items": [
+          {
+            "allocated_paid_cents": 26897,
+            "eligible": true,
+            "gross_cents": 30572,
+            "item_id": "item-synth-00077620-01",
+            "name": "B-SCALE模拟商品行01",
+            "quantity": 4,
+            "refundable_quantity": 4,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 44134,
+            "eligible": true,
+            "gross_cents": 50164,
+            "item_id": "item-synth-00077620-02",
+            "name": "B-SCALE模拟商品行02",
+            "quantity": 4,
+            "refundable_quantity": 4,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          }
+        ],
+        "order_id": "ord-synth-00077620",
+        "original_channel": "simulated_original",
+        "paid_cents": 71031,
+        "refunded_cents": 0,
+        "remaining_cents": 71031,
+        "status": "paid",
+        "tenant_id": "template-tenant",
+        "version": 1
+      }
+    ],
+    "policy": {
+      "allocation_version": "largest-remainder-prefix-v1-development",
+      "development_only": true,
+      "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+      "rules": [
+        "本环境只使用模拟支付；B-SCALE任务和模拟确认不是正式企业订单、Gold、损失结论或商业报价。",
+        "evidence_status充分时的结构化确认是本模拟情景层新增的业务假设，不得声称来自原始总体。",
+        "确认数量是累计授权上限；期初已退数量占用该上限，本会话只能提交尚未退过的当前申请数量。",
+        "evidence_status不足时只提供非结构化消息，不得补成有效确认，应转人工复核。",
+        "金额由B服务端人民币整数分累计分摊规则计算；Agent不得指定金额或绕过余额、版本和幂等约束。"
+      ]
+    }
+  },
+  "case_id": "BSCALE-RR-SYNTH-00077620",
+  "environment_version": "sandbox-rules-v1-development",
+  "family_id": "bscale-synthetic-merchant-v1",
+  "fixture_content_sha256": "903cc2c1d44d3c4e3186575185187d04af578d5b31de819dacae8a48b887ae04",
+  "fixture_id": "bscale-sim-rr-synth-00077620",
+  "fixture_source": "development_only",
+  "fixture_version": "bscale-simulated-authorization-v1",
+  "hash_algorithm": "sha256-canonical-json-v1",
+  "identity_semantics": "development_case_candidate",
+  "object_mapping": {
+    "customers": {
+      "cust-synth-00035599": "customer-session-a1af8a6861f541dca03c1136a039913f"
+    },
+    "items": {
+      "item-synth-00077620-01": "item-session-a1af8a6861f541dca03c1136a039913f-1",
+      "item-synth-00077620-02": "item-session-a1af8a6861f541dca03c1136a039913f-2"
+    },
+    "messages": {
+      "message-sim-auth-rr-synth-00077620": "message-session-a1af8a6861f541dca03c1136a039913f-1"
+    },
+    "orders": {
+      "ord-synth-00077620": "order-session-a1af8a6861f541dca03c1136a039913f-1"
+    }
+  },
+  "parent_case_id": "BSCALE-SYNTHETIC-MERCHANT-V1",
+  "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+  "review_status": "pending_A_C_D_review",
+  "source_case_id": "BSCALE-RR-SYNTH-00077620"
+}

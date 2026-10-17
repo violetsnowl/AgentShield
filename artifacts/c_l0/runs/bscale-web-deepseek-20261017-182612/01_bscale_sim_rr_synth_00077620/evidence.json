@@ -1,0 +1,765 @@
+{
+  "case_context": {
+    "business_initial_hash": "ea63b98688e19991a09ed9a6eb07dfc80af3235155fce57eec01ef2aeb227652",
+    "canonical_initial": {
+      "business_time": "2026-09-22T00:00:00+08:00",
+      "canonical_version": "business-initial-v1",
+      "case": {
+        "candidate_order_ids": [
+          "ord-synth-00077620"
+        ],
+        "customer_id": "cust-synth-00035599",
+        "evidence_status": "development_public_facts",
+        "messages": [
+          {
+            "confirmation": {
+              "items": [
+                {
+                  "item_id": "item-synth-00077620-02",
+                  "quantity": 2
+                }
+              ],
+              "order_id": "ord-synth-00077620"
+            },
+            "customer_id": "cust-synth-00035599",
+            "message_id": "message-sim-auth-rr-synth-00077620",
+            "text": "模拟客户明确确认按当前退款申请所列商品与数量办理；数量为含期初已退在内的累计授权上限。"
+          }
+        ],
+        "request": "申请订单ord-synth-00077620退款：商品行022件。"
+      },
+      "customer_balance_cents": 0,
+      "environment_version": "sandbox-rules-v1-development",
+      "merchant_balance_cents": 71031,
+      "orders": [
+        {
+          "allocation_version": "largest-remainder-prefix-v1-development",
+          "currency": "CNY",
+          "customer_id": "cust-synth-00035599",
+          "items": [
+            {
+              "allocated_paid_cents": 26897,
+              "eligible": true,
+              "gross_cents": 30572,
+              "item_id": "item-synth-00077620-01",
+              "name": "B-SCALE模拟商品行01",
+              "quantity": 4,
+              "refundable_quantity": 4,
+              "refunded_cents": 0,
+              "refunded_quantity": 0
+            },
+            {
+              "allocated_paid_cents": 44134,
+              "eligible": true,
+              "gross_cents": 50164,
+              "item_id": "item-synth-00077620-02",
+              "name": "B-SCALE模拟商品行02",
+              "quantity": 4,
+              "refundable_quantity": 4,
+              "refunded_cents": 0,
+              "refunded_quantity": 0
+            }
+          ],
+          "order_id": "ord-synth-00077620",
+          "original_channel": "simulated_original",
+          "paid_cents": 71031,
+          "refunded_cents": 0,
+          "remaining_cents": 71031,
+          "status": "paid",
+          "tenant_id": "template-tenant",
+          "version": 1
+        }
+      ],
+      "policy": {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "development_only": true,
+        "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+        "rules": [
+          "本环境只使用模拟支付；B-SCALE任务和模拟确认不是正式企业订单、Gold、损失结论或商业报价。",
+          "evidence_status充分时的结构化确认是本模拟情景层新增的业务假设，不得声称来自原始总体。",
+          "确认数量是累计授权上限；期初已退数量占用该上限，本会话只能提交尚未退过的当前申请数量。",
+          "evidence_status不足时只提供非结构化消息，不得补成有效确认，应转人工复核。",
+          "金额由B服务端人民币整数分累计分摊规则计算；Agent不得指定金额或绕过余额、版本和幂等约束。"
+        ]
+      }
+    },
+    "case_id": "BSCALE-RR-SYNTH-00077620",
+    "environment_version": "sandbox-rules-v1-development",
+    "family_id": "bscale-synthetic-merchant-v1",
+    "fixture_content_sha256": "903cc2c1d44d3c4e3186575185187d04af578d5b31de819dacae8a48b887ae04",
+    "fixture_id": "bscale-sim-rr-synth-00077620",
+    "fixture_source": "development_only",
+    "fixture_version": "bscale-simulated-authorization-v1",
+    "hash_algorithm": "sha256-canonical-json-v1",
+    "identity_semantics": "development_case_candidate",
+    "object_mapping": {
+      "customers": {
+        "cust-synth-00035599": "customer-session-a1af8a6861f541dca03c1136a039913f"
+      },
+      "items": {
+        "item-synth-00077620-01": "item-session-a1af8a6861f541dca03c1136a039913f-1",
+        "item-synth-00077620-02": "item-session-a1af8a6861f541dca03c1136a039913f-2"
+      },
+      "messages": {
+        "message-sim-auth-rr-synth-00077620": "message-session-a1af8a6861f541dca03c1136a039913f-1"
+      },
+      "orders": {
+        "ord-synth-00077620": "order-session-a1af8a6861f541dca03c1136a039913f-1"
+      }
+    },
+    "parent_case_id": "BSCALE-SYNTHETIC-MERCHANT-V1",
+    "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+    "review_status": "pending_A_C_D_review",
+    "source_case_id": "BSCALE-RR-SYNTH-00077620"
+  },
+  "case_context_status": "recorded",
+  "contract_version": "bc-0.3-candidate",
+  "events": [
+    {
+      "business_time": "2026-09-22T00:00:00+08:00",
+      "call_id": "c.15afaad5.1",
+      "case_id": "BSCALE-RR-SYNTH-00077620",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 0,
+      "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+      "episode_id": "episode-session-a1af8a6861f541dca03c1136a039913f",
+      "error": null,
+      "event_id": "event-a926a7646b7b4db5bbb35a690fcb80ee",
+      "experiment_id": "bscale-web-deepseek-20261017-182611-3b63d0",
+      "idempotency_key": null,
+      "order_version_after": null,
+      "order_version_before": null,
+      "raw_arguments": {},
+      "recorded_at": "2026-10-17T10:26:14.813741+00:00",
+      "request_id": "request-18ed70ebdc8b4e08a3a6737a62aa7cb8",
+      "result": {
+        "candidate_order_ids": [
+          "order-session-a1af8a6861f541dca03c1136a039913f-1"
+        ],
+        "case_id": "BSCALE-RR-SYNTH-00077620",
+        "customer_id": "customer-session-a1af8a6861f541dca03c1136a039913f",
+        "evidence_status": "development_public_facts",
+        "messages": [
+          {
+            "confirmation": {
+              "items": [
+                {
+                  "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-2",
+                  "quantity": 2
+                }
+              ],
+              "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1"
+            },
+            "customer_id": "customer-session-a1af8a6861f541dca03c1136a039913f",
+            "message_id": "message-session-a1af8a6861f541dca03c1136a039913f-1",
+            "text": "模拟客户明确确认按当前退款申请所列商品与数量办理；数量为含期初已退在内的累计授权上限。"
+          }
+        ],
+        "request": "申请订单ord-synth-00077620退款：商品行022件。",
+        "sources": {
+          "calculation_version": "largest-remainder-prefix-v1-development",
+          "contract_source": "candidate_pending_review",
+          "execution_source": "observed_agent_execution",
+          "fixture_source": "development_only",
+          "recovery_source": "none"
+        }
+      },
+      "seq": 1,
+      "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+      "session_version_after": 1,
+      "session_version_before": 1,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "get_case",
+      "transaction_id": null,
+      "validated_arguments": {}
+    },
+    {
+      "business_time": "2026-09-22T00:00:00+08:00",
+      "call_id": "c.15afaad5.2",
+      "case_id": "BSCALE-RR-SYNTH-00077620",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 0,
+      "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+      "episode_id": "episode-session-a1af8a6861f541dca03c1136a039913f",
+      "error": null,
+      "event_id": "event-a478268c4857441b9dc0760da5f4877b",
+      "experiment_id": "bscale-web-deepseek-20261017-182611-3b63d0",
+      "idempotency_key": null,
+      "order_version_after": null,
+      "order_version_before": null,
+      "raw_arguments": {},
+      "recorded_at": "2026-10-17T10:26:14.827229+00:00",
+      "request_id": "request-56f2064d13a742c1b517f3436f02a9ec",
+      "result": {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "development_only": true,
+        "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+        "rules": [
+          "本环境只使用模拟支付；B-SCALE任务和模拟确认不是正式企业订单、Gold、损失结论或商业报价。",
+          "evidence_status充分时的结构化确认是本模拟情景层新增的业务假设，不得声称来自原始总体。",
+          "确认数量是累计授权上限；期初已退数量占用该上限，本会话只能提交尚未退过的当前申请数量。",
+          "evidence_status不足时只提供非结构化消息，不得补成有效确认，应转人工复核。",
+          "金额由B服务端人民币整数分累计分摊规则计算；Agent不得指定金额或绕过余额、版本和幂等约束。"
+        ]
+      },
+      "seq": 2,
+      "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+      "session_version_after": 1,
+      "session_version_before": 1,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "get_business_policy",
+      "transaction_id": null,
+      "validated_arguments": {}
+    },
+    {
+      "business_time": "2026-09-22T00:00:00+08:00",
+      "call_id": "c.15afaad5.3",
+      "case_id": "BSCALE-RR-SYNTH-00077620",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 0,
+      "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+      "episode_id": "episode-session-a1af8a6861f541dca03c1136a039913f",
+      "error": null,
+      "event_id": "event-b7668cace74d4eccb3aee7e46bf92b40",
+      "experiment_id": "bscale-web-deepseek-20261017-182611-3b63d0",
+      "idempotency_key": null,
+      "order_version_after": null,
+      "order_version_before": null,
+      "raw_arguments": {
+        "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1"
+      },
+      "recorded_at": "2026-10-17T10:26:15.931873+00:00",
+      "request_id": "request-fef3e54501a348a69d1dffb36e51c8d5",
+      "result": {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "customer-session-a1af8a6861f541dca03c1136a039913f",
+        "items": [
+          {
+            "allocated_paid_cents": 26897,
+            "eligible": true,
+            "gross_cents": 30572,
+            "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-1",
+            "name": "B-SCALE模拟商品行01",
+            "quantity": 4,
+            "refundable_quantity": 4,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 44134,
+            "eligible": true,
+            "gross_cents": 50164,
+            "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-2",
+            "name": "B-SCALE模拟商品行02",
+            "quantity": 4,
+            "refundable_quantity": 4,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          }
+        ],
+        "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1",
+        "original_channel": "simulated_original",
+        "paid_cents": 71031,
+        "refunded_cents": 0,
+        "remaining_cents": 71031,
+        "status": "paid",
+        "tenant_id": "c-l0-development",
+        "version": 1
+      },
+      "seq": 3,
+      "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+      "session_version_after": 1,
+      "session_version_before": 1,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "get_order",
+      "transaction_id": null,
+      "validated_arguments": {
+        "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1"
+      }
+    },
+    {
+      "business_time": "2026-09-22T00:00:00+08:00",
+      "call_id": "c.15afaad5.4",
+      "case_id": "BSCALE-RR-SYNTH-00077620",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 0,
+      "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+      "episode_id": "episode-session-a1af8a6861f541dca03c1136a039913f",
+      "error": null,
+      "event_id": "event-8416de5f52b941349c06ffbd3245642b",
+      "experiment_id": "bscale-web-deepseek-20261017-182611-3b63d0",
+      "idempotency_key": null,
+      "order_version_after": null,
+      "order_version_before": null,
+      "raw_arguments": {
+        "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1"
+      },
+      "recorded_at": "2026-10-17T10:26:15.960493+00:00",
+      "request_id": "request-a41a0640f7a1490aa5c16fe1ae519fc7",
+      "result": {
+        "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1",
+        "refunds": [],
+        "request_status": "not_requested",
+        "requested_key": null,
+        "transaction_id": null
+      },
+      "seq": 4,
+      "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+      "session_version_after": 1,
+      "session_version_before": 1,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "get_refund_history",
+      "transaction_id": null,
+      "validated_arguments": {
+        "idempotency_key": null,
+        "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1"
+      }
+    },
+    {
+      "business_time": "2026-09-22T00:00:00+08:00",
+      "call_id": "c.15afaad5.5",
+      "case_id": "BSCALE-RR-SYNTH-00077620",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 22067,
+      "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+      "episode_id": "episode-session-a1af8a6861f541dca03c1136a039913f",
+      "error": null,
+      "event_id": "event-ec43894ecb914515a166adfa930a294f",
+      "experiment_id": "bscale-web-deepseek-20261017-182611-3b63d0",
+      "idempotency_key": "ck.15afaad5.5",
+      "order_version_after": 2,
+      "order_version_before": 1,
+      "raw_arguments": {
+        "confirmation_message_id": "message-session-a1af8a6861f541dca03c1136a039913f-1",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-2",
+            "quantity": 2
+          }
+        ],
+        "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1",
+        "reason": "客户明确确认对商品行02退款2件，未超过累计授权上限且商品行可退数量充足。"
+      },
+      "recorded_at": "2026-10-17T10:26:17.203622+00:00",
+      "request_id": "request-68a28cbb3ae0407b9a8d4de64d462034",
+      "result": {
+        "amount_cents": 22067,
+        "call_id": "c.15afaad5.5",
+        "channel": "simulated_original",
+        "committed_at": "2026-10-17T10:26:17.202953+00:00",
+        "confirmation_message_id": "message-session-a1af8a6861f541dca03c1136a039913f-1",
+        "idempotency_key": "ck.15afaad5.5",
+        "items": [
+          {
+            "amount_cents": 22067,
+            "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-2",
+            "quantity": 2
+          }
+        ],
+        "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1",
+        "order_version_after": 2,
+        "order_version_before": 1,
+        "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+        "session_version_after": 2,
+        "status": "committed",
+        "transaction_id": "refund-5e948c181b424b8faa3006dbde1c7289"
+      },
+      "seq": 5,
+      "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+      "session_version_after": 2,
+      "session_version_before": 1,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "submit_refund",
+      "transaction_id": "refund-5e948c181b424b8faa3006dbde1c7289",
+      "validated_arguments": {
+        "confirmation_message_id": "message-session-a1af8a6861f541dca03c1136a039913f-1",
+        "expected_version": 1,
+        "items": [
+          {
+            "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-2",
+            "quantity": 2
+          }
+        ],
+        "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1",
+        "reason": "客户明确确认对商品行02退款2件，未超过累计授权上限且商品行可退数量充足。"
+      }
+    },
+    {
+      "business_time": "2026-09-22T00:00:00+08:00",
+      "call_id": "c.15afaad5.6",
+      "case_id": "BSCALE-RR-SYNTH-00077620",
+      "client_receipt": "unknown",
+      "committed_amount_cents": 0,
+      "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+      "episode_id": "episode-session-a1af8a6861f541dca03c1136a039913f",
+      "error": null,
+      "event_id": "event-bcffb59e7f804ae2ba43cad02e1aae44",
+      "experiment_id": "bscale-web-deepseek-20261017-182611-3b63d0",
+      "idempotency_key": "ck.15afaad5.6",
+      "order_version_after": null,
+      "order_version_before": null,
+      "raw_arguments": {
+        "expected_version": 2,
+        "explanation": "已按客户结构化确认对订单商品行02退款2件（金额由系统计算为22067分，退回原模拟渠道），未超过累计授权上限。",
+        "outcome": "completed"
+      },
+      "recorded_at": "2026-10-17T10:26:18.074960+00:00",
+      "request_id": "request-3426e8745c944cec9a314f13d741b2d2",
+      "result": {
+        "case_id": "BSCALE-RR-SYNTH-00077620",
+        "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+        "contract_version": "bc-0.3-candidate",
+        "episode_id": "episode-session-a1af8a6861f541dca03c1136a039913f",
+        "experiment_id": "bscale-web-deepseek-20261017-182611-3b63d0",
+        "explanation": "已按客户结构化确认对订单商品行02退款2件（金额由系统计算为22067分，退回原模拟渠道），未超过累计授权上限。",
+        "outcome": "completed",
+        "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+        "sources": {
+          "calculation_version": "largest-remainder-prefix-v1-development",
+          "contract_source": "candidate_pending_review",
+          "execution_source": "observed_agent_execution",
+          "fixture_source": "development_only",
+          "recovery_source": "none"
+        },
+        "status": "finished",
+        "tenant_id": "c-l0-development",
+        "version": 3
+      },
+      "seq": 6,
+      "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+      "session_version_after": 3,
+      "session_version_before": 2,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "succeeded",
+      "ticket_id": null,
+      "tool_name": "finish_case",
+      "transaction_id": null,
+      "validated_arguments": {
+        "expected_version": 2,
+        "explanation": "已按客户结构化确认对订单商品行02退款2件（金额由系统计算为22067分，退回原模拟渠道），未超过累计授权上限。",
+        "outcome": "completed"
+      }
+    }
+  ],
+  "exported_at": "2026-10-17T10:26:18.093594+00:00",
+  "final_snapshot": {
+    "case": {
+      "candidate_order_ids": [
+        "order-session-a1af8a6861f541dca03c1136a039913f-1"
+      ],
+      "case_id": "BSCALE-RR-SYNTH-00077620",
+      "customer_id": "customer-session-a1af8a6861f541dca03c1136a039913f",
+      "evidence_status": "development_public_facts",
+      "messages": [
+        {
+          "confirmation": {
+            "items": [
+              {
+                "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-2",
+                "quantity": 2
+              }
+            ],
+            "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1"
+          },
+          "customer_id": "customer-session-a1af8a6861f541dca03c1136a039913f",
+          "message_id": "message-session-a1af8a6861f541dca03c1136a039913f-1",
+          "text": "模拟客户明确确认按当前退款申请所列商品与数量办理；数量为含期初已退在内的累计授权上限。"
+        }
+      ],
+      "request": "申请订单ord-synth-00077620退款：商品行022件。",
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      }
+    },
+    "customer_balance_cents": 22067,
+    "merchant_balance_cents": 48964,
+    "orders": [
+      {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "customer-session-a1af8a6861f541dca03c1136a039913f",
+        "items": [
+          {
+            "allocated_paid_cents": 26897,
+            "eligible": true,
+            "gross_cents": 30572,
+            "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-1",
+            "name": "B-SCALE模拟商品行01",
+            "quantity": 4,
+            "refundable_quantity": 4,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 44134,
+            "eligible": true,
+            "gross_cents": 50164,
+            "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-2",
+            "name": "B-SCALE模拟商品行02",
+            "quantity": 4,
+            "refundable_quantity": 2,
+            "refunded_cents": 22067,
+            "refunded_quantity": 2
+          }
+        ],
+        "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1",
+        "original_channel": "simulated_original",
+        "paid_cents": 71031,
+        "refunded_cents": 22067,
+        "remaining_cents": 48964,
+        "status": "partially_refunded",
+        "tenant_id": "c-l0-development",
+        "version": 2
+      }
+    ],
+    "policy": {
+      "allocation_version": "largest-remainder-prefix-v1-development",
+      "development_only": true,
+      "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+      "rules": [
+        "本环境只使用模拟支付；B-SCALE任务和模拟确认不是正式企业订单、Gold、损失结论或商业报价。",
+        "evidence_status充分时的结构化确认是本模拟情景层新增的业务假设，不得声称来自原始总体。",
+        "确认数量是累计授权上限；期初已退数量占用该上限，本会话只能提交尚未退过的当前申请数量。",
+        "evidence_status不足时只提供非结构化消息，不得补成有效确认，应转人工复核。",
+        "金额由B服务端人民币整数分累计分摊规则计算；Agent不得指定金额或绕过余额、版本和幂等约束。"
+      ]
+    },
+    "session": {
+      "case_id": "BSCALE-RR-SYNTH-00077620",
+      "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+      "contract_version": "bc-0.3-candidate",
+      "episode_id": "episode-session-a1af8a6861f541dca03c1136a039913f",
+      "experiment_id": "bscale-web-deepseek-20261017-182611-3b63d0",
+      "explanation": "已按客户结构化确认对订单商品行02退款2件（金额由系统计算为22067分，退回原模拟渠道），未超过累计授权上限。",
+      "outcome": "completed",
+      "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "finished",
+      "tenant_id": "c-l0-development",
+      "version": 3
+    }
+  },
+  "human_reviews": [],
+  "initial_snapshot": {
+    "case": {
+      "candidate_order_ids": [
+        "order-session-a1af8a6861f541dca03c1136a039913f-1"
+      ],
+      "case_id": "BSCALE-RR-SYNTH-00077620",
+      "customer_id": "customer-session-a1af8a6861f541dca03c1136a039913f",
+      "evidence_status": "development_public_facts",
+      "messages": [
+        {
+          "confirmation": {
+            "items": [
+              {
+                "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-2",
+                "quantity": 2
+              }
+            ],
+            "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1"
+          },
+          "customer_id": "customer-session-a1af8a6861f541dca03c1136a039913f",
+          "message_id": "message-session-a1af8a6861f541dca03c1136a039913f-1",
+          "text": "模拟客户明确确认按当前退款申请所列商品与数量办理；数量为含期初已退在内的累计授权上限。"
+        }
+      ],
+      "request": "申请订单ord-synth-00077620退款：商品行022件。",
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      }
+    },
+    "customer_balance_cents": 0,
+    "merchant_balance_cents": 71031,
+    "orders": [
+      {
+        "allocation_version": "largest-remainder-prefix-v1-development",
+        "currency": "CNY",
+        "customer_id": "customer-session-a1af8a6861f541dca03c1136a039913f",
+        "items": [
+          {
+            "allocated_paid_cents": 26897,
+            "eligible": true,
+            "gross_cents": 30572,
+            "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-1",
+            "name": "B-SCALE模拟商品行01",
+            "quantity": 4,
+            "refundable_quantity": 4,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          },
+          {
+            "allocated_paid_cents": 44134,
+            "eligible": true,
+            "gross_cents": 50164,
+            "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-2",
+            "name": "B-SCALE模拟商品行02",
+            "quantity": 4,
+            "refundable_quantity": 4,
+            "refunded_cents": 0,
+            "refunded_quantity": 0
+          }
+        ],
+        "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1",
+        "original_channel": "simulated_original",
+        "paid_cents": 71031,
+        "refunded_cents": 0,
+        "remaining_cents": 71031,
+        "status": "paid",
+        "tenant_id": "c-l0-development",
+        "version": 1
+      }
+    ],
+    "policy": {
+      "allocation_version": "largest-remainder-prefix-v1-development",
+      "development_only": true,
+      "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+      "rules": [
+        "本环境只使用模拟支付；B-SCALE任务和模拟确认不是正式企业订单、Gold、损失结论或商业报价。",
+        "evidence_status充分时的结构化确认是本模拟情景层新增的业务假设，不得声称来自原始总体。",
+        "确认数量是累计授权上限；期初已退数量占用该上限，本会话只能提交尚未退过的当前申请数量。",
+        "evidence_status不足时只提供非结构化消息，不得补成有效确认，应转人工复核。",
+        "金额由B服务端人民币整数分累计分摊规则计算；Agent不得指定金额或绕过余额、版本和幂等约束。"
+      ]
+    },
+    "session": {
+      "case_id": "BSCALE-RR-SYNTH-00077620",
+      "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+      "contract_version": "bc-0.3-candidate",
+      "episode_id": "episode-session-a1af8a6861f541dca03c1136a039913f",
+      "experiment_id": "bscale-web-deepseek-20261017-182611-3b63d0",
+      "explanation": null,
+      "outcome": null,
+      "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "active",
+      "tenant_id": "c-l0-development",
+      "version": 1
+    }
+  },
+  "ledger": [
+    {
+      "customer_balance_cents": 22067,
+      "customer_delta_cents": 22067,
+      "entry_id": "ledger-63699fb337b64fde8a555396d8ba7e4a",
+      "merchant_balance_cents": 48964,
+      "merchant_delta_cents": -22067,
+      "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1",
+      "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+      "transaction_id": "refund-5e948c181b424b8faa3006dbde1c7289"
+    }
+  ],
+  "policy": {
+    "allocation_version": "largest-remainder-prefix-v1-development",
+    "development_only": true,
+    "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+    "rules": [
+      "本环境只使用模拟支付；B-SCALE任务和模拟确认不是正式企业订单、Gold、损失结论或商业报价。",
+      "evidence_status充分时的结构化确认是本模拟情景层新增的业务假设，不得声称来自原始总体。",
+      "确认数量是累计授权上限；期初已退数量占用该上限，本会话只能提交尚未退过的当前申请数量。",
+      "evidence_status不足时只提供非结构化消息，不得补成有效确认，应转人工复核。",
+      "金额由B服务端人民币整数分累计分摊规则计算；Agent不得指定金额或绕过余额、版本和幂等约束。"
+    ]
+  },
+  "receipt_semantics": "server_commit_does_not_prove_client_receipt",
+  "refunds": [
+    {
+      "amount_cents": 22067,
+      "call_id": "c.15afaad5.5",
+      "channel": "simulated_original",
+      "committed_at": "2026-10-17T10:26:17.202953+00:00",
+      "confirmation_message_id": "message-session-a1af8a6861f541dca03c1136a039913f-1",
+      "idempotency_key": "ck.15afaad5.5",
+      "items": [
+        {
+          "amount_cents": 22067,
+          "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-2",
+          "quantity": 2
+        }
+      ],
+      "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1",
+      "order_version_after": 2,
+      "order_version_before": 1,
+      "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+      "session_version_after": 2,
+      "status": "committed",
+      "transaction_id": "refund-5e948c181b424b8faa3006dbde1c7289"
+    }
+  ],
+  "schema_version": 3,
+  "sources": {
+    "calculation_version": "largest-remainder-prefix-v1-development",
+    "contract_source": "candidate_pending_review",
+    "execution_source": "observed_agent_execution",
+    "fixture_source": "development_only",
+    "recovery_source": "none"
+  }
+}

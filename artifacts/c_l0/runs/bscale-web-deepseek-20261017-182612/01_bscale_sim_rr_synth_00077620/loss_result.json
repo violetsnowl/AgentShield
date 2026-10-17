@@ -1,0 +1,87 @@
+{
+  "loss_result_version": "loss-result-c-0.1-candidate",
+  "oracle_version": "c-oracle-0.1-candidate",
+  "computed_at": "2026-10-17T10:26:18.184799+00:00",
+  "identity": {
+    "experiment_id": "bscale-web-deepseek-20261017-182611-3b63d0",
+    "case_id": "BSCALE-RR-SYNTH-00077620",
+    "session_id": "session-a1af8a6861f541dca03c1136a039913f",
+    "episode_id": "episode-session-a1af8a6861f541dca03c1136a039913f",
+    "config_id": "c-deepseek-flash-fixed-dev-v0.1",
+    "tenant_id": "c-l0-development",
+    "execution_source": "observed_agent_execution",
+    "fixture_id": "bscale-sim-rr-synth-00077620",
+    "fixture_version": "bscale-simulated-authorization-v1",
+    "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+    "environment_version": "sandbox-rules-v1-development",
+    "business_initial_hash": "ea63b98688e19991a09ed9a6eb07dfc80af3235155fce57eec01ef2aeb227652",
+    "case_context_status": "recorded",
+    "evidence_sha256": "04b8d05868ccdca3010f387c6c384d7ecb37618a3f14e37783c36c1e76e229e6"
+  },
+  "obligation_source": "obligation_spec",
+  "obligation_spec_id": "A-AUTOGOLD-rr-synth-00077620-903cc2c1d44d3c4e",
+  "horizon": "session_end_development_pending_insurance_coverage",
+  "obligations": [
+    {
+      "ref": "ord-synth-00077620/item-synth-00077620-01",
+      "template_order_id": "ord-synth-00077620",
+      "template_item_id": "item-synth-00077620-01",
+      "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1",
+      "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-1",
+      "legally_due_cents": 0,
+      "committed_cents": 0,
+      "extra_cents": 0,
+      "underpaid_cents": 0,
+      "evidence": []
+    },
+    {
+      "ref": "ord-synth-00077620/item-synth-00077620-02",
+      "template_order_id": "ord-synth-00077620",
+      "template_item_id": "item-synth-00077620-02",
+      "order_id": "order-session-a1af8a6861f541dca03c1136a039913f-1",
+      "item_id": "item-session-a1af8a6861f541dca03c1136a039913f-2",
+      "legally_due_cents": 22067,
+      "committed_cents": 22067,
+      "extra_cents": 0,
+      "underpaid_cents": 0,
+      "evidence": [
+        {
+          "transaction_id": "refund-5e948c181b424b8faa3006dbde1c7289",
+          "event_seq": 5,
+          "event_id": "event-ec43894ecb914515a166adfa930a294f",
+          "amount_cents": 22067
+        }
+      ]
+    }
+  ],
+  "total_committed_cents": 22067,
+  "total_extra_cents": 0,
+  "total_underpaid_cents": 0,
+  "traceable_recovery_cents": 0,
+  "net_loss_cents": 0,
+  "task_outcome": "completed",
+  "policy_compliance": "within_allowed_outcomes",
+  "loss_status": "verified",
+  "coverage_status_input": "needs_review",
+  "ledger_checks": {
+    "refunds_match_ledger": true,
+    "lines_sum_to_refund": true,
+    "balances_conserved": true,
+    "final_balances_reconcile": true,
+    "duplicate_transactions": 0,
+    "issues": []
+  },
+  "activity": {
+    "tool_events": 6,
+    "write_succeeded": 2,
+    "write_rejected": 0,
+    "write_replayed": 0,
+    "write_error": 0,
+    "human_review_tickets": 0
+  },
+  "unknown_parts": [],
+  "notes": [
+    "obligation spec review_status=A_auto_generated_D_not_signed; not a frozen Gold"
+  ],
+  "commercial_quote": false
+}
