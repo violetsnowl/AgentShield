@@ -675,13 +675,16 @@ export default function App() {
     return () => { active = false; };
   }, [fileReplay]);
   useEffect(() => {
-    if (fileReplay) return;
+    // The one-use observer grant is exchanged by the initial catalog load.
+    // Do not race this authenticated request against that exchange: a fast
+    // 401 here would otherwise leave both risk and insurance pages spinning.
+    if (fileReplay || !catalogReady) return;
     let active = true;
     api<unknown>('api/research-scenario')
       .then(raw => { if (active) setResearchScenario(parseResearchScenario(raw)); })
       .catch(e => { if (active) setActionError(`研究情景读取失败：${errorText(e)}`); });
     return () => { active = false; };
-  }, [fileReplay]);
+  }, [fileReplay, catalogReady]);
   useEffect(() => {
     if (!['queued', 'running'].includes(batchStatus.status)) return;
     let active = true;
