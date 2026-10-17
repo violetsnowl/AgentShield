@@ -15,8 +15,8 @@ import { computeRiskMetrics } from './riskMetrics';
 import type { RiskRunInput } from './riskMetrics';
 import { parseResearchScenario } from './researchScenario';
 import type { ResearchPlan, ResearchScenario } from './researchScenario';
-import { extrapolatePremium, realBatchIdOf, summarizeRealBatch } from './realMode';
-import type { ExtrapolatedPremium, RealBatchRow } from './realMode';
+import { extrapolatePremium, insuranceAdviceFrom, realBatchIdOf, summarizeRealBatch } from './realMode';
+import type { ExtrapolatedPremium, InsuranceAdvice, RealBatchRow } from './realMode';
 import { canStartRealRun, parseRealRunStatus, realRunBusy, realRunDisabledReasons, realRunStageLabel } from './realRun';
 import type { RealRunStatus } from './realRun';
 
@@ -353,6 +353,16 @@ function InsuranceContract({ scenario, plan, onClose, kind = 'demo', sample = nu
   </article>;
 }
 
+function AdviceCard({ advice }: { advice: InsuranceAdvice }) {
+  const badge = advice.kind === 'no_need' ? '无需投保' : advice.kind === 'evaluate' ? '建议评估' : '数据不足';
+  return <article className={`advice-card advice-${advice.kind}`} data-testid="insurance-advice" role="status">
+    <div className="advice-head"><h3>AgentShield 保险配置建议</h3><Badge tone={advice.kind === 'evaluate' ? 'warning' : ''}>{badge}</Badge></div>
+    <p className="advice-title">{advice.title}</p>
+    <p className="fine-print">{advice.detail}</p>
+    <p className="fine-print">{advice.caveat}</p>
+  </article>;
+}
+
 function InsurancePlans({ runs, scenario, scenarioState, scenarioError, onRetryScenario, details, batchId, mode, onRetryDetails }: {
   runs: IntegrationRunSummary[]; scenario: ResearchScenario | null; scenarioState: LoadState; scenarioError: string;
   onRetryScenario: () => void; details: Record<string, DetailSlot>; batchId: string | null; mode: ModeId;
@@ -364,6 +374,18 @@ function InsurancePlans({ runs, scenario, scenarioState, scenarioError, onRetryS
   if (scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在计算研究保险方案…</div>;
   const readyDetails = runs.map(run => details[run.run_id]).filter((slot): slot is DetailSlot => slot !== undefined && slot.state === 'ready' && slot.detail !== null).map(slot => slot.detail!);
   const failedIds = runs.filter(run => details[run.run_id]?.state === 'error').map(run => run.run_id);
+  // 「保险配置建议」= 复用第二页同源核验统计（同一 summarizeRealBatch 映射）；真实模式专用，明细未载全时保持「无法建议」。
+  const adviceRows: RealBatchRow[] = readyDetails.map(detail => ({
+    runId: detail.summary.run_id, runStatus: detail.summary.run_status ?? null, taskOutcome: detail.summary.task_outcome ?? null,
+    lossStatus: detail.loss_result.loss_status, netLossCents: detail.loss_result.net_loss_cents,
+    claimStatus: detail.claim.claim_status, payoutCents: detail.claim.payout_cents,
+  }));
+  const advice: InsuranceAdvice | null = mode !== 'real' ? null
+    : readyDetails.length === runs.length
+      ? insuranceAdviceFrom(summarizeRealBatch(adviceRows))
+      : { kind: 'insufficient', title: '暂无法形成保险配置建议',
+          detail: `核验明细尚未全部载入（${readyDetails.length}/${runs.length} 条），载入完成后再评估。`,
+          caveat: '不将未核验金额当作 0。' };
   const sampleRows = (productId: ResearchPlan['product_id']) => readyDetails.map(detail => {
     const row = detail.p0_claim_comparison?.claims.find(item => item.product_id === productId);
     if (!row) return { lossStatus: detail.loss_result.loss_status, claimStatus: detail.claim.claim_status, payoutCents: null as number | null };
@@ -380,6 +402,7 @@ function InsurancePlans({ runs, scenario, scenarioState, scenarioError, onRetryS
   return <section className="plan-section" aria-label="保险方案">
     <div className="verdict"><h2>{mode === 'real' ? '样本外推参考保费（研究）' : '年度研究保险方案'}</h2><p>{mode === 'real' ? '按当前批次 A 已核定的 Core / Plus 单事件赔款做小样本外推；核验不完整或保险责任未确定时保持数据不足。' : '两档参考保费均由同一研究情景和A-P0单次理赔公式计算；真正经验定价尚不可用。'}</p></div>
     <p className="mode-banner" role="status">模式：{mode === 'real' ? '真实 Agent 实测' : '研究情景演示'} · {batchId === null ? '尚未运行本机批次' : `当前批次 ${batchId}`}</p>
+    {mode === 'real' && advice && <AdviceCard advice={advice}/>}
     {mode === 'real' && <>
       <div className="plan-grid">{scenario.plans.map(plan => {
         const result = extrapolatePremium(sampleRows(plan.product_id), { annualTaskVolume: scenario.annual_agent_task_volume, loadingRatio: Number(scenario.premium_loading_ratio) });

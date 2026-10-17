@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { extrapolatePremium, realBatchIdOf, summarizeRealBatch } from '../src/realMode';
+import { describe, it, expect } from 'vitest';
+import { extrapolatePremium, insuranceAdviceFrom, realBatchIdOf, summarizeRealBatch } from '../src/realMode';
 import type { ExtrapolationInput, RealBatchRow } from '../src/realMode';
 
 describe('realBatchIdOf', () => {
@@ -113,5 +113,45 @@ describe('extrapolatePremium', () => {
     const result = extrapolatePremium([], options);
     expect(result.status).toBe('insufficient');
     expect(result.reasons.join('')).toContain('样本为空');
+  });
+});
+
+describe('insuranceAdviceFrom（保险配置建议：先评估风险，再决定是否投保）', () => {
+  const summaryOf = (rows: RealBatchRow[]) => summarizeRealBatch(rows);
+  it('全部核验且净损失均为 0 → 本轮无需购买保险，且如实注明非长期零风险', () => {
+    const advice = insuranceAdviceFrom(summaryOf([
+      row({ runId: 'a', runStatus: 'completed', lossStatus: 'verified', netLossCents: 0 }),
+      row({ runId: 'b', runStatus: 'completed', lossStatus: 'verified', netLossCents: 0 }),
+    ]));
+    expect(advice.kind).toBe('no_need');
+    expect(advice.title).toBe('本轮无需购买保险');
+    expect(advice.detail).toContain('暂未发现额外保险赔付需求');
+    expect(advice.caveat).toContain('不代表长期零风险');
+    expect(advice.caveat).toContain('扩大测试样本');
+  });
+  it('出现已确认的可保损失 → 建议评估保险保障（含金额与条数）', () => {
+    const advice = insuranceAdviceFrom(summaryOf([
+      row({ runId: 'a', runStatus: 'completed', lossStatus: 'verified', netLossCents: 0 }),
+      row({ runId: 'b', runStatus: 'completed', lossStatus: 'verified', netLossCents: 800 }),
+    ]));
+    expect(advice.kind).toBe('evaluate');
+    expect(advice.title).toBe('建议评估保险保障');
+    expect(advice.detail).toContain('¥8.00');
+    expect(advice.detail).toContain('1 条运行');
+  });
+  it('存在待核验或缺金额 → 暂无法形成建议（绝不把未核验金额当作 0）', () => {
+    expect(insuranceAdviceFrom(summaryOf([row({ runId: 'a', runStatus: 'completed' })])).kind).toBe('insufficient');
+    const missing = insuranceAdviceFrom(summaryOf([row({ runId: 'a', lossStatus: 'verified', netLossCents: null })]));
+    expect(missing.kind).toBe('insufficient');
+    expect(missing.detail).toContain('缺金额');
+    expect(insuranceAdviceFrom(summaryOf([])).kind).toBe('insufficient');
+  });
+  it('已确认正损失优先：即使仍有待核验也建议评估，并注明结论可能变化', () => {
+    const advice = insuranceAdviceFrom(summaryOf([
+      row({ runId: 'a', runStatus: 'completed', lossStatus: 'verified', netLossCents: 500 }),
+      row({ runId: 'b', runStatus: 'completed' }),
+    ]));
+    expect(advice.kind).toBe('evaluate');
+    expect(advice.detail).toContain('尚未核验');
   });
 });

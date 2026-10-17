@@ -384,3 +384,12 @@ pre { font-family: Consolas, monospace; font-size: 12px; line-height: 1.7; backg
 .real-batch .scenario-heading { margin-bottom: 10px; }
 .real-batch .fine-print { margin-top: 10px; }
 .real-reasons { margin: 6px 0 0; padding-left: 18px; }
+
+/* AgentShield 保险配置建议卡（真实模式第三页；数据=与第二页同源的批次核验统计） */
+.advice-card { margin-top: 14px; padding: 14px 18px 12px; border: 1px solid var(--line); border-left: 5px solid #9aa0a6; border-radius: 8px; background: #fbfbfa; }
+.advice-card.advice-no_need { border-left-color: #2e7d46; background: #f6fbf7; }
+.advice-card.advice-evaluate { border-left-color: #b26a00; background: #fff9ee; }
+.advice-head { display: flex; align-items: center; gap: 10px; }
+.advice-head h3 { font-size: 13.5px; font-weight: 900; color: #5c5c5c; letter-spacing: .02em; }
+.advice-title { margin-top: 7px; font-size: 17.5px; font-weight: 900; color: #1c1c1c; }
+.advice-card .fine-print { margin-top: 6px; max-width: 92ch; }

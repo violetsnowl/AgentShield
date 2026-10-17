@@ -409,6 +409,10 @@ try {
     const realPlan = await page.locator('.plan-section').innerText();
     check(realPlan.includes('样本外推') && !realPlan.includes('¥25,641.00'), '真实模式：第三页给出样本外推而非演示情景数字');
     check(realPlan.includes('数据不足'), '真实模式：核验不完整时不显示样本保费');
+    await page.waitForFunction(() => (document.querySelector('[data-testid="insurance-advice"]')?.innerText ?? '').includes('本轮无需购买保险'), { timeout: 20000 });
+    const adviceText = await page.getByTestId('insurance-advice').innerText();
+    check(adviceText.includes('本轮无需购买保险'), '真实模式：第三页动态保险配置建议（全零损失→无需购买保险）');
+    check(adviceText.includes('不代表长期零风险'), '真实模式：建议卡如实注明非长期零风险');
     await navTo('01 测试案例');
     await page.getByTestId('mode-demo').click();
     check(!page.url().includes('mode=real'), '模式：切回演示模式后 URL 不再带 real');
