@@ -1,6 +1,28 @@
 import { describe, expect, it } from 'vitest';
-import { extrapolatePremium, summarizeRealBatch } from '../src/realMode';
+import { extrapolatePremium, realBatchIdOf, summarizeRealBatch } from '../src/realMode';
 import type { ExtrapolationInput, RealBatchRow } from '../src/realMode';
+
+describe('realBatchIdOf', () => {
+  const row = (batch_id: string, execution_source: string) => ({ batch_id, execution_source });
+  it('优先约定前缀的真实批次，即使存在字典序更大的旧真实批次', () => {
+    expect(realBatchIdOf([
+      row('zz-legacy-observed-2026', 'observed_agent_execution'),
+      row('bscale-web-deepseek-20261017-155329-8f3a21', 'observed_agent_execution'),
+    ])).toBe('bscale-web-deepseek-20261017-155329-8f3a21');
+  });
+  it('多个约定真实批次取批 ID 最大者；规则基线批次永不入围', () => {
+    expect(realBatchIdOf([
+      row('bscale-web-deepseek-20261017-100000-aaaaaa', 'observed_agent_execution'),
+      row('bscale-web-deepseek-20261017-155329-8f3a21', 'observed_agent_execution'),
+      row('bscale-web-rule-baseline-20261017-130450-496b42', 'scripted_test'),
+    ])).toBe('bscale-web-deepseek-20261017-155329-8f3a21');
+  });
+  it('无约定前缀时回退到真实运行的最大批 ID；无真实运行返回 null', () => {
+    expect(realBatchIdOf([row('j2-deepseek-dev-20261013-203119', 'observed_agent_execution'), row('j1-mock-x', 'mock_agent')])).toBe('j2-deepseek-dev-20261013-203119');
+    expect(realBatchIdOf([row('bscale-web-rule-baseline-20261017-130450-496b42', 'scripted_test')])).toBeNull();
+    expect(realBatchIdOf([])).toBeNull();
+  });
+});
 
 function row(partial: Partial<RealBatchRow> & { runId: string }): RealBatchRow {
   return {

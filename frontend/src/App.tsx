@@ -15,7 +15,7 @@ import { computeRiskMetrics } from './riskMetrics';
 import type { RiskRunInput } from './riskMetrics';
 import { parseResearchScenario } from './researchScenario';
 import type { ResearchPlan, ResearchScenario } from './researchScenario';
-import { extrapolatePremium, summarizeRealBatch } from './realMode';
+import { extrapolatePremium, realBatchIdOf, summarizeRealBatch } from './realMode';
 import type { ExtrapolatedPremium, RealBatchRow } from './realMode';
 
 type Area = 'test' | 'risk' | 'insurance';
@@ -971,6 +971,10 @@ export default function App() {
     () => batchStatus.batch_id === null ? integrationRuns : integrationRuns.filter(row => row.batch_id === batchStatus.batch_id),
     [batchStatus.batch_id, integrationRuns],
   );
+  // 真实模式的批次来源与演示批次分开：优先约定前缀的真实批次，绝不被规则基线批次遮蔽、也不与历史混算。
+  const realBatchId = useMemo(() => realBatchIdOf(integrationRuns), [integrationRuns]);
+  const pageRuns = mode === 'real' ? integrationRuns.filter(row => row.batch_id === realBatchId) : currentBatchRuns;
+  const pageBatchId = mode === 'real' ? realBatchId : batchStatus.batch_id;
   const integrationPending = !offline && !matchedIntegration && integrationRuns.some(row => row.session_id === sid) && integrationState !== 'error';
   const runName = session ? caseDisplay((current?.case_context as { fixture_id?: string } | null)?.fixture_id ?? session.case_id).name : '';
   const areaIndex = areas.findIndex(item => item.id === area);
@@ -1033,8 +1037,8 @@ export default function App() {
         </details>
         </>}
       </>}
-      {state === 'ready' && area === 'risk' && <RiskOverview runs={currentBatchRuns} offline={offline && replaySource !== 'delivery'} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} details={runDetails} batchId={batchStatus.batch_id} mode={mode} onRetryDetails={retryRunDetails}/>}
-      {state === 'ready' && area === 'insurance' && <InsurancePlans runs={currentBatchRuns} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} details={runDetails} batchId={batchStatus.batch_id} mode={mode} onRetryDetails={retryRunDetails}/>}
+      {state === 'ready' && area === 'risk' && <RiskOverview runs={pageRuns} offline={offline && replaySource !== 'delivery'} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} details={runDetails} batchId={pageBatchId} mode={mode} onRetryDetails={retryRunDetails}/>}
+      {state === 'ready' && area === 'insurance' && <InsurancePlans runs={pageRuns} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} details={runDetails} batchId={pageBatchId} mode={mode} onRetryDetails={retryRunDetails}/>}
       <nav className="stepper" aria-label="分步导航">
         {prevArea ? <a className="step-link prev" href={buildViewHash(prevArea.id, sid || null, offline, mode)} onClick={event => { event.preventDefault(); jump(prevArea.id); }}>← 上一步：{prevArea.nav}</a> : <span className="step-link disabled">已经是第一步</span>}
         {nextArea ? <a className="step-link next" href={buildViewHash(nextArea.id, sid || null, offline, mode)} onClick={event => { event.preventDefault(); jump(nextArea.id); }}>下一步：{nextArea.nav} →</a> : <a className="step-link next" href={buildViewHash('test', sid || null, offline, mode)} onClick={event => { event.preventDefault(); jump('test'); }}>回到第一步：01 测试案例 ↺</a>}

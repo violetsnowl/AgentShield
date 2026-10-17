@@ -45,6 +45,19 @@ export function summarizeRealBatch(rows: RealBatchRow[]): RealBatchSummary {
 
 export type ExtrapolationInput = { lossStatus: 'verified' | 'needs_review'; claimStatus: string; payoutCents: number | null };
 
+/**
+ * 真实模式的「当前批次」选择：优先约定前缀（bscale-web-deepseek-）的真实批次（取批 ID 最大者）；
+ * 无约定前缀时回退到全部真实模型运行中批 ID 最大者；没有任何真实模型运行时返回 null。
+ * 目的：真实批次绝不被演示/规则基线批次遮蔽，也绝不把历史运行混入真实批次统计。
+ */
+export function realBatchIdOf(runs: { batch_id: string; execution_source: string }[]): string | null {
+  const batches = runs.filter(row => row.execution_source === 'observed_agent_execution').map(row => row.batch_id);
+  if (batches.length === 0) return null;
+  const designated = batches.filter(id => id.startsWith('bscale-web-deepseek-'));
+  const pool = designated.length > 0 ? designated : batches;
+  return pool.reduce((max, id) => (id > max ? id : max));
+}
+
 export type ExtrapolatedPremium = {
   status: 'ok' | 'insufficient';
   premiumCents: number | null;
