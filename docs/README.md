@@ -114,6 +114,7 @@
 - `N01-N16_acceptance.md` — 前端 N 项验收矩阵（D 线，批B：批A 改动 `bd5546f`/`6e83d01` 的自动化证据；批C（IA v3）行已同步新检查名）。
 - `IA_V3_test_migration_map.md` — IA v3 测试迁移映射（旧检查 → 新检查名/进入路径；行为断言零删除）。
 - `UI_ROUND_2026-10-16.md` — UI-first 收口轮交付记录（紧凑运行条、三页体验收口、Core vs Plus 对比区；含修改清单、验证数字与遗留项）。
+- `REAL_RUN_IMPORT_00069697_20261017.md` — 首条真实 DeepSeek 运行导入与验收（导入位置、读取器复验、真实批次选择与演示分离、遮蔽测试、第三页待 A 数据清单）。
 
 **docs/spec/AgentShield_v1.1_Package/**（历史） — 计划书 V1.1（`.md`/`.docx`）、`delivery_levels_v1.1.json`、`role_cards/`（A/B/C/D 四份任务卡）。
 
