@@ -23,6 +23,9 @@ SECRET_KEYS = {
     "session_token", "admin_token", "authorization", "api_key",
     "access_token", "password", "secret",
 }
+P0_PENDING_STATUS = "observed_run_not_formally_admitted"
+P0_A_REVIEWED_STATUS = "A_study_reviewed_zero_loss_not_formal_insurance_claim"
+P0_REVIEW_VERSION = "A7-insurance-coverage-review-v0.1"
 
 
 class Strict(BaseModel):
@@ -177,39 +180,7 @@ class IntegrationResults:
         if loss["loss_status"] == "needs_review" and (loss["net_loss_cents"] is not None or claim["payout_cents"] is not None):
             raise ValueError(f"unreviewed run exposes a loss or payout: {relative}")
 
-        p0_claims = None
-        p0_path = folder / "claim_core_plus.json"
-        if p0_path.is_file():
-            p0_claims = _read_json(p0_path)
-            if _has_secret_key(p0_claims):
-                raise ValueError(f"credential-shaped field in A-P0 result: {relative}")
-            if (p0_claims.get("display_schema") != "AgentShield.A_P0_claim_comparison.v0.1"
-                    or p0_claims.get("commercial_quote") is not False
-                    or p0_claims.get("real_agent_insurance_claim") is not False
-                    or p0_claims.get("source_type") != "observed_agent_execution_pending_review"
-                    or p0_claims.get("event_id") != expected_event
-                    or p0_claims.get("loss_status") != loss["loss_status"]
-                    or p0_claims.get("net_loss_cents") != loss["net_loss_cents"]
-                    or p0_claims.get("coverage_status") != loss["coverage_status_input"]):
-                raise ValueError(f"A-P0 result identity or status mismatch: {relative}")
-            rows = p0_claims.get("claims")
-            if not isinstance(rows, list) or {row.get("product_id") for row in rows} != {
-                    "AgentShield-Core", "AgentShield-Plus"}:
-                raise ValueError(f"A-P0 result product set mismatch: {relative}")
-            versions = {plan["product_id"]: plan["contract_version"] for plan in self.p0_products["plans"]}
-            for row in rows:
-                if (row.get("contract_version") != versions[row["product_id"]]
-                        or row.get("event_id") != expected_event
-                        or row.get("commercial_quote") is not False
-                        or row.get("loss_status") != loss["loss_status"]
-                        or row.get("net_loss_cents") != loss["net_loss_cents"]
-                        or row.get("coverage_status") != loss["coverage_status_input"]):
-                    raise ValueError(f"A-P0 claim mismatch: {relative}")
-                if loss["loss_status"] == "needs_review" and (
-                        row.get("claim_status") != "needs_review"
-                        or row.get("payout_cents") is not None
-                        or row.get("retained_loss_cents") is not None):
-                    raise ValueError(f"unreviewed A-P0 claim exposes money: {relative}")
+        p0_claims = self._load_p0_claims(folder / "claim_core_plus.json", relative, loss, expected_event)
 
         summary = {
             "run_id": run_id,
@@ -243,6 +214,77 @@ class IntegrationResults:
             "p0_products": self.p0_products,
             "p0_claim_comparison": p0_claims,
         }
+
+    def _load_p0_claims(self, path: Path, relative: str, loss: dict[str, Any],
+                        expected_event: str) -> dict[str, Any] | None:
+        """A-P0 双方案结果：支持两种审核阶段——C 原始待审（coverage 必须等于 C 输入）与 A7 已审核
+        （coverage=covered/excluded，必须携带绑定了本次损失/证据/事前 Gold 的研究责任审查记录）。
+        绝不修改 C 原始 LossResult；两种格式的字段边界都在此校验。"""
+        if not path.is_file():
+            return None
+        p0 = _read_json(path)
+        if _has_secret_key(p0):
+            raise ValueError(f"credential-shaped field in A-P0 result: {relative}")
+        if (p0.get("display_schema") != "AgentShield.A_P0_claim_comparison.v0.1"
+                or p0.get("commercial_quote") is not False
+                or p0.get("real_agent_insurance_claim") is not False
+                or p0.get("source_type") != "observed_agent_execution_pending_review"
+                or p0.get("event_id") != expected_event
+                or p0.get("loss_status") != loss["loss_status"]
+                or p0.get("net_loss_cents") != loss["net_loss_cents"]):
+            raise ValueError(f"A-P0 result identity or status mismatch: {relative}")
+        status = p0.get("status")
+        if status == P0_PENDING_STATUS:
+            reviewed = False
+            if p0.get("coverage_status") != loss["coverage_status_input"]:
+                raise ValueError(f"A-P0 pending result must keep C coverage input: {relative}")
+        elif status == P0_A_REVIEWED_STATUS:
+            reviewed = True
+            review = p0.get("A_study_coverage_review")
+            if (loss["loss_status"] != "verified" or not isinstance(review, dict)
+                    or review.get("review_version") != P0_REVIEW_VERSION
+                    or p0.get("coverage_status") not in {"covered", "excluded"}
+                    or review.get("coverage_scope_status") != p0.get("coverage_status")
+                    or review.get("covered_loss_triggered") is not False
+                    or review.get("formal_claim_adjudication") is not False):
+                raise ValueError(f"A-P0 A-reviewed result needs the explicit study coverage review record: {relative}")
+            source = p0.get("source")
+            if (not isinstance(source, dict)
+                    or source.get("C_loss_result_sha256") != _sha256(path.parent / "loss_result.json")
+                    or source.get("evidence_sha256") != loss["identity"].get("evidence_sha256")
+                    or source.get("obligation_spec_id") != loss.get("obligation_spec_id")
+                    or source.get("C_original_coverage_status") != loss["coverage_status_input"]
+                    or source.get("C_verified_net_loss_cents") != loss["net_loss_cents"]):
+                raise ValueError(f"A-P0 A-reviewed source binding mismatch: {relative}")
+        else:
+            raise ValueError(f"unknown A-P0 review status: {relative}")
+        rows = p0.get("claims")
+        if not isinstance(rows, list) or {row.get("product_id") for row in rows} != {
+                "AgentShield-Core", "AgentShield-Plus"}:
+            raise ValueError(f"A-P0 result product set mismatch: {relative}")
+        versions = {plan["product_id"]: plan["contract_version"] for plan in self.p0_products["plans"]}
+        for row in rows:
+            if (row.get("contract_version") != versions[row["product_id"]]
+                    or row.get("event_id") != expected_event
+                    or row.get("commercial_quote") is not False
+                    or row.get("loss_status") != loss["loss_status"]
+                    or row.get("net_loss_cents") != loss["net_loss_cents"]
+                    or row.get("coverage_status") != p0.get("coverage_status")):
+                raise ValueError(f"A-P0 claim mismatch: {relative}")
+            if reviewed:
+                payout = row.get("payout_cents")
+                retained = row.get("retained_loss_cents")
+                if (row.get("claim_status") != "assessed"
+                        or type(payout) is not int or payout < 0
+                        or type(retained) is not int or retained < 0
+                        or payout > max(loss["net_loss_cents"] or 0, 0)):
+                    raise ValueError(f"A-P0 A-reviewed claim must be assessed with bounded amounts: {relative}")
+            if loss["loss_status"] == "needs_review" and (
+                    row.get("claim_status") != "needs_review"
+                    or row.get("payout_cents") is not None
+                    or row.get("retained_loss_cents") is not None):
+                raise ValueError(f"unreviewed A-P0 claim exposes money: {relative}")
+        return p0
 
     def catalog(self) -> dict[str, Any]:
         with self._lock:

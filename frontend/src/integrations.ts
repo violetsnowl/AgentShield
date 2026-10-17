@@ -57,9 +57,11 @@ export type P0ClaimView = {
 };
 export type P0ClaimComparison = {
   display_schema: 'AgentShield.A_P0_claim_comparison.v0.1'; label: string; source_type: 'observed_agent_execution_pending_review';
-  status: 'observed_run_not_formally_admitted'; commercial_quote: false; real_agent_insurance_claim: false; event_id: string;
+  status: 'observed_run_not_formally_admitted' | 'A_study_reviewed_zero_loss_not_formal_insurance_claim'; commercial_quote: false; real_agent_insurance_claim: false; event_id: string;
   net_loss_cents: number | null; loss_status: 'verified' | 'needs_review'; coverage_status: 'covered' | 'excluded' | 'needs_review';
   claims: P0ClaimView[]; notes: string[];
+  A_study_coverage_review?: { review_version: string; coverage_scope_status: 'covered' | 'excluded'; covered_loss_triggered: boolean; formal_claim_adjudication: boolean };
+  source?: { C_loss_result_sha256?: string; evidence_sha256?: string; obligation_spec_id?: string; C_original_coverage_status?: string; C_verified_net_loss_cents?: number };
 };
 export type IntegrationRunDetail = { summary: IntegrationRunSummary; evidence: unknown; loss_result: LossResultCandidate; claim: ClaimResultCandidate; contract: ResearchContractCandidate; quote_result: QuoteResultCandidate; p0_products: P0ResearchProducts | null; p0_claim_comparison: P0ClaimComparison | null };
 export type BScaleBatchStatus = {
@@ -164,21 +166,34 @@ function parseP0Products(value: unknown): P0ResearchProducts | null {
   if (new Set(plans.map(plan => plan.product_id)).size !== 2) throw new Error('A-P0 研究合同集合不完整。');
   return { ...(raw as unknown as P0ResearchProducts), version: text(raw.version, 'P0 version'), plans };
 }
-function parseP0Comparison(value: unknown, summary: IntegrationRunSummary, loss: LossResultCandidate, products: P0ResearchProducts | null): P0ClaimComparison | null {
+export function parseP0Comparison(value: unknown, summary: IntegrationRunSummary, loss: LossResultCandidate, products: P0ResearchProducts | null): P0ClaimComparison | null {
   if (value === undefined || value === null) return null;
   const raw = object(value, 'A-P0 claim comparison');
-  if (raw.display_schema !== 'AgentShield.A_P0_claim_comparison.v0.1' || raw.source_type !== 'observed_agent_execution_pending_review' || raw.status !== 'observed_run_not_formally_admitted' || raw.commercial_quote !== false || raw.real_agent_insurance_claim !== false || !Array.isArray(raw.claims)) throw new Error('A-P0 双方案结果格式无效。');
+  const reviewStatus = text(raw.status, 'P0 status');
+  if (raw.display_schema !== 'AgentShield.A_P0_claim_comparison.v0.1' || raw.source_type !== 'observed_agent_execution_pending_review'
+    || !['observed_run_not_formally_admitted', 'A_study_reviewed_zero_loss_not_formal_insurance_claim'].includes(reviewStatus)
+    || raw.commercial_quote !== false || raw.real_agent_insurance_claim !== false || !Array.isArray(raw.claims)) throw new Error('A-P0 双方案结果格式无效。');
   const net = nullableInteger(raw.net_loss_cents, 'P0 net_loss_cents'); const status = text(raw.loss_status, 'P0 loss_status');
-  if (raw.event_id !== summary.episode_id || status !== loss.loss_status || net !== loss.net_loss_cents || raw.coverage_status !== loss.coverage_status_input) throw new Error('A-P0 双方案结果与 C 核验身份不一致。');
+  if (raw.event_id !== summary.episode_id || status !== loss.loss_status || net !== loss.net_loss_cents) throw new Error('A-P0 双方案结果与 C 核验身份不一致。');
+  const reviewed = reviewStatus === 'A_study_reviewed_zero_loss_not_formal_insurance_claim';
+  if (reviewed) {
+    const review = object(raw.A_study_coverage_review, 'A-P0 A_study_coverage_review');
+    if (loss.loss_status !== 'verified' || review.review_version !== 'A7-insurance-coverage-review-v0.1' || review.coverage_scope_status !== raw.coverage_status
+      || !['covered', 'excluded'].includes(String(raw.coverage_status)) || review.covered_loss_triggered !== false || review.formal_claim_adjudication !== false) throw new Error('A-P0 已审核结果缺少研究责任审查记录（或与 C 原始输入矛盾）。');
+    const source = object(raw.source, 'A-P0 source');
+    if (typeof source.C_loss_result_sha256 !== 'string' || typeof source.evidence_sha256 !== 'string' || typeof source.obligation_spec_id !== 'string'
+      || source.C_original_coverage_status !== loss.coverage_status_input || source.C_verified_net_loss_cents !== net) throw new Error('A-P0 已审核结果与 C 原始损失/证据绑定不一致。');
+  } else if (raw.coverage_status !== loss.coverage_status_input) throw new Error('A-P0 双方案结果与 C 核验身份不一致。');
   const versions = new Map(products?.plans.map(plan => [plan.product_id, plan.contract_version]));
   const claims = raw.claims.map((value, index) => {
     const row = object(value, `A-P0 claim ${index}`); const id = text(row.product_id, 'P0 product_id'); const payout = nullableInteger(row.payout_cents, 'P0 payout_cents'); const retained = nullableInteger(row.retained_loss_cents, 'P0 retained_loss_cents');
     if (!['AgentShield-Core', 'AgentShield-Plus'].includes(id) || row.event_id !== summary.episode_id || row.commercial_quote !== false || row.net_loss_cents !== net || row.loss_status !== status || row.coverage_status !== raw.coverage_status || (versions && row.contract_version !== versions.get(id as P0ResearchPlan['product_id']))) throw new Error('A-P0 双方案单项结果不一致。');
+    if (reviewed && (row.claim_status !== 'assessed' || payout === null || retained === null || payout > Math.max(net ?? 0, 0))) throw new Error('A-P0 已审核单项结果必须为有界 assessed 金额。');
     if (status === 'needs_review' && (row.claim_status !== 'needs_review' || payout !== null || retained !== null)) throw new Error('A-P0 待审结果不得包含赔款金额。');
     return { ...(row as unknown as P0ClaimView), product_id: id as P0ClaimView['product_id'], contract_version: text(row.contract_version, 'P0 contract_version'), deductible_cents: integer(row.deductible_cents, 'P0 deductible_cents'), coinsurance_bp: integer(row.coinsurance_bp, 'P0 coinsurance_bp'), occurrence_limit_cents: integer(row.occurrence_limit_cents, 'P0 occurrence_limit_cents'), annual_aggregate_limit_cents: integer(row.annual_aggregate_limit_cents, 'P0 annual_aggregate_limit_cents'), net_loss_cents: net, payout_cents: payout, retained_loss_cents: retained };
   });
   if (new Set(claims.map(row => row.product_id)).size !== 2) throw new Error('A-P0 双方案结果不完整。');
-  return { ...(raw as unknown as P0ClaimComparison), event_id: text(raw.event_id, 'P0 event_id'), net_loss_cents: net, loss_status: status as P0ClaimComparison['loss_status'], claims, notes: strings(raw.notes, 'P0 notes') };
+  return { ...(raw as unknown as P0ClaimComparison), status: reviewStatus as P0ClaimComparison['status'], event_id: text(raw.event_id, 'P0 event_id'), net_loss_cents: net, loss_status: status as P0ClaimComparison['loss_status'], claims, notes: strings(raw.notes, 'P0 notes') };
 }
 export function parseIntegrationDetail(value: unknown): IntegrationRunDetail {
   const raw = object(value, 'ABCD 集成结果'); const summary = parseSummary(raw.summary); const loss = parseLoss(raw.loss_result); const claim = parseClaim(raw.claim);

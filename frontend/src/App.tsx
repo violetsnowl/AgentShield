@@ -346,7 +346,7 @@ function InsuranceContract({ scenario, plan, onClose, kind = 'demo', sample = nu
       {kind === 'sample' ? <p>样本：{sample?.sampleSize ?? 0} 条运行、已核定正赔款事件 {sample?.eventCount ?? 0} 件、样本频率 {sample && sample.frequency !== null ? `${(sample.frequency * 100).toFixed(2)}%` : '—'}、平均单次赔款 {sample && sample.meanSeverityCents !== null ? money(sample.meanSeverityCents) : '—'}、附加比例 {(Number(scenario.premium_loading_ratio) * 100).toFixed(2)}%。</p>
         : <p>假设：年度任务 {scenario.annual_agent_task_volume.toLocaleString('zh-CN')} 项、各类事故概率 {(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}%、平均事故损失 {money(scenario.categories[0].average_accident_loss_cents)}、附加比例 {(Number(scenario.premium_loading_ratio) * 100).toFixed(2)}%。</p>}
       <p>保费公式：{kind === 'sample' ? 'P =（1 + 附加比例）× 年度任务量 ×（已核定正赔款事件数 ÷ 样本量）× 平均单次赔款' : scenario.premium_formula}。</p></section>
-    <section className="contract-declaration"><h3>九、模拟研究声明</h3><p>本合同仅用于AgentShield研究演示，不构成正式保险要约、承保承诺、商业报价、电子保单或赔付决定；不接入保险公司、支付或电子签章。真正经验定价状态：尚不可用。{kind === 'sample' ? '样本外推参考保费基于小样本均值与频率，样本量有限，不代表长期经验赔付水平。' : ''}</p></section>
+    <section className="contract-declaration"><h3>九、模拟研究声明</h3><p>本合同仅用于AgentShield研究演示，不构成正式保险要约、承保承诺、商业报价、电子保单或赔付决定；不接入保险公司、支付或电子签章。真正经验定价状态：尚不可用。{kind === 'sample' ? `样本外推参考保费基于小样本均值与频率，样本量有限（当前 ${sample?.sampleSize ?? 0} 条），不代表长期经验赔付水平。${sample && sample.sampleSize <= 1 ? '样本量仅 1 条：该数字为研究性单样本估算，不代表年度零风险，也不构成经验费率或商业报价。' : ''}` : ''}</p></section>
     <footer><span>模拟投保人：________________</span><span>研究项目：________________</span><span>日期：________________</span></footer>
   </article>;
 }
@@ -389,6 +389,7 @@ function InsurancePlans({ runs, scenario, scenarioState, scenarioError, onRetryS
             <div><dt>样本事故频率</dt><dd>{result.frequency === null ? '—' : `${(result.frequency * 100).toFixed(2)}%`}</dd></div>
             <div><dt>平均单次赔款</dt><dd>{result.meanSeverityCents === null ? '—' : money(result.meanSeverityCents)}</dd></div>
           </dl>
+          {result.sampleSize <= 1 && <p className="fine-print">样本量仅 {result.sampleSize} 条 · 研究性估算：{result.eventCount === 0 ? '本样本无已核定正赔款事件，¥0.00 不代表年度零风险；' : ''}不构成经验费率或商业报价。</p>}
           {result.status !== 'ok' && <ul className="fine-print real-reasons">{result.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
           <button className="primary-run contract-generate" disabled={result.status !== 'ok'} onClick={() => setSampleContractProduct(plan.product_id)}>{result.status === 'ok' ? `生成${plan.product_id === 'AgentShield-Core' ? 'Core' : 'Plus'}样本外推参考合同` : '数据不足 · 不能生成合同'}</button>
           <p className="plan-badges"><Badge tone="warning">样本外推 · 研究用途</Badge> <Badge tone="warning">非商业报价</Badge></p>
@@ -399,11 +400,12 @@ function InsurancePlans({ runs, scenario, scenarioState, scenarioError, onRetryS
     {mode !== 'real' && <div className="plan-grid">{scenario.plans.map(plan => <ResearchPlanCard key={plan.product_id} plan={plan} onGenerate={() => setContractProduct(plan.product_id)}/>)}</div>}
     {p0Sample?.p0_claim_comparison && p0Sample.p0_products && <details className="fold-body engineering-sample">
       <summary>当前批次单条理赔状态（与研究情景定价分开）</summary>
-      <p><strong>{p0Sample.summary.case_id}</strong> · <Badge tone="warning">开发运行·待审</Badge></p>
+      <p><strong>{p0Sample.summary.case_id}</strong> · <Badge tone="warning">{p0Sample.p0_claim_comparison.status === 'A_study_reviewed_zero_loss_not_formal_insurance_claim' ? '开发运行 · A 已研究审核' : '开发运行·待审'}</Badge></p>
       <dl>
         <div><dt>执行来源</dt><dd>{executionSourceLabel(p0Sample.summary.execution_source)} / {p0Sample.summary.provider}</dd></div>
         <div><dt>C 净损失</dt><dd>{p0Sample.p0_claim_comparison.net_loss_cents === null ? '待业务审核' : money(p0Sample.p0_claim_comparison.net_loss_cents)}</dd></div>
         <div><dt>保险责任</dt><dd>{p0Sample.p0_claim_comparison.coverage_status}</dd></div>
+        <div><dt>A 审核记录</dt><dd>{p0Sample.p0_claim_comparison.A_study_coverage_review ? `${p0Sample.p0_claim_comparison.A_study_coverage_review.review_version} · 研究性（非正式理赔）` : '未记录（待审）'}</dd></div>
         <div><dt>商业报价</dt><dd>未生成（commercial_quote=false）</dd></div>
       </dl>
       <div className="engineering-grid">{p0Sample.p0_claim_comparison.claims.map(result => {

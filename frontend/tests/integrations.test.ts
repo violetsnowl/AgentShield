@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { adaptResult, boundaryVersion, evidenceStatePresentation, parseBScaleBatchStatus, parseIntegrationCatalog, parseIntegrationDetail } from '../src/integrations';
+import { adaptResult, boundaryVersion, evidenceStatePresentation, parseBScaleBatchStatus, parseIntegrationCatalog, parseIntegrationDetail, parseP0Comparison } from '../src/integrations';
+import type { IntegrationRunSummary, LossResultCandidate, P0ResearchProducts } from '../src/integrations';
 
 const summary = {
   run_id: '0123456789abcdef0123', batch_id: 'j2-development', label: '01_v1', case_id: 'case-1', session_id: 'session-1', episode_id: 'episode-1',
@@ -71,5 +72,35 @@ describe('versioned A/C presentation boundary', () => {
   it('keeps all required V1.1 unavailable states readable without numeric results', () => {
     expect(Object.keys(evidenceStatePresentation)).toEqual(['not_fitted', 'insufficient_evidence', 'partial', 'out_of_scope']);
     expect(evidenceStatePresentation.insufficient_evidence.text).toContain('null');
+  });
+  const verifiedLoss = { ...loss, loss_status: 'verified' as const, net_loss_cents: 0, coverage_status_input: 'needs_review' as const };
+  const reviewedProducts = { schema: 'AgentShield.P0_two_research_contracts.v0.1', version: 'v0.1', currency: 'CNY', commercial_quote: false, annual_aggregate_enforced_in_A0: false, premium_status: 'insufficient_evidence', plans: [
+    { product_id: 'AgentShield-Core', display_name: 'Core', contract_version: 'core-v1', currency: 'CNY', commercial_quote: false, deductible_cents: 10000, coinsurance_bp: 8000, occurrence_limit_cents: 100000, annual_aggregate_limit_cents: 10000000, annual_aggregate_limit_status: 'display_only_not_enforced', covered_loss: 'candidate', exclusions: [] },
+    { product_id: 'AgentShield-Plus', display_name: 'Plus', contract_version: 'plus-v1', currency: 'CNY', commercial_quote: false, deductible_cents: 5000, coinsurance_bp: 10000, occurrence_limit_cents: 500000, annual_aggregate_limit_cents: 50000000, annual_aggregate_limit_status: 'display_only_not_enforced', covered_loss: 'candidate', exclusions: [] },
+  ] };
+  const reviewedRows = { event_id: 'episode-1', currency: 'CNY', annual_aggregate_calculation_status: 'display_only_not_enforced', net_loss_cents: 0, loss_status: 'verified', coverage_status: 'covered', claim_status: 'assessed', payout_cents: 0, retained_loss_cents: 0, commercial_quote: false };
+  const reviewed = { display_schema: 'AgentShield.A_P0_claim_comparison.v0.1', label: 'C_REAL_DEEPSEEK_A_COVERAGE_REVIEWED_ZERO_LOSS', source_type: 'observed_agent_execution_pending_review', status: 'A_study_reviewed_zero_loss_not_formal_insurance_claim', commercial_quote: false, real_agent_insurance_claim: false, event_id: 'episode-1', net_loss_cents: 0, loss_status: 'verified', coverage_status: 'covered',
+    A_study_coverage_review: { review_version: 'A7-insurance-coverage-review-v0.1', coverage_scope_status: 'covered', covered_loss_triggered: false, formal_claim_adjudication: false },
+    source: { C_loss_result_sha256: 'a'.repeat(64), evidence_sha256: 'b'.repeat(64), obligation_spec_id: 'A-AUTOGOLD-rr-synth-00069697-9076afceebcff5f7', C_original_coverage_status: 'needs_review', C_verified_net_loss_cents: 0 },
+    claims: [
+      { ...reviewedRows, product_id: 'AgentShield-Core', contract_version: 'core-v1', deductible_cents: 10000, coinsurance_bp: 8000, occurrence_limit_cents: 100000, annual_aggregate_limit_cents: 10000000 },
+      { ...reviewedRows, product_id: 'AgentShield-Plus', contract_version: 'plus-v1', deductible_cents: 5000, coinsurance_bp: 10000, occurrence_limit_cents: 500000, annual_aggregate_limit_cents: 50000000 },
+    ], notes: [] };
+  const parseReviewed = (value: unknown) => parseP0Comparison(value, summary as IntegrationRunSummary, verifiedLoss as LossResultCandidate, reviewedProducts as P0ResearchProducts);
+  it('accepts the A7 study-reviewed zero claim with its coverage review record', () => {
+    const parsed = parseReviewed(reviewed);
+    expect(parsed?.coverage_status).toBe('covered');
+    expect(parsed?.claims.map(row => row.payout_cents)).toEqual([0, 0]);
+    expect(parsed?.A_study_coverage_review?.review_version).toBe('A7-insurance-coverage-review-v0.1');
+  });
+  it('rejects A7 reviewed claims without the review record, binding, or bounded money', () => {
+    expect(() => parseReviewed({ ...reviewed, A_study_coverage_review: undefined })).toThrow(/A_study_coverage_review/);
+    expect(() => parseReviewed({ ...reviewed, A_study_coverage_review: { ...reviewed.A_study_coverage_review, coverage_scope_status: 'excluded' } })).toThrow(/审查记录/);
+    expect(() => parseReviewed({ ...reviewed, source: { ...reviewed.source, C_original_coverage_status: 'covered' } })).toThrow(/绑定/);
+    expect(() => parseReviewed({ ...reviewed, event_id: 'other' })).toThrow(/身份不一致/);
+    expect(() => parseReviewed({ ...reviewed, claims: reviewed.claims.map((row, index) => index === 0 ? { ...row, payout_cents: 100 } : row) })).toThrow(/有界/);
+  });
+  it('keeps the pending format strict: coverage must still match the C input', () => {
+    expect(() => parseReviewed({ ...reviewed, status: 'observed_run_not_formally_admitted' })).toThrow(/身份不一致/);
   });
 });
