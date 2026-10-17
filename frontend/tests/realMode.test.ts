@@ -26,7 +26,7 @@ describe('realBatchIdOf', () => {
 
 function row(partial: Partial<RealBatchRow> & { runId: string }): RealBatchRow {
   return {
-    runStatus: 'finished', taskOutcome: 'completed', lossStatus: 'needs_review', netLossCents: null,
+    runStatus: 'completed', taskOutcome: 'completed', lossStatus: 'needs_review', netLossCents: null,
     claimStatus: 'needs_review', payoutCents: null, ...partial,
   };
 }
@@ -59,12 +59,21 @@ describe('summarizeRealBatch', () => {
     const summary = summarizeRealBatch([
       row({ runId: 'a', lossStatus: 'verified', netLossCents: 0 }),
       row({ runId: 'b', lossStatus: 'verified', netLossCents: 800 }),
-      row({ runId: 'c', taskOutcome: 'escalated', runStatus: 'finished' }),
+      row({ runId: 'c', taskOutcome: 'escalated', runStatus: 'completed' }),
     ]);
     expect(summary.lossIncidence.rate).toBe(0.5);
     expect(summary.economicLoss.cents).toBe(800);
     expect(summary.economicLoss.reason).toContain('1 条待核验');
     expect(summary.escalated).toBe(1);
+  });
+  it('运行状态口径回归：completed 不计入未正常完成；异常运行与 not_finished 计入', () => {
+    const summary = summarizeRealBatch([
+      row({ runId: 'a', runStatus: 'completed', taskOutcome: 'completed' }),
+      row({ runId: 'b', runStatus: 'infra_error', taskOutcome: null }),
+      row({ runId: 'c', runStatus: 'completed', taskOutcome: 'not_finished' }),
+    ]);
+    expect(summary.notFinished).toBe(2);
+    expect(summary.escalated).toBe(0);
   });
 });
 

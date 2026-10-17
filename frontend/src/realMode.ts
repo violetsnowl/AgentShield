@@ -28,7 +28,10 @@ export function summarizeRealBatch(rows: RealBatchRow[]): RealBatchSummary {
   const verified = rows.filter(row => row.lossStatus === 'verified');
   const review = rows.filter(row => row.lossStatus === 'needs_review');
   const verifiedMissingLoss = verified.filter(row => row.netLossCents === null).length;
-  const notFinished = rows.filter(row => row.runStatus !== null && row.runStatus !== 'finished').length;
+  // 真实运行字段口径（回归修复）：manifest run_status 'completed' 即正常完成；
+  // 异常运行（infra_error/started/not_started…）与 task_outcome 'not_finished' 才计入「未正常完成」。
+  // 旧实现误用 B 会话的 'finished' 口径，把完成的真实运行错数成未完成（首条网页真实运行目检发现）。
+  const notFinished = rows.filter(row => (row.runStatus !== null && row.runStatus !== 'completed') || row.taskOutcome === 'not_finished').length;
   const escalated = rows.filter(row => row.taskOutcome === 'escalated').length;
   let lossIncidence: RealBatchSummary['lossIncidence'];
   if (total === 0) lossIncidence = { status: 'insufficient', rate: null, reason: '当前批次尚无运行。' };
