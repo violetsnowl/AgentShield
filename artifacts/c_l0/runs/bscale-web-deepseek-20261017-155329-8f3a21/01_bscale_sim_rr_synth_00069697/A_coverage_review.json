@@ -1,0 +1,28 @@
+{
+  "review_record_version": "A7-insurance-coverage-review-v0.1",
+  "case_id": "BSCALE-RR-SYNTH-00069697",
+  "fixture_id": "bscale-sim-rr-synth-00069697",
+  "fixture_version": "bscale-simulated-authorization-v1",
+  "policy_version": "a1-policy-v0.2-A-approved-D-pending",
+  "event_id": "episode-session-f476358c221c4609b378ad858472c71b",
+  "gold_spec_id": "A-AUTOGOLD-rr-synth-00069697-9076afceebcff5f7",
+  "evidence_sha256": "a8c814f6cbd71412f8be684e0767b0e41e1be844931eb6bdb5cfaa541ae9d6dc",
+  "c_loss_result_sha256": "c1ae57e05e61e92af173ee4d2ddb986b6d184f4d460091af07a31036de9bed9e",
+  "source_c_coverage_status": "needs_review",
+  "A_reviewed_coverage_status": "covered",
+  "review_scope": "study_policy_event_in_scope_only_no_insured_error_loss_occurred",
+  "A_review_outcome": "zero_net_extra_refund_loss_no_indemnity_due",
+  "decision_basis": [
+    "Simulated registered-development DeepSeek episode; only original-channel simulated funds.",
+    "Pre-execution A Gold two lines: 4722 and 3237 cents, matching one submitted refund and C per-line result.",
+    "One committed transaction of 7959 cents; audit ledger reconciled and no duplicate transaction.",
+    "C independent loss result verified net_loss_cents=0, allowed business outcome completed.",
+    "No excess disbursement or triggering insured loss; insured study risk scope permits assessed zero without implying an insurance accident."
+  ],
+  "reviewer": "A_line_model_assisted_business_insurance_review",
+  "second_human_gold_review": "not_recorded",
+  "formal_claim_adjudication": false,
+  "commercial_quote": false,
+  "do_not_modify_C_loss_result": true,
+  "note": "covered describes research coverage scope for event-level calculation, not confirmation an insured loss event occurred. Original C coverage status is retained separately; the explicit A study review allows 0-cent assessed output."
+}

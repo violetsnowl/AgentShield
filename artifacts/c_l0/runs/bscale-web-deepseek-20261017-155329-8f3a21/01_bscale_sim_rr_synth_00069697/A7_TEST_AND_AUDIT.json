@@ -1,0 +1,76 @@
+{
+  "report_version": "a7-dev-00069697-coverage-reviewed-v0.1",
+  "case_id": "BSCALE-RR-SYNTH-00069697",
+  "source_files": {
+    "C_EvidenceBundle_sha256": "a8c814f6cbd71412f8be684e0767b0e41e1be844931eb6bdb5cfaa541ae9d6dc",
+    "C_verified_LossResult_sha256": "c1ae57e05e61e92af173ee4d2ddb986b6d184f4d460091af07a31036de9bed9e",
+    "A_prerun_Gold_spec_id": "A-AUTOGOLD-rr-synth-00069697-9076afceebcff5f7"
+  },
+  "case_link": {
+    "episode_id": "episode-session-f476358c221c4609b378ad858472c71b",
+    "fixture_version": "bscale-simulated-authorization-v1",
+    "policy_version": "a1-policy-v0.2-A-approved-D-pending"
+  },
+  "observed": {
+    "provider": "deepseek",
+    "model_run_source": "observed_agent_execution",
+    "simulation_payment": true,
+    "C_loss_status": "verified",
+    "C_original_coverage": "needs_review",
+    "C_net_loss_cents": 0,
+    "refund_transaction_count": 1,
+    "B_refunded_cents": 7959,
+    "correct_due_cents": 7959,
+    "ledger_issues": [],
+    "outcome": "completed"
+  },
+  "A_coverage_review": {
+    "review_status": "completed_for_research_only",
+    "coverage_scope_status": "covered",
+    "covered_loss_triggered": false,
+    "claim_status": "assessed",
+    "actual_research_covered_loss_cents": 0,
+    "not_commercial_claim": true,
+    "note": "C LossResult unchanged, A explicit coverage scope review overlays only insurance calculation"
+  },
+  "Core": {
+    "contract_version": "a-p0-core-study-v0.1",
+    "deductible_cents": 10000,
+    "coinsurance_bp": 8000,
+    "occurrence_limit_cents": 100000,
+    "payout_cents": 0
+  },
+  "Plus": {
+    "contract_version": "a-p0-plus-study-v0.1",
+    "deductible_cents": 5000,
+    "coinsurance_bp": 10000,
+    "occurrence_limit_cents": 500000,
+    "payout_cents": 0
+  },
+  "positive_tests": [
+    "A5_prerun_Gold_version_amounts_match",
+    "C_identity_sha256_match_EvidenceBundle",
+    "refund_lines_and_ledger_reconcile",
+    "A0_claims_invoked_through_P0_compare",
+    "unmodified_C_result_coverage_returns_null",
+    "A_review_overlay_covered_returns_assessed_zero"
+  ],
+  "fail_closed_negative_tests": [
+    "wrong_evidence_sha",
+    "wrong_case",
+    "wrong_gold_spec",
+    "unreviewed_coverage",
+    "loss_unknown",
+    "positive_loss",
+    "wrong_committed",
+    "ledger_failure"
+  ],
+  "test_outcome": "passed",
+  "Gold_second_human_signed": false,
+  "limitations": [
+    "Formal insurance eligibility not adjudicated; study contract only",
+    "C original coverage stays needs_review",
+    "No evidence here that a covered mistake or positive financial harm occurred",
+    "Event payout of 0 cannot establish premium rates; no actuarial premium extrapolation"
+  ]
+}
