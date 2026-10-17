@@ -88,6 +88,7 @@
 - `C_L0_RESULTS.md` — C 的 L0 结果（J1/J2、核验器、运行清单）。
 - `C_receipt_bc-0.3.md` — C 对 bc-0.3 的接收记录。
 - `C_to_A_B_D_requests.md` — C 对 A/B/D 的输入请求（义务定义、预算等）。
+- `REAL_MODE_INTERFACE_DRAFT_2026-10-17.md` — 「真实 Agent 实测」模式接口结构草案（待与 C/A 对齐；含待确认问题清单，未接通前保持禁用）。
 
 **docs/decisions/**
 - `BC_contract_v0.1/0.2/0.3.md` — B/C 接口契约演进（当前 bc-0.3-candidate）。
@@ -97,6 +98,7 @@
 - `IA_V3_navigation.md` — IA v3 三页导航 / 单一运行选择器 / 深链接 / 护栏决策（批C）。
 - `UI_DEMO_REDESIGN_2026-10-16.md` — 演示 UI 重构与规范豁免（面向评委的极简三页；含 A/B/C 测试映射与退役清单；已随主仓集成提交 `825378e` 进入 main）。
 - `PAGE1_RANDOM_SAMPLING_2026-10-16.md` — 第一页「随机抽样式 Agent 测试」交互重构（UI 结构、安全接口设计草案、B-SCALE→可执行案例缺口清单、拆分交付状态；已随本批合并至 main）。
+- `STABILITY_MODES_2026-10-17.md` — 稳定批次与双模式（轮询回填自我取消等三根因取证与修复、批次持久化恢复、真实/演示双模式与样本外推三态、验证数字）。
 
 **docs/business/**
 - `business_policy_A_candidate.md` — A0 业务规则候选与决策表（待双签）。
@@ -125,5 +127,6 @@
 - `feature/a-gold-actuarial`：待 A 开工，暂无文档。
 - （bd · 已推送）2026-10-16 演示 UI 重构批：`docs/decisions/UI_DEMO_REDESIGN_2026-10-16.md`、`docs/manuals/FRONTEND_USER_MANUAL.md` 与 `frontend/README.md` 同步修订、`frontend/src/{App.tsx,style.css,riskMetrics.ts}` 重排、四份前端/回归测试改写；**main 未合并，等待用户验收**。
 - （bd · 已推送并合入 main）2026-10-16 深夜「第一页随机抽样重构」：`docs/decisions/PAGE1_RANDOM_SAMPLING_2026-10-16.md`、`frontend/src/{App.tsx,style.css,caseNames.ts}`、`frontend/src/data/{runnerConfigs.ts,runner_configs.json}`、`frontend/tests/{browser.mjs,runnerConfigs.test.ts}`；feat `e6275dc`（文档提交紧随其后），基线=主仓集成提交 `825378e`（merge `746f214`）。
+- （research-risk-contracts · 本轮）2026-10-17「稳定批次与双模式」：`docs/decisions/STABILITY_MODES_2026-10-17.md`、`docs/handoff/REAL_MODE_INTERFACE_DRAFT_2026-10-17.md`、`frontend/src/{App.tsx,routing.ts,riskMetrics.ts,style.css,realMode.ts}`、`frontend/tests/{browser.mjs,realMode.test.ts,routing.test.ts,riskMetrics.test.ts}`、`workbench/bscale_batches.py`、`tests/test_bscale_batches.py`、`docs/manuals/FRONTEND_USER_MANUAL.md` 同步修订。
 
 > 合并后请把新增文档登入本索引（维护规则第 2 条）。
