@@ -88,6 +88,7 @@
 - `C_L0_RESULTS.md` — C 的 L0 结果（J1/J2、核验器、运行清单）。
 - `C_receipt_bc-0.3.md` — C 对 bc-0.3 的接收记录。
 - `C_to_A_B_D_requests.md` — C 对 A/B/D 的输入请求（义务定义、预算等）。
+- `A_BSCALE_AUTOGOLD_TO_C_D.md` — A→C/D：B-SCALE 动态模拟授权自动 Gold（开发候选）交接（生成器用法、C 接入流程、首案公开身份、边界与测试）。
 - `REAL_MODE_INTERFACE_DRAFT_2026-10-17.md` — 「真实 Agent 实测」模式接口结构草案（待与 C/A 对齐；含待确认问题清单，未接通前保持禁用）。
 
 **docs/decisions/**
