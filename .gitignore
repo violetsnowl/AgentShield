@@ -100,6 +100,16 @@ artifacts/c_l0/runs/bscale-web-deepseek-20261017-182612/01_bscale_sim_rr_synth_0
 !artifacts/c_l0/runs/bscale-web-deepseek-20261017-182612/01_bscale_sim_rr_synth_00077620/loss_result.json
 !artifacts/c_l0/runs/bscale-web-deepseek-20261017-182612/01_bscale_sim_rr_synth_00077620/claim_A0.json
 !artifacts/c_l0/runs/bscale-web-deepseek-20261017-182612/01_bscale_sim_rr_synth_00077620/case_context.json
+# Web-launched 5-run real batch (whitelist: core delivery files only, per-run).
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-184218/
+artifacts/c_l0/runs/bscale-web-deepseek-20261017-184218/*
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-184218/*/
+artifacts/c_l0/runs/bscale-web-deepseek-20261017-184218/*/*
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-184218/*/manifest.json
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-184218/*/evidence.json
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-184218/*/loss_result.json
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-184218/*/claim_A0.json
+!artifacts/c_l0/runs/bscale-web-deepseek-20261017-184218/*/case_context.json
 
 # Public regression fixtures referenced by backend/frontend tests.
 !artifacts/b_bootstrap/
