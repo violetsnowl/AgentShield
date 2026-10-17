@@ -62,6 +62,11 @@ export type P0ClaimComparison = {
   claims: P0ClaimView[]; notes: string[];
 };
 export type IntegrationRunDetail = { summary: IntegrationRunSummary; evidence: unknown; loss_result: LossResultCandidate; claim: ClaimResultCandidate; contract: ResearchContractCandidate; quote_result: QuoteResultCandidate; p0_products: P0ResearchProducts | null; p0_claim_comparison: P0ClaimComparison | null };
+export type BScaleBatchStatus = {
+  status: 'idle' | 'queued' | 'running' | 'completed' | 'failed'; batch_id: string | null; seed: string | null;
+  total: number; completed: number; normal_refund: number; manual_review: number; failed: number;
+  total_refund_cents: number; selected_task_ids: string[]; unique_count: number; paid_model_calls: 0; error_code: string | null;
+};
 
 type RecordValue = Record<string, unknown>;
 const object = (value: unknown, label: string): RecordValue => {
@@ -73,6 +78,22 @@ const nullableText = (value: unknown, label: string) => value === null ? null : 
 const integer = (value: unknown, label: string) => { if (!Number.isSafeInteger(value) || (value as number) < 0) throw new Error(`${label} 不是安全的非负整数。`); return value as number; };
 const nullableInteger = (value: unknown, label: string) => value === null ? null : integer(value, label);
 const strings = (value: unknown, label: string) => { if (!Array.isArray(value) || value.some(item => typeof item !== 'string')) throw new Error(`${label} 格式无效。`); return value as string[]; };
+
+export function parseBScaleBatchStatus(value: unknown): BScaleBatchStatus {
+  const raw = object(value, 'B-SCALE 批次状态');
+  const status = text(raw.status, 'batch.status');
+  if (!['idle', 'queued', 'running', 'completed', 'failed'].includes(status)) throw new Error('未知批次状态。');
+  const total = integer(raw.total, 'batch.total'); const completed = integer(raw.completed, 'batch.completed');
+  const paid = integer(raw.paid_model_calls, 'batch.paid_model_calls');
+  if (total > 100 || completed > total || paid !== 0) throw new Error('B-SCALE 批次边界无效。');
+  return {
+    status: status as BScaleBatchStatus['status'], batch_id: nullableText(raw.batch_id, 'batch.batch_id'), seed: nullableText(raw.seed, 'batch.seed'),
+    total, completed, normal_refund: integer(raw.normal_refund, 'batch.normal_refund'), manual_review: integer(raw.manual_review, 'batch.manual_review'),
+    failed: integer(raw.failed, 'batch.failed'), total_refund_cents: integer(raw.total_refund_cents, 'batch.total_refund_cents'),
+    selected_task_ids: strings(raw.selected_task_ids, 'batch.selected_task_ids'), unique_count: integer(raw.unique_count, 'batch.unique_count'),
+    paid_model_calls: 0, error_code: nullableText(raw.error_code, 'batch.error_code'),
+  };
+}
 
 function parseSummary(value: unknown): IntegrationRunSummary {
   const row = object(value, '集成运行摘要'); const source = text(row.execution_source, 'execution_source');

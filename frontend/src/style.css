@@ -313,6 +313,10 @@ pre { font-family: Consolas, monospace; font-size: 12px; line-height: 1.7; backg
 .agent-pick select { width: 100%; max-width: 720px; padding: 6px 8px; border: 1px solid #c6c6c6; border-radius: 6px; background: #fff; }
 .primary-run { min-height: 38px; padding: 8px 22px; font-size: 14px; font-weight: 700; border: 2px solid var(--ink); border-radius: 6px; background: var(--yw); color: var(--ink); }
 .primary-run:disabled { background: #f1f1f1; border-color: #d8d8d8; color: #9a9a9a; }
+.batch-progress { display: grid; gap: 6px; margin-top: 12px; padding: 12px 14px; border: 1px solid #d7d7d7; background: #fafafa; }
+.batch-progress progress { width: 100%; accent-color: #222; }
+.batch-progress span { color: #555; font-size: 13px; }
+.batch-complete { border-color: #b8d5bd; background: #f4fbf5; }
 .new-test .fine-print { margin-top: 0; }
 .result-list { margin-top: 26px; }
 .list-tabs { display: flex; gap: 6px; border-bottom: 2px solid var(--ink); }

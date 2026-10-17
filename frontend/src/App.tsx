@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, ReactNode } from 'react';
 import { api, pairFromFragment } from './api';
 import { buildViewHash, parseViewState } from './routing';
-import { adaptResult, evidenceStatePresentation, parseIntegrationCatalog, parseIntegrationDetail } from './integrations';
-import type { IntegrationRunDetail, IntegrationRunSummary } from './integrations';
+import { adaptResult, evidenceStatePresentation, parseBScaleBatchStatus, parseIntegrationCatalog, parseIntegrationDetail } from './integrations';
+import type { BScaleBatchStatus, IntegrationRunDetail, IntegrationRunSummary } from './integrations';
 import { eventMeaning, evidenceCaveats, money, openingSplit, orderedEvents, parseEvidence, statusText } from './data';
 import type { EvidenceBundle, EventPage, FixtureCatalog, Ledger, SessionPage, SessionStatus, ToolEvent } from './generated/contract';
 import { CASE_GROUP_LABELS, caseDisplay } from './caseNames';
@@ -374,10 +374,11 @@ function decimalCents(value: string | null) {
   return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(Number(value) / 100);
 }
 
-const SAMPLING_UNAVAILABLE_NOTE = '不可用：抽样执行接口尚未接入——后端任务抽样（B-SCALE 任务池）与受控执行链路未接通；在此之前本按钮不会新增任何记录。接通后每次运行独立建会话、不重复提交资金；真实模型调用另需独立的付费授权与预算约束。';
-
 type LedgerSlot = { state: 'loading' | 'ready' | 'error'; committedCents: number | null; tradeCount: number | null };
 type LossSlot = { state: 'loading' | 'ready' | 'error'; netLossCents: number | null; legalDue: number | null; payoutCents: number | null };
+const idleBatch = (): BScaleBatchStatus => ({ status: 'idle', batch_id: null, seed: null, total: 100, completed: 0,
+  normal_refund: 0, manual_review: 0, failed: 0, total_refund_cents: 0, selected_task_ids: [], unique_count: 0,
+  paid_model_calls: 0, error_code: null });
 
 /** C 义务口径候选应退：仅当每条义务都带合法应退金额时求和；否则 null（待核验），不补零。 */
 function legalDueSum(obligations: unknown[]): number | null {
@@ -391,28 +392,34 @@ function legalDueSum(obligations: unknown[]): number | null {
   return sum;
 }
 
-function NewTestPanel({ open, onToggle, configs, selected, onSelect }: {
+function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onStart }: {
   open: boolean; onToggle: () => void; configs: RunnerConfig[] | null; selected: string; onSelect: (value: string) => void;
+  batch: BScaleBatchStatus; onStart: () => void;
 }) {
-  const current = configs?.find(config => config.config_id === selected) ?? null;
+  const freeConfigs = configs?.filter(config => config.adapter === 'rule_baseline') ?? null;
+  const current = freeConfigs?.find(config => config.config_id === selected) ?? null;
+  const running = batch.status === 'queued' || batch.status === 'running';
   return <section className="new-test" aria-label="新建一次测试">
     <button className="new-test-toggle" data-testid="new-test-toggle" aria-expanded={open} onClick={onToggle}>＋新建一次测试</button>
     {open && <div className="new-test-panel">
-      <label className="agent-pick"><span>Agent（仅真实已注册配置）</span>
+      <label className="agent-pick"><span>执行器（仅免费规则基线）</span>
         <select id="agent-config" aria-label="选择 Agent 配置" value={selected} disabled={configs === null} onChange={event => onSelect(event.target.value)}>
-          {configs === null ? <option value="">正在读取已注册配置…</option> : configs.map(config => <option key={config.config_id} value={config.config_id}>{agentConfigLabel(config)}</option>)}
+          {freeConfigs === null ? <option value="">正在读取已注册配置…</option> : freeConfigs.map(config => <option key={config.config_id} value={config.config_id}>{agentConfigLabel(config)}</option>)}
         </select></label>
       {current && <p className="fine-print">来源 {current.source_path} · {current.frozen ? '已冻结' : '未冻结'} · 单次成本上限（配置）{current.max_run_cost_cny === null ? '—' : `¥${current.max_run_cost_cny.toFixed(2)}`}</p>}
-      <button className="primary-run" id="sample-run" data-testid="sample-run" disabled aria-describedby="sample-run-note">随机抽样并运行</button>
-      <p className="fine-print" id="sample-run-note">{SAMPLING_UNAVAILABLE_NOTE}</p>
+      <button className="primary-run" id="sample-run" data-testid="sample-run" disabled={running || current === null} onClick={onStart} aria-describedby="sample-run-note">随机抽取100项并运行</button>
+      <p className="fine-print" id="sample-run-note">仅运行免费确定性规则基线；不会调用真实模型或产生 API 费用。同一时间只允许一个批次。</p>
+      {running && <div className="batch-progress" role="status" aria-live="polite"><progress value={batch.completed} max={batch.total}/><strong>已完成 {batch.completed}/{batch.total}</strong><span>正常退款 {batch.normal_refund} · 转人工 {batch.manual_review} · 失败 {batch.failed}</span></div>}
+      {batch.status === 'completed' && <div className="batch-progress batch-complete" role="status"><strong>本批次已完成 {batch.completed}/{batch.total}</strong><span>正常退款 {batch.normal_refund} · 转人工 {batch.manual_review} · 失败 {batch.failed} · 退款总额 {money(batch.total_refund_cents)}</span></div>}
+      {batch.status === 'failed' && <p className="notice error" role="alert">批次执行失败；已完成记录仍保留，请检查本机服务日志。</p>}
       <p className="fine-print">抽样与执行由后端负责（总体版本、随机种子、任务 ID、批次与类别随记录落盘）；普通界面不提供事项类别或具体案例的手动选择。</p>
     </div>}
   </section>;
 }
 
-function TestRecordList({ sessions, runs, selected, onSelect, tab, onTab, ledgerBySession, lossByRun }: {
+function TestRecordList({ sessions, runs, batchId, selected, onSelect, tab, onTab, ledgerBySession, lossByRun }: {
   sessions: SessionStatus[]; runs: IntegrationRunSummary[]; selected: string; onSelect: (sid: string) => void;
-  tab: 'local' | 'history'; onTab: (tab: 'local' | 'history') => void;
+  batchId: string | null; tab: 'batch' | 'local' | 'history'; onTab: (tab: 'batch' | 'local' | 'history') => void;
   ledgerBySession: Record<string, LedgerSlot>; lossByRun: Record<string, LossSlot>;
 }) {
   const ledgerCell = (slot: LedgerSlot | undefined) => slot === undefined || slot.state === 'loading'
@@ -431,7 +438,9 @@ function TestRecordList({ sessions, runs, selected, onSelect, tab, onTab, ledger
       <td><button className="text-button" onClick={() => onSelect(session.session_id)}>详情</button></td>
     </tr>;
   });
-  const historyRows = runs.map(run => {
+  const batchRuns = batchId === null ? [] : runs.filter(run => run.batch_id === batchId);
+  const previousRuns = batchId === null ? runs : runs.filter(run => run.batch_id !== batchId);
+  const integrationRows = (items: IntegrationRunSummary[]) => items.map(run => {
     const display = caseDisplay(run.case_id);
     const slot = lossByRun[run.run_id];
     let dueCell: ReactNode; let lossCell: ReactNode; let claimCell: ReactNode;
@@ -456,22 +465,27 @@ function TestRecordList({ sessions, runs, selected, onSelect, tab, onTab, ledger
       <td><button className="text-button" onClick={() => onSelect(run.session_id)}>详情</button></td>
     </tr>;
   });
-  const table = (rows: typeof localRows) => <div className="table-scroll"><table className="rec-table"><thead><tr>
+  const table = (rows: ReactNode[]) => <div className="table-scroll"><table className="rec-table"><thead><tr>
     <th>业务事项</th><th>Agent / 运行状态</th><th className="number">已提交退款（B）</th><th className="number">候选应退（C）</th><th className="number">核验净损失（C）</th><th className="number">研究赔款（A）</th><th>操作</th>
   </tr></thead><tbody>{rows}</tbody></table></div>;
   return <section className="result-list" aria-label="测试记录">
     <div className="list-tabs" role="tablist" aria-label="测试记录分组">
+      {batchId !== null && <button role="tab" aria-selected={tab === 'batch'} className={tab === 'batch' ? 'list-tab active' : 'list-tab'} onClick={() => onTab('batch')}>当前批次（{batchRuns.length}）</button>}
       <button role="tab" aria-selected={tab === 'local'} className={tab === 'local' ? 'list-tab active' : 'list-tab'} onClick={() => onTab('local')}>本机测试记录（{sessions.length}）</button>
-      <button role="tab" aria-selected={tab === 'history'} className={tab === 'history' ? 'list-tab active' : 'list-tab'} onClick={() => onTab('history')}>历史测试（{runs.length}）</button>
+      <button role="tab" aria-selected={tab === 'history'} className={tab === 'history' ? 'list-tab active' : 'list-tab'} onClick={() => onTab('history')}>历史测试（{previousRuns.length}）</button>
     </div>
-    {tab === 'local'
+    {tab === 'batch'
+      ? (batchRuns.length === 0
+        ? <p className="list-empty">当前批次正在运行；完成后将在这里显示本批次的实际运行记录。</p>
+        : table(integrationRows(batchRuns)))
+      : tab === 'local'
       ? (sessions.length === 0
-        ? <p className="list-empty">本机还没有新建的测试记录。执行接口接通前「＋新建一次测试」不会产生记录；可切到「历史测试」查看已交付运行。</p>
+        ? <p className="list-empty">本机还没有单独创建的开发会话。</p>
         : table(localRows))
-      : (runs.length === 0
+      : (previousRuns.length === 0
         ? <p className="list-empty">交付目录中还没有已交付运行。</p>
-        : table(historyRows))}
-    <p className="fine-print">「历史测试」为已交付运行的只读查看（开发运行，不计入 56 次），不会与本机新建记录混列；「本机测试记录」尚未接入 C 核验与 A 理算链路（未接入 ≠ 零损失）。保险赔款与商户退款是两个概念，金额均按各自口径标注。</p>
+        : table(integrationRows(previousRuns)))}
+    <p className="fine-print">「当前批次」只包含本次随机抽取结果；「历史测试」保留其他已交付开发运行。保险赔款与商户退款是两个概念，金额均按各自口径标注。</p>
   </section>;
 }
 
@@ -500,10 +514,11 @@ export default function App() {
   const [integrationError, setIntegrationError] = useState('');
   const [integrationRefresh, setIntegrationRefresh] = useState(0);
   const [replaySource, setReplaySource] = useState<'file' | 'delivery'>('file');
-  const [newTestOpen, setNewTestOpen] = useState(false);
+  const [newTestOpen, setNewTestOpen] = useState(true);
   const [runnerConfigs, setRunnerConfigs] = useState<RunnerConfig[] | null>(null);
   const [agentConfigId, setAgentConfigId] = useState('');
-  const [listTab, setListTab] = useState<'local' | 'history'>('history');
+  const [listTab, setListTab] = useState<'batch' | 'local' | 'history'>('history');
+  const [batchStatus, setBatchStatus] = useState<BScaleBatchStatus>(idleBatch);
   const [ledgerBySession, setLedgerBySession] = useState<Record<string, LedgerSlot>>({});
   const [lossByRun, setLossByRun] = useState<Record<string, LossSlot>>({});
   const fileReplay = offline && replaySource === 'file';
@@ -529,7 +544,10 @@ export default function App() {
   }
   useEffect(() => {
     let active = true; const epoch = interaction.current;
-    (async () => { try { await pairFromFragment(); const { sessions: list, integrated } = await catalog(epoch); if (!active || !currentIntent(epoch) || replayMode.current) return;
+    (async () => { try { await pairFromFragment(); const { sessions: list, integrated } = await catalog(epoch);
+      const batch = parseBScaleBatchStatus(await api<unknown>('api/bscale-batches/current'));
+      if (!active || !currentIntent(epoch) || replayMode.current) return;
+      setBatchStatus(batch); if (batch.batch_id !== null) setListTab('batch');
       if (list.length || integrated.length) {
         const wanted = pendingRun.current;
         pendingRun.current = null;
@@ -644,10 +662,41 @@ export default function App() {
     if (fileReplay) return;
     let active = true;
     loadRunnerConfigs()
-      .then(list => { if (active) { setRunnerConfigs(list); setAgentConfigId(current => current || ((list.find(config => config.config_id === 'c-deepseek-flash-fixed-dev-v0.1') ?? list[0])?.config_id ?? '')); } })
+      .then(list => { if (active) { setRunnerConfigs(list); setAgentConfigId((list.find(config => config.adapter === 'rule_baseline')?.config_id ?? '')); } })
       .catch(() => { if (active) setRunnerConfigs([]); });
     return () => { active = false; };
   }, [fileReplay]);
+  useEffect(() => {
+    if (!['queued', 'running'].includes(batchStatus.status)) return;
+    let active = true;
+    let timer = 0;
+    const poll = async () => {
+      try {
+        const next = parseBScaleBatchStatus(await api<unknown>('api/bscale-batches/current'));
+        if (!active) return;
+        setBatchStatus(next);
+        if (next.status === 'completed' && next.batch_id !== null) {
+          // Reload the authoritative catalog after the backend has published the
+          // completed batch.  This also keeps historical runs available while
+          // making the just-finished rows immediately selectable.
+          const catalog = parseIntegrationCatalog(await api<unknown>('api/integration-runs'));
+          const rows = catalog.filter(row => row.batch_id === next.batch_id);
+          if (!active) return;
+          setIntegrationRuns(catalog);
+          setListTab('batch');
+          const first = rows[0];
+          if (first) {
+            ++interaction.current; replayMode.current = false; setOffline(false); setReplaySource('file');
+            setBundle(null); setEvents([]); setSid(first.session_id); setArea('test'); setEvidenceOpen(false);
+          }
+        } else if (next.status === 'queued' || next.status === 'running') {
+          timer = window.setTimeout(() => { void poll(); }, 500);
+        }
+      } catch (e) { if (active) setActionError(errorText(e)); }
+    };
+    timer = window.setTimeout(() => { void poll(); }, 500);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [batchStatus.status, batchStatus.batch_id]);
   useEffect(() => {
     if (fileReplay || !catalogReady) return;
     const pending = sessions.filter(row => !(row.session_id in ledgerBySession));
@@ -682,8 +731,11 @@ export default function App() {
   useEffect(() => {
     if (sid === '') return;
     if (sessions.some(row => row.session_id === sid)) setListTab('local');
-    else if (integrationRuns.some(row => row.session_id === sid)) setListTab('history');
-  }, [sid, sessions, integrationRuns]);
+    else {
+      const run = integrationRuns.find(row => row.session_id === sid);
+      if (run) setListTab(batchStatus.batch_id !== null && run.batch_id === batchStatus.batch_id ? 'batch' : 'history');
+    }
+  }, [sid, sessions, integrationRuns, batchStatus.batch_id]);
   async function loadService(epoch: number, preferDelivered = true) {
     setState('loading'); setError('');
     try {
@@ -709,6 +761,13 @@ export default function App() {
     const epoch = ++interaction.current; replayMode.current = false;
     setOffline(false); setReplaySource('file'); setBundle(null); setEvents([]); setSid(''); setCatalogReady(false); setActionError(''); setNavBack(null); setRouteNotice('');
     void loadService(epoch, false);
+  }
+  async function startBScaleBatch() {
+    setActionError('');
+    try {
+      const started = parseBScaleBatchStatus(await api<unknown>('api/bscale-batches', { method: 'POST' }));
+      setBatchStatus(started); setListTab('batch'); setNewTestOpen(true);
+    } catch (e) { setActionError(errorText(e)); }
   }
   async function create() {
     const epoch = ++interaction.current;
@@ -768,6 +827,7 @@ export default function App() {
   const current = bundle?.final_snapshot.session.session_id === sid ? bundle : null;
   const session = current?.final_snapshot.session ?? sessions.find(row => row.session_id === sid);
   const matchedIntegration = integration && integration.summary.session_id === sid ? integration : null;
+  const currentBatchRuns = batchStatus.batch_id === null ? integrationRuns : integrationRuns.filter(row => row.batch_id === batchStatus.batch_id);
   const integrationPending = !offline && !matchedIntegration && integrationRuns.some(row => row.session_id === sid) && integrationState !== 'error';
   const runName = session ? caseDisplay((current?.case_context as { fixture_id?: string } | null)?.fixture_id ?? session.case_id).name : '';
   const areaIndex = areas.findIndex(item => item.id === area);
@@ -803,8 +863,8 @@ export default function App() {
       {state === 'loading' && <div className="loading" role="status" aria-live="polite"><span className="spinner"/>正在读取本次运行的真实数据…</div>}
       {state === 'error' && <div role="alert" className="empty error"><strong>当前数据未能加载</strong><p>{error}</p><button onClick={retry}>重试读取</button><p className="fine-print">也可以导入已保存的证据，进行离线只读回放。</p></div>}
       {state === 'ready' && area === 'test' && <>
-        {!fileReplay && <NewTestPanel open={newTestOpen} onToggle={() => setNewTestOpen(value => !value)} configs={runnerConfigs} selected={agentConfigId} onSelect={setAgentConfigId}/>}
-        {!fileReplay && (sessions.length > 0 || integrationRuns.length > 0) && <TestRecordList sessions={sessions} runs={integrationRuns} selected={sid} onSelect={chooseRun} tab={listTab} onTab={setListTab} ledgerBySession={ledgerBySession} lossByRun={lossByRun}/>}
+        {!fileReplay && <NewTestPanel open={newTestOpen} onToggle={() => setNewTestOpen(value => !value)} configs={runnerConfigs} selected={agentConfigId} onSelect={setAgentConfigId} batch={batchStatus} onStart={startBScaleBatch}/>}
+        {!fileReplay && (sessions.length > 0 || integrationRuns.length > 0 || batchStatus.batch_id !== null) && <TestRecordList sessions={sessions} runs={integrationRuns} batchId={batchStatus.batch_id} selected={sid} onSelect={chooseRun} tab={listTab} onTab={setListTab} ledgerBySession={ledgerBySession} lossByRun={lossByRun}/>}
         {!current && <Empty title="还没有开发会话">可在下方「开发工具」中创建业务初态，或在上方「演示记录」选择一个已有运行。创建会话不会调用模型或提交退款。</Empty>}
         {current && <>
         <CaseSummary evidence={current} name={runName}/>
@@ -830,8 +890,8 @@ export default function App() {
         </details>
         </>}
       </>}
-      {state === 'ready' && area === 'risk' && <RiskOverview runs={integrationRuns} offline={offline && replaySource !== 'delivery'}/>}
-      {state === 'ready' && area === 'insurance' && <InsurancePlans runs={integrationRuns} offline={offline && replaySource !== 'delivery'}/>}
+      {state === 'ready' && area === 'risk' && <RiskOverview runs={currentBatchRuns} offline={offline && replaySource !== 'delivery'}/>}
+      {state === 'ready' && area === 'insurance' && <InsurancePlans runs={currentBatchRuns} offline={offline && replaySource !== 'delivery'}/>}
       <nav className="stepper" aria-label="分步导航">
         {prevArea ? <a className="step-link prev" href={buildViewHash(prevArea.id, sid || null, offline)} onClick={event => { event.preventDefault(); jump(prevArea.id); }}>← 上一步：{prevArea.nav}</a> : <span className="step-link disabled">已经是第一步</span>}
         {nextArea ? <a className="step-link next" href={buildViewHash(nextArea.id, sid || null, offline)} onClick={event => { event.preventDefault(); jump(nextArea.id); }}>下一步：{nextArea.nav} →</a> : <a className="step-link next" href={buildViewHash('test', sid || null, offline)} onClick={event => { event.preventDefault(); jump('test'); }}>回到第一步：01 测试案例 ↺</a>}

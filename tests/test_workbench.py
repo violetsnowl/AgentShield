@@ -11,6 +11,25 @@ import httpx
 
 from api.app import create_app
 from workbench.app import COOKIE, create_observer
+from workbench.bscale_batches import BatchAlreadyRunning
+
+
+class FakeBatchManager:
+    def __init__(self):
+        self.value = {"status": "idle", "batch_id": None, "seed": None, "total": 100,
+                      "completed": 0, "normal_refund": 0, "manual_review": 0,
+                      "failed": 0, "total_refund_cents": 0, "selected_task_ids": [],
+                      "unique_count": 0, "paid_model_calls": 0, "error_code": None}
+
+    def start(self):
+        if self.value["status"] in {"queued", "running"}:
+            raise BatchAlreadyRunning()
+        self.value = {**self.value, "status": "running", "batch_id": "web-test-batch",
+                      "seed": "web-test-seed", "unique_count": 100}
+        return self.status()
+
+    def status(self):
+        return {**self.value, "selected_task_ids": list(self.value["selected_task_ids"])}
 
 
 class ObserverTests(unittest.TestCase):
@@ -142,6 +161,23 @@ class ObserverTests(unittest.TestCase):
         for row in payload["p0_claim_comparison"]["claims"]:
             self.assertEqual(row["claim_status"], "needs_review")
             self.assertIsNone(row["payout_cents"])
+
+    def test_bscale_batch_api_is_authenticated_single_flight_and_path_free(self):
+        self.assertEqual(self.client.post("/observer/api/bscale-batches", headers=self.headers).status_code, 401)
+        self.pair()
+        self.app.state.batch_manager = FakeBatchManager()
+        started = self.client.post("/observer/api/bscale-batches", headers=self.headers)
+        self.assertEqual(started.status_code, 202)
+        self.assertEqual(started.json()["status"], "running")
+        self.assertEqual(started.json()["total"], 100)
+        self.assertNotIn("path", started.text.lower())
+        self.assertEqual(self.client.post("/observer/api/bscale-batches", headers=self.headers).status_code, 409)
+        status = self.client.get("/observer/api/bscale-batches/current", headers=self.headers)
+        self.assertEqual(status.status_code, 200)
+        self.assertEqual(status.json()["seed"], "web-test-seed")
+        results = self.client.get("/observer/api/bscale-batches/current/results", headers=self.headers)
+        self.assertEqual(results.status_code, 200)
+        self.assertEqual(results.json()["runs"], [])
 
     def test_actual_catalog_admin_auth_session_list_and_event_pagination(self):
         self.assertEqual(self.b.get("/api/v1/admin/fixtures").status_code, 401)

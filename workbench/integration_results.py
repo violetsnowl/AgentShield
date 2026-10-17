@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import threading
 from typing import Any, Literal
 
 from jsonschema import Draft202012Validator
@@ -70,6 +71,7 @@ class IntegrationResults:
     def __init__(self, runs_root: Path, project_root: Path):
         self.runs_root = runs_root.resolve()
         self.project_root = project_root.resolve()
+        self._lock = threading.RLock()
         self._runs: dict[str, dict[str, Any]] = {}
         self.contract = self._load_contract()
         self.quote_result = self._load_quote()
@@ -111,15 +113,38 @@ class IntegrationResults:
         return raw
 
     def _scan(self) -> None:
-        if not self.runs_root.is_dir():
-            return
+        with self._lock:
+            scanned: dict[str, dict[str, Any]] = {}
+            if self.runs_root.is_dir():
+                required = ("manifest.json", "evidence.json", "loss_result.json", "claim_A0.json")
+                for folder in sorted(path.parent for path in self.runs_root.glob("*/*/manifest.json")):
+                    if not all((folder / name).is_file() for name in required):
+                        continue
+                    relative = folder.relative_to(self.runs_root).as_posix()
+                    run_id = hashlib.sha256(relative.encode("utf-8")).hexdigest()[:20]
+                    scanned[run_id] = self._load_run(folder, run_id, relative)
+            self._runs = scanned
+
+    def refresh(self) -> None:
+        self._scan()
+
+    def refresh_batch(self, batch_id: str) -> None:
+        batch_root = (self.runs_root / batch_id).resolve()
+        if batch_root.parent != self.runs_root:
+            raise ValueError("invalid integration batch identity")
         required = ("manifest.json", "evidence.json", "loss_result.json", "claim_A0.json")
-        for folder in sorted(path.parent for path in self.runs_root.glob("*/*/manifest.json")):
-            if not all((folder / name).is_file() for name in required):
-                continue
-            relative = folder.relative_to(self.runs_root).as_posix()
-            run_id = hashlib.sha256(relative.encode("utf-8")).hexdigest()[:20]
-            self._runs[run_id] = self._load_run(folder, run_id, relative)
+        scanned: dict[str, dict[str, Any]] = {}
+        if batch_root.is_dir():
+            for folder in sorted(path.parent for path in batch_root.glob("*/manifest.json")):
+                if not all((folder / name).is_file() for name in required):
+                    continue
+                relative = folder.relative_to(self.runs_root).as_posix()
+                run_id = hashlib.sha256(relative.encode("utf-8")).hexdigest()[:20]
+                scanned[run_id] = self._load_run(folder, run_id, relative)
+        with self._lock:
+            self._runs = {key: value for key, value in self._runs.items()
+                          if value["summary"]["batch_id"] != batch_id}
+            self._runs.update(scanned)
 
     def _load_run(self, folder: Path, run_id: str, relative: str) -> dict[str, Any]:
         manifest = _read_json(folder / "manifest.json")
@@ -220,12 +245,14 @@ class IntegrationResults:
         }
 
     def catalog(self) -> dict[str, Any]:
-        rows = [value["summary"] for value in self._runs.values()]
-        rows.sort(key=lambda row: (row["execution_source"] != "observed_agent_execution", row["batch_id"], row["label"]))
-        return {"contract_version": "abcd-integration-0.1-candidate", "runs": rows}
+        with self._lock:
+            rows = [value["summary"] for value in self._runs.values()]
+            rows.sort(key=lambda row: (row["execution_source"] != "observed_agent_execution", row["batch_id"], row["label"]))
+            return {"contract_version": "abcd-integration-0.1-candidate", "runs": rows}
 
     def detail(self, run_id: str) -> dict[str, Any]:
-        try:
-            return self._runs[run_id]
-        except KeyError:
-            raise KeyError("integration run not found") from None
+        with self._lock:
+            try:
+                return self._runs[run_id]
+            except KeyError:
+                raise KeyError("integration run not found") from None

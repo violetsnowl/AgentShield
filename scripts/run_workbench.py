@@ -79,6 +79,8 @@ def main():
     parser.add_argument("--seed-development", action="store_true")
     parser.add_argument("--no-open", action="store_true")
     parser.add_argument("--dev-origin", default=None)
+    parser.add_argument("--batch-size", type=int, default=100,
+                        help="Operator-only validation override; browser cannot choose batch size")
     args = parser.parse_args()
     if not (ROOT / "frontend/dist/index.html").is_file():
         raise SystemExit("Build frontend first: cd frontend; npm ci; npm run build")
@@ -89,7 +91,8 @@ def main():
             print(f"Development sessions seeded: {len(ids)}; model/payment calls: 0", flush=True)
         origin = f"http://127.0.0.1:{args.port}"
         observer = create_observer(b_url, admin_token, grant, origin=origin,
-                                   tenant_id=args.tenant, dev_origin=args.dev_origin)
+                                   tenant_id=args.tenant, dev_origin=args.dev_origin,
+                                   bscale_batch_size=args.batch_size)
         with running(observer, args.port):
             print(f"Workbench: {origin} (local observer, one-hour access; Ctrl+C stops both services)", flush=True)
             if not args.no_open:

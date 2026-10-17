@@ -16,6 +16,7 @@ import httpx
 from pydantic import Field
 
 from contracts import models as m
+from workbench.bscale_batches import BScaleBatchManager, BatchAlreadyRunning
 from workbench.integration_results import IntegrationResults
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -77,7 +78,8 @@ class CreateDevelopmentRun(m.Wire):
 
 def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:8810",
                     tenant_id="workbench-development", frontend_dir=None, transport=None,
-                    dev_origin=None, integration_root=None):
+                    dev_origin=None, integration_root=None, batch_manager=None,
+                    bscale_batch_size=100):
     local_origin(base_url)
     origins = {local_origin(origin)}
     if dev_origin:
@@ -91,6 +93,9 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
                           timeout=5, trust_env=False, follow_redirects=False, transport=transport)
     authority = Authority(grant)
     results = IntegrationResults(Path(integration_root or ROOT / "artifacts/c_l0/runs"), ROOT)
+    batches = batch_manager or BScaleBatchManager(
+        ROOT, count=bscale_batch_size, on_complete=results.refresh_batch,
+    )
 
     @asynccontextmanager
     async def lifespan(app):
@@ -100,6 +105,7 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
     app = FastAPI(title="Local development observer", docs_url=None, redoc_url=None,
                   openapi_url=None, lifespan=lifespan)
     app.state.authority = authority
+    app.state.batch_manager = batches
 
     @app.middleware("http")
     async def boundary(request, call_next):
@@ -215,6 +221,25 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
     @app.get("/observer/api/integration-runs", dependencies=[Depends(authorized)])
     def integration_runs():
         return results.catalog()
+
+    @app.post("/observer/api/bscale-batches", dependencies=[Depends(authorized)], status_code=202)
+    def start_bscale_batch():
+        try:
+            return app.state.batch_manager.start()
+        except BatchAlreadyRunning:
+            raise ObserverError("BATCH_ALREADY_RUNNING", 409) from None
+        except (OSError, ValueError):
+            raise ObserverError("BSCALE_SOURCE_UNAVAILABLE", 503) from None
+
+    @app.get("/observer/api/bscale-batches/current", dependencies=[Depends(authorized)])
+    def current_bscale_batch():
+        return app.state.batch_manager.status()
+
+    @app.get("/observer/api/bscale-batches/current/results", dependencies=[Depends(authorized)])
+    def current_bscale_results():
+        status = app.state.batch_manager.status()
+        rows = [row for row in results.catalog()["runs"] if row["batch_id"] == status.get("batch_id")]
+        return {"contract_version": "abcd-integration-0.1-candidate", "runs": rows}
 
     @app.get("/observer/api/integration-runs/{run_id}", dependencies=[Depends(authorized)])
     def integration_run(run_id: str):

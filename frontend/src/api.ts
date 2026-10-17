@@ -5,6 +5,9 @@ const messages: Record<string, string> = {
   B_UNAVAILABLE: '暂时无法读取 B 服务。当前没有展示旧运行数据，请重试。',
   B_CONTRACT_MISMATCH: 'B 返回的接口格式不匹配，已停止展示。',
   RUN_NOT_FOUND: '本次运行不存在或不在观察范围内。',
+  BATCH_ALREADY_RUNNING: '已有一批随机测试正在运行，请等待当前批次完成。',
+  BSCALE_SOURCE_UNAVAILABLE: 'B-SCALE 冻结数据源未配置或不可读取，请检查本机启动配置。',
+  BATCH_EXECUTION_FAILED: '随机测试批次执行失败，请查看本机服务日志。',
 };
 
 export async function api<T>(path: string, options: { method?: 'GET' | 'POST'; body?: unknown; signal?: AbortSignal } = {}): Promise<T> {

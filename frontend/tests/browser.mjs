@@ -90,16 +90,14 @@ try {
   check(await page.locator('tr[data-seq]').count() === 6, 'saved A1 evidence shows six real tool events');
   check((await page.locator('main').innerText()).includes('¥542.17'), 'saved A1 evidence and ledger preserve the 54217-cent money fact');
   await layout('real-a1-evidence-desktop');
-  // P1 随机抽样重构：普通界面无类别/案例挑选；Agent 选择器 + 诚实不可用态 + 记录列表分组。
+  // B-SCALE 一键运行：普通界面只开放免费规则基线，不暴露数据库路径或付费模型。
   check(await page.locator('[data-testid="new-test-toggle"]').count() === 1, 'P1: new-test entry is present on the case page');
-  check(await page.locator('#agent-config').count() === 0, 'P1: agent selector stays hidden until the new-test panel opens');
-  await page.locator('[data-testid="new-test-toggle"]').click();
   await page.locator('#agent-config').waitFor();
   const agentOptions = await page.locator('#agent-config option').evaluateAll(nodes => nodes.map(node => ({ value: node.value, label: node.textContent ?? '' })).filter(option => option.value));
-  check(agentOptions.length === 5 && agentOptions.some(option => option.value === 'c-deepseek-flash-fixed-dev-v0.1') && agentOptions.some(option => option.value === 'c-rule-baseline-v0.1'), 'P1: agent selector lists exactly the registered runner configs');
-  check(agentOptions.some(option => option.label.includes('规则基线')) && agentOptions.some(option => option.label.includes('需付费授权')), 'P1: agent options label model cost honestly');
-  check(await page.locator('#sample-run').isDisabled(), 'P1: sample-and-run is disabled while the sampling interface is not connected');
-  check((await page.locator('#sample-run-note').innerText()).includes('抽样执行接口尚未接入'), 'P1: the disabled sampling action carries its accurate reason');
+  check(agentOptions.length === 1 && agentOptions[0].value === 'c-rule-baseline-v0.1', 'P1: only the free rule baseline is launchable');
+  check(agentOptions[0].label.includes('规则基线'), 'P1: the launchable option is labelled as a rule baseline');
+  check(!(await page.locator('#sample-run').isDisabled()), 'P1: sample-and-run is enabled after the controlled interface is connected');
+  check((await page.locator('#sample-run-note').innerText()).includes('不会调用真实模型'), 'P1: the action states its no-model boundary');
   check(await page.locator('.new-test select#fixture').count() === 0, 'P1: no case picker inside the new-test flow');
   check(await page.locator('.result-list').count() === 1, 'P1: test record list is present');
   await page.waitForFunction(() => document.querySelector('.list-tab.active')?.textContent?.includes('历史测试'));

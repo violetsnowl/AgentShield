@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { adaptResult, boundaryVersion, evidenceStatePresentation, parseIntegrationCatalog, parseIntegrationDetail } from '../src/integrations';
+import { adaptResult, boundaryVersion, evidenceStatePresentation, parseBScaleBatchStatus, parseIntegrationCatalog, parseIntegrationDetail } from '../src/integrations';
 
 const summary = {
   run_id: '0123456789abcdef0123', batch_id: 'j2-development', label: '01_v1', case_id: 'case-1', session_id: 'session-1', episode_id: 'episode-1',
@@ -20,6 +20,14 @@ const contract = { contract_version: 'research-v0.1', currency: 'CNY', deductibl
 const quote = { schema_version: 'a-quote-v0.1-candidate', commercial_quote: false, status: 'illustrative', contract_version: 'research-v0.1', data_version: 'engineering', calculation_version: 'a0', config_id: 'scripted', execution_source: 'scripted_test', reviewed_evidence: false, run_count: 9, methods: { B0: { label: 'mean', estimated_mean_cents_decimal: '500.0000', scenario_cost_cents_decimal: '500000.0000' }, B1: { label: 'weighted', estimated_mean_cents_decimal: '600.0000', scenario_cost_cents_decimal: '600000.0000' }, B2: { status: 'not_fitted', estimated_mean_cents_decimal: null, scenario_cost_cents_decimal: null } }, limitations: ['engineering only'] };
 
 describe('versioned A/C presentation boundary', () => {
+  it('accepts only free single-flight B-SCALE batch status', () => {
+    const status = parseBScaleBatchStatus({ status: 'running', batch_id: 'batch-1', seed: 'seed-1', total: 100,
+      completed: 37, normal_refund: 35, manual_review: 2, failed: 0, total_refund_cents: 12345,
+      selected_task_ids: Array.from({ length: 100 }, (_, index) => `rr-synth-${String(index).padStart(8, '0')}`),
+      unique_count: 100, paid_model_calls: 0, error_code: null });
+    expect(status.completed).toBe(37);
+    expect(() => parseBScaleBatchStatus({ ...status, paid_model_calls: 1 })).toThrow(/边界/);
+  });
   it.each(['LossResult', 'QuoteResult'] as const)('%s remains pending without selected data', kind => {
     for (const input of [null, undefined]) expect(adaptResult(kind, input)).toMatchObject({ state: 'pending', result: null, commercial_quote: false, boundary_version: boundaryVersion });
   });

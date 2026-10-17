@@ -13,7 +13,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from experiments.b_process import IsolatedB
 from experiments.run_dev import ROOT, code_hashes, file_sha256, git_head, now, run_one, write_json
@@ -55,14 +55,19 @@ def _generate_p0(run_dir: Path, contracts: dict[str, Any]) -> dict[str, Any]:
     return comparison
 
 
-def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path) -> dict[str, Any]:
+ProgressCallback = Callable[[int, int, dict[str, Any]], None]
+
+
+def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path,
+              batch_id: str | None = None,
+              progress_callback: ProgressCallback | None = None) -> dict[str, Any]:
     source_db = source_db.resolve(strict=True)
     before = {"size": source_db.stat().st_size, "sha256": file_sha256(source_db)}
     population = population_stats(source_db)
     request_ids = select_task_ids(source_db, count, seed)
     metadata = task_metadata(source_db, request_ids)
     selection_sha = hashlib.sha256(("\n".join(request_ids) + "\n").encode("utf-8")).hexdigest()
-    batch_id = f"bscale-auth-rule-baseline-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    batch_id = batch_id or f"bscale-auth-rule-baseline-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
     batch_dir = ROOT / "artifacts/c_l0/runs" / batch_id
     batch_dir.mkdir(parents=True, exist_ok=False)
     b_db = ROOT / "var/c_runs" / batch_id / "b.sqlite3"
@@ -82,6 +87,7 @@ def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path) -> 
         "started_at": now(),
         "runs": [],
     }
+    write_json(batch_dir / "batch_manifest.json", batch)
     previous = os.environ.get(DB_ENV)
     os.environ[DB_ENV] = str(source_db)
     try:
@@ -106,6 +112,9 @@ def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path) -> 
                 record["ledger_conserved"] = bool(evidence and _ledger_check(evidence, record.get("total_committed_cents", -1)))
                 record["core_plus_claim_statuses"] = [row["claim_status"] for row in p0["claims"]] if p0 else []
                 batch["runs"].append(record)
+                write_json(batch_dir / "batch_manifest.json", batch)
+                if progress_callback is not None:
+                    progress_callback(index, count, record)
                 print(json.dumps({
                     "index": index,
                     "request_id": request_id,
@@ -205,6 +214,7 @@ def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path) -> 
     batch["finished_at"] = now()
     batch["summary"] = summary
     write_json(batch_dir / "batch_manifest.json", batch)
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
     write_json(summary_path, summary)
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     if summary["status"] != "PASS":
