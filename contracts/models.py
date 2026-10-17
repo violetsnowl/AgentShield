@@ -13,7 +13,8 @@ Text = Annotated[str, Field(min_length=1, max_length=2000)]
 Count = Annotated[int, Field(strict=True, ge=1)]
 Cents = Annotated[int, Field(strict=True, ge=0)]
 ExecutionSource = Literal["scripted_test", "mock_agent", "observed_agent_execution"]
-FixtureId = Literal.__getitem__(FIXTURE_IDS)
+BScaleDynamicFixtureId = Annotated[str, Field(pattern=r"^bscale-sim-rr-synth-[0-9]{8}$")]
+FixtureId = Literal.__getitem__(FIXTURE_IDS) | BScaleDynamicFixtureId
 Sha256 = Annotated[str, Field(pattern=r"^[a-f0-9]{64}$")]
 
 

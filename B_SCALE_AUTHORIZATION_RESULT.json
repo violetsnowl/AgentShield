@@ -1,0 +1,77 @@
+{
+  "batch_id": "bscale-auth-rule-baseline-20261017-110958",
+  "batch_path": "artifacts/c_l0/runs/bscale-auth-rule-baseline-20261017-110958",
+  "execution": {
+    "all_ledgers_conserved": true,
+    "claim_status": {
+      "needs_review": 100
+    },
+    "failed": 0,
+    "loss_status": {
+      "needs_review": 100
+    },
+    "manual_review": 6,
+    "normal_refund": 94,
+    "paid_model_calls": 0,
+    "run_statuses": {
+      "completed": 100
+    },
+    "task_outcomes": {
+      "completed": 94,
+      "escalated": 6
+    },
+    "total_refund_cents": 8049087
+  },
+  "failures": [],
+  "generation_validation": {
+    "aggregate_sha256": "6551b5abde67b11e37ea8bd293605a5e0fe80c8b165d1eb7da5cb7c94084c38a",
+    "generated": 6105,
+    "incomplete_confirmation": 482,
+    "unique_fixture_ids": 6105,
+    "valid_confirmation": 5623
+  },
+  "population": {
+    "agent_task_count": 6105,
+    "authorization_generator_version": "bscale-simulated-authorization-v1",
+    "authorization_scenarios": {
+      "missing_or_incomplete_confirmation": 482,
+      "valid_confirmation": 5623
+    },
+    "authorization_seed": "agentshield-bscale-simulated-authorization-v1",
+    "metadata": {
+      "effective_config_sha256": "8212c048e0f47925fba9c6394c448e0405c77143484a3addc693175115f2f4ff",
+      "generator_version": "b-exposure-population-v1",
+      "profile_id": "synthetic-merchant-v1",
+      "seed": "agentshield-b-exposure-public-seed-v1"
+    },
+    "order_count": 100000,
+    "refund_request_count": 10145,
+    "source_database_mutated": false
+  },
+  "required_env": "AGENTSHIELD_BSCALE_DB",
+  "reproduce": "python -m scripts.run_bscale_authorization --count 100 --seed agentshield-bscale-auth-run-20261017-v1 --summary B_SCALE_AUTHORIZATION_RESULT.json",
+  "selection": {
+    "count": 100,
+    "evidence_status": {
+      "insufficient": 6,
+      "sufficient": 94
+    },
+    "opening_refund_tasks": 5,
+    "seed": "agentshield-bscale-auth-run-20261017-v1",
+    "sha256": "3cbf724c7363051e1dca83cec80674c8b9026e1d07bcd543c7253fec3c273d1c",
+    "unique_count": 100
+  },
+  "source_database": {
+    "after": {
+      "sha256": "0dd86b3d988fbe5a878ba24f08253aec2e2772baed7de3360771e11a1b79e544",
+      "size": 52097024
+    },
+    "before": {
+      "sha256": "0dd86b3d988fbe5a878ba24f08253aec2e2772baed7de3360771e11a1b79e544",
+      "size": 52097024
+    },
+    "path": "synthetic_merchant_v1.sqlite3",
+    "unchanged": true
+  },
+  "status": "PASS"
+}

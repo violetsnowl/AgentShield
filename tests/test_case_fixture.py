@@ -255,7 +255,11 @@ class CanonicalValidationTests(unittest.TestCase):
         self.assertEqual(f.allocate(1, [{"item_id": "z", "gross_cents": 1}, {"item_id": "a", "gross_cents": 1}]), {"z": 0, "a": 1})
 
     def test_registry_matches_create_contract_and_legacy_evidence_still_parses(self):
-        self.assertEqual(set(f.REGISTRY), set(m.CreateSession.model_json_schema()["properties"]["fixture_id"]["enum"]))
+        fixture_schema = m.CreateSession.model_json_schema()["properties"]["fixture_id"]
+        static_branch = next(branch for branch in fixture_schema["anyOf"] if "enum" in branch)
+        dynamic_branch = next(branch for branch in fixture_schema["anyOf"] if "pattern" in branch)
+        self.assertEqual(set(f.REGISTRY), set(static_branch["enum"]))
+        self.assertEqual(dynamic_branch["pattern"], r"^bscale-sim-rr-synth-[0-9]{8}$")
         identities = [f.load_fixture(name)[0]["source_case_id"] for name in f.REGISTRY]
         self.assertEqual(len(identities), len(set(identities)))
         for filename in ("artifacts/b_bootstrap/http_smoke/evidence_sample.json", "artifacts/pro_bd_sprint/01/patch_http_evidence/evidence_sample.json"):

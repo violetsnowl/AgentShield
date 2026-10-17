@@ -12,6 +12,7 @@ from contracts.fixture_ids import (
     GENERATED_FIXTURE_IDS,
 )
 from contracts.models import ALLOCATION_VERSION, VERSION, CaseContext, CanonicalBusinessSnapshot
+from sandbox.bscale_authorization import is_dynamic_fixture_id, load_dynamic_fixture
 from sandbox.fixture_models import DevelopmentFixture
 
 FIXTURE_ROOT = Path(__file__).parent / "fixtures"
@@ -208,6 +209,17 @@ def _invalid_constant(_):
 
 
 def load_fixture(fixture_id):
+    if is_dynamic_fixture_id(fixture_id):
+        try:
+            data, content_hash = load_dynamic_fixture(fixture_id)
+            fixture = validate_fixture(data)
+            if fixture["fixture_id"] != fixture_id:
+                raise FixtureError("Dynamic B-SCALE fixture identity differs from its request")
+            return fixture, content_hash
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            if isinstance(error, FixtureError):
+                raise
+            raise FixtureError("Dynamic B-SCALE fixture is invalid or unavailable") from error
     if fixture_id not in REGISTRY:
         raise FixtureError("Unregistered development fixture")
     registration = REGISTRY[fixture_id]
