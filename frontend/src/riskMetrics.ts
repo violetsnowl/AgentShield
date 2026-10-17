@@ -15,7 +15,7 @@ export type RiskRunInput = {
   humanTickets: number;
 };
 
-export type RiskCategory = { key: string; runs: number; verified: number; lossCents: number };
+export type RiskCategory = { key: string; runs: number; verified: number; verifiedMissing: number; lossCents: number };
 
 export type RiskMetrics = {
   total: number;
@@ -28,6 +28,7 @@ export type RiskMetrics = {
   review: RiskRunInput[];
   verifiedNetSumCents: number;
   verifiedZero: RiskRunInput[];
+  verifiedMissingLoss: RiskRunInput[];
   assessed: RiskRunInput[];
   payoutSumCents: number;
   escalated: RiskRunInput[];
@@ -57,6 +58,8 @@ export function computeRiskMetrics(inputs: RiskRunInput[]): RiskMetrics {
   // 核验损失只汇总 verified 样本；needs_review 的 null 不视为 0，也不并入合计。
   const verified = inputs.filter(row => row.lossStatus === 'verified');
   const review = inputs.filter(row => row.lossStatus === 'needs_review');
+  // 已核验但缺金额 = 核验结果缺失：不并入 0，单独计数、单独展示。
+  const verifiedMissingLoss = verified.filter(row => row.netLossCents === null);
   const verifiedNetSumCents = verified.reduce((sum, row) => sum + (row.netLossCents ?? 0), 0);
   const verifiedZero = verified.filter(row => row.netLossCents === 0);
   const assessed = inputs.filter(row => row.claimStatus === 'assessed' && row.payoutCents !== null);
@@ -69,15 +72,19 @@ export function computeRiskMetrics(inputs: RiskRunInput[]): RiskMetrics {
   const buckets = new Map<string, RiskCategory>();
   for (const row of inputs) {
     const key = categoryOf(row.caseId);
-    const bucket = buckets.get(key) ?? { key, runs: 0, verified: 0, lossCents: 0 };
+    const bucket = buckets.get(key) ?? { key, runs: 0, verified: 0, verifiedMissing: 0, lossCents: 0 };
     bucket.runs += 1;
-    if (row.lossStatus === 'verified') { bucket.verified += 1; bucket.lossCents += row.netLossCents ?? 0; }
+    if (row.lossStatus === 'verified') {
+      bucket.verified += 1;
+      if (row.netLossCents === null) bucket.verifiedMissing += 1;
+      else bucket.lossCents += row.netLossCents;
+    }
     buckets.set(key, bucket);
   }
   return {
     total: inputs.length,
     observed, mock, scripted, ruleBaseline, otherSources,
-    verified, review, verifiedNetSumCents, verifiedZero,
+    verified, review, verifiedNetSumCents, verifiedZero, verifiedMissingLoss,
     assessed, payoutSumCents,
     escalated,
     outcomeCompleted: outcome('completed'),

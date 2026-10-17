@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, ReactNode } from 'react';
 import { api, pairFromFragment } from './api';
 import { buildViewHash, parseViewState } from './routing';
+import type { ModeId } from './routing';
 import { adaptResult, evidenceStatePresentation, parseBScaleBatchStatus, parseIntegrationCatalog, parseIntegrationDetail } from './integrations';
 import type { BScaleBatchStatus, IntegrationRunDetail, IntegrationRunSummary } from './integrations';
 import { eventMeaning, evidenceCaveats, money, openingSplit, orderedEvents, parseEvidence, statusText } from './data';
@@ -14,6 +15,8 @@ import { computeRiskMetrics } from './riskMetrics';
 import type { RiskRunInput } from './riskMetrics';
 import { parseResearchScenario } from './researchScenario';
 import type { ResearchPlan, ResearchScenario } from './researchScenario';
+import { extrapolatePremium, summarizeRealBatch } from './realMode';
+import type { ExtrapolatedPremium, RealBatchRow } from './realMode';
 
 type Area = 'test' | 'risk' | 'insurance';
 type LoadState = 'loading' | 'ready' | 'error';
@@ -195,23 +198,20 @@ function SourceFold({ label, rows }: { label: string; rows: RiskRunInput[] }) {
   return <details className="fold-body"><summary>{label}（{rows.length}）</summary><ul>{rows.map(row => <li key={row.runId}><Id>{row.runId}</Id><span className="cell-note">{row.label} · …{row.sessionId.slice(-8)}</span></li>)}</ul></details>;
 }
 
-function RiskOverview({ runs, offline, scenario }: { runs: IntegrationRunSummary[]; offline: boolean; scenario: ResearchScenario | null }) {
-  const [details, setDetails] = useState<IntegrationRunDetail[] | null>(null);
-  const [error, setError] = useState('');
-  useEffect(() => {
-    if (offline) { setDetails(null); setError(''); return; }
-    let active = true;
-    (async () => { try {
-      const all = await Promise.all(runs.map(async run => parseIntegrationDetail(await api<unknown>(`api/integration-runs/${run.run_id}`))));
-      if (active) setDetails(all);
-    } catch (e) { if (active) setError(errorText(e)); } })();
-    return () => { active = false; };
-  }, [runs, offline]);
+function RiskOverview({ runs, offline, scenario, scenarioState, scenarioError, onRetryScenario, details, batchId, mode, onRetryDetails }: {
+  runs: IntegrationRunSummary[]; offline: boolean; scenario: ResearchScenario | null; scenarioState: LoadState;
+  scenarioError: string; onRetryScenario: () => void; details: Record<string, DetailSlot>; batchId: string | null;
+  mode: ModeId; onRetryDetails: (runIds: string[]) => void;
+}) {
   if (offline) return <Empty title="离线只读模式">跨运行汇总需要本机服务；离线时不会发起任何请求。</Empty>;
-  if (error) return <div className="empty error" role="alert"><strong>汇总数据未能读取</strong><p>{error}</p></div>;
-  if (details === null || scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在汇总测试与研究情景…</div>;
-  if (details.length === 0) return <Empty title="暂无可汇总的已交付运行">目录里没有完整的 A/C 交付条目；不会用开发会话冒充统计样本。</Empty>;
-  const inputs: RiskRunInput[] = details.map(detail => ({
+  const failedIds = runs.filter(run => details[run.run_id]?.state === 'error').map(run => run.run_id);
+  const loadedCount = runs.filter(run => details[run.run_id]?.state === 'ready').length;
+  if (scenario === null && scenarioState === 'error') return <div className="empty error" role="alert"><strong>研究情景未能读取</strong><p>{scenarioError}</p><button onClick={onRetryScenario}>重试读取研究情景</button><p className="fine-print">测试统计与研究情景相互独立；不会用假设数字冒充实际结果。失败可重试，不再静默卡在“正在汇总”。</p></div>;
+  if (scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在汇总测试与研究情景…</div>;
+  if (failedIds.length > 0) return <div className="empty error" role="alert"><strong>汇总数据未能读取</strong><p>{failedIds.length} / {runs.length} 条运行的明细读取失败；统计未生成（避免不完整口径），可重试。</p><button onClick={() => onRetryDetails(failedIds)}>重试读取失败明细</button></div>;
+  const readyDetails = runs.map(run => details[run.run_id]).filter((slot): slot is DetailSlot => slot !== undefined && slot.state === 'ready' && slot.detail !== null).map(slot => slot.detail!);
+  if (readyDetails.length < runs.length) return <div className="loading" role="status"><span className="spinner"/>正在汇总测试与研究情景…（明细 {loadedCount}/{runs.length}）</div>;
+  const inputs: RiskRunInput[] = readyDetails.map(detail => ({
     runId: detail.summary.run_id, label: detail.summary.label, sessionId: detail.summary.session_id, caseId: detail.summary.case_id,
     executionSource: String(detail.summary.execution_source),
     lossStatus: detail.loss_result.loss_status,
@@ -222,7 +222,14 @@ function RiskOverview({ runs, offline, scenario }: { runs: IntegrationRunSummary
     humanTickets: Array.isArray((detail.evidence as { human_reviews?: unknown[] } | null)?.human_reviews) ? (detail.evidence as { human_reviews: unknown[] }).human_reviews.length : 0,
   }));
   const metrics = computeRiskMetrics(inputs);
-  const actualRefundCents = details.reduce((sum, detail) => sum + detail.summary.total_committed_cents, 0);
+  const actualRefundCents = readyDetails.reduce((sum, detail) => sum + detail.summary.total_committed_cents, 0);
+  const realRows: RealBatchRow[] = readyDetails.map(detail => ({
+    runId: detail.summary.run_id, runStatus: detail.summary.run_status ?? null, taskOutcome: detail.summary.task_outcome ?? null,
+    lossStatus: detail.loss_result.loss_status, netLossCents: detail.loss_result.net_loss_cents,
+    claimStatus: detail.claim.claim_status, payoutCents: detail.claim.payout_cents,
+  }));
+  const realSummary = summarizeRealBatch(realRows);
+  const allRuleBaseline = metrics.total > 0 && metrics.scripted.length + metrics.ruleBaseline.length === metrics.total;
   const sourceRows = [
     { label: '真实模型开发运行', count: metrics.observed.length },
     { label: 'Mock 开发运行', count: metrics.mock.length },
@@ -231,17 +238,31 @@ function RiskOverview({ runs, offline, scenario }: { runs: IntegrationRunSummary
     { label: '其他来源开发运行', count: metrics.otherSources.length },
   ].filter(row => row.count > 0);
   return <section className="risk-overview" aria-label="跨运行风险评估">
+    <p className="mode-banner" role="status">模式：{mode === 'real' ? '真实 Agent 实测' : '研究情景演示'} · {batchId === null ? '尚未运行本机批次（以下覆盖全部已交付开发运行）' : `当前批次 ${batchId}`}</p>
     <div className="verdict">
       <h2>实际测试结果</h2>
-      <p>当前批次共 {metrics.total} 条规则基线开发运行：正常退款 {metrics.outcomeCompleted} 条，转人工 {metrics.outcomeEscalated} 条。</p>
+      <p>{batchId === null ? '尚未运行本机批次；以下合计覆盖全部已交付开发运行（历史）：' : `当前批次共 ${metrics.total} 条${allRuleBaseline ? '规则基线' : ''}开发运行：`}正常退款 {metrics.outcomeCompleted} 条，转人工 {metrics.outcomeEscalated} 条。</p>
     </div>
+    {metrics.total === 0 && <Empty title="暂无可汇总的已交付运行">目录里没有完整的 A/C 交付条目；不会用开发会话冒充统计样本。</Empty>}
     <div className="core-facts">
       <div><span>运行数量</span><strong>{metrics.total} 次</strong><p>正常退款 {metrics.outcomeCompleted} · 转人工 {metrics.outcomeEscalated}</p></div>
       <div><span>B账本实际退款总额</span><strong>{money(actualRefundCents)}</strong><p>模拟退款资金事实，不解释为经济损失。</p></div>
       <div><span>C独立核验覆盖</span><strong>{metrics.verified.length} / {metrics.total}</strong><p>待审 {metrics.review.length} 条；null 未记为零。</p></div>
     </div>
+    {mode === 'real' && <section className="real-batch" aria-label="真实 Agent 批次结果">
+      <div className="scenario-heading"><div><p className="eyebrow">真实 Agent 实测 · 当前批次</p><h2>本批次执行结果</h2></div><Badge tone="warning">未接通 · 待数据</Badge></div>
+      {realSummary.total === 0 ? <p className="fine-print">当前批次尚无运行；接通 C 后端 Runner 后，这里将显示该批次的已核验数量、操作错误、损失发生率与经济损失。</p>
+        : <dl className="ip-dl">
+          <div><dt>运行 / 已核验</dt><dd>{realSummary.total} 次 / {realSummary.verified} 条已核验（待核验 {realSummary.review} 条）</dd></div>
+          <div><dt>操作错误（未正常完成 / 转人工）</dt><dd>{realSummary.notFinished} / {realSummary.escalated}</dd></div>
+          <div><dt>损失发生率（已核验样本内）</dt><dd>{realSummary.lossIncidence.status === 'ok' && realSummary.lossIncidence.rate !== null ? `${(realSummary.lossIncidence.rate * 100).toFixed(2)}%` : <Badge tone="warning">数据不足</Badge>}<small className="cell-note">{realSummary.lossIncidence.reason}</small></dd></div>
+          <div><dt>经济损失（已核验净损失合计）</dt><dd>{realSummary.economicLoss.status === 'ok' && realSummary.economicLoss.cents !== null ? money(realSummary.economicLoss.cents) : <Badge tone="warning">数据不足</Badge>}<small className="cell-note">{realSummary.economicLoss.reason}</small></dd></div>
+        </dl>}
+      <p className="fine-print">真实模式不采用 1% 情景假设；核验不完整或保险责任未确定时保持「数据不足」，不以假设冒充实测。</p>
+    </section>}
     <section className="scenario-result" aria-label="研究性风险测算">
       <div className="scenario-heading"><div><p className="eyebrow">统一研究情景</p><h2>研究性风险测算</h2></div><strong>{money(scenario.expected_annual_economic_loss_cents)}</strong></div>
+      {mode === 'real' && <p className="fine-print"><Badge tone="warning">演示用假设 · 非本批次实测</Badge> 本块是研究情景假设值，与上文本批次实测结果分开呈现。</p>}
       <div className="scenario-parameters">
         <span>年度Agent任务 <b>{scenario.annual_agent_task_volume.toLocaleString('zh-CN')}</b></span>
         <span>假设事故概率 <b>{(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}%</b></span>
@@ -254,7 +275,7 @@ function RiskOverview({ runs, offline, scenario }: { runs: IntegrationRunSummary
       <div className="audit-body">
         <article><h3>开发运行来源</h3><ul className="source-list">{sourceRows.map(row => <li key={row.label}><span>{row.label}</span><strong>{row.count}</strong></li>)}</ul><p className="fine-print">仅表示运行来源构成，不等于任务正确率或风险高低对照；真实模型、Mock 与规则基线分开标注，不混称；同任务可比的核验对照待正式数据。</p></article>
         <article><h3>任务升级与人工工单</h3><p>任务结果记录为升级（escalated）的运行数：<strong>{metrics.outcomeEscalated}</strong></p><p className="fine-print">任务结果拆解：completed {metrics.outcomeCompleted} · escalated {metrics.outcomeEscalated} · not_finished {metrics.outcomeNotFinished}{metrics.outcomeOther ? ` · 其他 ${metrics.outcomeOther}` : ''}</p><p className="fine-print">人工工单（B 记录）：{metrics.ticketRuns.length} 个运行，共 {metrics.ticketTotal} 张；与核验状态、任务升级互不代替。</p><SourceFold label="升级运行" rows={metrics.escalated}/><SourceFold label="待核验运行" rows={metrics.review}/><SourceFold label="来源运行" rows={metrics.verified}/></article>
-        <article><h3>按业务类别</h3><div className="table-scroll"><table><thead><tr><th>类别</th><th className="number">运行</th><th className="number">已核验</th><th className="number">净损失合计</th></tr></thead><tbody>{metrics.categories.map(category => <tr key={category.key}><td>{category.key}</td><td className="number">{category.runs}</td><td className="number">{category.verified}</td><td className="money">{category.verified ? money(category.lossCents) : '—'}</td></tr>)}</tbody></table></div></article>
+        <article><h3>按业务类别</h3><div className="table-scroll"><table><thead><tr><th>类别</th><th className="number">运行</th><th className="number">已核验</th><th className="number">净损失合计</th></tr></thead><tbody>{metrics.categories.map(category => <tr key={category.key}><td>{category.key}</td><td className="number">{category.runs}</td><td className="number">{category.verified}</td><td className="money">{category.verifiedMissing > 0 ? <Badge tone="warning">证据不足</Badge> : category.verified ? money(category.lossCents) : '—'}</td></tr>)}</tbody></table></div></article>
         <article><h3>企业业务汇总（B-SCALE）</h3><p>年度潜在Agent任务：<strong>{scenario.annual_agent_task_volume.toLocaleString('zh-CN')}</strong> 项；四类权重按冻结模拟总体任务数计算。</p></article>
         <article><h3>数据范围与口径说明（审计）</h3>
           <ul className="glossary">
@@ -262,6 +283,7 @@ function RiskOverview({ runs, offline, scenario }: { runs: IntegrationRunSummary
             <li>运行数量 / 开发运行来源：按 execution_source 分类（observed_agent_execution=真实模型 / mock_agent=Mock / scripted_test、rule_baseline=规则基线）。</li>
             <li>核验覆盖：loss_status；verified=已核验，needs_review=待核验（净损失保持 null）。</li>
             <li>核验损失：仅 loss_status=verified 的样本进入净损失合计；样本不足时显示“证据不足”。</li>
+            <li>核验缺口：已核验但缺金额的运行单独计为“核验结果缺失”，不按 0 计入任何合计。</li>
             <li>研究赔款：仅 claim_status=assessed 且 payout 非 null 的样本进入合计。</li>
             <li>研究情景：{scenario.risk_formula}；与实际批次核验结果分开。</li>
             <li>任务升级：交付 manifest 的 task_outcome=escalated；人工工单：B 证据 human_reviews（独立维度）。</li>
@@ -297,12 +319,12 @@ function ResearchPlanCard({ plan, onGenerate }: { plan: ResearchPlan; onGenerate
   </article>;
 }
 
-function InsuranceContract({ scenario, plan, onClose }: { scenario: ResearchScenario; plan: ResearchPlan; onClose: () => void }) {
+function InsuranceContract({ scenario, plan, onClose, kind = 'demo', sample = null, batchId = null }: { scenario: ResearchScenario; plan: ResearchPlan; onClose: () => void; kind?: 'demo' | 'sample'; sample?: ExtrapolatedPremium | null; batchId?: string | null }) {
   const name = plan.product_id === 'AgentShield-Core' ? 'Core' : 'Plus';
   const context = scenario.contract_context;
   return <article className="contract-document" aria-label={`${name}模拟保险合同`}>
     <div className="contract-toolbar no-print"><button onClick={onClose}>← 返回保险方案</button><button className="primary-run" onClick={() => window.print()}>打印 / 另存为PDF</button></div>
-    <header className="contract-head"><p>AgentShield 研究合同</p><h2>{plan.display_name}模拟保险合同</h2><span>合同编号：SIM-{scenario.scenario_version}-{name.toUpperCase()}</span></header>
+    <header className="contract-head"><p>AgentShield 研究合同</p><h2>{kind === 'sample' ? `${plan.display_name}样本外推参考合同` : `${plan.display_name}模拟保险合同`}</h2><span>合同编号：SIM-{kind === 'sample' ? `sample-extrapolation-${(batchId ?? 'no-batch').replace(/^bscale-web-rule-baseline-/, '')}` : scenario.scenario_version}-{name.toUpperCase()}</span></header>
     <section><h3>一、合同主体与保险期间</h3><dl className="contract-fields">
       <div><dt>模拟投保人</dt><dd>{context.policyholder}</dd></div><div><dt>模拟被保险人</dt><dd>{context.insured}</dd></div>
       <div><dt>模拟承保方</dt><dd>AgentShield保险研究项目</dd></div><div><dt>保险期间</dt><dd>{context.insurance_period}</dd></div>
@@ -319,35 +341,62 @@ function InsuranceContract({ scenario, plan, onClose }: { scenario: ResearchScen
       <li>退款交易、幂等键及双边守恒资金账本；</li><li>C独立LossResult及合法应退义务来源；</li>
       <li>追回记录、观察时点和未决争议；</li><li>A对保险责任、除外责任和同一事故聚合的审核结论。</li>
     </ol></section>
-    <section><h3>七、损失与赔款计算</h3><p>经济净损失由独立核验确定。单次赔款：<strong>{scenario.claim_formula}</strong>。</p><p>本研究情景假设单次事故损失 {money(scenario.categories[0].average_accident_loss_cents)}，本方案对应单次赔款 {money(Object.values(plan.scenario_event_payout_cents)[0])}。</p></section>
-    <section><h3>八、研究情景参考保费</h3><p>年度参考保费：<strong className="premium-amount">{money(plan.annual_reference_premium_cents)}</strong>；年度纯风险成本：{money(plan.annual_pure_risk_cost_cents)}。</p>
-      <p>假设：年度任务 {scenario.annual_agent_task_volume.toLocaleString('zh-CN')} 项、各类事故概率 {(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}%、平均事故损失 {money(scenario.categories[0].average_accident_loss_cents)}、附加比例 {(Number(scenario.premium_loading_ratio) * 100).toFixed(2)}%。</p>
-      <p>保费公式：{scenario.premium_formula}。</p></section>
-    <section className="contract-declaration"><h3>九、模拟研究声明</h3><p>本合同仅用于AgentShield研究演示，不构成正式保险要约、承保承诺、商业报价、电子保单或赔付决定；不接入保险公司、支付或电子签章。真正经验定价状态：尚不可用。</p></section>
+    <section><h3>七、损失与赔款计算</h3><p>经济净损失由独立核验确定。单次赔款：<strong>{scenario.claim_formula}</strong>。</p><p>{kind === 'sample' ? `本合同参考保费来自当前批次 ${sample?.sampleSize ?? 0} 条样本的外推：样本内已核定正赔款事件 ${sample?.eventCount ?? 0} 件，平均单次赔款 ${sample && sample.meanSeverityCents !== null ? money(sample.meanSeverityCents) : '—'}。` : `本研究情景假设单次事故损失 ${money(scenario.categories[0].average_accident_loss_cents)}，本方案对应单次赔款 ${money(Object.values(plan.scenario_event_payout_cents)[0])}。`}</p></section>
+    <section><h3>八、{kind === 'sample' ? '样本外推参考保费' : '研究情景参考保费'}</h3><p>{kind === 'sample' ? <>样本外推参考保费：<strong className="premium-amount">{money(sample?.premiumCents ?? 0)}</strong>（全部有效核验且赔款均为 0 时为 0；核验不完整不出具本合同）。</> : <>年度参考保费：<strong className="premium-amount">{money(plan.annual_reference_premium_cents)}</strong>；年度纯风险成本：{money(plan.annual_pure_risk_cost_cents)}。</>}</p>
+      {kind === 'sample' ? <p>样本：{sample?.sampleSize ?? 0} 条运行、已核定正赔款事件 {sample?.eventCount ?? 0} 件、样本频率 {sample && sample.frequency !== null ? `${(sample.frequency * 100).toFixed(2)}%` : '—'}、平均单次赔款 {sample && sample.meanSeverityCents !== null ? money(sample.meanSeverityCents) : '—'}、附加比例 {(Number(scenario.premium_loading_ratio) * 100).toFixed(2)}%。</p>
+        : <p>假设：年度任务 {scenario.annual_agent_task_volume.toLocaleString('zh-CN')} 项、各类事故概率 {(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}%、平均事故损失 {money(scenario.categories[0].average_accident_loss_cents)}、附加比例 {(Number(scenario.premium_loading_ratio) * 100).toFixed(2)}%。</p>}
+      <p>保费公式：{kind === 'sample' ? 'P =（1 + 附加比例）× 年度任务量 ×（已核定正赔款事件数 ÷ 样本量）× 平均单次赔款' : scenario.premium_formula}。</p></section>
+    <section className="contract-declaration"><h3>九、模拟研究声明</h3><p>本合同仅用于AgentShield研究演示，不构成正式保险要约、承保承诺、商业报价、电子保单或赔付决定；不接入保险公司、支付或电子签章。真正经验定价状态：尚不可用。{kind === 'sample' ? '样本外推参考保费基于小样本均值与频率，样本量有限，不代表长期经验赔付水平。' : ''}</p></section>
     <footer><span>模拟投保人：________________</span><span>研究项目：________________</span><span>日期：________________</span></footer>
   </article>;
 }
 
-function InsurancePlans({ runs, offline, scenario }: { runs: IntegrationRunSummary[]; offline: boolean; scenario: ResearchScenario | null }) {
-  const [details, setDetails] = useState<IntegrationRunDetail[] | null>(null);
-  const [error, setError] = useState('');
+function InsurancePlans({ runs, scenario, scenarioState, scenarioError, onRetryScenario, details, batchId, mode, onRetryDetails }: {
+  runs: IntegrationRunSummary[]; scenario: ResearchScenario | null; scenarioState: LoadState; scenarioError: string;
+  onRetryScenario: () => void; details: Record<string, DetailSlot>; batchId: string | null; mode: ModeId;
+  onRetryDetails: (runIds: string[]) => void;
+}) {
   const [contractProduct, setContractProduct] = useState<ResearchPlan['product_id'] | null>(null);
-  useEffect(() => {
-    if (offline) { setDetails(null); setError(''); return; }
-    let active = true;
-    (async () => { try {
-      const all = await Promise.all(runs.map(async run => parseIntegrationDetail(await api<unknown>(`api/integration-runs/${run.run_id}`))));
-      if (active) setDetails(all);
-    } catch (e) { if (active) setError(errorText(e)); } })();
-    return () => { active = false; };
-  }, [runs, offline]);
+  const [sampleContractProduct, setSampleContractProduct] = useState<ResearchPlan['product_id'] | null>(null);
+  if (scenario === null && scenarioState === 'error') return <div className="empty error" role="alert"><strong>研究情景未能读取</strong><p>{scenarioError}</p><button onClick={onRetryScenario}>重试读取研究情景</button></div>;
   if (scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在计算研究保险方案…</div>;
+  const readyDetails = runs.map(run => details[run.run_id]).filter((slot): slot is DetailSlot => slot !== undefined && slot.state === 'ready' && slot.detail !== null).map(slot => slot.detail!);
+  const failedIds = runs.filter(run => details[run.run_id]?.state === 'error').map(run => run.run_id);
+  const sampleRows = (productId: ResearchPlan['product_id']) => readyDetails.map(detail => {
+    const row = detail.p0_claim_comparison?.claims.find(item => item.product_id === productId);
+    if (!row) return { lossStatus: detail.loss_result.loss_status, claimStatus: detail.claim.claim_status, payoutCents: null as number | null };
+    return { lossStatus: row.loss_status, claimStatus: row.claim_status, payoutCents: row.payout_cents };
+  });
+  if (mode === 'real' && sampleContractProduct !== null) {
+    const chosen = scenario.plans.find(item => item.product_id === sampleContractProduct) ?? null;
+    const result = chosen ? extrapolatePremium(sampleRows(chosen.product_id), { annualTaskVolume: scenario.annual_agent_task_volume, loadingRatio: Number(scenario.premium_loading_ratio) }) : null;
+    if (chosen && result && result.status === 'ok' && result.premiumCents !== null) return <InsuranceContract scenario={scenario} plan={chosen} onClose={() => setSampleContractProduct(null)} kind="sample" sample={result} batchId={batchId}/>;
+  }
   const generated = scenario.plans.find(plan => plan.product_id === contractProduct) ?? null;
   if (generated) return <InsuranceContract scenario={scenario} plan={generated} onClose={() => setContractProduct(null)}/>;
-  const p0Sample = details?.find(item => item.p0_claim_comparison !== null) ?? null;
+  const p0Sample = readyDetails.find(detail => detail.p0_claim_comparison !== null) ?? null;
   return <section className="plan-section" aria-label="保险方案">
-    <div className="verdict"><h2>年度研究保险方案</h2><p>两档参考保费均由同一研究情景和A-P0单次理赔公式计算；真正经验定价尚不可用。</p></div>
-    <div className="plan-grid">{scenario.plans.map(plan => <ResearchPlanCard key={plan.product_id} plan={plan} onGenerate={() => setContractProduct(plan.product_id)}/>)}</div>
+    <div className="verdict"><h2>{mode === 'real' ? '样本外推参考保费（研究）' : '年度研究保险方案'}</h2><p>{mode === 'real' ? '按当前批次 A 已核定的 Core / Plus 单事件赔款做小样本外推；核验不完整或保险责任未确定时保持数据不足。' : '两档参考保费均由同一研究情景和A-P0单次理赔公式计算；真正经验定价尚不可用。'}</p></div>
+    <p className="mode-banner" role="status">模式：{mode === 'real' ? '真实 Agent 实测' : '研究情景演示'} · {batchId === null ? '尚未运行本机批次' : `当前批次 ${batchId}`}</p>
+    {mode === 'real' && <>
+      <div className="plan-grid">{scenario.plans.map(plan => {
+        const result = extrapolatePremium(sampleRows(plan.product_id), { annualTaskVolume: scenario.annual_agent_task_volume, loadingRatio: Number(scenario.premium_loading_ratio) });
+        return <article className="plan-card" key={plan.product_id}>
+          <div className="plan-title-row"><h2>{plan.display_name}</h2><span className="plan-tag">{plan.product_id.replace('AgentShield-', '')} · 样本外推</span></div>
+          <dl>
+            <div><dt>样本外推参考保费</dt><dd>{result.status === 'ok' && result.premiumCents !== null ? <strong className="money premium-amount">{money(result.premiumCents)}</strong> : <Badge tone="warning">数据不足</Badge>}<small className="cell-note">小样本外推 · 非商业报价。</small></dd></div>
+            <div><dt>样本量 / 已核定事件</dt><dd>{result.sampleSize} 条 / {result.eventCount} 件</dd></div>
+            <div><dt>样本事故频率</dt><dd>{result.frequency === null ? '—' : `${(result.frequency * 100).toFixed(2)}%`}</dd></div>
+            <div><dt>平均单次赔款</dt><dd>{result.meanSeverityCents === null ? '—' : money(result.meanSeverityCents)}</dd></div>
+          </dl>
+          {result.status !== 'ok' && <ul className="fine-print real-reasons">{result.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
+          <button className="primary-run contract-generate" disabled={result.status !== 'ok'} onClick={() => setSampleContractProduct(plan.product_id)}>{result.status === 'ok' ? `生成${plan.product_id === 'AgentShield-Core' ? 'Core' : 'Plus'}样本外推参考合同` : '数据不足 · 不能生成合同'}</button>
+          <p className="plan-badges"><Badge tone="warning">样本外推 · 研究用途</Badge> <Badge tone="warning">非商业报价</Badge></p>
+        </article>;
+      })}</div>
+      <p className="fine-print">外推公式：P =（1 + 附加比例）× 年度任务量 ×（已核定正赔款事件数 ÷ 样本量）× 平均单次赔款；全部有效核验且赔款均为 0 时，样本参考保费为 0；核验不完整时不给出数字。</p>
+    </>}
+    {mode !== 'real' && <div className="plan-grid">{scenario.plans.map(plan => <ResearchPlanCard key={plan.product_id} plan={plan} onGenerate={() => setContractProduct(plan.product_id)}/>)}</div>}
     {p0Sample?.p0_claim_comparison && p0Sample.p0_products && <details className="fold-body engineering-sample">
       <summary>当前批次单条理赔状态（与研究情景定价分开）</summary>
       <p><strong>{p0Sample.summary.case_id}</strong> · <Badge tone="warning">开发运行·待审</Badge></p>
@@ -357,7 +406,7 @@ function InsurancePlans({ runs, offline, scenario }: { runs: IntegrationRunSumma
         <div><dt>保险责任</dt><dd>{p0Sample.p0_claim_comparison.coverage_status}</dd></div>
         <div><dt>商业报价</dt><dd>未生成（commercial_quote=false）</dd></div>
       </dl>
-      <div className="plan-grid">{p0Sample.p0_claim_comparison.claims.map(result => {
+      <div className="engineering-grid">{p0Sample.p0_claim_comparison.claims.map(result => {
         const plan = p0Sample.p0_products?.plans.find(item => item.product_id === result.product_id);
         return <article className="plan-card" key={result.product_id}>
           <h3>{plan?.display_name ?? result.product_id}</h3>
@@ -372,7 +421,7 @@ function InsurancePlans({ runs, offline, scenario }: { runs: IntegrationRunSumma
         </article>;
       })}</div>
     </details>}
-    {error !== '' && <p className="fine-print" role="alert">当前批次理赔记录读取失败：{error}；研究情景方案仍可独立查看。</p>}
+    {failedIds.length > 0 && <p className="fine-print" role="alert">当前批次理赔记录读取失败：{failedIds.length} 条；研究情景方案仍可独立查看。<button className="text-button" onClick={() => onRetryDetails(failedIds)}>重试读取失败明细</button></p>}
   </section>;
 }
 
@@ -383,6 +432,7 @@ function decimalCents(value: string | null) {
 
 type LedgerSlot = { state: 'loading' | 'ready' | 'error'; committedCents: number | null; tradeCount: number | null };
 type LossSlot = { state: 'loading' | 'ready' | 'error'; netLossCents: number | null; legalDue: number | null; payoutCents: number | null };
+type DetailSlot = { state: 'loading' | 'ready' | 'error'; detail: IntegrationRunDetail | null };
 const idleBatch = (): BScaleBatchStatus => ({ status: 'idle', batch_id: null, seed: null, total: 100, completed: 0,
   normal_refund: 0, manual_review: 0, failed: 0, total_refund_cents: 0, selected_task_ids: [], unique_count: 0,
   paid_model_calls: 0, error_code: null });
@@ -399,9 +449,9 @@ function legalDueSum(obligations: unknown[]): number | null {
   return sum;
 }
 
-function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onStart }: {
+function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onStart, mode, onMode }: {
   open: boolean; onToggle: () => void; configs: RunnerConfig[] | null; selected: string; onSelect: (value: string) => void;
-  batch: BScaleBatchStatus; onStart: () => void;
+  batch: BScaleBatchStatus; onStart: () => void; mode: ModeId; onMode: (value: ModeId) => void;
 }) {
   const freeConfigs = configs?.filter(config => config.adapter === 'rule_baseline') ?? null;
   const current = freeConfigs?.find(config => config.config_id === selected) ?? null;
@@ -409,6 +459,11 @@ function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onSt
   return <section className="new-test" aria-label="新建一次测试">
     <button className="new-test-toggle" data-testid="new-test-toggle" aria-expanded={open} onClick={onToggle}>＋新建一次测试</button>
     {open && <div className="new-test-panel">
+      <div className="mode-switch" role="radiogroup" aria-label="执行模式">
+        <button type="button" role="radio" aria-checked={mode === 'demo'} data-testid="mode-demo" className={mode === 'demo' ? 'mode-option active' : 'mode-option'} onClick={() => onMode('demo')}>研究情景演示</button>
+        <button type="button" role="radio" aria-checked={mode === 'real'} data-testid="mode-real" className={mode === 'real' ? 'mode-option active' : 'mode-option'} onClick={() => onMode('real')}>真实 Agent 实测</button>
+      </div>
+      {mode === 'demo' && <>
       <label className="agent-pick"><span>执行器（仅免费规则基线）</span>
         <select id="agent-config" aria-label="选择 Agent 配置" value={selected} disabled={configs === null} onChange={event => onSelect(event.target.value)}>
           {freeConfigs === null ? <option value="">正在读取已注册配置…</option> : freeConfigs.map(config => <option key={config.config_id} value={config.config_id}>{agentConfigLabel(config)}</option>)}
@@ -420,14 +475,28 @@ function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onSt
       {batch.status === 'completed' && <div className="batch-progress batch-complete" role="status"><strong>本批次已完成 {batch.completed}/{batch.total}</strong><span>正常退款 {batch.normal_refund} · 转人工 {batch.manual_review} · 失败 {batch.failed} · 退款总额 {money(batch.total_refund_cents)}</span></div>}
       {batch.status === 'failed' && <p className="notice error" role="alert">批次执行失败；已完成记录仍保留，请检查本机服务日志。</p>}
       <p className="fine-print">抽样与执行由后端负责（总体版本、随机种子、任务 ID、批次与类别随记录落盘）；普通界面不提供事项类别或具体案例的手动选择。</p>
+      </>}
+      {mode === 'real' && <div className="real-panel" data-testid="real-panel">
+        <p className="fine-print">执行器：deepseek / deepseek-flash（配置 c-deepseek-flash-fixed-dev-v0.1 · 未冻结）。真实调用必须经由 C 后端 Runner；前端绝不直连模型、不持有 API Key。</p>
+        <div className="real-actions">
+          <button className="primary-run" id="real-run-one" data-testid="real-run-one" disabled aria-describedby="real-run-note">运行 1 条（单条贯通）</button>
+          <button className="primary-run" id="real-run-batch" data-testid="real-run-batch" disabled aria-describedby="real-run-note">运行小批量（≤10 条）</button>
+        </div>
+        <ul className="fine-print" id="real-run-note" data-testid="real-run-note">
+          <li>未接通：C 后端真实运行接口尚未接入——接通前按钮保持不可用，绝不用假结果伪装成功执行。</li>
+          <li>未授权：付费模型调用默认关闭；需要逐次明确的付费授权与预算上限。</li>
+          <li>未配置：B-SCALE 冻结源数据与任务池需先按线下渠道配置到本机。</li>
+        </ul>
+        <p className="fine-print">接通后的执行顺序：先运行 1 条贯穿三页，再扩到小批量；批次 ID 与随机种子由后端记录并贯穿第一、二、三页。</p>
+      </div>}
     </div>}
   </section>;
 }
 
-function TestRecordList({ sessions, runs, batchId, selected, onSelect, tab, onTab, ledgerBySession, lossByRun }: {
+function TestRecordList({ sessions, runs, batchId, selected, onSelect, tab, onTab, ledgerBySession, lossByRun, onRetryDetails }: {
   sessions: SessionStatus[]; runs: IntegrationRunSummary[]; selected: string; onSelect: (sid: string) => void;
   batchId: string | null; tab: 'batch' | 'local' | 'history'; onTab: (tab: 'batch' | 'local' | 'history') => void;
-  ledgerBySession: Record<string, LedgerSlot>; lossByRun: Record<string, LossSlot>;
+  ledgerBySession: Record<string, LedgerSlot>; lossByRun: Record<string, LossSlot>; onRetryDetails: (runIds: string[]) => void;
 }) {
   const ledgerCell = (slot: LedgerSlot | undefined) => slot === undefined || slot.state === 'loading'
     ? <span className="cell-note">读取中…</span>
@@ -492,6 +561,7 @@ function TestRecordList({ sessions, runs, batchId, selected, onSelect, tab, onTa
       : (previousRuns.length === 0
         ? <p className="list-empty">交付目录中还没有已交付运行。</p>
         : table(integrationRows(previousRuns)))}
+    {Object.entries(lossByRun).some(([, slot]) => slot.state === 'error') && <p className="fine-print" role="alert">部分明细读取失败。<button className="text-button" onClick={() => onRetryDetails(Object.keys(lossByRun).filter(id => lossByRun[id].state === 'error'))}>重试读取失败明细</button></p>}
     <p className="fine-print">「当前批次」只包含本次随机抽取结果；「历史测试」保留其他已交付开发运行。保险赔款与商户退款是两个概念，金额均按各自口径标注。</p>
   </section>;
 }
@@ -525,10 +595,13 @@ export default function App() {
   const [runnerConfigs, setRunnerConfigs] = useState<RunnerConfig[] | null>(null);
   const [agentConfigId, setAgentConfigId] = useState('');
   const [researchScenario, setResearchScenario] = useState<ResearchScenario | null>(null);
+  const [scenarioState, setScenarioState] = useState<LoadState>('loading');
+  const [scenarioError, setScenarioError] = useState('');
   const [listTab, setListTab] = useState<'batch' | 'local' | 'history'>('history');
   const [batchStatus, setBatchStatus] = useState<BScaleBatchStatus>(idleBatch);
+  const [mode, setMode] = useState<ModeId>(() => parseViewState(window.location.hash).mode ?? 'demo');
   const [ledgerBySession, setLedgerBySession] = useState<Record<string, LedgerSlot>>({});
-  const [lossByRun, setLossByRun] = useState<Record<string, LossSlot>>({});
+  const [runDetails, setRunDetails] = useState<Record<string, DetailSlot>>({});
   const fileReplay = offline && replaySource === 'file';
   const [evidenceOpen, setEvidenceOpen] = useState(() => parseViewState(window.location.hash).evidenceFocus);
   const input = useRef<HTMLInputElement>(null);
@@ -649,14 +722,15 @@ export default function App() {
   }, [area]);
 
   useEffect(() => {
-    const next = buildViewHash(area, sid || null, offline);
+    const next = buildViewHash(area, sid || null, offline, mode);
     if (window.location.hash !== next) history.replaceState(null, '', window.location.pathname + window.location.search + next);
-  }, [area, sid, offline]);
+  }, [area, sid, offline, mode]);
 
   useEffect(() => {
     const onPop = () => {
       const view = parseViewState(window.location.hash);
       if (view.area) setArea(view.area);
+      if (!replayMode.current) setMode(view.mode ?? 'demo');
       if (replayMode.current) return;
       if (view.run && view.run !== selection.current) {
         if (sessions.some(row => row.session_id === view.run) || integrationRuns.some(row => row.session_id === view.run)) { ++interaction.current; setFocusedOrder(null); setSid(view.run); defaultLanding.current = null; setRouteNotice(''); }
@@ -674,16 +748,28 @@ export default function App() {
       .catch(() => { if (active) setRunnerConfigs([]); });
     return () => { active = false; };
   }, [fileReplay]);
+  const scenarioLoadEpoch = useRef(0);
+  async function loadScenario() {
+    // 观察授权由首次目录加载兑换完成；失败自动重试（0.6s/1.2s 退避），仍失败则进入显式错误态（可手动重试），不再静默转圈。
+    const epoch = ++scenarioLoadEpoch.current;
+    setScenarioState('loading'); setScenarioError('');
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const raw = await api<unknown>('api/research-scenario');
+        if (scenarioLoadEpoch.current !== epoch) return;
+        setResearchScenario(parseResearchScenario(raw)); setScenarioState('ready'); return;
+      } catch (e) {
+        if (scenarioLoadEpoch.current !== epoch) return;
+        if (attempt < 2) await new Promise(resolve => { window.setTimeout(resolve, 600 * (attempt + 1)); });
+        else { setScenarioError(errorText(e)); setScenarioState('error'); }
+      }
+    }
+  }
   useEffect(() => {
-    // The one-use observer grant is exchanged by the initial catalog load.
-    // Do not race this authenticated request against that exchange: a fast
-    // 401 here would otherwise leave both risk and insurance pages spinning.
+    // 不在 pairing 兑换完成前发起（快速 401 曾让风险/保险页一直转圈）；失败可重试。
     if (fileReplay || !catalogReady) return;
-    let active = true;
-    api<unknown>('api/research-scenario')
-      .then(raw => { if (active) setResearchScenario(parseResearchScenario(raw)); })
-      .catch(e => { if (active) setActionError(`研究情景读取失败：${errorText(e)}`); });
-    return () => { active = false; };
+    void loadScenario();
+    return () => { scenarioLoadEpoch.current += 1; };
   }, [fileReplay, catalogReady]);
   useEffect(() => {
     if (!['queued', 'running'].includes(batchStatus.status)) return;
@@ -693,23 +779,24 @@ export default function App() {
       try {
         const next = parseBScaleBatchStatus(await api<unknown>('api/bscale-batches/current'));
         if (!active) return;
-        setBatchStatus(next);
         if (next.status === 'completed' && next.batch_id !== null) {
-          // Reload the authoritative catalog after the backend has published the
-          // completed batch.  This also keeps historical runs available while
-          // making the just-finished rows immediately selectable.
+          // 先取权威目录、再更新批次状态：setBatchStatus 会改变本 effect 依赖并清理旧的 active，
+          // 若在两次 await 之间触发，回填会在 `if (!active)` 处自我取消——这是“批次完成后页面不刷新、看似卡住”的真实根因。
           const catalog = parseIntegrationCatalog(await api<unknown>('api/integration-runs'));
-          const rows = catalog.filter(row => row.batch_id === next.batch_id);
           if (!active) return;
+          setBatchStatus(next);
           setIntegrationRuns(catalog);
           setListTab('batch');
-          const first = rows[0];
+          const first = catalog.find(row => row.batch_id === next.batch_id);
           if (first) {
             ++interaction.current; replayMode.current = false; setOffline(false); setReplaySource('file');
             setBundle(null); setEvents([]); setSid(first.session_id); setArea('test'); setEvidenceOpen(false);
           }
-        } else if (next.status === 'queued' || next.status === 'running') {
-          timer = window.setTimeout(() => { void poll(); }, 500);
+        } else {
+          setBatchStatus(next);
+          if (next.status === 'queued' || next.status === 'running') {
+            timer = window.setTimeout(() => { void poll(); }, 500);
+          }
         }
       } catch (e) { if (active) setActionError(errorText(e)); }
     };
@@ -733,20 +820,45 @@ export default function App() {
       }
     })();
   }, [sessions, catalogReady, fileReplay, ledgerBySession]);
-  useEffect(() => {
-    if (fileReplay || !catalogReady || area !== 'test') return;
-    const pending = integrationRuns.filter(row => !(row.run_id in lossByRun));
-    if (pending.length === 0) return;
-    pending.forEach(row => setLossByRun(map => row.run_id in map ? map : { ...map, [row.run_id]: { state: 'loading', netLossCents: null, legalDue: null, payoutCents: null } }));
-    void Promise.all(pending.map(async row => {
-      try {
-        const detail = parseIntegrationDetail(await api<unknown>(`api/integration-runs/${row.run_id}`));
-        setLossByRun(map => ({ ...map, [row.run_id]: { state: 'ready', netLossCents: detail.loss_result.net_loss_cents, legalDue: legalDueSum(detail.loss_result.obligations), payoutCents: detail.claim.payout_cents } }));
-      } catch {
-        setLossByRun(map => ({ ...map, [row.run_id]: { state: 'error', netLossCents: null, legalDue: null, payoutCents: null } }));
+  const detailsEpoch = useRef(0);
+  const detailsInFlight = useRef<Set<string>>(new Set());
+  const runDetailsRef = useRef<Record<string, DetailSlot>>({});
+  useEffect(() => { runDetailsRef.current = runDetails; }, [runDetails]);
+  async function ensureRunDetails(runIds: string[]) {
+    // 有界并发（6 路）+ 每条重试一次：避免上百条明细同时压垮本机服务引发 8 秒超时风暴；错误槽位保留可重试。
+    const epoch = detailsEpoch.current;
+    const queue = [...new Set(runIds)].filter(id => {
+      const slot = runDetailsRef.current[id];
+      return (slot === undefined || slot.state === 'error') && !detailsInFlight.current.has(id);
+    });
+    if (queue.length === 0) return;
+    queue.forEach(id => detailsInFlight.current.add(id));
+    setRunDetails(current => { const next = { ...current }; for (const id of queue) if (!next[id] || next[id].state === 'error') next[id] = { state: 'loading', detail: null }; return next; });
+    const worker = async () => {
+      for (;;) {
+        const id = queue.shift();
+        if (id === undefined) return;
+        let slot: DetailSlot = { state: 'error', detail: null };
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+          try { slot = { state: 'ready', detail: parseIntegrationDetail(await api<unknown>(`api/integration-runs/${id}`)) }; break; }
+          catch { if (attempt === 0) await new Promise(resolve => { window.setTimeout(resolve, 500); }); }
+        }
+        detailsInFlight.current.delete(id);
+        if (detailsEpoch.current !== epoch) return;
+        runDetailsRef.current = { ...runDetailsRef.current, [id]: slot };
+        setRunDetails(current => ({ ...current, [id]: slot }));
       }
-    }));
-  }, [integrationRuns, catalogReady, fileReplay, area, lossByRun]);
+    };
+    await Promise.all(Array.from({ length: 6 }, () => worker()));
+  }
+  function retryRunDetails(runIds: string[]) { void ensureRunDetails(runIds); }
+  useEffect(() => {
+    if (fileReplay || !catalogReady || integrationRuns.length === 0) return;
+    const missing = integrationRuns.map(row => row.run_id).filter(id => !(id in runDetailsRef.current));
+    if (missing.length === 0) return;
+    void ensureRunDetails(missing);
+  }, [integrationRuns, catalogReady, fileReplay]);
+  useEffect(() => () => { detailsEpoch.current += 1; }, []);
   useEffect(() => {
     if (sid === '') return;
     if (sessions.some(row => row.session_id === sid)) setListTab('local');
@@ -836,7 +948,7 @@ export default function App() {
     if (offline) { setOffline(false); setReplaySource('file'); }
     defaultLanding.current = null;
     setSid(next);
-    history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(area, next, false));
+    history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(area, next, false, mode));
   }
   function showOrder(id: string) {
     if (area !== 'test') setNavBack(area);
@@ -846,6 +958,15 @@ export default function App() {
   const current = bundle?.final_snapshot.session.session_id === sid ? bundle : null;
   const session = current?.final_snapshot.session ?? sessions.find(row => row.session_id === sid);
   const matchedIntegration = integration && integration.summary.session_id === sid ? integration : null;
+  const lossByRun = useMemo(() => {
+    const derived: Record<string, LossSlot> = {};
+    for (const [id, slot] of Object.entries(runDetails)) {
+      derived[id] = slot.state === 'ready' && slot.detail
+        ? { state: 'ready', netLossCents: slot.detail.loss_result.net_loss_cents, legalDue: legalDueSum(slot.detail.loss_result.obligations), payoutCents: slot.detail.claim.payout_cents }
+        : { state: slot.state === 'error' ? 'error' : 'loading', netLossCents: null, legalDue: null, payoutCents: null };
+    }
+    return derived;
+  }, [runDetails]);
   const currentBatchRuns = useMemo(
     () => batchStatus.batch_id === null ? integrationRuns : integrationRuns.filter(row => row.batch_id === batchStatus.batch_id),
     [batchStatus.batch_id, integrationRuns],
@@ -856,13 +977,13 @@ export default function App() {
   const currentArea = areas[areaIndex] ?? areas[0];
   const prevArea = areaIndex > 0 ? areas[areaIndex - 1] : null;
   const nextArea = areaIndex < areas.length - 1 ? areas[areaIndex + 1] : null;
-  const jump = (target: Area) => { setNavBack(null); setArea(target); history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(target, sid || null, offline)); };
+  const jump = (target: Area) => { setNavBack(null); setArea(target); history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(target, sid || null, offline, mode)); };
   const fixtureGroups: CaseGroup[] = ['dev', 'public', 'stress', 'engineering', 'other'];
   const groupedFixtures = fixtureGroups.map(group => ({ group, items: fixtures.filter(fixture => caseDisplay(fixture.fixture_id).group === group) })).filter(entry => entry.items.length > 0);
   return <div className="app-shell">
     <header className="site-head">
       <a className="brand" href="#" onClick={event => event.preventDefault()}><span className="brand-mark" aria-hidden="true">◈</span><span className="brand-name">AgentShield</span></a>
-      <nav className="site-nav" aria-label="页面导航">{areas.map(item => <a key={item.id} className={area === item.id ? 'nav-link active' : 'nav-link'} aria-current={area === item.id ? 'page' : undefined} href={buildViewHash(item.id, sid || null, offline)} onClick={event => { event.preventDefault(); setNavBack(null); setArea(item.id); history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(item.id, sid || null, offline)); }}>{item.nav}</a>)}</nav>
+      <nav className="site-nav" aria-label="页面导航">{areas.map(item => <a key={item.id} className={area === item.id ? 'nav-link active' : 'nav-link'} aria-current={area === item.id ? 'page' : undefined} href={buildViewHash(item.id, sid || null, offline, mode)} onClick={event => { event.preventDefault(); setNavBack(null); setArea(item.id); history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(item.id, sid || null, offline, mode)); }}>{item.nav}</a>)}</nav>
       <div className="head-side">
         {(!offline || replaySource === 'delivery') && <label className="run-pick"><span className="run-pick-label">演示记录</span>
           <select id="run" aria-label="选择演示记录" value={sid} disabled={!catalogReady || creating} onChange={event => chooseRun(event.target.value)}>
@@ -885,8 +1006,8 @@ export default function App() {
       {state === 'loading' && <div className="loading" role="status" aria-live="polite"><span className="spinner"/>正在读取本次运行的真实数据…</div>}
       {state === 'error' && <div role="alert" className="empty error"><strong>当前数据未能加载</strong><p>{error}</p><button onClick={retry}>重试读取</button><p className="fine-print">也可以导入已保存的证据，进行离线只读回放。</p></div>}
       {state === 'ready' && area === 'test' && <>
-        {!fileReplay && <NewTestPanel open={newTestOpen} onToggle={() => setNewTestOpen(value => !value)} configs={runnerConfigs} selected={agentConfigId} onSelect={setAgentConfigId} batch={batchStatus} onStart={startBScaleBatch}/>}
-        {!fileReplay && (sessions.length > 0 || integrationRuns.length > 0 || batchStatus.batch_id !== null) && <TestRecordList sessions={sessions} runs={integrationRuns} batchId={batchStatus.batch_id} selected={sid} onSelect={chooseRun} tab={listTab} onTab={setListTab} ledgerBySession={ledgerBySession} lossByRun={lossByRun}/>}
+        {!fileReplay && <NewTestPanel open={newTestOpen} onToggle={() => setNewTestOpen(value => !value)} configs={runnerConfigs} selected={agentConfigId} onSelect={setAgentConfigId} batch={batchStatus} onStart={startBScaleBatch} mode={mode} onMode={setMode}/>}
+        {!fileReplay && (sessions.length > 0 || integrationRuns.length > 0 || batchStatus.batch_id !== null) && <TestRecordList sessions={sessions} runs={integrationRuns} batchId={batchStatus.batch_id} selected={sid} onSelect={chooseRun} tab={listTab} onTab={setListTab} ledgerBySession={ledgerBySession} lossByRun={lossByRun} onRetryDetails={retryRunDetails}/>}
         {!current && <Empty title="还没有开发会话">可在下方「开发工具」中创建业务初态，或在上方「演示记录」选择一个已有运行。创建会话不会调用模型或提交退款。</Empty>}
         {current && <>
         <CaseSummary evidence={current} name={runName}/>
@@ -912,11 +1033,11 @@ export default function App() {
         </details>
         </>}
       </>}
-      {state === 'ready' && area === 'risk' && <RiskOverview runs={currentBatchRuns} offline={offline && replaySource !== 'delivery'} scenario={researchScenario}/>}
-      {state === 'ready' && area === 'insurance' && <InsurancePlans runs={currentBatchRuns} offline={offline && replaySource !== 'delivery'} scenario={researchScenario}/>}
+      {state === 'ready' && area === 'risk' && <RiskOverview runs={currentBatchRuns} offline={offline && replaySource !== 'delivery'} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} details={runDetails} batchId={batchStatus.batch_id} mode={mode} onRetryDetails={retryRunDetails}/>}
+      {state === 'ready' && area === 'insurance' && <InsurancePlans runs={currentBatchRuns} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} details={runDetails} batchId={batchStatus.batch_id} mode={mode} onRetryDetails={retryRunDetails}/>}
       <nav className="stepper" aria-label="分步导航">
-        {prevArea ? <a className="step-link prev" href={buildViewHash(prevArea.id, sid || null, offline)} onClick={event => { event.preventDefault(); jump(prevArea.id); }}>← 上一步：{prevArea.nav}</a> : <span className="step-link disabled">已经是第一步</span>}
-        {nextArea ? <a className="step-link next" href={buildViewHash(nextArea.id, sid || null, offline)} onClick={event => { event.preventDefault(); jump(nextArea.id); }}>下一步：{nextArea.nav} →</a> : <a className="step-link next" href={buildViewHash('test', sid || null, offline)} onClick={event => { event.preventDefault(); jump('test'); }}>回到第一步：01 测试案例 ↺</a>}
+        {prevArea ? <a className="step-link prev" href={buildViewHash(prevArea.id, sid || null, offline, mode)} onClick={event => { event.preventDefault(); jump(prevArea.id); }}>← 上一步：{prevArea.nav}</a> : <span className="step-link disabled">已经是第一步</span>}
+        {nextArea ? <a className="step-link next" href={buildViewHash(nextArea.id, sid || null, offline, mode)} onClick={event => { event.preventDefault(); jump(nextArea.id); }}>下一步：{nextArea.nav} →</a> : <a className="step-link next" href={buildViewHash('test', sid || null, offline, mode)} onClick={event => { event.preventDefault(); jump('test'); }}>回到第一步：01 测试案例 ↺</a>}
       </nav>
       <footer className="site-foot">
         <p>开发运行不属于正式任务或 Gold；正式实验与全队签收尚未完成。模拟资金 · 非商业报价。</p>

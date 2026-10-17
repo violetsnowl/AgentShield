@@ -54,6 +54,17 @@ describe('computeRiskMetrics', () => {
     expect(dirty.verifiedNetSumCents).toBe(0);
   });
 
+  it('测试4：已核验但缺金额算“核验结果缺失”，不得按 0 并入合计', () => {
+    const base = deliveredFixture();
+    base.push(run({ runId: 'verified-null', executionSource: 'observed_agent_execution', lossStatus: 'verified', netLossCents: null }));
+    const metrics = computeRiskMetrics(base);
+    expect(metrics.verified.length).toBe(2);
+    expect(metrics.verifiedMissingLoss.length).toBe(1);
+    expect(metrics.verifiedNetSumCents).toBe(0);
+    const category = metrics.categories.find(row => row.key === '开发模板（未分类）');
+    expect(category?.verifiedMissing).toBe(1);
+  });
+
   it('测试3：运行来源分别计数，scripted_test 不得计为真实模型', () => {
     const metrics = computeRiskMetrics(deliveredFixture());
     expect(metrics.observed.length).toBe(3);

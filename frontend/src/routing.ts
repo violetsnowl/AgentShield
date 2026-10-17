@@ -8,12 +8,14 @@ const LEGACY_AREAS: Record<string, { area: AreaId; evidenceFocus: boolean }> = {
   risk: { area: 'risk', evidenceFocus: false },
   cost: { area: 'insurance', evidenceFocus: false },
 };
-export type ViewState = { area: AreaId | null; run: string | null; evidenceFocus: boolean };
+export type ModeId = 'demo' | 'real';
+export type ViewState = { area: AreaId | null; run: string | null; evidenceFocus: boolean; mode: ModeId | null };
 /** 解析 `#area=<区>&run=<session_id>`；未知/非法值一律丢弃（不猜、不补、不硬编码 schema）。 */
 export function parseViewState(hash: string): ViewState {
   const params = new URLSearchParams(hash.replace(/^#/, ''));
   const area = params.get('area');
   const run = params.get('run');
+  const mode = params.get('mode');
   const known = area
     ? (AREA_IDS as readonly string[]).includes(area)
       ? { area: area as AreaId, evidenceFocus: false }
@@ -22,13 +24,15 @@ export function parseViewState(hash: string): ViewState {
   return {
     area: known ? known.area : null,
     evidenceFocus: known ? known.evidenceFocus : false,
+    mode: mode === 'demo' || mode === 'real' ? mode : null,
     run: run && /^[a-z0-9._-]{1,128}$/i.test(run) ? run : null,
   };
 }
-/** 构造 hash：回放（离线）模式只保留区域，避免刷新后把文件内容误当可恢复的本机运行。 */
-export function buildViewHash(area: AreaId, run: string | null, offline: boolean): string {
+/** 构造 hash：回放（离线）模式只保留区域，避免刷新后把文件内容误当可恢复的本机运行。real 模式显式记录（demo 为默认，不入 URL）。 */
+export function buildViewHash(area: AreaId, run: string | null, offline: boolean, mode: ModeId | null = null): string {
   const params = new URLSearchParams();
   params.set('area', area);
   if (!offline && run) params.set('run', run);
+  if (mode === 'real') params.set('mode', mode);
   return '#' + params.toString();
 }

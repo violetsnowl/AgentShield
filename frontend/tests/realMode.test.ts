@@ -1,0 +1,86 @@
+import { describe, expect, it } from 'vitest';
+import { extrapolatePremium, summarizeRealBatch } from '../src/realMode';
+import type { ExtrapolationInput, RealBatchRow } from '../src/realMode';
+
+function row(partial: Partial<RealBatchRow> & { runId: string }): RealBatchRow {
+  return {
+    runStatus: 'finished', taskOutcome: 'completed', lossStatus: 'needs_review', netLossCents: null,
+    claimStatus: 'needs_review', payoutCents: null, ...partial,
+  };
+}
+
+function claim(partial: Partial<ExtrapolationInput>): ExtrapolationInput {
+  return { lossStatus: 'needs_review', claimStatus: 'needs_review', payoutCents: null, ...partial };
+}
+
+describe('summarizeRealBatch', () => {
+  it('空批次与全待核验批次都保持数据不足', () => {
+    const empty = summarizeRealBatch([]);
+    expect(empty.total).toBe(0);
+    expect(empty.lossIncidence.status).toBe('insufficient');
+    expect(empty.economicLoss.status).toBe('insufficient');
+    const review = summarizeRealBatch([row({ runId: 'a' }), row({ runId: 'b' })]);
+    expect(review.lossIncidence.status).toBe('insufficient');
+    expect(review.economicLoss.cents).toBeNull();
+    expect(review.review).toBe(2);
+  });
+  it('已核验但缺金额不得按 0 计', () => {
+    const summary = summarizeRealBatch([
+      row({ runId: 'a', lossStatus: 'verified', netLossCents: null }),
+      row({ runId: 'b', lossStatus: 'verified', netLossCents: 500 }),
+    ]);
+    expect(summary.verifiedMissingLoss).toBe(1);
+    expect(summary.economicLoss.status).toBe('insufficient');
+    expect(summary.lossIncidence.status).toBe('insufficient');
+  });
+  it('全部核验后可给出发生率与经济损失，并注明未计条目', () => {
+    const summary = summarizeRealBatch([
+      row({ runId: 'a', lossStatus: 'verified', netLossCents: 0 }),
+      row({ runId: 'b', lossStatus: 'verified', netLossCents: 800 }),
+      row({ runId: 'c', taskOutcome: 'escalated', runStatus: 'finished' }),
+    ]);
+    expect(summary.lossIncidence.rate).toBe(0.5);
+    expect(summary.economicLoss.cents).toBe(800);
+    expect(summary.economicLoss.reason).toContain('1 条待核验');
+    expect(summary.escalated).toBe(1);
+  });
+});
+
+describe('extrapolatePremium', () => {
+  const options = { annualTaskVolume: 6105, loadingRatio: 0.25 };
+  it('核验未完成 → 数据不足，不给数字', () => {
+    const result = extrapolatePremium([claim({}), claim({ lossStatus: 'verified', claimStatus: 'assessed', payoutCents: 100 })], options);
+    expect(result.status).toBe('insufficient');
+    expect(result.premiumCents).toBeNull();
+    expect(result.reasons.join('')).toContain('核验未完成');
+  });
+  it('保险责任未确定（已核验但 payout=null）→ 数据不足', () => {
+    const result = extrapolatePremium([claim({ lossStatus: 'verified', claimStatus: 'assessed', payoutCents: null })], options);
+    expect(result.status).toBe('insufficient');
+    expect(result.reasons.join('')).toContain('保险责任未确定');
+  });
+  it('全部有效核验且赔款均为 0 → 参考保费为 0', () => {
+    const result = extrapolatePremium([
+      claim({ lossStatus: 'verified', claimStatus: 'assessed', payoutCents: 0 }),
+      claim({ lossStatus: 'verified', claimStatus: 'not_covered', payoutCents: 0 }),
+    ], options);
+    expect(result.status).toBe('ok');
+    expect(result.premiumCents).toBe(0);
+    expect(result.eventCount).toBe(0);
+  });
+  it('有正赔款事件 → 按频率×均值×年度量×加载系数外推', () => {
+    const result = extrapolatePremium([
+      claim({ lossStatus: 'verified', claimStatus: 'assessed', payoutCents: 0 }),
+      claim({ lossStatus: 'verified', claimStatus: 'assessed', payoutCents: 900 }),
+    ], options);
+    expect(result.frequency).toBe(0.5);
+    expect(result.meanSeverityCents).toBe(900);
+    // 6105 × 0.5 × 900 × 1.25 = 3434062.5 → 3434063（分）
+    expect(result.premiumCents).toBe(Math.round(6105 * 0.5 * 900 * 1.25));
+  });
+  it('空样本 → 数据不足', () => {
+    const result = extrapolatePremium([], options);
+    expect(result.status).toBe('insufficient');
+    expect(result.reasons.join('')).toContain('样本为空');
+  });
+});

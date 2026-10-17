@@ -368,6 +368,43 @@ try {
     release(); await page.unroute(delayed);
     check((await page.locator('#run').inputValue()) === config.sessions[1] && await page.locator('.orders .order').count() === 1, 'late previous-session response cannot replace current run');
 
+    // 稳定性：研究情景瞬时失败自动重试 + 显式错误态 + 手动重试恢复（不再永久“正在汇总”）。
+    const scenarioRoute = '**/observer/api/research-scenario';
+    let scenarioFailures = 3;
+    await page.route(scenarioRoute, async route => {
+      if (scenarioFailures > 0) { scenarioFailures -= 1; await route.fulfill({ status: 502, contentType: 'application/json', body: '{"code":"B_UNAVAILABLE"}' }); }
+      else await route.continue();
+    });
+    await page.goto('about:blank');
+    await page.goto(`${config.origin}/#area=risk`);
+    await page.getByRole('button', { name: '重试读取研究情景', exact: true }).waitFor({ timeout: 20000 });
+    check((await page.locator('main').innerText()).includes('研究情景未能读取'), '稳定性：研究情景连续失败后给出显式错误态而非永久转圈');
+    await page.unroute(scenarioRoute);
+    await page.getByRole('button', { name: '重试读取研究情景', exact: true }).click();
+    await page.locator('.risk-overview').waitFor({ timeout: 20000 });
+    check(true, '稳定性：手动重试后风险页恢复');
+    // 双模式：模式标识贯穿 URL/三页；真实 Agent 实测保持诚实不可用态。
+    await navTo('01 测试案例');
+    check(await page.getByTestId('mode-demo').getAttribute('aria-checked') === 'true', '模式：默认为研究情景演示');
+    await page.getByTestId('mode-real').click();
+    check(page.url().includes('mode=real'), '模式：real 写入 URL');
+    check(await page.getByTestId('real-run-one').isDisabled() && await page.getByTestId('real-run-batch').isDisabled(), '模式：真实 Agent 实测按钮明确不可用');
+    const realNote = await page.getByTestId('real-run-note').innerText();
+    check(realNote.includes('未接通') && realNote.includes('付费授权') && realNote.includes('B-SCALE'), '模式：不可用原因逐条列明');
+    await navTo('02 风险结论');
+    await page.locator('.risk-overview').waitFor();
+    const realRisk = await page.locator('.risk-overview').innerText();
+    check(realRisk.includes('模式：真实 Agent 实测'), '模式：第二页显示当前模式与批次标识');
+    check(realRisk.includes('数据不足') && realRisk.includes('演示用假设'), '真实模式：实测数据不足时如实标注且情景假设被明示分离');
+    await navTo('03 保险方案');
+    await page.locator('.plan-section').waitFor();
+    const realPlan = await page.locator('.plan-section').innerText();
+    check(realPlan.includes('样本外推') && !realPlan.includes('¥25,641.00'), '真实模式：第三页给出样本外推而非演示情景数字');
+    check(realPlan.includes('数据不足'), '真实模式：核验不完整时不显示样本保费');
+    await navTo('01 测试案例');
+    await page.getByTestId('mode-demo').click();
+    check(!page.url().includes('mode=real'), '模式：切回演示模式后 URL 不再带 real');
+
     await context.setOffline(true);
     const beforeOffline = requests.length;
     await page.locator('input[type=file]').setInputFiles(saved);
