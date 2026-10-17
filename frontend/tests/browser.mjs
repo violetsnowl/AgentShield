@@ -30,6 +30,7 @@ try {
     }
   });
   async function openEvidence() {
+    await openDevTools();
     const fold = page.locator('details.evidence-fold');
     await fold.waitFor({ state: 'attached', timeout: 20000 });
     if (!(await fold.evaluate(node => node.open))) await fold.locator('summary').first().click();
@@ -37,38 +38,6 @@ try {
   async function openDevTools() {
     const fold = page.locator('details.dev-tools');
     if (await fold.count() && !(await fold.evaluate(node => node.open))) await fold.evaluate(node => { node.open = true; });
-  }
-  const navTo = async name => { await page.getByRole('link', { name, exact: true }).click(); };
-  const activeNav = () => page.evaluate(() => document.querySelector('.nav-link.active')?.textContent ?? '');
-  await page.goto(`${config.origin}/#pair=${config.grant}`);
-  // 初始落地 = 交付目录中证据链最完整的运行（真实模型）；只读交付视图，证据默认不展开。
-  await page.getByTestId('committed-total').waitFor({ timeout: 20000 });
-  check(!page.url().includes(config.grant), 'one-use observer grant removed from URL');
-  const storage = await page.evaluate(() => ({ local: localStorage.length, session: sessionStorage.length, cookie: document.cookie }));
-  check(storage.local === 0 && storage.session === 0 && storage.cookie === '', 'no JS-readable credentials or browser storage');
-  const cookies = await context.cookies();
-  check(cookies.length === 1 && cookies[0].httpOnly && cookies[0].sameSite === 'Strict', 'only scoped HttpOnly observer cookie');
-  const landingSid = await page.locator('#run').inputValue();
-  check(!!landingSid && !config.sessions.includes(landingSid), 'default demo record comes from the delivered catalog, not a local session');
-  const initialCatalog = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
-  const landingRun = initialCatalog.runs.find(run => run.session_id === landingSid);
-  check(landingRun?.execution_source === 'observed_agent_execution', 'default delivered record is an observed Agent run');
-  const landingMoney = `¥${Math.floor(landingRun.total_committed_cents / 100).toLocaleString('zh-CN')}.${String(landingRun.total_committed_cents % 100).padStart(2, '0')}`;
-  check(!(await page.locator('main').innerText()).includes('A/C 交付证据只读视图'), 'delivered default view carries no developer banner');
-  check(await page.getByTestId('committed-total').innerText() === landingMoney, 'default observed run shows its exact committed refund');
-  const landingResult = await page.locator('.run-result').innerText();
-  check(landingResult.includes('真实模型'), 'default observed run shows its real-model source');
-  check(landingResult.includes('待审核 / null'), 'default observed run keeps the A claim payout pending and null');
-  const landingPanelText = await page.locator('details.integration-panel').evaluate(node => node.textContent ?? '');
-  check(landingPanelText.includes(landingRun.loss_status) && landingPanelText.includes('needs_review') && landingPanelText.includes('赔款未记零'), 'default observed detail preserves C and A review states');
-  const landingFold = page.locator('details.evidence-fold');
-  check(await landingFold.count() === 1 && !(await landingFold.evaluate(node => node.open)), 'landing keeps the evidence fold closed');
-  check(await page.locator('#run').isVisible(), 'demo record selector is always available in the header');
-  async function selectRun(sid) {
-    await Promise.all([page.waitForResponse(response => response.url().endsWith(`/sessions/${sid}/evidence`)), page.selectOption('#run', sid)]);
-    await page.getByTestId('committed-total').waitFor();
-    await openEvidence();
-    await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
   }
   async function layout(name) {
     await page.evaluate(() => window.scrollTo(0, 0));
@@ -80,15 +49,33 @@ try {
     check(ids.every(Boolean), `${name}: visible IDs wrap within bounds`);
     await page.screenshot({ path: path.join(config.output, `${name}.png`), fullPage: true });
   }
-  await layout('real-a1-first-page-desktop');
-  await page.locator('details.integration-panel > summary').click();
-  await openEvidence();
-  await page.locator('.run-identity summary').click();
-  check((await page.locator('.identity-fields').innerText()).includes(landingSid), 'default observed evidence shows the exact linked session identity');
-  await page.getByRole('heading', { name: '资金账本', exact: true }).waitFor();
-  check(await page.locator('tr[data-seq]').count() > 0, 'default observed evidence shows real tool events');
-  check((await page.locator('main').innerText()).includes(landingMoney), 'default observed evidence and ledger preserve the committed money fact');
-  await layout('real-a1-evidence-desktop');
+  const navTo = async name => { await page.getByRole('link', { name, exact: true }).click(); };
+  const activeNav = () => page.evaluate(() => document.querySelector('.nav-link.active')?.textContent ?? '');
+  await page.goto(`${config.origin}/#pair=${config.grant}`);
+  // 三个模式从空状态开始：不自动选择任何运行，第二、三页不预展示任何结果。
+  await page.getByTestId('mode-sampling').waitFor({ timeout: 20000 });
+  check(!page.url().includes(config.grant), 'one-use observer grant removed from URL');
+  const storage = await page.evaluate(() => ({ local: localStorage.length, session: sessionStorage.length, cookie: document.cookie }));
+  check(storage.local === 0 && storage.session === 0 && storage.cookie === '', 'no JS-readable credentials or browser storage');
+  const cookies = await context.cookies();
+  check(cookies.length === 1 && cookies[0].httpOnly && cookies[0].sameSite === 'Strict', 'only scoped HttpOnly observer cookie');
+  check(await page.getByTestId('mode-sampling').getAttribute('aria-selected') === 'true', '三个模式：默认选中抽取检验');
+  check(await page.getByTestId('mode-scenario').count() === 1 && await page.getByTestId('mode-agent').count() === 1, '三个模式：选项卡齐备（抽取检验/研究情景/真实Agent）');
+  const emptyText = await page.locator('main').innerText();
+  check(emptyText.includes('尚未选择记录'), '未执行空状态：第一页不自动选择任何运行');
+  check(!emptyText.includes('31,746') && !emptyText.includes('25,641'), '未执行空状态：第一页不出现研究情景数字');
+  check(await page.locator('#run').isVisible(), '抽取检验：记录选择器可用');
+  await navTo('02 风险结论');
+  await page.locator('.risk-overview').waitFor();
+  const samplingRiskEmpty = await page.locator('.risk-overview').innerText();
+  check(samplingRiskEmpty.includes('尚未执行抽取检验') && !samplingRiskEmpty.includes('31,746'), '抽取检验未运行：第二页空状态且无研究假设数字');
+  await navTo('03 保险方案');
+  await page.locator('.plan-section').waitFor();
+  const samplingPlanEmpty = await page.locator('.plan-section').innerText();
+  check(samplingPlanEmpty.includes('尚未执行抽取检验') && !samplingPlanEmpty.includes('25,641') && !samplingPlanEmpty.includes('35,866'), '抽取检验未运行：第三页空状态且无预设保费');
+  await navTo('01 测试案例');
+  check(await page.locator('details.evidence-fold').count() === 0 && await page.locator('details.integration-panel').count() === 0, '未选择运行时：不展示技术折叠区');
+  await layout('sampling-empty-desktop');
   // B-SCALE 一键运行：普通界面只开放免费规则基线，不暴露数据库路径或付费模型。
   check(await page.locator('[data-testid="new-test-toggle"]').count() === 1, 'P1: new-test entry is present on the case page');
   await page.locator('#agent-config').waitFor();
@@ -100,27 +87,35 @@ try {
   check(await page.locator('.new-test select#fixture').count() === 0, 'P1: no case picker inside the new-test flow');
   check(await page.locator('.result-list').count() === 1, 'P1: test record list is present');
   await page.waitForFunction(() => document.querySelector('.list-tab.active')?.textContent?.includes('历史测试'));
-  check(true, 'P1: delivered record keeps the history view active');
-  check(await page.locator(`.result-list tr[data-sid="${landingSid}"]`).count() === 1, 'P1: history view shows the selected delivered record');
+  check(true, 'P1: empty selection keeps the history view active');
+  check(await page.locator('.result-list tbody tr').count() >= 5, 'P1: history view lists delivered runs');
   await page.getByRole('tab', { name: /本机测试记录/ }).click();
   await page.waitForFunction(() => document.querySelector('.list-tab.active')?.textContent?.includes('本机测试记录'));
   check(await page.locator('.result-list tbody tr').count() === config.sessions.length, 'P1: local tab lists exactly the local sessions');
   check(await page.locator(`.result-list tr[data-sid="${config.sessions[0]}"]`).count() === 1, 'P1: local records are addressable per exact session');
-  check(await page.locator(`.result-list tr[data-sid="${landingSid}"]`).count() === 0, 'P1: delivered runs never appear in the local tab');
   await page.getByRole('tab', { name: /历史测试/ }).click();
   await page.waitForFunction(() => document.querySelector('.list-tab.active')?.textContent?.includes('历史测试'));
   await page.locator('[data-testid="new-test-toggle"]').click();
   await page.waitForFunction(() => document.querySelectorAll('#agent-config').length === 0);
   check(true, 'P1: new-test panel closes without side effects');
+  async function selectRun(sid) {
+    await Promise.all([page.waitForResponse(response => response.url().endsWith(`/sessions/${sid}/evidence`)), page.selectOption('#run', sid)]);
+    await page.getByTestId('committed-total').waitFor();
+    await openEvidence();
+    await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
+  }
+  // 显式选择 v1 本机会话（此后流程均以显式选择为准，不依赖自动落地）。
   await selectRun(config.sessions[0]);
   check((await page.locator('#run').inputValue()) === config.sessions[0], 'v1 exact session selected');
   check((await page.locator('main').innerText()).includes('¥3.33'), 'v1 actual 333-cent refund visible');
   check((await page.locator('.case-head h2').innerText()).includes('退款申请 · 多份确认'), 'default view shows the Chinese case name');
   check((await page.locator('main').innerText()).includes('开发运行'), 'development runs are labeled non-formal in the default view');
+  check(!(await page.locator('.integration-panel').count()) && !(await page.locator('main').innerText()).includes('查看核验与理算详情'), '第一页底部技术折叠区已移除（C/A 技术面板不再展示）');
   await layout('core-lab-v1-desktop');
-  await openEvidence();
+  await page.locator('.run-identity summary').click();
+  check((await page.locator('.identity-fields').innerText()).includes(config.sessions[0]), 'v1 evidence shows the exact linked session identity');
   await page.getByRole('heading', { name: '资金账本', exact: true }).waitFor();
-  check((await page.getByTestId('committed-total').innerText()) === '¥3.33', 'committed total from actual refunds is 333 cents');
+  check(await page.getByTestId('committed-total').innerText() === '¥3.33', 'committed total from actual refunds is 333 cents');
   await page.locator('tr[data-seq="8"]').waitFor();
   const sequences = await page.locator('tr[data-seq]').evaluateAll(nodes => nodes.map(node => Number(node.getAttribute('data-seq'))));
   check(JSON.stringify(sequences) === JSON.stringify([1,2,3,4,5,6,7,8]), 'all events render in real seq order');
@@ -148,18 +143,28 @@ try {
     await layout('ledger-v2-desktop');
     const noMatchText = await page.locator('.run-result').innerText();
     check(noMatchText.includes('暂无核验结果') && noMatchText.includes('暂无理算结果'), 'seeded session without delivered counterpart shows no foreign C/A numbers');
-    check(!(await page.locator('.integration-panel').count()), 'no candidate panel is shown for runs without a delivered counterpart');
+    check(!(await page.locator('.integration-panel').count()) && !(await page.locator('main').innerText()).includes('查看核验与理算详情'), 'no technical C/A panel is shown for runs without a delivered counterpart');
     await layout('risk-candidate-desktop');
+    // 研究情景模式：固定演示（不依赖运行），用于检查预设方案与合同生成。
+    await navTo('01 测试案例');
+    await page.getByTestId('mode-scenario').click();
+    check(page.url().includes('mode=scenario'), '模式：研究情景写入 URL');
+    check(await page.locator('.scenario-intro').count() === 1, '研究情景：第一页展示固定情景介绍（不依赖运行）');
+    check(await page.locator('#run').count() === 0, '研究情景：右上角历史选择器隐藏');
     await navTo('03 保险方案');
     await page.locator('.plan-grid').waitFor();
     const planGrid = await page.locator('.plan-grid').innerText();
-    check(planGrid.includes('¥25,641.00') && planGrid.includes('¥35,866.88'), 'plans show computed Core and Plus research premiums');
-    check((await page.locator('main').innerText()).includes('非经验商业报价') && (await page.locator('main').innerText()).includes('真正经验定价尚不可用'), 'plans remain explicitly non-commercial');
+    check(planGrid.includes('¥25,641.00') && planGrid.includes('¥35,866.88'), '研究情景：Core/Plus 固定参考保费与金额不变');
+    check((await page.locator('main').innerText()).includes('非经验商业报价') && (await page.locator('main').innerText()).includes('研究假设 · 非实际经验报价'), '研究情景：研究假设与非商业报价说明保留');
     await page.getByRole('button', { name: '生成Core模拟保险合同', exact: true }).click();
     check((await page.locator('.contract-document').innerText()).includes('SIM-bscale-enterprise-study-v0.1-CORE'), 'Core research contract is generated from the displayed scenario');
     check(await page.getByRole('button', { name: '打印 / 另存为PDF', exact: true }).count() === 1, 'generated contract exposes the browser print action');
     await page.getByRole('button', { name: '← 返回保险方案', exact: true }).click();
     await layout('cost-candidate-desktop');
+    // 回到抽取检验继续交付运行检查。
+    await navTo('01 测试案例');
+    await page.getByTestId('mode-sampling').click();
+    check(!page.url().includes('mode='), '模式：切回抽取检验后 URL 不带 mode');
     const deliveredCatalog = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
     const mockRuns = deliveredCatalog.runs.filter(run => run.execution_source === 'mock_agent');
     check(mockRuns.length >= 4, 'Mock delivery catalog contains complete runs');
@@ -167,19 +172,13 @@ try {
     const detailResponse = page.waitForResponse(response => response.url().endsWith(`/observer/api/integration-runs/${selectedMock.run_id}`));
     await page.selectOption('#run', selectedMock.session_id);
     const delivered = await (await detailResponse).json();
-    await navTo('01 测试案例');
-    await page.locator('details.integration-panel').waitFor();
-    const panelText = await page.locator('.integration-panel').evaluate(node => node.textContent ?? '');
-    const resultText = await page.locator('.run-result').evaluate(node => node.textContent ?? '');
-    check(panelText.includes('C 独立核验') && panelText.includes('needs_review'), 'C candidate result is visible and remains needs_review');
-    check(resultText.includes('未知 / null') && panelText.includes('不直接等同于额外净损失'), 'unknown loss is not filled from refund money');
-    check(panelText.includes('A 研究理算') && resultText.includes('待审核 / null'), 'A0 claim is visible without invented payout');
-    check(panelText.includes('illustrative') && panelText.includes('非本次运行'), 'engineering quote is separated from selected Agent run');
-    await page.locator('details.integration-panel > summary').click();
-    check(await page.getByRole('button', { name: '加载关联业务证据', exact: true }).isEnabled(), 'C result can trace to its exact B evidence');
-    check(await page.getByRole('button', { name: '重新理算', exact: true }).isDisabled(), 'browser does not recalculate insurance');
-    await page.getByRole('button', { name: '加载关联业务证据', exact: true }).click();
     await page.getByTestId('committed-total').waitFor();
+    await navTo('01 测试案例');
+    const resultText = await page.locator('.run-result').evaluate(node => node.textContent ?? '');
+    check(resultText.includes('未知 / null') && resultText.includes('不直接等同于额外净损失'), 'C pending review shown as unknown, never filled from refund money');
+    check(resultText.includes('待审核 / null'), 'A0 claim is visible without invented payout');
+    check(!(await page.locator('main').innerText()).includes('illustrative'), 'engineering quote sample removed from the normal case view');
+    check(await page.getByRole('button', { name: '重新理算', exact: true }).count() === 0, 'browser exposes no insurance recalculation control');
     await openEvidence();
     await page.locator('.run-identity summary').click();
     check((await page.locator('.identity-fields').innerText()).includes(delivered.summary.session_id), 'A/C result opens the exact linked B session');
@@ -206,32 +205,26 @@ try {
     const runsRoute = '**/observer/api/integration-runs';
     await page.route(runsRoute, route => route.fulfill({ status: 200, contentType: 'application/json', body: '{"contract_version":"abcd-integration-0.1-candidate","runs":[]}' }));
     await page.reload();
-    await page.getByText('还没有开发会话', { exact: true }).waitFor();
+    await page.getByText('尚未选择记录', { exact: true }).waitFor();
     await layout('empty-list-test-desktop');
     await page.unroute(sessionsRoute); await page.unroute(runsRoute); await page.reload();
-    await page.getByTestId('committed-total').waitFor();
+    await page.getByTestId('mode-sampling').waitFor();
     await navTo('01 测试案例');
-    await openEvidence();
-    await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
-    // P1 随机抽样重构：记录列表行可直接选择运行（选择后为本机会话/live 模式）；调试入口（#fixture）只存在于开发工具折叠内。
+    // 从记录列表选择 v1（显式操作；不再有自动落地）。
     await page.getByRole('tab', { name: /本机测试记录/ }).click();
     await page.waitForFunction(() => document.querySelector('.list-tab.active')?.textContent?.includes('本机测试记录'));
     const listTarget = config.sessions[0];
-    if ((await page.locator('#run').inputValue()) !== listTarget) {
-      const rowResponse = page.waitForResponse(response => response.url().endsWith(`/sessions/${listTarget}/evidence`));
-      await page.locator(`.result-list tr[data-sid="${listTarget}"] button`).click();
-      await rowResponse;
-      await page.getByTestId('committed-total').waitFor();
-      check(await page.locator('#run').inputValue() === listTarget, 'P1: clicking a record row selects that exact run');
-      check(((await page.locator(`.result-list tr[data-sid="${listTarget}"]`).getAttribute('class')) ?? '').includes('selected'), 'P1: the selected record row is highlighted');
-    } else {
-      await page.locator(`.result-list tr[data-sid="${listTarget}"] button`).click();
-      check(await page.locator('#run').inputValue() === listTarget, 'P1: clicking the already-selected row keeps the same run');
-    }
+    const rowResponse = page.waitForResponse(response => response.url().endsWith(`/sessions/${listTarget}/evidence`));
+    await page.locator(`.result-list tr[data-sid="${listTarget}"] button`).click();
+    await rowResponse;
+    await page.getByTestId('committed-total').waitFor();
+    check(await page.locator('#run').inputValue() === listTarget, 'P1: clicking a record row selects that exact run');
+    check(((await page.locator(`.result-list tr[data-sid="${listTarget}"]`).getAttribute('class')) ?? '').includes('selected'), 'P1: the selected record row is highlighted');
+    await openEvidence();
+    await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
     check(await page.locator('#fixture').count() === 1 && await page.locator('details.dev-tools #fixture').count() === 1, 'P1: case picker exists only inside the dev-tools debug fold');
     await page.getByRole('tab', { name: /历史测试/ }).click();
     await page.waitForFunction(() => document.querySelector('.list-tab.active')?.textContent?.includes('历史测试'));
-    if ((await page.locator('#run').inputValue()) !== config.sessions[0]) await selectRun(config.sessions[0]);
     await page.getByText('查看原始政策文案 · dev-policy-v1', { exact: true }).click();
     check((await page.locator('.policy').innerText()).includes('本批人工工单工具尚未接入'), 'v1 historical policy preserved literally');
     check((await page.locator('.policy').innerText()).includes('待 A/C/D'), 'v1 historical inconsistency flagged pending review');
@@ -242,16 +235,12 @@ try {
     check(await page.locator('.execution-bar').count() === 0, 'N16: former standalone execution bar removed');
     check(await page.locator('.identity-extra').count() === 1, 'N16: source labels consolidated into the run details');
 
-    // N03: URL 状态与刷新恢复。
+    // N03: URL 状态与刷新恢复（此时为抽取检验、已选 v1 运行；第二页应保持空状态而不是展示任何预设数字）。
     await navTo('02 风险结论');
     await page.locator('.risk-overview').waitFor();
     check(page.url().includes('area=risk'), 'N03: area recorded in URL hash');
     const riskCopy = await page.locator('.risk-overview').evaluate(node => node.textContent ?? '');
-    check(riskCopy.includes('任务升级') && riskCopy.includes('escalated') && !riskCopy.includes('人工升级'), 'T1: needs_review is not tallied as task escalation');
-    check(riskCopy.includes('C独立核验覆盖') && riskCopy.includes('待审') && riskCopy.includes('null 未记为零'), 'T1: pending verification keeps its own coverage dimension');
-    check(riskCopy.includes('研究性风险测算') && riskCopy.includes('¥31,746.00') && riskCopy.includes('基于假设，非实际测得的损失'), 'T2: study scenario is computed and separated from observed loss');
-    check(riskCopy.includes('开发运行来源') && riskCopy.includes('真实模型开发运行') && riskCopy.includes('Mock 开发运行') && !riskCopy.includes('vs Mock'), 'T3: run sources labeled without performance comparison');
-    check(riskCopy.includes('人工工单') && riskCopy.includes('与核验状态'), 'T1: human review tickets reported as a separate dimension');
+    check(riskCopy.includes('尚未执行抽取检验') && !riskCopy.includes('31,746'), 'T2: 抽取检验未运行时不展示研究情景数字（已选记录不冒充批次统计）');
     await layout('risk-overview-desktop');
     await page.reload();
     await page.locator('.risk-overview').waitFor();
@@ -272,24 +261,23 @@ try {
     ]);
     check((await activeNav()).includes('02 风险结论'), 'N02: switching to another run keeps the risk area');
     check(page.url().includes('run=' + newSid), 'N03: URL tracks the second run');
-    // N04: 从交付运行跳到证据后，可用“返回上一位置”回到原区域。
+    // N04: 交付运行可在测试页查看其证据（不再自动跳转、不再自动展开技术折叠区）。
     const n04Catalog = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
-    const n04DeliveredOnly = n04Catalog.runs.find(run => !config.sessions.includes(run.session_id)) ?? n04Catalog.runs[0];
+    const n04DeliveredOnly = n04Catalog.runs.find(run => run.execution_source === 'scripted_test' && !config.sessions.includes(run.session_id)) ?? n04Catalog.runs.find(run => run.execution_source === 'scripted_test');
+    check(!!n04DeliveredOnly, 'N04: 规则基线交付运行可用');
     const n04Response = page.waitForResponse(response => response.url().endsWith(`/observer/api/integration-runs/${n04DeliveredOnly.run_id}`));
     await page.selectOption('#run', n04DeliveredOnly.session_id);
     await n04Response;
-    await page.waitForFunction(() => document.querySelector('.nav-link.active')?.textContent?.includes('01 测试案例'));
-    check(true, 'N04: 交付运行选中后自动回到测试页');
-    const n04Fold = page.locator('details.evidence-fold');
-    await n04Fold.waitFor({ state: 'attached', timeout: 20000 });
-    check(await n04Fold.evaluate(node => node.open) === true, 'N04: 交付运行选中后自动展开详细执行证据');
-    await page.getByRole('button', { name: /返回上一位置/ }).click();
-    await page.waitForFunction(() => document.querySelector('.nav-link.active')?.textContent?.includes('02 风险结论'));
-    check(true, 'N04: 返回上一位置回到原先的风险页');
+    check((await activeNav()).includes('02 风险结论'), 'N04: 选择交付运行不强制跳转（停留在当前页）');
+    await navTo('01 测试案例');
+    await page.getByTestId('committed-total').waitFor();
+    await openEvidence();
+    await page.locator('.run-identity summary').click();
+    check((await page.locator('.identity-fields').innerText()).includes(n04DeliveredOnly.session_id), 'N04: 交付运行显示其准确身份与证据');
     // N03: 深链接直接恢复区+运行；前进/后退恢复区域。
     await page.goto('about:blank');
     await page.goto(`${config.origin}/#area=insurance&run=${config.sessions[1]}`);
-    await page.locator('.plan-grid').waitFor();
+    await page.locator('.plan-section').waitFor();
     check((await activeNav()).includes('03 保险方案'), 'N03: deep link opens the requested area');
     await page.waitForFunction(sid => document.querySelector('#run')?.value === sid, config.sessions[1]);
     check(true, 'N03: deep link restores the requested run');
@@ -376,46 +364,81 @@ try {
       else await route.continue();
     });
     await page.goto('about:blank');
-    await page.goto(`${config.origin}/#area=risk`);
+    await page.goto(`${config.origin}/#area=risk&mode=scenario`);
     await page.getByRole('button', { name: '重试读取研究情景', exact: true }).waitFor({ timeout: 20000 });
     check((await page.locator('main').innerText()).includes('研究情景未能读取'), '稳定性：研究情景连续失败后给出显式错误态而非永久转圈');
     await page.unroute(scenarioRoute);
     await page.getByRole('button', { name: '重试读取研究情景', exact: true }).click();
     await page.locator('.risk-overview').waitFor({ timeout: 20000 });
-    check(true, '稳定性：手动重试后风险页恢复');
-    // 双模式：模式标识贯穿 URL/三页；真实 Agent 实测保持诚实不可用态。
+    const scenarioRiskCopy = await page.locator('.risk-overview').innerText();
+    check(scenarioRiskCopy.includes('研究性风险测算') && scenarioRiskCopy.includes('¥31,746.00') && scenarioRiskCopy.includes('基于假设，非实际测得的损失'), '研究情景：第二页固定研究性风险测算（¥31,746 + 假设说明）');
+    check(scenarioRiskCopy.includes('6,105') && scenarioRiskCopy.includes('33.73%'), '研究情景：任务量与四类业务权重可见');
+    // 三个模式：全局同步、数据隔离、互不借用；切换不删除任何已有记录。
     await navTo('01 测试案例');
-    check(await page.getByTestId('mode-demo').getAttribute('aria-checked') === 'true', '模式：默认为研究情景演示');
-    await page.getByTestId('mode-real').click();
-    check(page.url().includes('mode=real'), '模式：real 写入 URL');
+    check(await page.getByTestId('mode-scenario').getAttribute('aria-selected') === 'true', '模式：URL 恢复研究情景选中');
+    check(await page.locator('.scenario-intro').count() === 1, '研究情景：第一页固定介绍（不要求选择历史记录）');
+    check(await page.getByTestId('sample-run').count() === 0 && await page.getByTestId('real-run-one').count() === 0, '研究情景：不显示任何运行按钮');
+    check(await page.locator('#run').count() === 0, '研究情景：右上角历史选择器隐藏');
+    await page.getByTestId('mode-sampling').click();
+    check(!page.url().includes('mode='), '模式：切回抽取检验后 URL 不带 mode');
+    check(await page.getByTestId('sample-run').isEnabled(), '抽取检验：随机抽取按钮可用（免费规则基线）');
+    await navTo('03 保险方案');
+    const planIsolation = await page.locator('.plan-section').innerText();
+    check(planIsolation.includes('尚未执行抽取检验') && !planIsolation.includes('25,641') && !planIsolation.includes('35,866'), '隔离：抽取检验未运行时第三页不含研究情景保费');
+    await navTo('01 测试案例');
+    await page.getByTestId('mode-agent').click();
+    check(page.url().includes('mode=agent'), '模式：真实Agent 写入 URL');
     const realBudget = await page.getByTestId('real-run-budget').innerText();
-    check(realBudget.includes('历史付费合计') && realBudget.includes('单次硬顶'), '模式：真实运行预算区显示批准上限/硬顶/历史付费合计');
-    check(await page.locator('#real-run-hundred').isDisabled(), '模式：100 条保持扩展入口、不可直接运行');
+    check(realBudget.includes('历史付费合计') && realBudget.includes('单次硬顶'), '真实Agent：预算区显示批准上限/硬顶/历史付费合计');
+    check(await page.locator('#real-run-hundred').isDisabled(), '真实Agent：100 条保持扩展入口、不可直接运行');
     if (await page.getByTestId('real-run-one').isDisabled()) {
-      check(await page.getByTestId('real-run-batch').isDisabled(), '模式：真实 Agent 实测按钮随授权状态一致禁用');
+      check(await page.getByTestId('real-run-batch').isDisabled(), '真实Agent：运行按钮随授权状态一致禁用');
       const realNote = await page.getByTestId('real-run-note').innerText();
-      check(realNote.includes('未授权') || realNote.includes('未配置'), '模式：不可用原因逐条列明（未授权/未配置）');
+      check(realNote.includes('未授权') || realNote.includes('未配置'), '真实Agent：不可用原因逐条列明（未授权/未配置）');
     } else {
-      check(await page.getByTestId('real-run-batch').isEnabled(), '模式：已授权时小批量按钮可用');
-      check(realBudget.includes('批准上限') && !realBudget.includes('未批准'), '模式：已授权时预算区显示批准上限');
+      check(await page.getByTestId('real-run-batch').isEnabled(), '真实Agent：已授权时小批量按钮可用');
+      check(realBudget.includes('批准上限') && !realBudget.includes('未批准'), '真实Agent：已授权时预算区显示批准上限');
     }
+    // 未选择批次：第二、三页保持空状态，无任何预设数字。
     await navTo('02 风险结论');
     await page.locator('.risk-overview').waitFor();
-    const realRisk = await page.locator('.risk-overview').innerText();
-    check(realRisk.includes('真实 Agent 实测'), '模式：第二页显示当前模式与批次标识');
-    check(realRisk.includes('数据不足') && realRisk.includes('演示用假设'), '真实模式：实测数据不足时如实标注且情景假设被明示分离');
+    const agentEmpty = await page.locator('.risk-overview').innerText();
+    check(agentEmpty.includes('尚无真实Agent测试结果') && !agentEmpty.includes('31,746') && !agentEmpty.includes('数据不足'), '真实Agent：未运行/未选择时第二页为空且无预设数字');
     await navTo('03 保险方案');
-    await page.locator('.plan-section').waitFor();
-    const realPlan = await page.locator('.plan-section').innerText();
-    check(realPlan.includes('样本外推') && !realPlan.includes('¥25,641.00'), '真实模式：第三页给出样本外推而非演示情景数字');
-    check(realPlan.includes('数据不足'), '真实模式：核验不完整时不显示样本保费');
-    await page.waitForFunction(() => (document.querySelector('[data-testid="insurance-advice"]')?.innerText ?? '').includes('当前测试未发现额外经济损失'), { timeout: 20000 });
-    const adviceText = await page.getByTestId('insurance-advice').innerText();
-    check(adviceText.includes('继续观察') && adviceText.includes('当前测试未发现额外经济损失'), '真实模式：第三页动态保险配置建议（零损失→继续观察/未发现额外经济损失）');
-    check(adviceText.includes('扩大测试样本') && adviceText.includes('Core 或 Plus 保障'), '真实模式：建议卡引导扩大样本后再评估保障');
+    const agentPlanEmpty = await page.locator('.plan-section').innerText();
+    check(agentPlanEmpty.includes('尚无真实Agent测试结果') && !agentPlanEmpty.includes('25,641'), '真实Agent：未运行/未选择时第三页为空且无预设保费');
+    // 明确选择已有 5 条历史批次 → 第二页实际核验结果、第三页保险配置建议；不混入研究情景。
     await navTo('01 测试案例');
-    await page.getByTestId('mode-demo').click();
-    check(!page.url().includes('mode=real'), '模式：切回演示模式后 URL 不再带 real');
+    const agentCatalog = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
+    const observedRuns = agentCatalog.runs.filter(run => run.execution_source === 'observed_agent_execution');
+    const byBatch = new Map();
+    for (const run of observedRuns) byBatch.set(run.batch_id, (byBatch.get(run.batch_id) ?? 0) + 1);
+    const fiveBatchId = [...byBatch.entries()].sort((a, b) => b[1] - a[1])[0][0];
+    const fiveTarget = observedRuns.find(run => run.batch_id === fiveBatchId);
+    check(byBatch.get(fiveBatchId) === 5, '真实Agent：目录中存在 5 条真实批次');
+    const fiveDetail = page.waitForResponse(response => response.url().endsWith(`/observer/api/integration-runs/${fiveTarget.run_id}`));
+    await page.selectOption('#run', fiveTarget.session_id);
+    await fiveDetail;
+    await navTo('02 风险结论');
+    await page.waitForFunction(() => (document.querySelector('.risk-overview')?.innerText ?? '').includes('5 / 5'), { timeout: 30000 });
+    const agentRisk = await page.locator('.risk-overview').innerText();
+    const agentRiskRaw = await page.locator('.risk-overview').evaluate(node => node.textContent ?? '');
+    check(agentRisk.includes('历史批次') && agentRisk.includes(fiveBatchId), '真实Agent：明确回看的历史批次被标注');
+    check(agentRisk.includes('5 次') && agentRisk.includes('0.00%') && agentRisk.includes('¥0.00'), '真实Agent：第二页展示实际核验结果（5 条 / 0.00% / ¥0）');
+    check(!agentRisk.includes('31,746'), '隔离：真实Agent 第二页不混入研究情景数字');
+    check(agentRiskRaw.includes('任务升级与人工工单') && agentRiskRaw.includes('开发运行来源'), 'T1/T3：完整统计口径折叠内含来源与工单维度');
+    await navTo('03 保险方案');
+    await page.waitForFunction(() => (document.querySelector('[data-testid="insurance-advice"]')?.innerText ?? '').includes('当前测试未发现额外经济损失'), { timeout: 30000 });
+    const adviceText = await page.getByTestId('insurance-advice').innerText();
+    check(adviceText.includes('继续观察') && adviceText.includes('当前测试未发现额外经济损失'), '真实Agent：第三页动态保险配置建议（零损失→继续观察）');
+    check(adviceText.includes('扩大测试样本') && adviceText.includes('Core 或 Plus 保障'), '真实Agent：建议卡引导扩大样本后再评估保障');
+    const agentPlan = await page.locator('.plan-section').innerText();
+    check(agentPlan.includes('数据不足') && !agentPlan.includes('25,641') && !agentPlan.includes('35,866'), '真实Agent：保险责任未认定时样本保费数据不足、不混入研究情景');
+    await navTo('01 测试案例');
+    // 切回抽取检验：记录仍在，选择器回到抽样池（切换不删除记录）。
+    await page.getByTestId('mode-sampling').click();
+    check(await page.locator('#run').count() === 1, '模式：切换后记录选择器仍在');
+    check(await page.locator('#run optgroup').count() >= 1, '模式：切换不删除任何已有记录');
 
     await context.setOffline(true);
     const beforeOffline = requests.length;
@@ -441,8 +464,15 @@ try {
     await context.setOffline(false);
     // IA3 护栏（IA v3 语义，新版界面）：默认折叠 / 分步导航 / legacy 深链接 / 交付运行全链路绑定。
     await page.getByRole('button', { name: '返回本机服务', exact: true }).click();
-    await page.getByTestId('committed-total').waitFor();
+    await page.getByTestId('mode-sampling').waitFor();
+    check((await page.locator('main').innerText()).includes('尚未选择记录'), '返回本机服务后回到空状态（不自动选择任何运行）');
     await page.reload();
+    await page.getByTestId('mode-sampling').waitFor();
+    check((await page.locator('main').innerText()).includes('尚未选择记录'), '刷新后仍为空状态（不自动落地历史记录）');
+    const foldDev = page.locator('details.dev-tools');
+    check(await foldDev.count() === 1 && !(await foldDev.evaluate(node => node.open)), 'IA3-03: 开发工具默认折叠');
+    const foldSid = config.sessions[0];
+    await Promise.all([page.waitForResponse(response => response.url().endsWith(`/sessions/${foldSid}/evidence`)), page.selectOption('#run', foldSid)]);
     await page.getByTestId('committed-total').waitFor();
     const foldDefault = page.locator('details.evidence-fold');
     check(await foldDefault.count() === 1 && !(await foldDefault.evaluate(node => node.open)), 'IA3-03: 详细执行证据默认折叠');
@@ -474,13 +504,15 @@ try {
     await page.waitForFunction(() => document.querySelector('.nav-link.active')?.textContent?.includes('03 保险方案'));
     check(true, 'IA3-02: legacy cost 深链接映射到保险方案页');
     const guardCatalog = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
-    const guardTarget = guardCatalog.runs.find(run => run.session_id !== liveSid) ?? guardCatalog.runs[0];
+    const guardObserved = guardCatalog.runs.filter(run => run.execution_source === 'observed_agent_execution');
+    const guardTarget = guardObserved.find(run => run.session_id !== liveSid) ?? guardObserved[0];
     check(!!guardTarget, 'IA3-04: 交付目录可用');
+    await navTo('01 测试案例');
+    await page.getByTestId('mode-agent').click();
     const guardResponse = page.waitForResponse(response => response.url().endsWith(`/observer/api/integration-runs/${guardTarget.run_id}`));
     await page.selectOption('#run', guardTarget.session_id);
     await guardResponse;
-    await page.waitForFunction(() => document.querySelector('.nav-link.active')?.textContent?.includes('01 测试案例'));
-    await page.locator('details.integration-panel').waitFor();
+    await page.getByTestId('committed-total').waitFor();
     await openEvidence();
     await page.locator('.run-identity summary').click();
     const guardIdentity = await page.locator('.identity-fields').innerText();

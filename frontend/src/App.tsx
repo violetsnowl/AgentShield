@@ -3,7 +3,7 @@ import type { ChangeEvent, ReactNode } from 'react';
 import { api, pairFromFragment } from './api';
 import { buildViewHash, parseViewState } from './routing';
 import type { ModeId } from './routing';
-import { adaptResult, evidenceStatePresentation, parseBScaleBatchStatus, parseIntegrationCatalog, parseIntegrationDetail } from './integrations';
+import { parseBScaleBatchStatus, parseIntegrationCatalog, parseIntegrationDetail } from './integrations';
 import type { BScaleBatchStatus, IntegrationRunDetail, IntegrationRunSummary } from './integrations';
 import { eventMeaning, evidenceCaveats, money, openingSplit, orderedEvents, parseEvidence, statusText } from './data';
 import type { EvidenceBundle, EventPage, FixtureCatalog, Ledger, SessionPage, SessionStatus, ToolEvent } from './generated/contract';
@@ -15,7 +15,7 @@ import { computeRiskMetrics } from './riskMetrics';
 import type { RiskRunInput } from './riskMetrics';
 import { parseResearchScenario } from './researchScenario';
 import type { ResearchPlan, ResearchScenario } from './researchScenario';
-import { extrapolatePremium, insuranceAdviceFrom, realBatchIdOf, summarizeRealBatch } from './realMode';
+import { extrapolatePremium, insuranceAdviceFrom, summarizeRealBatch } from './realMode';
 import type { ExtrapolatedPremium, InsuranceAdvice, RealBatchRow } from './realMode';
 import { canStartRealRun, parseRealRunStatus, realRunBusy, realRunDisabledReasons, realRunStageLabel } from './realRun';
 import type { RealRunStatus } from './realRun';
@@ -33,6 +33,49 @@ const orderStatusText = { paid: '已支付', partially_refunded: '部分退款',
 function Badge({ children, tone = '' }: { children: ReactNode; tone?: string }) { return <span className={`badge ${tone}`}>{children}</span>; }
 function Id({ children }: { children: ReactNode }) { return <code className="id">{children ?? '未记录'}</code>; }
 function Empty({ title, children }: { title: string; children: ReactNode }) { return <div className="empty"><strong>{title}</strong><p>{children}</p></div>; }
+
+const MODE_LABELS: Record<ModeId, string> = { sampling: '抽取检验', scenario: '研究情景', agent: '真实Agent' };
+
+/** 各页共享的批次视图（按模式隔离：抽取检验批次 / 真实Agent 批次互不借用）。 */
+type BatchView = { id: string | null; origin: 'session-run' | 'history' | null; runs: IntegrationRunSummary[]; busy: boolean };
+
+/** 第一页顶部的全局模式选项卡：三个模式互不借用数据，切换不删除任何已有记录。 */
+function ModeTabs({ mode, onMode }: { mode: ModeId; onMode: (value: ModeId) => void }) {
+  const notes: Record<ModeId, string> = {
+    sampling: '随机抽取并运行（免费规则基线）——证明 B-SCALE 随机抽样与批量执行能力，不调用模型、不产生 API 费用。',
+    scenario: '预先固定的研究演示——不运行任何任务，直接展示研究情景、风险测算与保险方案。',
+    agent: '真实调用 DeepSeek 的实测——结果只统计本次运行或明确选择回看的历史批次；未选择时第二、三页保持空状态。',
+  };
+  return <section className="mode-tabs-wrap" aria-label="演示模式">
+    <div className="mode-tabs" role="tablist" aria-label="三个互不借用数据的模式">
+      {(['sampling', 'scenario', 'agent'] as ModeId[]).map(id => <button key={id} type="button" role="tab" aria-selected={mode === id} data-testid={`mode-${id}`} className={mode === id ? 'mode-tab active' : 'mode-tab'} onClick={() => onMode(id)}>{MODE_LABELS[id]}</button>)}
+    </div>
+    <p className="mode-note">{notes[mode]}</p>
+  </section>;
+}
+
+/** 研究情景模式的第一页：固定研究演示的介绍（全部来自已有配置，不依赖任何运行结果）。 */
+function ScenarioIntro({ scenario, scenarioState, scenarioError, offlineFile, onRetry }: {
+  scenario: ResearchScenario | null; scenarioState: LoadState; scenarioError: string; offlineFile: boolean; onRetry: () => void;
+}) {
+  if (scenario === null && scenarioState === 'error') return <div className="empty error" role="alert"><strong>研究情景未能读取</strong><p>{scenarioError}</p><button onClick={onRetry}>重试读取研究情景</button></div>;
+  if (scenario === null && offlineFile) return <Empty title="离线只读模式">研究情景演示需要本机服务；离线时不会发起任何请求。</Empty>;
+  if (scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在读取研究情景…</div>;
+  const context = scenario.contract_context;
+  return <section className="scenario-intro" aria-label="研究情景介绍">
+    <div className="scenario-heading"><div><p className="eyebrow">固定研究演示</p><h2>研究情景介绍</h2></div><Badge tone="warning">研究假设 · 非实际经验报价</Badge></div>
+    <p>本模式为提前准备好的固定演示，不依赖抽取检验结果，也不依赖 DeepSeek 历史运行；全部数字为预先分析的研究假设，不是任何一次运行的实测结果。</p>
+    <dl className="ip-dl">
+      <div><dt>企业业务背景</dt><dd>{context.policyholder} 在沙箱内处理电商订单退款业务；指定 Agent：{context.designated_agent}。</dd></div>
+      <div><dt>年度 Agent 任务</dt><dd>{scenario.annual_agent_task_volume.toLocaleString('zh-CN')} 项（B-SCALE 合成经营总体）</dd></div>
+      <div><dt>业务结构</dt><dd>{scenario.categories.map(category => category.label).join(' / ')}</dd></div>
+      <div><dt>研究假设</dt><dd>事故概率 {(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}% · 平均事故损失 {money(scenario.categories[0].average_accident_loss_cents)}</dd></div>
+      <div><dt>研究性风险测算</dt><dd>{money(scenario.expected_annual_economic_loss_cents)}（详见「02 风险结论」）</dd></div>
+      <div><dt>保险方案</dt><dd>Core / Plus 两档研究方案，含模拟合同生成（详见「03 保险方案」）</dd></div>
+    </dl>
+    <p className="scenario-note">{scenario.assumption_notice}</p>
+  </section>;
+}
 
 function CaseSummary({ evidence, name }: { evidence: EvidenceBundle; name: string }) {
   const state = evidence.final_snapshot;
@@ -142,76 +185,66 @@ function RunResult({ evidence, matched, pending, hasEntry, integrationError, onR
   </section>;
 }
 
-function ResultPanel({ detail, onLoadEvidence }: { detail: IntegrationRunDetail; onLoadEvidence: () => void }) {
-  const lossSlot = adaptResult('LossResult', detail.loss_result);
-  return <details className="integration-panel" aria-label="单次核验与理算结果">
-    <summary className="ip-summary"><Badge tone="warning">C 独立核验</Badge> <Badge tone="warning">A 研究理算</Badge><strong>{detail.loss_result.loss_status === 'needs_review' ? '独立核验已执行，损失仍待业务审核' : '独立核验已有可确认结果'}</strong><span className="expand-hint">查看核验与理算详情 ▾</span></summary>
-    <div className="ip-body">
-      <p className="ip-lead">{lossSlot.message} 结果已按 session / episode 与所选运行校验一致。</p>
-      <dl className="ip-dl">
-        <div><dt>核验状态</dt><dd><Badge tone={detail.loss_result.loss_status === 'verified' ? 'good' : 'warning'}>{detail.loss_result.loss_status}</Badge></dd></div>
-        <div><dt>责任输入</dt><dd>{detail.loss_result.coverage_status_input}</dd></div>
-        <div><dt>义务来源</dt><dd>{detail.loss_result.obligation_source}</dd></div>
-        <div><dt>理算状态（A0）</dt><dd>{detail.claim.claim_status}{detail.claim.payout_cents === null ? ' · 赔款未记零' : ''}</dd></div>
-      </dl>
-      <p className="fine-print">退款总额是 B 已提交资金事实，不直接等同于额外净损失。执行来源：<Badge tone="warning">{detail.summary.execution_source}</Badge> {detail.summary.provider} / {detail.summary.model} · 开发运行（counts_as_formal_run=false）。</p>
-      <div className="ip-actions">
-        <button onClick={onLoadEvidence}>加载关联业务证据</button>
-        <button disabled aria-describedby="pending-cost">重新理算</button>
-        <p className="fine-print" id="pending-cost">工作台只展示 A 已交付的结果；交互式重算与正式数据尚未接入。</p>
-      </div>
-      <details className="ip-fold"><summary>核验依据与缺口明细</summary>
-        <dl className="ip-dl">
-          <div><dt>oracle</dt><dd><Id>{detail.loss_result.oracle_version}</Id></dd></div>
-          <div><dt>账本一致</dt><dd>{detail.loss_result.ledger_checks?.issues.length ? <Badge tone="error">存在问题</Badge> : <Badge tone="good">无已记录问题</Badge>}</dd></div>
-          <div><dt>工具事件</dt><dd>{detail.loss_result.activity?.tool_events ?? '未记录'}</dd></div>
-          <div><dt>人工工单</dt><dd>{detail.loss_result.activity?.human_review_tickets ?? '未记录'}</dd></div>
-        </dl>
-        <ul>{detail.loss_result.unknown_parts.length ? detail.loss_result.unknown_parts.map(item => <li key={item}>{item}<Badge tone="warning">未知</Badge></li>) : <li>没有未解析字段</li>}</ul>
-      </details>
-      <details className="ip-fold"><summary>A0 研究合同与工程样例（不代表 Core / Plus 保险报价）</summary>
-        <dl className="ip-dl">
-          <div><dt>合同版本</dt><dd><Id>{detail.contract.contract_version}</Id></dd></div>
-          <div><dt>免赔额</dt><dd className="money">{money(detail.contract.deductible_cents)}</dd></div>
-          <div><dt>赔付比例</dt><dd>{(detail.contract.coinsurance_bp / 100).toFixed(2)}%</dd></div>
-          <div><dt>每次限额</dt><dd className="money">{money(detail.contract.occurrence_limit_cents)}</dd></div>
-        </dl>
-        <p className="fine-print">claim_status={detail.claim.claim_status}；commercial_quote=false。前端不复制理算公式。</p>
-        <div className="quote-sample"><h3>工程情景成本样例</h3><Badge tone="warning">illustrative · 非本次运行</Badge>
-          <dl className="ip-dl">
-            <div><dt>B0 均值</dt><dd>{decimalCents(detail.quote_result.methods.B0.estimated_mean_cents_decimal)}</dd></div>
-            <div><dt>B0 情景成本</dt><dd>{decimalCents(detail.quote_result.methods.B0.scenario_cost_cents_decimal)}</dd></div>
-            <div><dt>B1 均值</dt><dd>{decimalCents(detail.quote_result.methods.B1.estimated_mean_cents_decimal)}</dd></div>
-            <div><dt>B1 情景成本</dt><dd>{decimalCents(detail.quote_result.methods.B1.scenario_cost_cents_decimal)}</dd></div>
-            <div><dt>B2</dt><dd>{detail.quote_result.methods.B2.status}</dd></div>
-          </dl>
-        </div>
-      </details>
-      <details className="ip-fold"><summary>证据状态说明</summary><div className="state-guide">{Object.entries(evidenceStatePresentation).map(([key, value]) => <div key={key}><Badge tone={value.tone}>{value.title} / {key}</Badge><p>{value.text}</p></div>)}</div></details>
-      <p className="fine-print">研究用途 · 非商业报价。</p>
-      {detail.summary.evidence_digest_status !== 'raw_file_match' && <p className="fine-print">证据声明哈希匹配规范 JSON（排序键、LF）；交付文件实际为 CRLF，原始字节哈希由 C_DELIVERY_MANIFEST 另行保护。历史文件未被改写。</p>}
-    </div>
-  </details>;
-}
-
 function SourceFold({ label, rows }: { label: string; rows: RiskRunInput[] }) {
   if (rows.length === 0) return null;
   return <details className="fold-body"><summary>{label}（{rows.length}）</summary><ul>{rows.map(row => <li key={row.runId}><Id>{row.runId}</Id><span className="cell-note">{row.label} · …{row.sessionId.slice(-8)}</span></li>)}</ul></details>;
 }
 
-function RiskOverview({ runs, offline, scenario, scenarioState, scenarioError, onRetryScenario, details, batchId, mode, onRetryDetails }: {
-  runs: IntegrationRunSummary[]; offline: boolean; scenario: ResearchScenario | null; scenarioState: LoadState;
-  scenarioError: string; onRetryScenario: () => void; details: Record<string, DetailSlot>; batchId: string | null;
-  mode: ModeId; onRetryDetails: (runIds: string[]) => void;
+function RiskOverview({ mode, batch, scenario, scenarioState, scenarioError, onRetryScenario, offlineFile, details, onRetryDetails }: {
+  mode: ModeId; batch: BatchView; scenario: ResearchScenario | null; scenarioState: LoadState;
+  scenarioError: string; onRetryScenario: () => void; offlineFile: boolean;
+  details: Record<string, DetailSlot>; onRetryDetails: (runIds: string[]) => void;
 }) {
-  if (offline) return <Empty title="离线只读模式">跨运行汇总需要本机服务；离线时不会发起任何请求。</Empty>;
+  if (offlineFile) return <Empty title="离线只读模式">跨运行汇总需要本机服务；离线时不会发起任何请求。</Empty>;
+  if (mode === 'scenario') {
+    if (scenario === null && scenarioState === 'error') return <div className="empty error" role="alert"><strong>研究情景未能读取</strong><p>{scenarioError}</p><button onClick={onRetryScenario}>重试读取研究情景</button><p className="fine-print">研究情景与实际批次核验相互独立；不会用假设数字冒充实际结果。失败可重试。</p></div>;
+    if (scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在读取研究情景…</div>;
+    return <section className="risk-overview" aria-label="研究情景风险测算">
+      <p className="mode-banner" role="status"><Badge>研究情景</Badge><span className="cell-note">固定研究演示 · 不依赖运行结果</span></p>
+      <section className="scenario-result" aria-label="研究性风险测算">
+        <div className="scenario-heading"><div><p className="eyebrow">统一研究情景</p><h2>研究性风险测算</h2></div><strong>{money(scenario.expected_annual_economic_loss_cents)}</strong></div>
+        <p className="fine-print"><Badge tone="warning">研究假设 · 非实际经验报价</Badge></p>
+        <div className="scenario-parameters">
+          <span>年度Agent任务 <b>{scenario.annual_agent_task_volume.toLocaleString('zh-CN')}</b></span>
+          <span>假设事故概率 <b>{(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}%</b></span>
+          <span>假设平均事故损失 <b>{money(scenario.categories[0].average_accident_loss_cents)}</b></span>
+        </div>
+        <div className="scenario-categories">{scenario.categories.map(category => <div key={category.key}><span>{category.label}</span><strong>{category.task_count.toLocaleString('zh-CN')}项 · {(Number(category.weight) * 100).toFixed(2)}%</strong></div>)}</div>
+        <p className="scenario-note">{scenario.assumption_notice}</p>
+      </section>
+      <details className="audit"><summary>查看完整统计与数据口径</summary>
+        <div className="audit-body">
+          <article><h3>研究假设与企业业务汇总（B-SCALE）</h3><p>年度潜在Agent任务：<strong>{scenario.annual_agent_task_volume.toLocaleString('zh-CN')}</strong> 项；四类权重按冻结模拟总体任务数计算。</p><p className="fine-print">风险公式：{scenario.risk_formula}</p></article>
+          <article><h3>数据口径说明（审计）</h3>
+            <ul className="glossary">
+              <li>研究情景为预先固定的假设测算，不来自任何已核验运行；与实际批次核验结果分开呈现。</li>
+              <li>事故概率与平均事故损失均为研究假设值；研究情景参考保费属假设测算（经验定价尚不可用），非商业报价。</li>
+              <li>样本范围：B-SCALE 冻结合成经营总体（开发用途）。</li>
+            </ul>
+          </article>
+        </div>
+      </details>
+    </section>;
+  }
+  const modeLabel = MODE_LABELS[mode];
+  const banner = <p className="mode-banner" role="status"><Badge tone={mode === 'agent' ? 'warning' : ''}>{modeLabel}</Badge>{batch.id !== null && <span className="cell-note">{batch.origin === 'history' ? '历史批次' : batch.origin === 'session-run' ? '本次运行' : '当前批次'} · {batch.id}</span>}</p>;
+  if (batch.id === null || batch.runs.length === 0) {
+    return <section className="risk-overview" aria-label="批次风险评估">{banner}
+      {batch.busy ? <div className="loading" role="status"><span className="spinner"/>批次正在运行，完成后在这里展示实际结果…</div>
+        : batch.id !== null ? <Empty title="批次记录尚未载入">批次已记录（{batch.id}），但目录中尚无对应运行条目；稍后重试或检查本机服务。</Empty>
+        : <Empty title={mode === 'sampling' ? '尚未执行抽取检验' : '尚无真实Agent测试结果'}>
+            {mode === 'sampling'
+              ? '在「01 测试案例」点击「随机抽取100项并运行」后，这里将显示该批次的执行数量、模拟退款与核验覆盖；当前没有任何批次数据。'
+              : '点击「运行 1 条 / 运行小批量」发起真实批次，或在「01 测试案例」右上角选择一条历史真实运行回看；未选择前本页不显示任何批次数据。'}
+          </Empty>}
+    </section>;
+  }
+  const runs = batch.runs;
   const failedIds = runs.filter(run => details[run.run_id]?.state === 'error').map(run => run.run_id);
   const loadedCount = runs.filter(run => details[run.run_id]?.state === 'ready').length;
-  if (scenario === null && scenarioState === 'error') return <div className="empty error" role="alert"><strong>研究情景未能读取</strong><p>{scenarioError}</p><button onClick={onRetryScenario}>重试读取研究情景</button><p className="fine-print">测试统计与研究情景相互独立；不会用假设数字冒充实际结果。失败可重试，不再静默卡在“正在汇总”。</p></div>;
-  if (scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在汇总测试与研究情景…</div>;
   if (failedIds.length > 0) return <div className="empty error" role="alert"><strong>汇总数据未能读取</strong><p>{failedIds.length} / {runs.length} 条运行的明细读取失败；统计未生成（避免不完整口径），可重试。</p><button onClick={() => onRetryDetails(failedIds)}>重试读取失败明细</button></div>;
   const readyDetails = runs.map(run => details[run.run_id]).filter((slot): slot is DetailSlot => slot !== undefined && slot.state === 'ready' && slot.detail !== null).map(slot => slot.detail!);
-  if (readyDetails.length < runs.length) return <div className="loading" role="status"><span className="spinner"/>正在汇总测试与研究情景…（明细 {loadedCount}/{runs.length}）</div>;
+  if (readyDetails.length < runs.length) return <div className="loading" role="status"><span className="spinner"/>正在汇总本批次明细…（{loadedCount}/{runs.length}）</div>;
   const inputs: RiskRunInput[] = readyDetails.map(detail => ({
     runId: detail.summary.run_id, label: detail.summary.label, sessionId: detail.summary.session_id, caseId: detail.summary.case_id,
     executionSource: String(detail.summary.execution_source),
@@ -238,55 +271,40 @@ function RiskOverview({ runs, offline, scenario, scenarioState, scenarioError, o
     { label: '规则基线开发运行（rule_baseline）', count: metrics.ruleBaseline.length },
     { label: '其他来源开发运行', count: metrics.otherSources.length },
   ].filter(row => row.count > 0);
-  return <section className="risk-overview" aria-label="跨运行风险评估">
-    <p className="mode-banner" role="status"><Badge tone={mode === 'real' ? 'warning' : ''}>{mode === 'real' ? '真实 Agent 实测' : '研究情景演示'}</Badge>{mode === 'real' && batchId !== null && <span className="cell-note">批次 {batchId}</span>}</p>
+  return <section className="risk-overview" aria-label="批次风险评估">
+    {banner}
     <div className="verdict">
       <h2>实际测试结果</h2>
-      <p>{batchId === null ? '以下合计覆盖全部已交付开发运行。' : `当前批次共 ${metrics.total} 条${allRuleBaseline ? '规则基线' : ''}开发运行。`}</p>
+      <p>本批次共 {metrics.total} 条{allRuleBaseline ? '规则基线' : ''}开发运行。</p>
     </div>
-    {metrics.total === 0 && <Empty title="暂无可汇总的已交付运行">目录里没有完整的 A/C 交付条目；不会用开发会话冒充统计样本。</Empty>}
     <div className="core-facts">
       <div><span>运行数量</span><strong>{metrics.total} 次</strong><p>正常退款 {metrics.outcomeCompleted} · 转人工 {metrics.outcomeEscalated}</p></div>
       <div><span>B账本实际退款总额</span><strong>{money(actualRefundCents)}</strong><p>模拟退款资金事实，不解释为经济损失。</p></div>
       <div><span>C独立核验覆盖</span><strong>{metrics.verified.length} / {metrics.total}</strong><p>待审 {metrics.review.length} 条；null 未记为零。</p></div>
     </div>
-    {mode === 'real' && <section className="real-batch" aria-label="真实 Agent 批次结果">
-      <div className="scenario-heading"><div><p className="eyebrow">真实 Agent 实测 · 当前批次</p><h2>本批次执行结果</h2></div></div>
-      {realSummary.total === 0 ? <p className="fine-print">当前批次尚无运行。</p>
-        : <dl className="ip-dl">
-          <div><dt>运行 / 已核验</dt><dd>{realSummary.total} 次 / {realSummary.verified} 条已核验（待核验 {realSummary.review} 条）</dd></div>
-          <div><dt>操作错误（未正常完成 / 转人工）</dt><dd>{realSummary.notFinished} / {realSummary.escalated}</dd></div>
-          <div><dt>损失发生率（已核验样本内）</dt><dd>{realSummary.lossIncidence.status === 'ok' && realSummary.lossIncidence.rate !== null ? `${(realSummary.lossIncidence.rate * 100).toFixed(2)}%` : <Badge tone="warning">数据不足</Badge>}<small className="cell-note">{realSummary.lossIncidence.reason}</small></dd></div>
-          <div><dt>经济损失（已核验净损失合计）</dt><dd>{realSummary.economicLoss.status === 'ok' && realSummary.economicLoss.cents !== null ? money(realSummary.economicLoss.cents) : <Badge tone="warning">数据不足</Badge>}<small className="cell-note">{realSummary.economicLoss.reason}</small></dd></div>
-        </dl>}
+    <section className="real-batch" aria-label="批次执行结果">
+      <div className="scenario-heading"><div><p className="eyebrow">{modeLabel} · {batch.origin === 'history' ? '历史批次回看' : '当前批次'}</p><h2>本批次执行结果</h2></div></div>
+      <dl className="ip-dl">
+        <div><dt>运行 / 已核验</dt><dd>{realSummary.total} 次 / {realSummary.verified} 条已核验（待核验 {realSummary.review} 条）</dd></div>
+        <div><dt>操作错误（未正常完成 / 转人工）</dt><dd>{realSummary.notFinished} / {realSummary.escalated}</dd></div>
+        <div><dt>损失发生率（已核验样本内）</dt><dd>{realSummary.lossIncidence.status === 'ok' && realSummary.lossIncidence.rate !== null ? `${(realSummary.lossIncidence.rate * 100).toFixed(2)}%` : <Badge tone="warning">数据不足</Badge>}<small className="cell-note">{realSummary.lossIncidence.reason}</small></dd></div>
+        <div><dt>经济损失（已核验净损失合计）</dt><dd>{realSummary.economicLoss.status === 'ok' && realSummary.economicLoss.cents !== null ? money(realSummary.economicLoss.cents) : <Badge tone="warning">数据不足</Badge>}<small className="cell-note">{realSummary.economicLoss.reason}</small></dd></div>
+      </dl>
       <p className="fine-print">核验不完整或保险责任未确定时保持「数据不足」，不用假设冒充实测。</p>
-    </section>}
-    <section className="scenario-result" aria-label="研究性风险测算">
-      <div className="scenario-heading"><div><p className="eyebrow">统一研究情景</p><h2>研究性风险测算</h2></div><strong>{money(scenario.expected_annual_economic_loss_cents)}</strong></div>
-      {mode === 'real' && <p className="fine-print"><Badge tone="warning">演示用假设 · 非本批次实测</Badge></p>}
-      <div className="scenario-parameters">
-        <span>年度Agent任务 <b>{scenario.annual_agent_task_volume.toLocaleString('zh-CN')}</b></span>
-        <span>假设事故概率 <b>{(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}%</b></span>
-        <span>假设平均事故损失 <b>{money(scenario.categories[0].average_accident_loss_cents)}</b></span>
-      </div>
-      <div className="scenario-categories">{scenario.categories.map(category => <div key={category.key}><span>{category.label}</span><strong>{category.task_count.toLocaleString('zh-CN')}项 · {(Number(category.weight) * 100).toFixed(2)}%</strong></div>)}</div>
-      <p className="scenario-note">{scenario.assumption_notice}</p>
     </section>
     <details className="audit"><summary>查看完整统计与数据口径</summary>
       <div className="audit-body">
         <article><h3>开发运行来源</h3><ul className="source-list">{sourceRows.map(row => <li key={row.label}><span>{row.label}</span><strong>{row.count}</strong></li>)}</ul><p className="fine-print">仅表示运行来源构成，不等于任务正确率或风险高低对照；真实模型、Mock 与规则基线分开标注，不混称；同任务可比的核验对照待正式数据。</p></article>
         <article><h3>任务升级与人工工单</h3><p>任务结果记录为升级（escalated）的运行数：<strong>{metrics.outcomeEscalated}</strong></p><p className="fine-print">任务结果拆解：completed {metrics.outcomeCompleted} · escalated {metrics.outcomeEscalated} · not_finished {metrics.outcomeNotFinished}{metrics.outcomeOther ? ` · 其他 ${metrics.outcomeOther}` : ''}</p><p className="fine-print">人工工单（B 记录）：{metrics.ticketRuns.length} 个运行，共 {metrics.ticketTotal} 张；与核验状态、任务升级互不代替。</p><SourceFold label="升级运行" rows={metrics.escalated}/><SourceFold label="待核验运行" rows={metrics.review}/><SourceFold label="来源运行" rows={metrics.verified}/></article>
         <article><h3>按业务类别</h3><div className="table-scroll"><table><thead><tr><th>类别</th><th className="number">运行</th><th className="number">已核验</th><th className="number">净损失合计</th></tr></thead><tbody>{metrics.categories.map(category => <tr key={category.key}><td>{category.key}</td><td className="number">{category.runs}</td><td className="number">{category.verified}</td><td className="money">{category.verifiedMissing > 0 ? <Badge tone="warning">证据不足</Badge> : category.verified ? money(category.lossCents) : '—'}</td></tr>)}</tbody></table></div></article>
-        <article><h3>企业业务汇总（B-SCALE）</h3><p>年度潜在Agent任务：<strong>{scenario.annual_agent_task_volume.toLocaleString('zh-CN')}</strong> 项；四类权重按冻结模拟总体任务数计算。</p></article>
         <article><h3>数据范围与口径说明（审计）</h3>
           <ul className="glossary">
-            <li>样本范围：本机交付目录（artifacts/c_l0 交付条目）；全部 counts_as_formal_run=false，属开发运行。</li>
+            <li>样本范围：本批次（batch_id 见上方批次标识）；全部 counts_as_formal_run=false，属开发运行。</li>
             <li>运行数量 / 开发运行来源：按 execution_source 分类（observed_agent_execution=真实模型 / mock_agent=Mock / scripted_test、rule_baseline=规则基线）。</li>
             <li>核验覆盖：loss_status；verified=已核验，needs_review=待核验（净损失保持 null）。</li>
             <li>核验损失：仅 loss_status=verified 的样本进入净损失合计；样本不足时显示“证据不足”。</li>
             <li>核验缺口：已核验但缺金额的运行单独计为“核验结果缺失”，不按 0 计入任何合计。</li>
             <li>研究赔款：仅 claim_status=assessed 且 payout 非 null 的样本进入合计。</li>
-            <li>研究情景：{scenario.risk_formula}；与实际批次核验结果分开。</li>
             <li>任务升级：交付 manifest 的 task_outcome=escalated；人工工单：B 证据 human_reviews（独立维度）。</li>
             <li>按业务类别：按案例 ID 公开结构归类（如 bcp2-l1-whole-low-04 → 整单 · 小额）；无法归类显示「未归类 · 待审」。</li>
           </ul>
@@ -362,24 +380,51 @@ function AdviceCard({ advice }: { advice: InsuranceAdvice }) {
   </article>;
 }
 
-function InsurancePlans({ runs, scenario, scenarioState, scenarioError, onRetryScenario, details, batchId, mode, onRetryDetails }: {
-  runs: IntegrationRunSummary[]; scenario: ResearchScenario | null; scenarioState: LoadState; scenarioError: string;
-  onRetryScenario: () => void; details: Record<string, DetailSlot>; batchId: string | null; mode: ModeId;
+function InsurancePlans({ mode, batch, scenario, scenarioState, scenarioError, onRetryScenario, offlineFile, details, onRetryDetails }: {
+  mode: ModeId; batch: BatchView; scenario: ResearchScenario | null; scenarioState: LoadState; scenarioError: string;
+  onRetryScenario: () => void; offlineFile: boolean; details: Record<string, DetailSlot>;
   onRetryDetails: (runIds: string[]) => void;
 }) {
   const [contractProduct, setContractProduct] = useState<ResearchPlan['product_id'] | null>(null);
   const [sampleContractProduct, setSampleContractProduct] = useState<ResearchPlan['product_id'] | null>(null);
-  if (scenario === null && scenarioState === 'error') return <div className="empty error" role="alert"><strong>研究情景未能读取</strong><p>{scenarioError}</p><button onClick={onRetryScenario}>重试读取研究情景</button></div>;
-  if (scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在计算研究保险方案…</div>;
-  const readyDetails = runs.map(run => details[run.run_id]).filter((slot): slot is DetailSlot => slot !== undefined && slot.state === 'ready' && slot.detail !== null).map(slot => slot.detail!);
+  if (offlineFile) return <Empty title="离线只读模式">保险测算需要本机服务；离线时不会发起任何请求。</Empty>;
+  if (mode === 'scenario') {
+    if (scenario === null && scenarioState === 'error') return <div className="empty error" role="alert"><strong>研究情景未能读取</strong><p>{scenarioError}</p><button onClick={onRetryScenario}>重试读取研究情景</button></div>;
+    if (scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在计算研究保险方案…</div>;
+    const generated = scenario.plans.find(plan => plan.product_id === contractProduct) ?? null;
+    if (generated) return <InsuranceContract scenario={scenario} plan={generated} onClose={() => setContractProduct(null)}/>;
+    return <section className="plan-section" aria-label="研究保险方案">
+      <div className="verdict"><h2>年度研究保险方案</h2><p>研究假设 · 非实际经验报价；两档参考保费由研究情景与 A-P0 单次理赔公式计算。</p></div>
+      <p className="mode-banner" role="status"><Badge>研究情景</Badge><span className="cell-note">固定研究演示 · 不依赖运行结果</span></p>
+      <div className="plan-grid">{scenario.plans.map(plan => <ResearchPlanCard key={plan.product_id} plan={plan} onGenerate={() => setContractProduct(plan.product_id)}/>)}</div>
+    </section>;
+  }
+  const modeLabel = MODE_LABELS[mode];
+  const banner = <p className="mode-banner" role="status"><Badge tone={mode === 'agent' ? 'warning' : ''}>{modeLabel}</Badge>{batch.id !== null && <span className="cell-note">{batch.origin === 'history' ? '历史批次' : batch.origin === 'session-run' ? '本次运行' : '当前批次'} · {batch.id}</span>}</p>;
+  if (batch.id === null || batch.runs.length === 0) {
+    return <section className="plan-section" aria-label="保险方案">{banner}
+      {batch.busy ? <div className="loading" role="status"><span className="spinner"/>批次正在运行，完成后在这里展示保险测算…</div>
+        : batch.id !== null ? <Empty title="批次记录尚未载入">批次已记录（{batch.id}），但目录中尚无对应运行条目；稍后重试。</Empty>
+        : <Empty title={mode === 'sampling' ? '尚未执行抽取检验' : '尚无真实Agent测试结果'}>
+            {mode === 'sampling'
+              ? '点击第一页「随机抽取100项并运行」完成批次后，这里才给出保险测算；核验未完成时保持「数据不足」。'
+              : '运行新的真实批次，或明确选择一条历史真实运行回看；未选择前不展示保险配置建议与样本参考保费，也不会混入研究情景数字。'}
+          </Empty>}
+    </section>;
+  }
+  const runs = batch.runs;
   const failedIds = runs.filter(run => details[run.run_id]?.state === 'error').map(run => run.run_id);
-  // 「保险配置建议」= 复用第二页同源核验统计（同一 summarizeRealBatch 映射）；真实模式专用，明细未载全时保持「无法建议」。
+  const readyDetails = runs.map(run => details[run.run_id]).filter((slot): slot is DetailSlot => slot !== undefined && slot.state === 'ready' && slot.detail !== null).map(slot => slot.detail!);
+  if (failedIds.length === 0 && readyDetails.length < runs.length) return <div className="loading" role="status"><span className="spinner"/>正在汇总本批次理赔状态…（{readyDetails.length}/{runs.length}）</div>;
+  if (scenario === null && scenarioState === 'error') return <div className="empty error" role="alert"><strong>研究情景未能读取</strong><p>{scenarioError}</p><button onClick={onRetryScenario}>重试读取研究情景</button></div>;
+  if (scenario === null) return <div className="loading" role="status"><span className="spinner"/>正在计算保险测算…</div>;
+  // 「保险配置建议」= 复用第二页同源核验统计（same summarizeRealBatch）；真实Agent 模式专用，明细未载全时保持「无法建议」。
   const adviceRows: RealBatchRow[] = readyDetails.map(detail => ({
     runId: detail.summary.run_id, runStatus: detail.summary.run_status ?? null, taskOutcome: detail.summary.task_outcome ?? null,
     lossStatus: detail.loss_result.loss_status, netLossCents: detail.loss_result.net_loss_cents,
     claimStatus: detail.claim.claim_status, payoutCents: detail.claim.payout_cents,
   }));
-  const advice: InsuranceAdvice | null = mode !== 'real' ? null
+  const advice: InsuranceAdvice | null = mode !== 'agent' ? null
     : readyDetails.length === runs.length
       ? insuranceAdviceFrom(summarizeRealBatch(adviceRows))
       : { kind: 'insufficient', title: '暂无法形成保险配置建议',
@@ -390,37 +435,34 @@ function InsurancePlans({ runs, scenario, scenarioState, scenarioError, onRetryS
     if (!row) return { lossStatus: detail.loss_result.loss_status, claimStatus: detail.claim.claim_status, payoutCents: null as number | null };
     return { lossStatus: row.loss_status, claimStatus: row.claim_status, payoutCents: row.payout_cents };
   });
-  if (mode === 'real' && sampleContractProduct !== null) {
+  const params = { annualTaskVolume: scenario.annual_agent_task_volume, loadingRatio: Number(scenario.premium_loading_ratio) };
+  if (sampleContractProduct !== null) {
     const chosen = scenario.plans.find(item => item.product_id === sampleContractProduct) ?? null;
-    const result = chosen ? extrapolatePremium(sampleRows(chosen.product_id), { annualTaskVolume: scenario.annual_agent_task_volume, loadingRatio: Number(scenario.premium_loading_ratio) }) : null;
-    if (chosen && result && result.status === 'ok' && result.premiumCents !== null) return <InsuranceContract scenario={scenario} plan={chosen} onClose={() => setSampleContractProduct(null)} kind="sample" sample={result} batchId={batchId}/>;
+    const result = chosen ? extrapolatePremium(sampleRows(chosen.product_id), params) : null;
+    if (chosen && result && result.status === 'ok' && result.premiumCents !== null) return <InsuranceContract scenario={scenario} plan={chosen} onClose={() => setSampleContractProduct(null)} kind="sample" sample={result} batchId={batch.id}/>;
   }
-  const generated = scenario.plans.find(plan => plan.product_id === contractProduct) ?? null;
-  if (generated) return <InsuranceContract scenario={scenario} plan={generated} onClose={() => setContractProduct(null)}/>;
-  const p0Sample = readyDetails.find(detail => detail.p0_claim_comparison !== null) ?? null;
+  const planResults = scenario.plans.map(plan => ({ plan, result: extrapolatePremium(sampleRows(plan.product_id), params) }));
+  // 抽取检验：核验/责任未完成时按约只显示「数据不足」提示，绝不展示研究情景预设保费。
+  const samplingBlocked = mode === 'sampling' && planResults.every(item => item.result.status !== 'ok');
+  const p0Sample = mode === 'agent' ? (readyDetails.find(detail => detail.p0_claim_comparison !== null) ?? null) : null;
   return <section className="plan-section" aria-label="保险方案">
-    <div className="verdict"><h2>{mode === 'real' ? '样本外推参考保费（研究）' : '年度研究保险方案'}</h2><p>{mode === 'real' ? '按本批次核定的 Core / Plus 单事件赔款做小样本外推；未核定时保持「数据不足」。' : '研究情景假设测算 · 非商业报价。'}</p></div>
-    <p className="mode-banner" role="status"><Badge tone={mode === 'real' ? 'warning' : ''}>{mode === 'real' ? '真实 Agent 实测' : '研究情景演示'}</Badge>{mode === 'real' && batchId !== null && <span className="cell-note">批次 {batchId}</span>}</p>
-    {mode === 'real' && advice && <AdviceCard advice={advice}/>}
-    {mode === 'real' && <>
-      <div className="plan-grid">{scenario.plans.map(plan => {
-        const result = extrapolatePremium(sampleRows(plan.product_id), { annualTaskVolume: scenario.annual_agent_task_volume, loadingRatio: Number(scenario.premium_loading_ratio) });
-        return <article className="plan-card" key={plan.product_id}>
-          <div className="plan-title-row"><h2>{plan.display_name}</h2><span className="plan-tag">{plan.product_id.replace('AgentShield-', '')} · 样本外推</span></div>
-          <dl>
-            <div><dt>样本外推参考保费</dt><dd>{result.status === 'ok' && result.premiumCents !== null ? <strong className="money premium-amount">{money(result.premiumCents)}</strong> : <Badge tone="warning">数据不足</Badge>}<small className="cell-note">小样本外推 · 非商业报价。</small></dd></div>
-            <div><dt>样本量 / 已核定事件</dt><dd>{result.sampleSize} 条 / {result.eventCount} 件</dd></div>
-            <div><dt>样本事故频率</dt><dd>{result.frequency === null ? '—' : `${(result.frequency * 100).toFixed(2)}%`}</dd></div>
-            <div><dt>平均单次赔款</dt><dd>{result.meanSeverityCents === null ? '—' : money(result.meanSeverityCents)}</dd></div>
-          </dl>
-          {result.sampleSize <= 1 && <p className="fine-print">样本量仅 {result.sampleSize} 条 · 研究性估算：{result.eventCount === 0 ? '本样本无已核定正赔款事件，¥0.00 不代表年度零风险；' : ''}不构成经验费率或商业报价。</p>}
-          {result.status !== 'ok' && <ul className="fine-print real-reasons">{result.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
-          <button className="primary-run contract-generate" disabled={result.status !== 'ok'} onClick={() => setSampleContractProduct(plan.product_id)}>{result.status === 'ok' ? `生成${plan.product_id === 'AgentShield-Core' ? 'Core' : 'Plus'}样本外推参考合同` : '数据不足 · 不能生成合同'}</button>
-        </article>;
-      })}</div>
-    </>}
-    {mode !== 'real' && <div className="plan-grid">{scenario.plans.map(plan => <ResearchPlanCard key={plan.product_id} plan={plan} onGenerate={() => setContractProduct(plan.product_id)}/>)}</div>}
-    {p0Sample?.p0_claim_comparison && p0Sample.p0_products && <details className="fold-body engineering-sample">
+    <div className="verdict"><h2>{mode === 'agent' ? '样本外推参考保费（研究）' : '抽取检验 · 保险测算'}</h2><p>{mode === 'agent' ? '按本批次核定的 Core / Plus 单事件赔款做小样本外推；未核定时保持「数据不足」。' : '按本批次核验与保险责任认定结果测算；核验未完成时保持「数据不足」。'}</p></div>
+    {banner}
+    {samplingBlocked && <Empty title="当前测试数据不足，尚不能形成保险测算">本批次 {runs.length} 条运行的核验尚未完成：{planResults[0]?.result.reasons.join('') ?? ''}不会用假设数字代替。</Empty>}
+    {!samplingBlocked && mode === 'agent' && advice && <AdviceCard advice={advice}/>}
+    {!samplingBlocked && <div className="plan-grid">{planResults.map(({ plan, result }) => <article className="plan-card" key={plan.product_id}>
+      <div className="plan-title-row"><h2>{plan.display_name}</h2><span className="plan-tag">{plan.product_id.replace('AgentShield-', '')} · 样本外推</span></div>
+      <dl>
+        <div><dt>样本外推参考保费</dt><dd>{result.status === 'ok' && result.premiumCents !== null ? <strong className="money premium-amount">{money(result.premiumCents)}</strong> : <Badge tone="warning">数据不足</Badge>}<small className="cell-note">小样本外推 · 非商业报价。</small></dd></div>
+        <div><dt>样本量 / 已核定事件</dt><dd>{result.sampleSize} 条 / {result.eventCount} 件</dd></div>
+        <div><dt>样本事故频率</dt><dd>{result.frequency === null ? '—' : `${(result.frequency * 100).toFixed(2)}%`}</dd></div>
+        <div><dt>平均单次赔款</dt><dd>{result.meanSeverityCents === null ? '—' : money(result.meanSeverityCents)}</dd></div>
+      </dl>
+      {result.sampleSize <= 1 && <p className="fine-print">样本量仅 {result.sampleSize} 条 · 研究性估算：{result.eventCount === 0 ? '本样本无已核定正赔款事件，¥0.00 不代表年度零风险；' : ''}不构成经验费率或商业报价。</p>}
+      {result.status !== 'ok' && <ul className="fine-print real-reasons">{result.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
+      <button className="primary-run contract-generate" disabled={result.status !== 'ok'} onClick={() => setSampleContractProduct(plan.product_id)}>{result.status === 'ok' ? `生成${plan.product_id === 'AgentShield-Core' ? 'Core' : 'Plus'}样本外推参考合同` : '数据不足 · 不能生成合同'}</button>
+    </article>)}</div>}
+    {!samplingBlocked && p0Sample?.p0_claim_comparison && p0Sample.p0_products && <details className="fold-body engineering-sample">
       <summary>当前批次单条理赔状态（与研究情景定价分开）</summary>
       <p><strong>{p0Sample.summary.case_id}</strong> · <Badge tone="warning">{p0Sample.p0_claim_comparison.status === 'A_study_reviewed_zero_loss_not_formal_insurance_claim' ? '开发运行 · A 已研究审核' : '开发运行·待审'}</Badge></p>
       <dl>
@@ -445,13 +487,8 @@ function InsurancePlans({ runs, scenario, scenarioState, scenarioError, onRetryS
         </article>;
       })}</div>
     </details>}
-    {failedIds.length > 0 && <p className="fine-print" role="alert">当前批次理赔记录读取失败：{failedIds.length} 条；研究情景方案仍可独立查看。<button className="text-button" onClick={() => onRetryDetails(failedIds)}>重试读取失败明细</button></p>}
+    {failedIds.length > 0 && <p className="fine-print" role="alert">本批次理赔记录读取失败：{failedIds.length} 条。<button className="text-button" onClick={() => onRetryDetails(failedIds)}>重试读取失败明细</button></p>}
   </section>;
-}
-
-function decimalCents(value: string | null) {
-  if (value === null || !Number.isFinite(Number(value))) return '不可用';
-  return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(Number(value) / 100);
 }
 
 type LedgerSlot = { state: 'loading' | 'ready' | 'error'; committedCents: number | null; tradeCount: number | null };
@@ -473,22 +510,19 @@ function legalDueSum(obligations: unknown[]): number | null {
   return sum;
 }
 
-function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onStart, mode, onMode, realRun, onStartRealRun }: {
+function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onStart, mode, realRun, onStartRealRun, onViewBatch, adopted }: {
   open: boolean; onToggle: () => void; configs: RunnerConfig[] | null; selected: string; onSelect: (value: string) => void;
-  batch: BScaleBatchStatus; onStart: () => void; mode: ModeId; onMode: (value: ModeId) => void;
+  batch: BScaleBatchStatus; onStart: () => void; mode: 'sampling' | 'agent';
   realRun: RealRunStatus | null; onStartRealRun: (count: number) => void;
+  onViewBatch: (batchId: string) => void; adopted: boolean;
 }) {
   const freeConfigs = configs?.filter(config => config.adapter === 'rule_baseline') ?? null;
   const current = freeConfigs?.find(config => config.config_id === selected) ?? null;
   const running = batch.status === 'queued' || batch.status === 'running';
   return <section className="new-test" aria-label="新建一次测试">
-    <button className="new-test-toggle" data-testid="new-test-toggle" aria-expanded={open} onClick={onToggle}>＋新建一次测试</button>
+    <button className="new-test-toggle" data-testid="new-test-toggle" aria-expanded={open} onClick={onToggle}>{mode === 'sampling' ? '＋新建一次抽取检验' : '＋新建一次真实 Agent 批次'}</button>
     {open && <div className="new-test-panel">
-      <div className="mode-switch" role="radiogroup" aria-label="执行模式">
-        <button type="button" role="radio" aria-checked={mode === 'demo'} data-testid="mode-demo" className={mode === 'demo' ? 'mode-option active' : 'mode-option'} onClick={() => onMode('demo')}>研究情景演示</button>
-        <button type="button" role="radio" aria-checked={mode === 'real'} data-testid="mode-real" className={mode === 'real' ? 'mode-option active' : 'mode-option'} onClick={() => onMode('real')}>真实 Agent 实测</button>
-      </div>
-      {mode === 'demo' && <>
+      {mode === 'sampling' && <>
       <label className="agent-pick"><span>执行器 · 规则基线</span>
         <select id="agent-config" aria-label="选择 Agent 配置" value={selected} disabled={configs === null} onChange={event => onSelect(event.target.value)}>
           {freeConfigs === null ? <option value="">正在读取已注册配置…</option> : freeConfigs.map(config => <option key={config.config_id} value={config.config_id}>{agentConfigLabel(config)}</option>)}
@@ -499,7 +533,7 @@ function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onSt
       {batch.status === 'completed' && <div className="batch-progress batch-complete" role="status"><strong>本批次已完成 {batch.completed}/{batch.total}</strong><span>正常退款 {batch.normal_refund} · 转人工 {batch.manual_review} · 失败 {batch.failed} · 退款总额 {money(batch.total_refund_cents)}</span></div>}
       {batch.status === 'failed' && <p className="notice error" role="alert">批次执行失败；已完成记录仍保留，请检查本机服务日志。</p>}
       </>}
-      {mode === 'real' && <div className="real-panel" data-testid="real-panel">
+      {mode === 'agent' && <div className="real-panel" data-testid="real-panel">
         <p className="fine-print">执行器：DeepSeek Flash。</p>
         {realRun === null ? <p className="fine-print">正在读取真实运行状态…</p> : <>
           <p className="fine-print" data-testid="real-run-budget">预算：本阶段批准上限 {realRun.authorization.approval_cap_cny === null ? '未批准' : `¥${realRun.authorization.approval_cap_cny.toFixed(2)}`} · 单次硬顶 {`¥${realRun.authorization.per_run_cap_cny.toFixed(2)}`} · 本机历史付费合计 {realRun.authorization.prior_paid_known ? `¥${realRun.authorization.prior_paid_cny.toFixed(6)}` : '未知'}</p>
@@ -512,7 +546,7 @@ function NewTestPanel({ open, onToggle, configs, selected, onSelect, batch, onSt
             {realRunDisabledReasons(realRun).map(reason => <li key={reason}>{reason}</li>)}
           </ul>}
           {realRunBusy(realRun) && <div className="batch-progress" role="status" aria-live="polite"><progress value={realRun.runs.length} max={realRun.count ?? 1}/><strong>{realRunStageLabel(realRun.stage)} · 已完成 {realRun.runs.length}/{realRun.count ?? '—'}</strong><span>批次 {realRun.batch_id ?? '分配中'}</span></div>}
-          {realRun.status === 'completed' && <div className="batch-progress batch-complete" role="status"><strong>真实批次已完成 {realRun.runs.length}/{realRun.count}</strong><span>批次 {realRun.batch_id} · 已核验 {realRun.runs.filter(row => row.loss_status === 'verified').length}/{realRun.runs.length} · 赔款认定由 A 线下审查</span></div>}
+          {realRun.status === 'completed' && <div className="batch-progress batch-complete" role="status"><strong>真实批次已完成 {realRun.runs.length}/{realRun.count}</strong><span>批次 {realRun.batch_id} · 已核验 {realRun.runs.filter(row => row.loss_status === 'verified').length}/{realRun.runs.length} · 赔款认定由 A 线下审查</span>{adopted ? <span>已在第二、三页展示</span> : realRun.batch_id !== null && <button className="text-button" onClick={() => onViewBatch(realRun.batch_id!)}>回看该批次（第二、三页）</button>}</div>}
           {realRun.status === 'failed' && <p className="notice error" role="alert">真实批次失败（{realRun.error_code ?? '未知原因'}）；已完成记录保留，请查看本机日志。</p>}
         </>}
         <p className="fine-print">新案例保险责任由 A 线下审查；未确定前第三页显示「数据不足」。</p>
@@ -628,18 +662,19 @@ export default function App() {
   const [listTab, setListTab] = useState<'batch' | 'local' | 'history'>('history');
   const [batchStatus, setBatchStatus] = useState<BScaleBatchStatus>(idleBatch);
   const [realRun, setRealRun] = useState<RealRunStatus | null>(null);
-  const [mode, setMode] = useState<ModeId>(() => parseViewState(window.location.hash).mode ?? 'demo');
+  const [mode, setMode] = useState<ModeId>(() => parseViewState(window.location.hash).mode ?? 'sampling');
+  // 真实Agent 模式当前查看的批次：仅在本次见证运行完成（session-run）或用户明确选择（history）时设置；绝不自动采用历史数据。
+  const [agentBatch, setAgentBatch] = useState<{ id: string; origin: 'session-run' | 'history' } | null>(null);
   const [ledgerBySession, setLedgerBySession] = useState<Record<string, LedgerSlot>>({});
   const [runDetails, setRunDetails] = useState<Record<string, DetailSlot>>({});
   const fileReplay = offline && replaySource === 'file';
   const [evidenceOpen, setEvidenceOpen] = useState(() => parseViewState(window.location.hash).evidenceFocus);
+  const [devToolsOpen, setDevToolsOpen] = useState(() => parseViewState(window.location.hash).evidenceFocus);
   const input = useRef<HTMLInputElement>(null);
   const selection = useRef('');
   const replayMode = useRef(false);
   const interaction = useRef(0);
   const pendingRun = useRef<string | null>(parseViewState(window.location.hash).run);
-  /** 页面自动选定的“入口默认运行”sid：只有这一次自动落地不展开证据；其余选择（用户切换/深链接/新建）按主动操作处理。 */
-  const defaultLanding = useRef<string | null>(null);
   const currentIntent = (epoch: number) => interaction.current === epoch;
   selection.current = sid;
 
@@ -659,27 +694,16 @@ export default function App() {
       const realStatus = parseRealRunStatus(await api<unknown>('api/real-runs/current'));
       if (!active || !currentIntent(epoch) || replayMode.current) return;
       setBatchStatus(batch); setRealRun(realStatus); if (batch.batch_id !== null) setListTab('batch');
-      if (list.length || integrated.length) {
-        const wanted = pendingRun.current;
-        pendingRun.current = null;
-        const restored = wanted ? list.find(row => row.session_id === wanted) : undefined;
-        const deliveredWanted = wanted && !restored && integrated.some(row => row.session_id === wanted);
-        if (wanted && !restored && !deliveredWanted) setRouteNotice(`URL 中的运行（…${wanted.slice(-8)}）不在当前目录或已不可用；已回退到默认选择。`);
-        const nextSid = restored?.session_id
-          ?? (deliveredWanted ? wanted as string : undefined)
-          ?? integrated.find(row => row.execution_source === 'observed_agent_execution')?.session_id
-          ?? list.find(row => row.case_id === 'dev-case-refund-v1')?.session_id
-          ?? list[0]?.session_id
-          ?? integrated[0]?.session_id
-          ?? '';
-        setSid(nextSid);
-        defaultLanding.current = wanted ? null : nextSid;
-        if (!nextSid) setState('ready');
+      // 三个模式都从空状态开始：不自动选择任何运行，也不把历史批次当作本次结果；历史回看必须由用户明确选择。
+      const wanted = pendingRun.current;
+      pendingRun.current = null;
+      if (wanted) {
+        const restored = list.find(row => row.session_id === wanted);
+        const deliveredWanted = !restored && integrated.some(row => row.session_id === wanted);
+        if (restored || deliveredWanted) setSid(wanted);
+        else setRouteNotice(`URL 中的运行（…${wanted.slice(-8)}）不在当前目录或已不可用。`);
       }
-      else {
-        if (pendingRun.current) { setRouteNotice('URL 中的运行不在当前目录或已不可用。'); pendingRun.current = null; }
-        setState('ready');
-      }
+      setState('ready');
     } catch (e) { if (active && currentIntent(epoch) && !replayMode.current) { setError(errorText(e)); setState('error'); } } })();
     return () => { active = false; };
   }, []);
@@ -708,8 +732,6 @@ export default function App() {
     const delivered = integrationRuns.find(row => row.session_id === sid);
     if (!delivered) return;
     const epoch = ++interaction.current;
-    const initialLanding = defaultLanding.current === sid;
-    if (initialLanding) defaultLanding.current = null;
     setState('loading'); setError(''); setBundle(null); setEvents([]);
     (async () => { try {
       const raw = await api<unknown>(`api/integration-runs/${delivered.run_id}`);
@@ -719,12 +741,8 @@ export default function App() {
       if (evidence.final_snapshot.session.episode_id !== result.summary.episode_id) throw new Error('A/C 结果与 B 证据的 episode 不一致。');
       replayMode.current = true; setOffline(true); setReplaySource('delivery');
       setBundle(evidence); setEvents(orderedEvents(evidence.events)); setState('ready'); setError(''); setActionError('');
-      if (!initialLanding) {
-        setNavBack(area !== 'test' ? area : null); setArea('test');
-        setEvidenceOpen(true); window.setTimeout(() => document.getElementById('evidence-fold')?.scrollIntoView({ block: 'start' }), 0);
-      }
     } catch (e) { if (currentIntent(epoch)) { setActionError(errorText(e)); setState('ready'); } } })();
-  }, [sid, sessions, integrationRuns, catalogReady, offline, area]);
+  }, [sid, sessions, integrationRuns, catalogReady, offline]);
 
   useEffect(() => {
     if (!sid || offline) return;
@@ -760,10 +778,10 @@ export default function App() {
     const onPop = () => {
       const view = parseViewState(window.location.hash);
       if (view.area) setArea(view.area);
-      if (!replayMode.current) setMode(view.mode ?? 'demo');
+      if (!replayMode.current) setMode(view.mode ?? 'sampling');
       if (replayMode.current) return;
       if (view.run && view.run !== selection.current) {
-        if (sessions.some(row => row.session_id === view.run) || integrationRuns.some(row => row.session_id === view.run)) { ++interaction.current; setFocusedOrder(null); setSid(view.run); defaultLanding.current = null; setRouteNotice(''); }
+        if (sessions.some(row => row.session_id === view.run) || integrationRuns.some(row => row.session_id === view.run)) { ++interaction.current; setFocusedOrder(null); setSid(view.run); setRouteNotice(''); }
         else setRouteNotice('URL 中的运行不在当前目录或已不可用；当前选择保持不变。');
       }
     };
@@ -847,7 +865,9 @@ export default function App() {
           if (!active) return;
           setRealRun(next);
           setIntegrationRuns(catalog);
-          setListTab('history');
+          // 本次见证了 运行中 → 已完成 的转换：把该批次选入第二、三页（「本次运行」），并显示本批记录。
+          setAgentBatch({ id: next.batch_id, origin: 'session-run' });
+          setListTab('batch');
         } else if (next.status === 'failed') {
           setRealRun(next);
         } else {
@@ -925,10 +945,11 @@ export default function App() {
     if (sessions.some(row => row.session_id === sid)) setListTab('local');
     else {
       const run = integrationRuns.find(row => row.session_id === sid);
-      if (run) setListTab(batchStatus.batch_id !== null && run.batch_id === batchStatus.batch_id ? 'batch' : 'history');
+      const activeBatchId = mode === 'agent' ? (agentBatch?.id ?? null) : batchStatus.batch_id;
+      if (run) setListTab(activeBatchId !== null && run.batch_id === activeBatchId ? 'batch' : 'history');
     }
-  }, [sid, sessions, integrationRuns, batchStatus.batch_id]);
-  async function loadService(epoch: number, preferDelivered = true) {
+  }, [sid, sessions, integrationRuns, batchStatus.batch_id, agentBatch, mode]);
+  async function loadService(epoch: number) {
     setState('loading'); setError('');
     try {
       const { sessions: list, integrated } = await catalog(epoch);
@@ -937,11 +958,10 @@ export default function App() {
       const restored = wanted ? list.find(row => row.session_id === wanted) : undefined;
       const deliveredWanted = wanted && !restored && integrated.some(row => row.session_id === wanted);
       if (wanted && !restored && !deliveredWanted) setRouteNotice('URL 中的运行不在当前目录或已不可用。');
-      const nextLocal = list.find(row => row.case_id === 'dev-case-refund-v1')?.session_id ?? list[0]?.session_id;
-      const nextDelivered = integrated.find(row => row.execution_source === 'observed_agent_execution')?.session_id ?? integrated[0]?.session_id;
-      const nextSid = restored?.session_id ?? (deliveredWanted ? wanted as string : undefined)
-        ?? (preferDelivered ? (nextDelivered ?? nextLocal) : (nextLocal ?? nextDelivered)) ?? '';
-      if (nextSid) { setSid(nextSid); defaultLanding.current = wanted ? null : nextSid; } else setState('ready');
+      // 不再自动落地任何运行：恢复仅针对 URL 中明确指定的运行。
+      if (restored) setSid(restored.session_id);
+      else if (deliveredWanted) setSid(wanted as string);
+      else setState('ready');
     } catch (e) { if (currentIntent(epoch) && !replayMode.current) { setError(errorText(e)); setState('error'); } }
   }
   function retry() {
@@ -952,7 +972,7 @@ export default function App() {
   function returnToService() {
     const epoch = ++interaction.current; replayMode.current = false;
     setOffline(false); setReplaySource('file'); setBundle(null); setEvents([]); setSid(''); setCatalogReady(false); setActionError(''); setNavBack(null); setRouteNotice('');
-    void loadService(epoch, false);
+    void loadService(epoch);
   }
   async function startBScaleBatch() {
     setActionError('');
@@ -980,7 +1000,7 @@ export default function App() {
       if (!currentIntent(epoch) || replayMode.current) return;
       await catalog(epoch);
       if (!currentIntent(epoch) || replayMode.current) return;
-      setBundle(null); setSid(result.session.session_id); defaultLanding.current = null; setNavBack(null);
+      setBundle(null); setSid(result.session.session_id); setNavBack(null);
     } catch (e) {
       if (currentIntent(epoch) && !replayMode.current) setActionError(errorText(e) + ' 若创建响应丢失，会话可能已经建立；请刷新页面核对运行清单后再创建。');
     } finally { setCreating(false); }
@@ -993,7 +1013,7 @@ export default function App() {
       const content = await file.text();
       if (!currentIntent(epoch)) return;
       const evidence = parseEvidence(JSON.parse(content));
-      replayMode.current = true; setOffline(true); setReplaySource('file'); defaultLanding.current = null; setSid(evidence.final_snapshot.session.session_id); setBundle(evidence); setEvents(orderedEvents(evidence.events)); setState('ready'); setError(''); setActionError(''); setArea('test'); setEvidenceOpen(true); window.setTimeout(() => document.getElementById('evidence-fold')?.scrollIntoView({ block: 'start' }), 0);
+      replayMode.current = true; setOffline(true); setReplaySource('file'); setSid(evidence.final_snapshot.session.session_id); setBundle(evidence); setEvents(orderedEvents(evidence.events)); setState('ready'); setError(''); setActionError(''); setArea('test'); setEvidenceOpen(true); setDevToolsOpen(true);
     } catch (e) {
       if (currentIntent(epoch)) {
         setActionError(errorText(e));
@@ -1007,24 +1027,38 @@ export default function App() {
     const url = URL.createObjectURL(data); const anchor = document.createElement('a'); anchor.href = url;
     anchor.download = `evidence-${bundle.final_snapshot.session.session_id}.json`; anchor.click(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-  function loadDeliveredEvidence() {
-    if (!integration) return;
-    const evidence = parseEvidence(integration.evidence, integration.summary.session_id);
-    setNavBack(area !== 'test' ? area : null); ++interaction.current; replayMode.current = true; setOffline(true); setReplaySource('delivery'); defaultLanding.current = null; setSid(integration.summary.session_id);
-    setBundle(evidence); setEvents(orderedEvents(evidence.events)); setState('ready'); setError(''); setActionError(''); setArea('test'); setEvidenceOpen(true); window.setTimeout(() => document.getElementById('evidence-fold')?.scrollIntoView({ block: 'start' }), 0);
-  }
-  const deliveredOptions = integrationRuns.filter(row => !sessions.some(item => item.session_id === row.session_id));
+  /** 各模式右上角选择器的候选运行：严格按模式过滤（研究情景无选择器）。 */
+  const pickerRuns = mode === 'agent'
+    ? integrationRuns.filter(row => row.execution_source === 'observed_agent_execution')
+    : integrationRuns.filter(row => row.execution_source === 'scripted_test' || row.execution_source === 'mock_agent');
+  const deliveredOptions = pickerRuns.filter(row => !sessions.some(item => item.session_id === row.session_id));
   function chooseRun(next: string) {
-    if (!next || next === sid) return;
+    if (next === sid) return;
     ++interaction.current; replayMode.current = false; setFocusedOrder(null); setNavBack(null); setRouteNotice('');
     if (offline) { setOffline(false); setReplaySource('file'); }
-    defaultLanding.current = null;
+    if (next === '') {
+      setSid('');
+      if (mode === 'agent') setAgentBatch(null);
+      history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(area, null, false, mode));
+      return;
+    }
     setSid(next);
+    // 真实Agent：任何明确选择都定位到其所属批次（标注为历史批次回看）；抽取检验的选择只影响第一页详情。
+    if (mode === 'agent') {
+      const row = integrationRuns.find(item => item.session_id === next);
+      if (row && row.execution_source === 'observed_agent_execution') setAgentBatch({ id: row.batch_id, origin: 'history' });
+    }
     history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(area, next, false, mode));
   }
+  function switchMode(next: ModeId) {
+    if (next === mode) return;
+    setMode(next);
+    history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(area, sid || null, offline, next));
+  }
+  function viewBatch(batchId: string) { setAgentBatch({ id: batchId, origin: 'history' }); }
   function showOrder(id: string) {
     if (area !== 'test') setNavBack(area);
-    setFocusedOrder(id); setArea('test'); setEvidenceOpen(true);
+    setFocusedOrder(id); setArea('test'); setEvidenceOpen(true); setDevToolsOpen(true);
     window.setTimeout(() => document.getElementById(`order-${id}`)?.scrollIntoView({ block: 'center', behavior: 'auto' }), 0);
   }
   const current = bundle?.final_snapshot.session.session_id === sid ? bundle : null;
@@ -1039,14 +1073,20 @@ export default function App() {
     }
     return derived;
   }, [runDetails]);
-  const currentBatchRuns = useMemo(
-    () => batchStatus.batch_id === null ? integrationRuns : integrationRuns.filter(row => row.batch_id === batchStatus.batch_id),
+  // 模式数据源完全隔离：抽取检验只认规则基线批次；真实Agent 只认明确选择的批次；研究情景不使用批次数据。
+  const samplingRuns = useMemo(
+    () => batchStatus.batch_id === null ? [] : integrationRuns.filter(row => row.batch_id === batchStatus.batch_id),
     [batchStatus.batch_id, integrationRuns],
   );
-  // 真实模式的批次来源与演示批次分开：优先约定前缀的真实批次，绝不被规则基线批次遮蔽、也不与历史混算。
-  const realBatchId = useMemo(() => realBatchIdOf(integrationRuns), [integrationRuns]);
-  const pageRuns = mode === 'real' ? integrationRuns.filter(row => row.batch_id === realBatchId) : currentBatchRuns;
-  const pageBatchId = mode === 'real' ? realBatchId : batchStatus.batch_id;
+  const agentRuns = useMemo(
+    () => agentBatch === null ? [] : integrationRuns.filter(row => row.batch_id === agentBatch.id),
+    [agentBatch, integrationRuns],
+  );
+  const pageBatch: BatchView = mode === 'sampling'
+    ? { id: batchStatus.batch_id, origin: null, runs: samplingRuns, busy: batchStatus.status === 'queued' || batchStatus.status === 'running' }
+    : mode === 'agent'
+    ? { id: agentBatch?.id ?? null, origin: agentBatch?.origin ?? null, runs: agentRuns, busy: realRunBusy(realRun) }
+    : { id: null, origin: null, runs: [], busy: false };
   const integrationPending = !offline && !matchedIntegration && integrationRuns.some(row => row.session_id === sid) && integrationState !== 'error';
   const runName = session ? caseDisplay((current?.case_context as { fixture_id?: string } | null)?.fixture_id ?? session.case_id).name : '';
   const areaIndex = areas.findIndex(item => item.id === area);
@@ -1061,11 +1101,13 @@ export default function App() {
       <a className="brand" href="#" onClick={event => event.preventDefault()}><span className="brand-mark" aria-hidden="true">◈</span><span className="brand-name">AgentShield</span></a>
       <nav className="site-nav" aria-label="页面导航">{areas.map(item => <a key={item.id} className={area === item.id ? 'nav-link active' : 'nav-link'} aria-current={area === item.id ? 'page' : undefined} href={buildViewHash(item.id, sid || null, offline, mode)} onClick={event => { event.preventDefault(); setNavBack(null); setArea(item.id); history.pushState(null, '', window.location.pathname + window.location.search + buildViewHash(item.id, sid || null, offline, mode)); }}>{item.nav}</a>)}</nav>
       <div className="head-side">
-        {(!offline || replaySource === 'delivery') && <label className="run-pick"><span className="run-pick-label">演示记录</span>
+        {(!offline || replaySource === 'delivery') && mode !== 'scenario' && <label className="run-pick"><span className="run-pick-label">{mode === 'agent' ? '历史运行' : '测试记录'}</span>
           <select id="run" aria-label="选择演示记录" value={sid} disabled={!catalogReady || creating} onChange={event => chooseRun(event.target.value)}>
-            <option value="" disabled>选择具体运行</option>
-            {sessions.length > 0 && <optgroup label="本机会话">{sessions.map(row => <option key={row.session_id} value={row.session_id}>{row.case_id} ｜ {row.session_id}</option>)}</optgroup>}
-            {deliveredOptions.length > 0 && <optgroup label="已交付历史运行">{deliveredOptions.map(row => <option key={row.session_id} value={row.session_id}>{executionSourceLabel(row.execution_source)} · {row.label} ｜ …{row.session_id.slice(-8)}</option>)}</optgroup>}
+            {mode === 'agent'
+              ? <option value="">未选择（第二、三页显示空状态）</option>
+              : <option value="" disabled>选择具体运行</option>}
+            {mode === 'sampling' && sessions.length > 0 && <optgroup label="本机会话">{sessions.map(row => <option key={row.session_id} value={row.session_id}>{row.case_id} ｜ {row.session_id}</option>)}</optgroup>}
+            {deliveredOptions.length > 0 && <optgroup label={mode === 'agent' ? '真实运行（历史）' : '规则基线运行'}>{deliveredOptions.map(row => <option key={row.session_id} value={row.session_id}>{executionSourceLabel(row.execution_source)} · {row.label} ｜ …{row.session_id.slice(-8)}</option>)}</optgroup>}
           </select></label>}
         {navBack && navBack !== area && <button className="nav-back-button" title={`回到${areas.find(item => item.id === navBack)?.title ?? '上一位置'}`} onClick={() => { const target = navBack; setNavBack(null); setArea(target); }}>← 返回上一位置</button>}
       </div>
@@ -1088,38 +1130,23 @@ export default function App() {
       {state === 'loading' && <div className="loading" role="status" aria-live="polite"><span className="spinner"/>正在读取本次运行的真实数据…</div>}
       {state === 'error' && <div role="alert" className="empty error"><strong>当前数据未能加载</strong><p>{error}</p><button onClick={retry}>重试读取</button><p className="fine-print">也可以导入已保存的证据，进行离线只读回放。</p></div>}
       {state === 'ready' && area === 'test' && <>
-        {!fileReplay && <NewTestPanel open={newTestOpen} onToggle={() => setNewTestOpen(value => !value)} configs={runnerConfigs} selected={agentConfigId} onSelect={setAgentConfigId} batch={batchStatus} onStart={startBScaleBatch} mode={mode} onMode={setMode} realRun={realRun} onStartRealRun={startRealRun}/>}
-        {!fileReplay && (sessions.length > 0 || integrationRuns.length > 0 || batchStatus.batch_id !== null) && <TestRecordList sessions={sessions} runs={integrationRuns} batchId={batchStatus.batch_id} selected={sid} onSelect={chooseRun} tab={listTab} onTab={setListTab} ledgerBySession={ledgerBySession} lossByRun={lossByRun} onRetryDetails={retryRunDetails}/>}
-        {!current && <Empty title="还没有开发会话">可在下方「开发工具」中创建业务初态，或在上方「演示记录」选择一个已有运行。创建会话不会调用模型或提交退款。</Empty>}
+        {!fileReplay && <ModeTabs mode={mode} onMode={switchMode}/>}
+        {mode === 'scenario' && <ScenarioIntro scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} offlineFile={fileReplay} onRetry={loadScenario}/>}
+        {mode !== 'scenario' && <>
+        {!fileReplay && <NewTestPanel open={newTestOpen} onToggle={() => setNewTestOpen(value => !value)} configs={runnerConfigs} selected={agentConfigId} onSelect={setAgentConfigId} batch={batchStatus} onStart={startBScaleBatch} mode={mode} realRun={realRun} onStartRealRun={startRealRun} onViewBatch={viewBatch} adopted={realRun !== null && realRun.batch_id !== null && realRun.batch_id === agentBatch?.id}/>}
+        {!fileReplay && (sessions.length > 0 || integrationRuns.length > 0 || batchStatus.batch_id !== null) && <TestRecordList sessions={sessions} runs={integrationRuns} batchId={mode === 'agent' ? (agentBatch?.id ?? null) : batchStatus.batch_id} selected={sid} onSelect={chooseRun} tab={listTab} onTab={setListTab} ledgerBySession={ledgerBySession} lossByRun={lossByRun} onRetryDetails={retryRunDetails}/>}
+        {!current && <Empty title={mode === 'sampling' ? '尚未选择记录' : '尚未选择真实运行'}>{mode === 'sampling' ? '点击上方按钮运行抽取批次（随机抽取100项）；也可以从记录列表或右上角选择一条记录查看详情。未运行、未选择前，第二、三页不展示任何结果。' : '点击上方按钮运行真实批次，或从右上角明确选择一条历史真实运行回看；未选择前第二、三页保持空状态，不会自动采用历史数据。'}</Empty>}
         {current && <>
         <CaseSummary evidence={current} name={runName}/>
         <RunResult evidence={current} matched={matchedIntegration} pending={integrationPending} hasEntry={integrationRuns.some(row => row.session_id === sid)} integrationError={integrationError} onRetry={() => setIntegrationRefresh(value => value + 1)}/>
-        {matchedIntegration && <ResultPanel detail={matchedIntegration} onLoadEvidence={loadDeliveredEvidence}/>}
-        <details id="evidence-fold" className="evidence-fold" open={evidenceOpen} onToggle={event => setEvidenceOpen(event.currentTarget.open)}>
-          <summary>查看完整执行记录与核验依据</summary>
-          <div className="evidence-body">
-            <details className="run-identity"><summary>运行详情（session / episode / 版本 / 来源）</summary>
-              <div className="identity-fields">
-                <div><span>{current.case_context ? '稳定 case' : 'case（按原记录）'}</span><Id>{session?.case_id ?? ''}</Id></div>
-                <div><span>本次 session</span><Id>{session?.session_id ?? ''}</Id></div>
-                <div><span>本次 episode</span><Id>{session?.episode_id ?? ''}</Id></div>
-                <div>版本 {session?.version} · <Id>{session?.config_id ?? ''}</Id></div>
-              </div>
-              <div className="identity-extra"><span className="identity-extra-line"><Badge tone="warning">{current.sources.execution_source ?? '执行来源未记录'}</Badge><span className="fine-print">{current.sources.fixture_source ?? '模板来源未记录'} · 来源标签须结合 C 运行清单核对</span></span></div>
-            </details>
-            <p className="content-toolbar">证据 schema {current.schema_version} · {current.contract_version ?? '历史未记录版本'} · {offline ? '文件导出时间' : '快照导出时间'} {current.exported_at.replace('T', ' ').slice(0, 19)} UTC</p>
-            <details className="notice warning caveats"><summary>证据核对范围 · 来源未认证 / 初态哈希未复核</summary><ul>{evidenceCaveats(current).map(note => <li key={note}>{note}</li>)}</ul></details>
-            <Business evidence={current} focusedOrder={focusedOrder}/>
-            <Evidence key={sid} evidence={current} events={events} onOrder={showOrder}/>
-          </div>
-        </details>
+        </>}
         </>}
       </>}
-      {state === 'ready' && area === 'risk' && <RiskOverview runs={pageRuns} offline={offline && replaySource !== 'delivery'} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} details={runDetails} batchId={pageBatchId} mode={mode} onRetryDetails={retryRunDetails}/>}
-      {state === 'ready' && area === 'insurance' && <InsurancePlans runs={pageRuns} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} details={runDetails} batchId={pageBatchId} mode={mode} onRetryDetails={retryRunDetails}/>}
+      {state === 'ready' && area === 'risk' && <RiskOverview mode={mode} batch={pageBatch} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} offlineFile={offline && replaySource === 'file'} details={runDetails} onRetryDetails={retryRunDetails}/>}
+      {state === 'ready' && area === 'insurance' && <InsurancePlans mode={mode} batch={pageBatch} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} offlineFile={offline && replaySource === 'file'} details={runDetails} onRetryDetails={retryRunDetails}/>}
       <footer className="site-foot">
         <p>模拟资金 · 开发运行 · 非商业报价。</p>
-        <details className="dev-tools"><summary>开发工具 · 调试入口（演示默认不展开；用于固定案例回归）</summary>
+        <details className="dev-tools" open={devToolsOpen} onToggle={event => setDevToolsOpen(event.currentTarget.open)}><summary>开发工具 · 调试入口（演示默认不展开；用于固定案例回归）</summary>
           <div className="dev-grid">
             <div className="dev-item"><span className="dev-label">当前运行</span><div className="dev-row"><button onClick={() => { ++interaction.current; setRefresh(value => value + 1); }} disabled={offline || !current}>刷新本次运行</button></div><p className="fine-print">重新读取所选运行的证据；不改变任何业务事实。</p></div>
             {!offline && <div className="dev-item"><span className="dev-label">新建业务初态</span><div className="dev-row">
@@ -1133,6 +1160,24 @@ export default function App() {
               <button onClick={saveReplay} disabled={!bundle}>保存证据回放</button>
             </div><p className="fine-print">导入按离线只读处理；保存导出当前证据 JSON。</p></div>
           </div>
+          {area === 'test' && current && <details id="evidence-fold" className="evidence-fold" open={evidenceOpen} onToggle={event => setEvidenceOpen(event.currentTarget.open)}>
+            <summary>完整执行记录与核验依据（开发回归）</summary>
+            <div className="evidence-body">
+              <details className="run-identity"><summary>运行详情（session / episode / 版本 / 来源）</summary>
+                <div className="identity-fields">
+                  <div><span>{current.case_context ? '稳定 case' : 'case（按原记录）'}</span><Id>{session?.case_id ?? ''}</Id></div>
+                  <div><span>本次 session</span><Id>{session?.session_id ?? ''}</Id></div>
+                  <div><span>本次 episode</span><Id>{session?.episode_id ?? ''}</Id></div>
+                  <div>版本 {session?.version} · <Id>{session?.config_id ?? ''}</Id></div>
+                </div>
+                <div className="identity-extra"><span className="identity-extra-line"><Badge tone="warning">{current.sources.execution_source ?? '执行来源未记录'}</Badge><span className="fine-print">{current.sources.fixture_source ?? '模板来源未记录'} · 来源标签须结合 C 运行清单核对</span></span></div>
+              </details>
+              <p className="content-toolbar">证据 schema {current.schema_version} · {current.contract_version ?? '历史未记录版本'} · {offline ? '文件导出时间' : '快照导出时间'} {current.exported_at.replace('T', ' ').slice(0, 19)} UTC</p>
+              <details className="notice warning caveats"><summary>证据核对范围 · 来源未认证 / 初态哈希未复核</summary><ul>{evidenceCaveats(current).map(note => <li key={note}>{note}</li>)}</ul></details>
+              <Business evidence={current} focusedOrder={focusedOrder}/>
+              <Evidence key={sid} evidence={current} events={events} onOrder={showOrder}/>
+            </div>
+          </details>}
           <details className="version-fold"><summary>版本与技术信息</summary><p className="fine-print">开发模板与 C L0 运行不构成正式任务或 Gold；A/C 契约仍为 candidate（bc-0.3-candidate · abcd-integration-0.1-candidate · observer-0.1-candidate）；ABCD 本机集成 · 七工具 · 模拟资金。</p></details>
         </details>
       </footer>

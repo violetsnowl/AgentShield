@@ -36,12 +36,16 @@ describe('buildViewHash', () => {
   it('未选择运行时只保留区域', () => {
     expect(buildViewHash('test', null, false)).toBe('#area=test');
   });
-  it('模式标识：real 显式入 URL 且往返一致；demo 为默认不写入；未知值丢弃', () => {
-    const hash = buildViewHash('risk', 'session-1', false, 'real');
-    expect(hash).toContain('mode=real');
-    expect(parseViewState(hash)).toEqual({ area: 'risk', run: 'session-1', evidenceFocus: false, mode: 'real' });
-    expect(buildViewHash('risk', 'session-1', false, 'demo')).not.toContain('mode=');
+  it('模式标识：sampling 为默认不入 URL；scenario/agent 显式记录且往返一致；未知值丢弃', () => {
+    const hash = buildViewHash('risk', 'session-1', false, 'agent');
+    expect(hash).toContain('mode=agent');
+    expect(parseViewState(hash)).toEqual({ area: 'risk', run: 'session-1', evidenceFocus: false, mode: 'agent' });
+    expect(buildViewHash('risk', 'session-1', false, 'scenario')).toContain('mode=scenario');
+    expect(buildViewHash('risk', 'session-1', false, 'sampling')).not.toContain('mode=');
+    expect(buildViewHash('risk', 'session-1', false, null)).not.toContain('mode=');
     expect(parseViewState('#area=risk&mode=weird')).toEqual({ area: 'risk', run: null, evidenceFocus: false, mode: null });
-    expect(parseViewState('#area=risk&mode=real')).toEqual({ area: 'risk', run: null, evidenceFocus: false, mode: 'real' });
+    expect(parseViewState('#area=risk&mode=agent')).toEqual({ area: 'risk', run: null, evidenceFocus: false, mode: 'agent' });
+    expect(parseViewState('#area=risk&mode=scenario')).toEqual({ area: 'risk', run: null, evidenceFocus: false, mode: 'scenario' });
+    expect(parseViewState('#area=risk&mode=sampling')).toEqual({ area: 'risk', run: null, evidenceFocus: false, mode: 'sampling' });
   });
 });

@@ -24,11 +24,7 @@ export async function loadRunnerConfigs(): Promise<RunnerConfig[]> {
 
 /** 选择器展示文案：规则基线=确定性免费；openai_compatible=真实模型（需付费授权）。 */
 export function agentConfigLabel(config: RunnerConfig): string {
-  const basis = config.adapter === 'rule_baseline'
-    ? '规则基线（确定性 · 无模型调用）'
-    : config.adapter === 'mock'
-      ? '接口模拟 Mock（记录用 · 非真实模型）'
-      : `${config.provider ?? '未知提供商'} / ${config.model ?? '未知模型'}（真实模型 · 需付费授权）`;
-  const state = config.frozen ? '已冻结' : '未冻结';
-  return `${basis} · ${config.config_id} · ${state}`;
+  if (config.adapter === 'rule_baseline') return '规则基线（确定性 · 无模型调用）';
+  if (config.adapter === 'mock') return '接口模拟 Mock（记录用 · 非真实模型）';
+  return `${config.provider ?? '未知提供商'} / ${config.model ?? '未知模型'}（真实模型 · 需付费授权）`;
 }

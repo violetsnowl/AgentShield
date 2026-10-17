@@ -14,6 +14,7 @@ try {
   const page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
   page.on('request', r => requests.push({ url: r.url(), method: r.method(), headers: r.headers(), body: r.postData() }));
   async function openEvidence() {
+    await openDevTools();
     const fold = page.locator('details.evidence-fold');
     await fold.waitFor({ state: 'attached', timeout: 20000 });
     if (!(await fold.evaluate(node => node.open))) await fold.locator('summary').first().click();
@@ -24,12 +25,12 @@ try {
   }
   const navTo = async name => { await page.getByRole('link', { name, exact: true }).click(); };
   await page.goto(`${config.origin}/#pair=${config.grant}`);
-  await page.getByTestId('committed-total').waitFor({ timeout: 20000 });
-  await openEvidence();
-  await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor({ timeout: 20000 });
-  // 初始落地为交付只读视图；创建/回放流程需要本机会话（live），先显式切到 v1。
+  // 三个模式从空状态开始（不自动落地任何运行）：显式切到 v1 本机会话继续回归。
+  await page.getByTestId('mode-sampling').waitFor({ timeout: 20000 });
   await Promise.all([page.waitForResponse(r => r.url().endsWith(`/sessions/${config.sessions[0]}/evidence`)), page.selectOption('#run', config.sessions[0])]);
   await page.getByTestId('committed-total').waitFor();
+  await openEvidence();
+  await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor({ timeout: 20000 });
   const v1 = JSON.parse(await fs.readFile(path.join(config.output, 'dev-refund-v1_evidence.json')));
   const v2 = JSON.parse(await fs.readFile(path.join(config.output, 'dev-refund-v2_evidence.json')));
   const importData = async (data, name = 'replay.json') => page.locator('input[type=file]').setInputFiles({ name, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(data)) });
@@ -105,7 +106,9 @@ try {
     await importData(v1, 'slow-return.json');
     await page.waitForFunction(() => !!window.fileReleases['slow-return.json']);
     await page.getByRole('button', { name: '返回本机服务', exact: true }).click();
+    await page.getByTestId('mode-sampling').waitFor();
     await navTo('01 测试案例');
+    await Promise.all([page.waitForResponse(r => r.url().endsWith(`/sessions/${config.sessions[0]}/evidence`)), page.selectOption('#run', config.sessions[0])]);
     await page.getByTestId('committed-total').waitFor();
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
@@ -127,13 +130,12 @@ try {
     }
     await context.setOffline(false);
     await page.getByRole('button', { name: '返回本机服务', exact: true }).click();
+    await page.getByTestId('mode-sampling').waitFor();
     await navTo('01 测试案例');
-    await page.getByTestId('committed-total').waitFor();
-    await openEvidence();
-    await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
     const v2Response = page.waitForResponse(r => r.url().endsWith(`/sessions/${config.sessions[1]}/evidence`));
     await page.selectOption('#run', config.sessions[1]);
     await v2Response;
+    await page.getByTestId('committed-total').waitFor();
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
     await snapshot('integration-v2-lab-1366');
@@ -163,20 +165,18 @@ try {
     await snapshot('integration-cost-candidate');
     await page.getByRole('button', { name: '返回本机服务', exact: true }).click();
     await navTo('01 测试案例');
-    await page.getByTestId('committed-total').waitFor();
+    await page.getByTestId('mode-sampling').waitFor();
     const deliveredList = await page.evaluate(async () => (await fetch('/observer/api/integration-runs', { headers: { 'X-Workbench-Request': '1' } })).json());
     const deliveredMock = deliveredList.runs.filter(run => run.execution_source === 'mock_agent')[0];
     const deliveredWait = page.waitForResponse(response => response.url().endsWith(`/observer/api/integration-runs/${deliveredMock.run_id}`));
     await page.selectOption('#run', deliveredMock.session_id);
     await deliveredWait;
-    await page.waitForFunction(() => document.querySelector('.nav-link.active')?.textContent?.includes('01 测试案例'));
-    await page.locator('details.integration-panel').waitFor();
-    const panel = await page.locator('.integration-panel').evaluate(node => node.textContent ?? '');
-    check(['not_fitted','insufficient_evidence','partial','out_of_scope','commercial_quote=false'].every(value => panel.includes(value)), 'candidate panel contains required honest state explanations');
-    check(panel.includes('counts_as_formal_run=false') || panel.includes('不计入 56 次'), 'delivered runs remain explicitly non-formal');
-    await page.locator('details.integration-panel > summary').click();
-    check(await page.getByRole('button', { name: '加载关联业务证据', exact: true }).isEnabled(), 'validated C result can open exact B evidence');
-    check(await page.getByRole('button', { name: '重新理算', exact: true }).isDisabled(), 'no browser-side insurance execution enabled');
+    await page.getByTestId('committed-total').waitFor();
+    // 技术面板已从普通界面移除：交付运行在结果卡与（折叠的）完整执行记录中呈现。
+    check(!(await page.locator('.integration-panel').count()), 'technical C/A panel removed from the normal case view');
+    const deliveredView = await page.locator('.run-result').innerText();
+    check(deliveredView.includes('开发运行') && deliveredView.includes('待审核 / null'), 'delivered run keeps honest development/review labels');
+    check(await page.getByRole('button', { name: '重新理算', exact: true }).count() === 0, 'no browser-side insurance execution control');
     await snapshot('integration-delivered-panel');
     // Lost create response after a real commit: do not announce that creation failed.
     await page.selectOption('#run', config.sessions[0]);
@@ -195,10 +195,12 @@ try {
     check(!!unknownCreated.session.session_id, 'create response loss occurs after real server creation');
     await snapshot('create-response-unknown-test');
     await page.unroute(sessionsRoute); await page.reload();
-    await page.getByTestId('committed-total').waitFor();
+    await page.getByTestId('mode-sampling').waitFor();
+    check(await page.locator(`#run option[value="${unknownCreated.session.session_id}"]`).count() === 1, 'directory recovers actual session after lost create response without re-creating');
+    // URL 中 run= 的运行在刷新后恢复（无自动落地），其证据自动载入。
+    await page.getByTestId('committed-total').waitFor({ timeout: 20000 });
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
-    check(await page.locator(`#run option[value="${unknownCreated.session.session_id}"]`).count() === 1, 'directory recovers actual session after lost create response without re-creating');
     await importData(v2); await imported(v2);
     await navTo('01 测试案例');
   }
