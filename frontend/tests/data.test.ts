@@ -18,7 +18,7 @@ describe('真实历史及当前 B 证据', () => {
   it('rejects mixed sessions even with the same stable case', () => {
     const data = structuredClone(v3);
     data.events[0].session_id = 'another-session';
-    expect(() => parseEvidence(data)).toThrow(/session/);
+    expect(() => parseEvidence(data)).toThrow(/其他运行/);
     expect(() => parseEvidence(v3, 'another-session')).toThrow(/运行身份/);
   });
   it('rejects mixed episode and duplicate event sequence', () => {
@@ -45,7 +45,7 @@ describe('真实历史及当前 B 证据', () => {
   });
   it('requires an explicit schema version and exact integer money', () => {
     const { schema_version: _version, ...missingVersion } = v3;
-    expect(() => parseEvidence(missingVersion)).toThrow(/schema/);
+    expect(() => parseEvidence(missingVersion)).toThrow(/版本/);
     const data = structuredClone(v3);
     data.refunds[0].amount_cents = Number.MAX_SAFE_INTEGER + 1;
     expect(() => parseEvidence(data)).toThrow(/整数范围/);

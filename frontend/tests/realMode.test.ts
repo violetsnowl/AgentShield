@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extrapolatePremium, insuranceAdviceFrom, realBatchIdOf, summarizeRealBatch } from '../src/realMode';
+import { extrapolatePremium, insuranceAdviceFrom, samplingInsuranceNote, realBatchIdOf, summarizeRealBatch } from '../src/realMode';
 import type { ExtrapolationInput, RealBatchRow } from '../src/realMode';
 
 describe('realBatchIdOf', () => {
@@ -158,5 +158,28 @@ describe('insuranceAdviceFrom（保险配置建议：先评估风险，再决定
     ]));
     expect(advice.kind).toBe('evaluate');
     expect(advice.detail).toContain('尚未核验');
+  });
+});
+
+describe('抽取检验第三页结论', () => {
+  const row = (runId: string, lossStatus: 'verified' | 'needs_review', netLossCents: number | null) => ({ runId, runStatus: 'completed', taskOutcome: 'completed', lossStatus, netLossCents, claimStatus: 'needs_review', payoutCents: null });
+
+  it('规则基线无净损失时说明为什么不定价', () => {
+    const note = samplingInsuranceNote([row('a', 'verified', 0), row('b', 'needs_review', null)], ['原因。']);
+    expect(note.title).toBe('规则基线未出现净损失，这批数据不用于定价');
+    expect(note.body).toContain('规则基线不是 AI');
+    expect(note.body).toContain('1 次转人工或待判定');
+  });
+
+  it('发现净损失时不说没有损失', () => {
+    const note = samplingInsuranceNote([row('a', 'verified', 500)], []);
+    expect(note.title).toBe('发现净损失，保险责任待认定');
+    expect(note.body).toContain('¥5.00');
+  });
+
+  it('没有已核验运行时仍是数据不足，并带上原因', () => {
+    const note = samplingInsuranceNote([row('a', 'needs_review', null)], ['核验未完成。']);
+    expect(note.title).toBe('当前测试数据不足，尚不能形成保险测算');
+    expect(note.body).toContain('核验未完成。');
   });
 });

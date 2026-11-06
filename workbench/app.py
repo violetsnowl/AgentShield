@@ -17,7 +17,9 @@ from pydantic import Field
 
 from actuarial.research_scenario import load_research_scenario
 from contracts import models as m
+from experiments.claim_pack import ClaimPackError
 from workbench.bscale_batches import BScaleBatchManager, BatchAlreadyRunning
+from workbench.claim_cases import ClaimCases
 from workbench.integration_results import IntegrationResults
 from workbench.real_runs import RealRunAlreadyRunning, RealRunManager, RealRunNotAuthorized
 
@@ -85,7 +87,7 @@ class StartRealRun(m.Wire):
 def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:8810",
                     tenant_id="workbench-development", frontend_dir=None, transport=None,
                     dev_origin=None, integration_root=None, batch_manager=None,
-                    bscale_batch_size=100, real_run_manager=None):
+                    bscale_batch_size=100, real_run_manager=None, claim_cases=None):
     local_origin(base_url)
     origins = {local_origin(origin)}
     if dev_origin:
@@ -117,6 +119,7 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
     app.state.authority = authority
     app.state.batch_manager = batches
     app.state.real_run_manager = real_runs
+    app.state.claim_cases = claim_cases or ClaimCases()
 
     @app.middleware("http")
     async def boundary(request, call_next):
@@ -270,6 +273,24 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
     @app.get("/observer/api/real-runs/current", dependencies=[Depends(authorized)])
     def current_real_run():
         return app.state.real_run_manager.status()
+
+    @app.get("/observer/api/claim-cases", dependencies=[Depends(authorized)])
+    def claim_case_catalog():
+        return app.state.claim_cases.catalog()
+
+    @app.get("/observer/api/claim-cases/{case_id}/pack", dependencies=[Depends(authorized)])
+    def claim_case_pack(case_id: str):
+        if len(case_id) != 20 or any(character not in "0123456789abcdef" for character in case_id):
+            raise ObserverError("RUN_NOT_FOUND", 404)
+        try:
+            exported = app.state.claim_cases.export(case_id)
+        except KeyError:
+            raise ObserverError("RUN_NOT_FOUND", 404) from None
+        except ClaimPackError:
+            raise ObserverError("CLAIM_PACK_UNAVAILABLE", 503) from None
+        if admin_token in exported["html"]:
+            raise ObserverError("UNSAFE_UPSTREAM_DATA", 502)
+        return exported
 
     @app.get("/observer/api/integration-runs/{run_id}", dependencies=[Depends(authorized)])
     def integration_run(run_id: str):

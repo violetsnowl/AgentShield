@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -24,7 +23,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from evaluator.obligations import load_spec  # noqa: E402
-from experiments.reverify_evidence import reverify  # noqa: E402
+from experiments.reverify_evidence import apply_obligation  # noqa: E402
 from experiments.run_dev import prior_paid_cost  # noqa: E402
 from runners.env import load_runner_env  # noqa: E402
 from sandbox.bscale_authorization import fixture_id_for, select_task_ids  # noqa: E402
@@ -266,19 +265,7 @@ def main(argv: list[str] | None = None) -> int:
             elif not spec_path.is_file():
                 final["verify_note"] = "gold spec missing; kept runner pre-gold result"
             elif (run_dir / "evidence.json").is_file():
-                raw = (run_dir / "evidence.json").read_bytes()
-                evidence = json.loads(raw.decode("utf-8"))
-                loss, claim = reverify(evidence, load_spec(spec_path), contract,
-                                       hashlib.sha256(raw).hexdigest())
-                for name, alias in (("loss_result.json", "loss_result_before_gold.json"),
-                                    ("claim_A0.json", "claim_A0_before_gold.json")):
-                    target = run_dir / name
-                    if target.is_file() and not (run_dir / alias).exists():
-                        (run_dir / alias).write_bytes(target.read_bytes())
-                write_json(run_dir / "post_obligation" / "loss_result.json", loss)
-                write_json(run_dir / "post_obligation" / "claim_A0.json", claim)
-                write_json(run_dir / "loss_result.json", loss)
-                write_json(run_dir / "claim_A0.json", claim)
+                loss, claim = apply_obligation(run_dir, load_spec(spec_path), contract)
                 final.update(loss_status=loss["loss_status"], net_loss_cents=loss["net_loss_cents"],
                              claim_status=claim["claim_status"], payout_cents=claim["payout_cents"])
             final_runs.append(final)

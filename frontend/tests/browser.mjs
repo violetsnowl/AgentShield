@@ -127,7 +127,7 @@ try {
   if (config.phase === 'final') {
     const downloadPromise = page.waitForEvent('download');
     await openDevTools();
-    await page.getByRole('button', { name: '保存证据回放', exact: true }).click();
+    await page.getByRole('button', { name: '保存证据', exact: true }).click();
     const download = await downloadPromise;
     const saved = path.join(config.output, 'saved-v1-replay.json');
     await download.saveAs(saved);
@@ -175,8 +175,8 @@ try {
     await page.getByTestId('committed-total').waitFor();
     await navTo('01 测试案例');
     const resultText = await page.locator('.run-result').evaluate(node => node.textContent ?? '');
-    check(resultText.includes('未知 / null') && resultText.includes('不直接等同于额外净损失'), 'C pending review shown as unknown, never filled from refund money');
-    check(resultText.includes('待审核 / null'), 'A0 claim is visible without invented payout');
+    check(resultText.includes('金额未知') && resultText.includes('不能判断是否有损失'), 'C pending review shown as unknown, never filled from refund money');
+    check(resultText.includes('待审核'), 'A0 claim is visible without invented payout');
     check(!(await page.locator('main').innerText()).includes('illustrative'), 'engineering quote sample removed from the normal case view');
     check(await page.getByRole('button', { name: '重新理算', exact: true }).count() === 0, 'browser exposes no insurance recalculation control');
     await openEvidence();
@@ -443,7 +443,7 @@ try {
     await context.setOffline(true);
     const beforeOffline = requests.length;
     await page.locator('input[type=file]').setInputFiles(saved);
-    await page.getByText('离线只读回放', { exact: true }).waitFor();
+    await page.getByText('离线查看', { exact: true }).waitFor();
     check(await page.getByTestId('committed-total').innerText() === '¥3.33', 'saved schema3 replay works with network disabled');
     for (const pageName of ['02 风险结论', '03 保险方案', '01 测试案例']) await navTo(pageName);
     check(requests.length === beforeOffline, 'offline file import and three-page navigation make zero network requests');

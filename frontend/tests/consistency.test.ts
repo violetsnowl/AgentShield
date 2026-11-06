@@ -37,7 +37,7 @@ describe('replay fact consistency (no refund eligibility or insurance calculatio
   });
   it('marks canonical hash as unverified even when the declaration is unchanged', () => {
     const input = structuredClone(original); input.case_context.canonical_initial.case.request = 'changed request';
-    expect(evidenceCaveats(parseEvidence(input)).join()).toContain('文件声明值，未复核');
+    expect(evidenceCaveats(parseEvidence(input)).join()).toContain('文件自带的，未复核');
   });
   it('keeps absent historical event provenance and tickets unknown', () => {
     const { human_reviews: _unused, ...input } = structuredClone(original); input.events = [];

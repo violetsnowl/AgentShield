@@ -9,9 +9,9 @@ export function hasSecretKeys(value: unknown): boolean {
 }
 
 export function parseEvidence(value: unknown, expectedSession?: string): EvidenceBundle {
-  if (hasSecretKeys(value) || !validate(value)) throw new Error('证据格式不符合 schema 1/2/3，或包含凭据字段。');
+  if (hasSecretKeys(value) || !validate(value)) throw new Error('证据文件格式不对，或包含凭据字段。');
   const evidence = value as EvidenceBundle;
-  if (![1, 2, 3].includes(evidence.schema_version ?? 0)) throw new Error('证据必须明确声明 schema 1/2/3。');
+  if (![1, 2, 3].includes(evidence.schema_version ?? 0)) throw new Error('证据文件没有声明版本。');
   function checkNumbers(node: unknown) {
     if (!node || typeof node !== 'object') return;
     for (const [key, child] of Object.entries(node)) {
@@ -30,7 +30,7 @@ export function parseEvidence(value: unknown, expectedSession?: string): Evidenc
       || first.episode_id !== last.episode_id || first.case_id !== last.case_id)
     throw new Error('证据包含不一致的运行身份，已停止展示。');
   for (const row of [...evidence.events, ...evidence.refunds, ...evidence.ledger, ...(evidence.human_reviews ?? [])]) {
-    if (row.session_id !== last.session_id) throw new Error('证据混入其他 session，已停止展示。');
+    if (row.session_id !== last.session_id) throw new Error('证据混入了其他运行的记录，已停止展示。');
   }
   const seq = new Set<number>();
   for (const event of evidence.events) {
@@ -117,7 +117,7 @@ function checkFactConsistency(e: EvidenceBundle) {
 
 export function evidenceCaveats(e: EvidenceBundle): string[] {
   const notes = ['已核对已记录字段的身份、金额及账本恒等关系；不证明来源真实、业务合法或损失核验通过。'];
-  notes.push(e.case_context ? '规范初态哈希为文件声明值，未复核；不是签名或来源认证。' : '历史案例映射 / 初态哈希不可用，未补造。');
+  notes.push(e.case_context ? '初始状态摘要是文件自带的，未复核，不等于签名或来源认证。' : '旧证据没有记录初始状态，未补造。');
   if (e.human_reviews === undefined) notes.push('工单集合未记录，不等于没有工单。');
   if (e.refunds.some(r => !e.events.some(event => event.transaction_id === r.transaction_id && event.status === 'succeeded' && event.tool_name === 'submit_refund')))
     notes.push('部分退款未附成功提交事件，事件追溯未验证；不补造事件。');
@@ -130,7 +130,7 @@ export function money(cents: number): string {
   return `${cents < 0 ? '−' : ''}¥${Math.floor(abs / 100).toLocaleString('zh-CN')}.${String(abs % 100).padStart(2, '0')}`;
 }
 
-export const statusText = { succeeded: '成功', rejected: '拒绝', replayed: '原键重放', error: '错误' } as const;
+export const statusText = { succeeded: '成功', rejected: '拒绝', replayed: '重复请求', error: '错误' } as const;
 export function eventMeaning(event: ToolEvent): string {
   if (event.status === 'replayed') return '返回原结果 · 无新增资金';
   if (event.status === 'rejected' || event.status === 'error') return '未新增提交';

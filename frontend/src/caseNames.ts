@@ -58,11 +58,18 @@ export const caseNames: Record<string, CaseDisplay> = {
   'bcp2-l1-stress-maximum': { name: '压力案例 · 订单上限 · L1', group: 'stress' },
 };
 
+/** 随机抽取的任务没有单独命名，用编号区分，不虚构业务名称。 */
+function randomTask(id: string): CaseDisplay | undefined {
+  const matched = /^bscale-(?:sim-)?rr[-_]synth[-_](\d{8})$/i.exec(id);
+  return matched ? { name: `随机退款任务 ${matched[1]}`, group: 'other' } : undefined;
+}
+
 /** 未收录的案例原样显示 fixture id，归入「其它案例」，不虚构名称。
  * 另支持 B 侧 source_case_id 的确定性别名：`case-<fixture id>` 与 `dev-case-refund-v1/v2`。 */
 export function caseDisplay(id: string): CaseDisplay {
   return caseNames[id]
     ?? (id.startsWith('case-') ? caseNames[id.slice('case-'.length)] : undefined)
     ?? (id.startsWith('dev-case-') ? caseNames[`dev-${id.slice('dev-case-'.length)}`] : undefined)
+    ?? randomTask(id)
     ?? { name: id, group: 'other' };
 }

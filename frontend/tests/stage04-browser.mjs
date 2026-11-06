@@ -35,7 +35,7 @@ try {
   const v2 = JSON.parse(await fs.readFile(path.join(config.output, 'dev-refund-v2_evidence.json')));
   const importData = async (data, name = 'replay.json') => page.locator('input[type=file]').setInputFiles({ name, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(data)) });
   async function imported(data) {
-    await page.getByText('离线只读回放', { exact: true }).waitFor();
+    await page.getByText('离线查看', { exact: true }).waitFor();
     await page.getByTestId('committed-total').waitFor();
     await page.waitForFunction(sid => document.querySelector('.run-identity')?.textContent.includes(sid), data.final_snapshot.session.session_id);
   }
@@ -62,7 +62,7 @@ try {
   release.resolve();
   await page.waitForResponse(r => r.url().endsWith('/observer/api/sessions') && r.request().method() === 'POST');
   await page.waitForTimeout(500);
-  const stillReplay = await page.getByText('离线只读回放', { exact: true }).count() === 1;
+  const stillReplay = await page.getByText('离线查看', { exact: true }).count() === 1;
   observations.push({ scenario: 'delayed-real-create-then-legal-v2-import', replay_preserved: stillReplay, created_session: created.session.session_id });
   check(stillReplay === !config.expectVulnerable, config.expectVulnerable ? 'F03-02 reproduced in real Edge: late create replaces replay' : 'F03-02 fixed: late create cannot replace replay');
   await snapshot('after-late-create'); await page.unroute(sessionsRoute);
@@ -113,14 +113,14 @@ try {
     await openEvidence();
     await page.getByRole('heading', { name: '订单与商品', exact: true }).waitFor();
     await page.evaluate(() => window.fileReleases['slow-return.json']()); await page.waitForTimeout(150);
-    check(await page.getByText('离线只读回放', { exact: true }).count() === 0, 'return to service invalidates pending file reads');
+    check(await page.getByText('离线查看', { exact: true }).count() === 0, 'return to service invalidates pending file reads');
     // Returning begins a catalog GET. A new import must win over that late catalog.
     await importData(v1); await imported(v1);
     const catalogGate = gate(), catalogStarted = gate();
     await page.route(sessionsRoute, async route => { const response = await route.fetch(); catalogStarted.resolve(); await catalogGate.promise; await route.fulfill({ response }); });
     await page.getByRole('button', { name: '返回本机服务', exact: true }).click(); await catalogStarted.promise;
     await importData(v2); await imported(v2); catalogGate.resolve(); await page.waitForTimeout(200);
-    check(await page.getByText('离线只读回放', { exact: true }).count() === 1, 'late directory cannot exit newer replay');
+    check(await page.getByText('离线查看', { exact: true }).count() === 1, 'late directory cannot exit newer replay');
     await page.unroute(sessionsRoute);
     await snapshot('async-boundaries-fixed');
     await context.setOffline(true);
@@ -175,7 +175,7 @@ try {
     // 技术面板已从普通界面移除：交付运行在结果卡与（折叠的）完整执行记录中呈现。
     check(!(await page.locator('.integration-panel').count()), 'technical C/A panel removed from the normal case view');
     const deliveredView = await page.locator('.run-result').innerText();
-    check(deliveredView.includes('开发运行') && deliveredView.includes('待审核 / null'), 'delivered run keeps honest development/review labels');
+    check(deliveredView.includes('开发运行') && deliveredView.includes('待审核'), 'delivered run keeps honest development/review labels');
     check(await page.getByRole('button', { name: '重新理算', exact: true }).count() === 0, 'no browser-side insurance execution control');
     await snapshot('integration-delivered-panel');
     // Lost create response after a real commit: do not announce that creation failed.

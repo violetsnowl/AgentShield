@@ -10,7 +10,7 @@ from pathlib import Path
 import sys
 
 from actuarial.claims import calculate_claim
-from evaluator.obligations import load_spec
+from evaluator.obligations import load_spec, validate_spec
 from evaluator.verify import claim_event, evaluate_evidence
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,6 +20,27 @@ CONTRACT = ROOT / "configs/insurance/research_contract_v0.1.json"
 def reverify(evidence: dict, spec: dict | None, contract: dict, evidence_sha256: str | None = None) -> tuple[dict, dict]:
     loss = evaluate_evidence(evidence, spec, evidence_sha256)
     claim = calculate_claim(claim_event(loss), contract)
+    return loss, claim
+
+
+def _write(path: Path, value: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def apply_obligation(run_dir: Path, spec: dict, contract: dict) -> tuple[dict, dict]:
+    """Re-verify a finished run in place. The result from before the spec is kept beside it."""
+    validate_spec(spec)
+    raw = (run_dir / "evidence.json").read_bytes()
+    loss, claim = reverify(json.loads(raw.decode("utf-8")), spec, contract, hashlib.sha256(raw).hexdigest())
+    for name, alias in (("loss_result.json", "loss_result_before_gold.json"), ("claim_A0.json", "claim_A0_before_gold.json")):
+        target = run_dir / name
+        if target.is_file() and not (run_dir / alias).exists():
+            (run_dir / alias).write_bytes(target.read_bytes())
+    _write(run_dir / "post_obligation" / "loss_result.json", loss)
+    _write(run_dir / "post_obligation" / "claim_A0.json", claim)
+    _write(run_dir / "loss_result.json", loss)
+    _write(run_dir / "claim_A0.json", claim)
     return loss, claim
 
 

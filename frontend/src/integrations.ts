@@ -82,12 +82,12 @@ const nullableInteger = (value: unknown, label: string) => value === null ? null
 const strings = (value: unknown, label: string) => { if (!Array.isArray(value) || value.some(item => typeof item !== 'string')) throw new Error(`${label} 格式无效。`); return value as string[]; };
 
 export function parseBScaleBatchStatus(value: unknown): BScaleBatchStatus {
-  const raw = object(value, 'B-SCALE 批次状态');
+  const raw = object(value, '批次状态');
   const status = text(raw.status, 'batch.status');
   if (!['idle', 'queued', 'running', 'completed', 'failed'].includes(status)) throw new Error('未知批次状态。');
   const total = integer(raw.total, 'batch.total'); const completed = integer(raw.completed, 'batch.completed');
   const paid = integer(raw.paid_model_calls, 'batch.paid_model_calls');
-  if (total > 100 || completed > total || paid !== 0) throw new Error('B-SCALE 批次边界无效。');
+  if (total > 100 || completed > total || paid !== 0) throw new Error('批次边界无效。');
   return {
     status: status as BScaleBatchStatus['status'], batch_id: nullableText(raw.batch_id, 'batch.batch_id'), seed: nullableText(raw.seed, 'batch.seed'),
     total, completed, normal_refund: integer(raw.normal_refund, 'batch.normal_refund'), manual_review: integer(raw.manual_review, 'batch.manual_review'),
@@ -104,7 +104,7 @@ function parseSummary(value: unknown): IntegrationRunSummary {
   if (!['verified', 'needs_review'].includes(loss) || !['assessed', 'not_covered', 'needs_review'].includes(claim)) throw new Error('未知核验或理算状态。');
   if (row.counts_as_formal_run !== false) throw new Error('开发运行不得标记为正式实验。');
   const digest = text(row.evidence_digest_status, 'evidence_digest_status');
-  if (!['raw_file_match', 'canonical_json_match_raw_delivery_differs'].includes(digest)) throw new Error('未知证据哈希状态。');
+  if (!['raw_file_match', 'canonical_json_match_raw_delivery_differs'].includes(digest)) throw new Error('证据摘要状态未知。');
   return { run_id: text(row.run_id, 'run_id'), batch_id: text(row.batch_id, 'batch_id'), label: text(row.label, 'label'), case_id: text(row.case_id, 'case_id'),
     session_id: text(row.session_id, 'session_id'), episode_id: text(row.episode_id, 'episode_id'), config_id: text(row.config_id, 'config_id'),
     execution_source: source as IntegrationRunSummary['execution_source'], provider: nullableText(row.provider, 'provider'), model: nullableText(row.model, 'model'),
@@ -174,7 +174,7 @@ export function parseP0Comparison(value: unknown, summary: IntegrationRunSummary
     || !['observed_run_not_formally_admitted', 'A_study_reviewed_zero_loss_not_formal_insurance_claim'].includes(reviewStatus)
     || raw.commercial_quote !== false || raw.real_agent_insurance_claim !== false || !Array.isArray(raw.claims)) throw new Error('A-P0 双方案结果格式无效。');
   const net = nullableInteger(raw.net_loss_cents, 'P0 net_loss_cents'); const status = text(raw.loss_status, 'P0 loss_status');
-  if (raw.event_id !== summary.episode_id || status !== loss.loss_status || net !== loss.net_loss_cents) throw new Error('A-P0 双方案结果与 C 核验身份不一致。');
+  if (raw.event_id !== summary.episode_id || status !== loss.loss_status || net !== loss.net_loss_cents) throw new Error('两个方案的结果与核验记录不一致。');
   const reviewed = reviewStatus === 'A_study_reviewed_zero_loss_not_formal_insurance_claim';
   if (reviewed) {
     const review = object(raw.A_study_coverage_review, 'A-P0 A_study_coverage_review');
@@ -183,7 +183,7 @@ export function parseP0Comparison(value: unknown, summary: IntegrationRunSummary
     const source = object(raw.source, 'A-P0 source');
     if (typeof source.C_loss_result_sha256 !== 'string' || typeof source.evidence_sha256 !== 'string' || typeof source.obligation_spec_id !== 'string'
       || source.C_original_coverage_status !== loss.coverage_status_input || source.C_verified_net_loss_cents !== net) throw new Error('A-P0 已审核结果与 C 原始损失/证据绑定不一致。');
-  } else if (raw.coverage_status !== loss.coverage_status_input) throw new Error('A-P0 双方案结果与 C 核验身份不一致。');
+  } else if (raw.coverage_status !== loss.coverage_status_input) throw new Error('两个方案的结果与核验记录不一致。');
   const versions = new Map(products?.plans.map(plan => [plan.product_id, plan.contract_version]));
   const claims = raw.claims.map((value, index) => {
     const row = object(value, `A-P0 claim ${index}`); const id = text(row.product_id, 'P0 product_id'); const payout = nullableInteger(row.payout_cents, 'P0 payout_cents'); const retained = nullableInteger(row.retained_loss_cents, 'P0 retained_loss_cents');
@@ -198,7 +198,7 @@ export function parseP0Comparison(value: unknown, summary: IntegrationRunSummary
 export function parseIntegrationDetail(value: unknown): IntegrationRunDetail {
   const raw = object(value, 'ABCD 集成结果'); const summary = parseSummary(raw.summary); const loss = parseLoss(raw.loss_result); const claim = parseClaim(raw.claim);
   const contract = parseContract(raw.contract); const quote = parseQuote(raw.quote_result);
-  if (loss.identity.session_id !== summary.session_id || loss.identity.episode_id !== summary.episode_id || loss.identity.case_id !== summary.case_id || claim.event_id !== summary.episode_id) throw new Error('A/C 结果与运行身份不一致。');
+  if (loss.identity.session_id !== summary.session_id || loss.identity.episode_id !== summary.episode_id || loss.identity.case_id !== summary.case_id || claim.event_id !== summary.episode_id) throw new Error('核验结果与运行记录不一致。');
   if (loss.loss_status !== summary.loss_status || claim.claim_status !== summary.claim_status || claim.loss_status !== loss.loss_status || claim.net_loss_cents !== loss.net_loss_cents) throw new Error('LossResult 与 A0 理算状态不一致。');
   if (claim.contract_version !== contract.contract_version || quote.contract_version !== contract.contract_version) throw new Error('保险合同版本不一致。');
   const p0Products = parseP0Products(raw.p0_products); const p0Claims = parseP0Comparison(raw.p0_claim_comparison, summary, loss, p0Products);
@@ -210,13 +210,13 @@ export function adaptResult(kind: ResultKind, input?: unknown): ResultSlot {
   const owner = kind === 'LossResult' ? 'C' : 'A';
   if (input === undefined || input === null) return { boundary_version: boundaryVersion, kind, owner, state: 'pending', result: null, commercial_quote: false, message: '尚未选择已验证的候选结果。' };
   try {
-    if (kind === 'LossResult') { const result = parseLoss(input); return { boundary_version: boundaryVersion, kind, owner, state: result.loss_status === 'needs_review' ? 'needs_review' : 'ready', result, commercial_quote: false, message: result.loss_status === 'needs_review' ? '独立核验已运行，但缺少已审定义务定义，净损失保持 null。' : '候选结果已通过格式与身份校验。' }; }
+    if (kind === 'LossResult') { const result = parseLoss(input); return { boundary_version: boundaryVersion, kind, owner, state: result.loss_status === 'needs_review' ? 'needs_review' : 'ready', result, commercial_quote: false, message: result.loss_status === 'needs_review' ? '独立核验已运行，但应退金额还没确定，净损失留空。' : '候选结果已通过格式与身份校验。' }; }
     const result = parseQuote(input); return { boundary_version: boundaryVersion, kind, owner, state: 'ready', result, commercial_quote: false, message: '已加载 A 的工程情景样例；不代表本次 Agent 运行或商业报价。' };
   } catch { return { boundary_version: boundaryVersion, kind, owner, state: 'unsupported_contract', result: null, commercial_quote: false, message: '未知或不一致的结果版本，已停止展示。' }; }
 }
 export const evidenceStatePresentation = {
   not_fitted: { title: '未标定', text: 'B2 未标定，不展示参数或情景估计。', tone: 'warning' },
-  insufficient_evidence: { title: '证据不足', text: '不能给出完整估计；未知金额保留 null，不填零。', tone: 'warning' },
+  insufficient_evidence: { title: '证据不足', text: '不能给出完整估计，未知金额留空，不按 0 计。', tone: 'warning' },
   partial: { title: '部分支持', text: '只展示已核验的支持范围，未知部分单列。', tone: 'warning' },
   out_of_scope: { title: '超出范围', text: '当前数据不支持此情景，不能外推报价。', tone: 'error' },
 } as const;

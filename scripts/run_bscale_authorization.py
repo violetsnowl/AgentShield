@@ -16,15 +16,18 @@ from pathlib import Path
 from typing import Any, Callable
 
 from experiments.b_process import IsolatedB
+from experiments.reverify_evidence import CONTRACT, apply_obligation
 from experiments.run_dev import ROOT, code_hashes, file_sha256, git_head, now, run_one, write_json
 from sandbox.bscale_authorization import (
     AUTHORIZATION_SEED,
     DB_ENV,
     configured_source_path,
+    load_dynamic_fixture,
     population_stats,
     select_task_ids,
     task_metadata,
 )
+from scripts.a_bscale_auto_gold import generate as generate_gold, source_hash
 from scripts.p0_insurance_display import DEFAULT_CONTRACTS, _load_contracts, evaluate_saved_loss
 
 
@@ -58,6 +61,17 @@ def _generate_p0(run_dir: Path, contracts: dict[str, Any]) -> dict[str, Any]:
 ProgressCallback = Callable[[int, int, dict[str, Any]], None]
 
 
+def _verify_run(run_dir: Path, fixture_id: str, source_db: Path, contract: dict[str, Any]) -> dict[str, Any]:
+    """Gold is built here, after the run ended, from pre-execution facts, and never saved as a file."""
+    fixture, digest = load_dynamic_fixture(fixture_id, source_db)
+    if digest != source_hash(fixture):
+        raise ValueError("fixture changed during generation")
+    spec, _ = generate_gold(fixture)
+    loss, claim = apply_obligation(run_dir, spec, contract)
+    return {"loss_status": loss["loss_status"], "net_loss_cents": loss["net_loss_cents"],
+            "claim_status": claim["claim_status"], "payout_cents": claim["payout_cents"]}
+
+
 def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path,
               batch_id: str | None = None,
               progress_callback: ProgressCallback | None = None) -> dict[str, Any]:
@@ -72,6 +86,7 @@ def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path,
     batch_dir.mkdir(parents=True, exist_ok=False)
     b_db = ROOT / "var/c_runs" / batch_id / "b.sqlite3"
     contracts = _load_contracts(DEFAULT_CONTRACTS)
+    claim_contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
     batch = {
         "batch_id": batch_id,
         "purpose": "Free deterministic B-SCALE simulated-authorization development batch; not a model or formal experiment.",
@@ -102,6 +117,8 @@ def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path,
                 }
                 record = run_one(spec, b, batch_dir, index, "bscale-sim-auth-rule-baseline-dev")
                 run_dir = batch_dir / f"{index:02d}_{spec['label']}"
+                if (run_dir / "evidence.json").is_file():
+                    record.update(_verify_run(run_dir, task["fixture_id"], source_db, claim_contract))
                 p0 = _generate_p0(run_dir, contracts) if (run_dir / "loss_result.json").is_file() else None
                 evidence = _read(run_dir / "evidence.json") if (run_dir / "evidence.json").is_file() else None
                 refunds = evidence["refunds"] if evidence else []
@@ -143,8 +160,6 @@ def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path,
         common_ok = (
             record.get("run_status") == "completed"
             and record.get("ledger_conserved") is True
-            and record.get("loss_status") == "needs_review"
-            and record.get("net_loss_cents") is None
             and record.get("claim_status") == "needs_review"
             and record.get("payout_cents") is None
             and record.get("cost_cny") == 0.0
@@ -156,6 +171,8 @@ def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path,
                 and record.get("refund_transaction_count") == 1
                 and committed == task["requested_cents"]
                 and record.get("human_review_count") == 0
+                and record.get("loss_status") == "verified"
+                and record.get("net_loss_cents") == 0
             )
             normal_refunds += int(common_ok and expected_ok)
         else:
@@ -164,6 +181,9 @@ def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path,
                 and record.get("refund_transaction_count") == 0
                 and committed == 0
                 and record.get("human_review_count") == 1
+                # The amount due on an escalated task is a human decision, so it stays unknown.
+                and record.get("loss_status") == "needs_review"
+                and record.get("net_loss_cents") is None
             )
             manual_reviews += int(common_ok and expected_ok)
         if not (common_ok and expected_ok):
@@ -204,8 +224,8 @@ def run_batch(source_db: Path, *, count: int, seed: str, summary_path: Path,
             "total_refund_cents": total_refund_cents,
             "all_ledgers_conserved": all(record.get("ledger_conserved") is True for record in batch["runs"]),
             "paid_model_calls": 0,
-            "loss_status": {"needs_review": sum(record.get("loss_status") == "needs_review" for record in batch["runs"])},
-            "claim_status": {"needs_review": sum(record.get("claim_status") == "needs_review" for record in batch["runs"])},
+            "loss_status": dict(Counter(record.get("loss_status", "missing") for record in batch["runs"])),
+            "claim_status": dict(Counter(record.get("claim_status", "missing") for record in batch["runs"])),
         },
         "failures": failures,
         "required_env": DB_ENV,

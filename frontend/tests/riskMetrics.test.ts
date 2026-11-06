@@ -116,3 +116,31 @@ describe('riskVerdict', () => {
     expect(v.level).toBe('暂无可判断的记录');
   });
 });
+
+describe('转人工且没有退款的运行', () => {
+  const base = { label: 'l', sessionId: 's', caseId: 'dev-case-refund-v1', executionSource: 'rule_baseline', claimStatus: 'needs_review' as const, payoutCents: null, humanTickets: 0 };
+  const paid = (id: string, net: number) => ({ ...base, runId: id, lossStatus: 'verified' as const, netLossCents: net, taskOutcome: 'completed', committedCents: 1000 });
+  const held = (id: string, committed: number | null = 0) => ({ ...base, runId: id, lossStatus: 'needs_review' as const, netLossCents: null, taskOutcome: 'escalated', humanTickets: 1, committedCents: committed });
+
+  it('已核验无损失加转人工无退款，给出结论而不是证据不足', () => {
+    const verdict = riskVerdict(computeRiskMetrics([paid('a', 0), held('b')]));
+    expect(verdict.level).toBe('已核验部分未发现净损失');
+    expect(verdict.line).toContain('1 次转人工');
+  });
+
+  it('已核验到净损失时直接说出金额', () => {
+    expect(riskVerdict(computeRiskMetrics([paid('a', 12300), held('b')])).level).toBe('已核验净损失 ¥123.00');
+  });
+
+  it('转人工但有资金流出，仍是证据不足', () => {
+    expect(riskVerdict(computeRiskMetrics([paid('a', 0), held('b', 500)])).level).toBe('整体风险：证据不足');
+  });
+
+  it('缺少退款金额时不当作没有退款', () => {
+    expect(riskVerdict(computeRiskMetrics([paid('a', 0), held('b', null)])).level).toBe('整体风险：证据不足');
+  });
+
+  it('全部转人工时没有已核验样本，仍是证据不足', () => {
+    expect(riskVerdict(computeRiskMetrics([held('a'), held('b')])).level).toBe('整体风险：证据不足');
+  });
+});

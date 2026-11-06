@@ -1,5 +1,6 @@
 // 风险评估页聚合（纯函数，便于单测）。
 // 原则：全部由输入实测数据实时计算，不硬编码；核验状态与任务结果、工单是相互独立的维度，不互相代替。
+import { money } from './data';
 
 export type RiskRunInput = {
   runId: string;
@@ -13,6 +14,7 @@ export type RiskRunInput = {
   payoutCents: number | null;
   taskOutcome: string | null;
   humanTickets: number;
+  committedCents?: number | null;
 };
 
 export type RiskCategory = { key: string; runs: number; verified: number; verifiedMissing: number; lossCents: number };
@@ -26,6 +28,7 @@ export type RiskMetrics = {
   otherSources: RiskRunInput[];
   verified: RiskRunInput[];
   review: RiskRunInput[];
+  reviewNoOutflow: RiskRunInput[];
   verifiedNetSumCents: number;
   verifiedZero: RiskRunInput[];
   verifiedMissingLoss: RiskRunInput[];
@@ -58,6 +61,8 @@ export function computeRiskMetrics(inputs: RiskRunInput[]): RiskMetrics {
   // 核验损失只汇总 verified 样本；needs_review 的 null 不视为 0，也不并入合计。
   const verified = inputs.filter(row => row.lossStatus === 'verified');
   const review = inputs.filter(row => row.lossStatus === 'needs_review');
+  // 转人工且没有退款：金额待人工判定，但没有资金流出，和“没核验”是两回事。
+  const reviewNoOutflow = review.filter(row => row.taskOutcome === 'escalated' && row.committedCents === 0);
   // 已核验但缺金额 = 核验结果缺失：不并入 0，单独计数、单独展示。
   const verifiedMissingLoss = verified.filter(row => row.netLossCents === null);
   const verifiedNetSumCents = verified.reduce((sum, row) => sum + (row.netLossCents ?? 0), 0);
@@ -84,7 +89,7 @@ export function computeRiskMetrics(inputs: RiskRunInput[]): RiskMetrics {
   return {
     total: inputs.length,
     observed, mock, scripted, ruleBaseline, otherSources,
-    verified, review, verifiedNetSumCents, verifiedZero, verifiedMissingLoss,
+    verified, review, reviewNoOutflow, verifiedNetSumCents, verifiedZero, verifiedMissingLoss,
     assessed, payoutSumCents,
     escalated,
     outcomeCompleted: outcome('completed'),
@@ -108,6 +113,11 @@ export function coverageLine(metrics: RiskMetrics): string {
 /** 页首结论（动态）：证据不足时说清楚不足，数据充分时按真实结果更新表达，不固定文案。 */
 export function riskVerdict(metrics: RiskMetrics): { level: string; line: string } {
   if (metrics.total === 0) return { level: '暂无可判断的记录', line: coverageLine(metrics) };
+  const settled = metrics.verified.length + metrics.reviewNoOutflow.length;
+  if (metrics.verified.length > 0 && metrics.verified.length < metrics.total && settled === metrics.total && metrics.verifiedMissingLoss.length === 0) {
+    return { level: metrics.verifiedNetSumCents > 0 ? `已核验净损失 ${money(metrics.verifiedNetSumCents)}` : '已核验部分未发现净损失',
+      line: `${metrics.verified.length} 次运行已核验；另有 ${metrics.reviewNoOutflow.length} 次转人工，没有退款，应退金额待人工判定。` };
+  }
   if (metrics.verified.length < metrics.total) return { level: '整体风险：证据不足', line: coverageLine(metrics) };
   return { level: '核验结果已覆盖全部运行', line: coverageLine(metrics) };
 }

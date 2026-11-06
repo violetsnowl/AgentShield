@@ -40,7 +40,7 @@ try {
   const shown = await page.getByTestId('committed-total').innerText();
   const expected = new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(config.currentRefundCents / 100);
   check(shown === expected, 'committed total contains current episode refund only');
-  check((await page.locator('main').innerText()).includes('原键重放不重复计钱'), 'idempotent money semantics visible');
+  check((await page.locator('main').innerText()).includes('重复请求不重复计钱'), 'idempotent money semantics visible');
   await page.screenshot({ path: path.join(config.output, 'bcp2-schema-v2-evidence.png'), fullPage: true });
   await Promise.all(responses.map(async response => {
     const text = await response.text().catch(() => '');

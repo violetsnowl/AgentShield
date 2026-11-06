@@ -26,7 +26,7 @@ describe('真实运行桥接展示适配', () => {
     expect(realRunDisabledReasons(status)).toHaveLength(0);
     const missingSource = parseRealRunStatus({ ...payload, authorization: { ...payload.authorization, has_key: true, approval_cap_cny: 0.5, source_available: false } });
     expect(canStartRealRun(missingSource)).toBe(false);
-    expect(realRunDisabledReasons(missingSource)[0]).toContain('B-SCALE');
+    expect(realRunDisabledReasons(missingSource)[0]).toContain('任务数据');
   });
   it('keeps single-flight honesty while a batch is queued or running', () => {
     const busy = parseRealRunStatus({ ...payload, status: 'running', stage: 'running', count: 1, batch_id: 'bscale-web-deepseek-x',
@@ -38,7 +38,7 @@ describe('真实运行桥接展示适配', () => {
   it('labels stages in plain Chinese', () => {
     expect(realRunStageLabel('sampling')).toBe('随机抽样中');
     expect(realRunStageLabel('running')).toBe('真实模型运行中');
-    expect(realRunStageLabel('verifying')).toBe('自动 Gold 与复核中');
+    expect(realRunStageLabel('verifying')).toBe('生成基准并复核中');
     expect(realRunStageLabel(null)).toBe('等待中');
   });
   it('tolerates malformed payloads without granting authority', () => {

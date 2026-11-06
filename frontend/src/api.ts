@@ -1,16 +1,17 @@
 const messages: Record<string, string> = {
   LOCAL_APPROVAL_REQUIRED: '本机观察授权未建立或已过期。请通过本机启动器重新打开工作台。',
   SAME_ORIGIN_REQUIRED: '请求来源未获授权，请从本机启动器进入。',
-  B_TIMEOUT: 'B 服务响应超时。请确认本机服务状态后重试。',
-  B_UNAVAILABLE: '暂时无法读取 B 服务。当前没有展示旧运行数据，请重试。',
-  B_CONTRACT_MISMATCH: 'B 返回的接口格式不匹配，已停止展示。',
+  B_TIMEOUT: '退款沙箱响应超时。请确认本机服务状态后重试。',
+  B_UNAVAILABLE: '暂时无法读取退款沙箱。当前没有展示旧运行数据，请重试。',
+  B_CONTRACT_MISMATCH: '退款沙箱返回的格式不匹配，已停止展示。',
   RUN_NOT_FOUND: '本次运行不存在或不在观察范围内。',
   BATCH_ALREADY_RUNNING: '已有一批随机测试正在运行，请等待当前批次完成。',
-  BSCALE_SOURCE_UNAVAILABLE: 'B-SCALE 冻结数据源未配置或不可读取，请检查本机启动配置。',
+  BSCALE_SOURCE_UNAVAILABLE: '任务数据源未配置或不可读取，请检查本机启动配置。',
   BATCH_EXECUTION_FAILED: '随机测试批次执行失败，请查看本机服务日志。',
   REAL_RUN_ALREADY_RUNNING: '已有一个真实批次正在运行，请等待其完成。',
   REAL_RUN_NOT_AUTHORIZED: '真实模型运行未获授权或本机配置不完整。',
   REAL_RUN_UNAVAILABLE: '真实运行暂不可用，请检查本机配置后重试。',
+  CLAIM_PACK_UNAVAILABLE: '无法生成理赔材料：原始证据不在本机，或重新计算的金额与记录不一致。',
 };
 
 export async function api<T>(path: string, options: { method?: 'GET' | 'POST'; body?: unknown; signal?: AbortSignal } = {}): Promise<T> {

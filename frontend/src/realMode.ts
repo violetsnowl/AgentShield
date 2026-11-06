@@ -72,7 +72,7 @@ export function insuranceAdviceFrom(summary: RealBatchSummary): InsuranceAdvice 
     const pending = summary.review > 0 ? `；另有 ${summary.review} 条尚未核验，结论可能随核验推进变化` : '';
     return { kind: 'evaluate', title: '建议评估保险保障',
       detail: `${scope}中已观察到已核验经济损失 ${money(summary.confirmedPositiveCents)}（${summary.confirmedPositiveCount} 条运行）${pending}。`,
-      caveat: '建议进一步评估 Core / Plus 保障的适用性；C 核验出的经济损失并不等于已认定保险责任——保险责任认定由 A 另行审查。' };
+      caveat: '建议进一步评估 Core / Plus 保障的适用性。核验出的经济损失不等于已认定保险责任，责任认定要另行审查。' };
   }
   if (summary.review === 0 && summary.verifiedMissingLoss === 0) {
     return { kind: 'no_need', title: '当前测试未发现额外经济损失',
@@ -85,6 +85,21 @@ export function insuranceAdviceFrom(summary: RealBatchSummary): InsuranceAdvice 
   return { kind: 'insufficient', title: '暂无法形成保险配置建议',
     detail: `${scope}中${reason}。`,
     caveat: '核验完整后再评估是否投保；不将未核验金额当作 0。' };
+}
+
+/** 抽取检验第三页的结论：规则基线不是 AI，不用来定价，这里要说清楚原因，而不是停在“数据不足”。 */
+export function samplingInsuranceNote(rows: RealBatchRow[], reasons: string[]): { title: string; body: string } {
+  const summary = summarizeRealBatch(rows);
+  const pending = summary.review > 0 ? `另有 ${summary.review} 次转人工或待判定，金额留空。` : '';
+  if (summary.verified > 0 && summary.verifiedMissingLoss === 0 && summary.confirmedPositiveCents === 0) {
+    return { title: '规则基线未出现净损失，这批数据不用于定价',
+      body: `本批 ${summary.total} 次运行中，${summary.verified} 次已核验，净损失为 ¥0。${pending}规则基线不是 AI，也没有进入保险责任认定，所以这里不给保费。要看真实 Agent 的结果，请切到真实 Agent 模式。` };
+  }
+  if (summary.confirmedPositiveCents > 0) {
+    return { title: '发现净损失，保险责任待认定',
+      body: `本批已核验净损失 ${money(summary.confirmedPositiveCents)}（${summary.confirmedPositiveCount} 次运行）。${pending}保险责任确定前不给保费。` };
+  }
+  return { title: '当前测试数据不足，尚不能形成保险测算', body: `本批次 ${summary.total} 次运行的核验尚未完成：${reasons.join('')}不会用假设数字代替。` };
 }
 
 export type ExtrapolationInput = { lossStatus: 'verified' | 'needs_review'; claimStatus: string; payoutCents: number | null };
@@ -121,9 +136,9 @@ export function extrapolatePremium(rows: ExtrapolationInput[], options: { annual
   const reasons: string[] = [];
   if (sampleSize === 0) reasons.push('当前批次尚无运行（样本为空）。');
   const review = rows.filter(row => row.lossStatus === 'needs_review');
-  if (review.length > 0) reasons.push(`核验未完成：${review.length} / ${sampleSize} 条仍待核验（needs_review），不得用假设概率代替。`);
+  if (review.length > 0) reasons.push(`核验未完成：${review.length} / ${sampleSize} 条还在等人工判定，不用假设概率代替。`);
   const missing = rows.filter(row => row.lossStatus === 'verified' && (row.claimStatus === 'needs_review' || row.payoutCents === null));
-  if (missing.length > 0) reasons.push(`保险责任未确定：${missing.length} 条已核验运行没有已核定赔款（payout = null）。`);
+  if (missing.length > 0) reasons.push(`保险责任未确定：${missing.length} 条已核验运行还没有核定赔款。`);
   if (reasons.length > 0) return { status: 'insufficient', premiumCents: null, eventCount: 0, sampleSize, frequency: null, meanSeverityCents: null, reasons };
   const payouts = rows.map(row => row.payoutCents as number);
   const eventPayouts = payouts.filter(value => value > 0);

@@ -61,7 +61,7 @@ export function realRunDisabledReasons(status: RealRunStatus | null): string[] {
   const auth = status.authorization;
   if (!auth.has_key) reasons.push('未配置：本机 .env 缺少 DEEPSEEK_API_KEY（由负责人在本机后端填写；不进入前端或仓库）。');
   if (auth.approval_cap_cny === null) reasons.push('未授权：当前阶段没有生效的付费预算批准记录；付费模型调用默认关闭、逐次批准。');
-  if (!auth.source_available) reasons.push('未就绪：B-SCALE 冻结源数据路径未配置或不可读。');
+  if (!auth.source_available) reasons.push('未就绪：任务数据路径未配置或不可读。');
   return reasons;
 }
 
@@ -74,7 +74,7 @@ export function realRunStageLabel(stage: string | null): string {
     case 'starting': return '准备中';
     case 'sampling': return '随机抽样中';
     case 'running': return '真实模型运行中';
-    case 'verifying': return '自动 Gold 与复核中';
+    case 'verifying': return '生成基准并复核中';
     case 'completed': return '已完成';
     case 'failed': return '失败';
     default: return '等待中';

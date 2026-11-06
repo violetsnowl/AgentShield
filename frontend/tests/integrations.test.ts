@@ -46,7 +46,7 @@ describe('versioned A/C presentation boundary', () => {
     const detail = parseIntegrationDetail({ summary, evidence: {}, loss_result: loss, claim, contract, quote_result: quote });
     expect(detail.loss_result.net_loss_cents).toBeNull();
     expect(detail.claim.payout_cents).toBeNull();
-    expect(() => parseIntegrationDetail({ summary, evidence: {}, loss_result: { ...loss, identity: { ...loss.identity, session_id: 'other' } }, claim, contract, quote_result: quote })).toThrow(/身份不一致/);
+    expect(() => parseIntegrationDetail({ summary, evidence: {}, loss_result: { ...loss, identity: { ...loss.identity, session_id: 'other' } }, claim, contract, quote_result: quote })).toThrow(/不一致/);
   });
   it('keeps A-P0 Core and Plus pending when C loss and coverage are unresolved', () => {
     const p0Products = { schema: 'AgentShield.P0_two_research_contracts.v0.1', version: 'A-P0-study-contracts-v0.1-candidate', currency: 'CNY', commercial_quote: false, annual_aggregate_enforced_in_A0: false, premium_status: 'insufficient_evidence', plans: [
@@ -71,7 +71,7 @@ describe('versioned A/C presentation boundary', () => {
   });
   it('keeps all required V1.1 unavailable states readable without numeric results', () => {
     expect(Object.keys(evidenceStatePresentation)).toEqual(['not_fitted', 'insufficient_evidence', 'partial', 'out_of_scope']);
-    expect(evidenceStatePresentation.insufficient_evidence.text).toContain('null');
+    expect(evidenceStatePresentation.insufficient_evidence.text).toContain('留空');
   });
   const verifiedLoss = { ...loss, loss_status: 'verified' as const, net_loss_cents: 0, coverage_status_input: 'needs_review' as const };
   const reviewedProducts = { schema: 'AgentShield.P0_two_research_contracts.v0.1', version: 'v0.1', currency: 'CNY', commercial_quote: false, annual_aggregate_enforced_in_A0: false, premium_status: 'insufficient_evidence', plans: [
@@ -97,10 +97,10 @@ describe('versioned A/C presentation boundary', () => {
     expect(() => parseReviewed({ ...reviewed, A_study_coverage_review: undefined })).toThrow(/A_study_coverage_review/);
     expect(() => parseReviewed({ ...reviewed, A_study_coverage_review: { ...reviewed.A_study_coverage_review, coverage_scope_status: 'excluded' } })).toThrow(/审查记录/);
     expect(() => parseReviewed({ ...reviewed, source: { ...reviewed.source, C_original_coverage_status: 'covered' } })).toThrow(/绑定/);
-    expect(() => parseReviewed({ ...reviewed, event_id: 'other' })).toThrow(/身份不一致/);
+    expect(() => parseReviewed({ ...reviewed, event_id: 'other' })).toThrow(/不一致/);
     expect(() => parseReviewed({ ...reviewed, claims: reviewed.claims.map((row, index) => index === 0 ? { ...row, payout_cents: 100 } : row) })).toThrow(/有界/);
   });
   it('keeps the pending format strict: coverage must still match the C input', () => {
-    expect(() => parseReviewed({ ...reviewed, status: 'observed_run_not_formally_admitted' })).toThrow(/身份不一致/);
+    expect(() => parseReviewed({ ...reviewed, status: 'observed_run_not_formally_admitted' })).toThrow(/不一致/);
   });
 });
