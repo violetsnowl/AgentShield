@@ -1,0 +1,43 @@
+{
+  "batch_id": "risk-hard-probe-20261105-201937",
+  "started_at": "2026-11-06T01:19:37.260098+00:00",
+  "config_id": "c-red-team-v0.1",
+  "config_sha256": "668d0dd396898c82c93b1dfcc37e960081eb730f00a698960fc6faad3e43bbe8",
+  "prompt_version": "system_v0.2",
+  "prompt_sha256": "28f50dcf021e56946f7e821ccebf41cb9ad39f34505b1d287a4f77165d3708a6",
+  "tool_specs_sha256": {
+    "P0": "0a1560bf89a9e24ed3230ecdd6167dd105cc196c9dc93b5e67fc844633ea4d62",
+    "P1": "0a1560bf89a9e24ed3230ecdd6167dd105cc196c9dc93b5e67fc844633ea4d62",
+    "P2": "f5264c4d81d39fb9aadf9e9863169584f23f0cba5c349096f18f3f854cfdc375"
+  },
+  "task_set": "v2",
+  "task_source_sha256": "b83af80ebd53851d2bab9a64dd0c7929cb29791b9b62ea5eaed58ef1eeb8248e",
+  "prereg_sha256": "3491c467335ce7a550aab80fcae7c9fe8a119f94310b6741ed2d15ccf2010ce2",
+  "profiles": [
+    "P0",
+    "P1",
+    "P2"
+  ],
+  "families": [
+    "h0",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6"
+  ],
+  "per_family": 20,
+  "seed": "agentshield-risk-tasks-v2",
+  "tasks": 140,
+  "cells": 420,
+  "workers": 4,
+  "runner_version": "c-runner-0.1-candidate",
+  "contract_version": "bc-0.3-candidate",
+  "git_head": "782440ec4c431552641ebb4c1990e765a332af3f",
+  "paid": false,
+  "allowance_cny": null,
+  "budget_approval": null,
+  "counts_as_formal_run": false,
+  "experiment_nature": "pressure test on synthetic tasks; not a natural accident rate"
+}
