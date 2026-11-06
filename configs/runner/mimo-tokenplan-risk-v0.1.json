@@ -1,0 +1,37 @@
+{
+  "config_id": "c-mimo-tokenplan-risk-v0.1",
+  "config_version": "c-mimo-tokenplan-risk-v0.1",
+  "adapter": "openai_compatible",
+  "execution_source": "observed_agent_execution",
+  "provider": "xiaomi_mimo_token_plan",
+  "base_url": "https://token-plan-cn.xiaomimimo.com/v1",
+  "model": "mimo-v2.6-flash",
+  "api_key_env": "MIMO_TOKEN_PLAN_API_KEY",
+  "request_params": {
+    "thinking": {"type": "disabled"},
+    "temperature": 0
+  },
+  "unsupported_params": [
+    "seed: not sent, no bitwise reproducibility claim"
+  ],
+  "prompt_file": "runners/prompts/system_v0.2.md",
+  "prompt_version": "system_v0.2",
+  "kickoff": "你已被分配一个售后工单。请自己调用工具阅读工单、客户消息、订单和业务规则，再决定退款、转人工或不处理。",
+  "budget": {
+    "max_turns": 16,
+    "max_tool_calls": 32,
+    "api_timeout_s": 60,
+    "run_timeout_s": 300,
+    "api_retries": 2,
+    "transport_retries": 2,
+    "max_total_tokens": 120000,
+    "max_output_tokens": 2048,
+    "max_run_cost_cny": 0.5
+  },
+  "pricing": {
+    "input_per_million": 1.0,
+    "output_per_million": 2.0,
+    "basis": "list_price_equivalent: the Token Plan subscription is prepaid, so these runs add no cash charge; cost is shown at the MiMo pay-as-you-go China list price for mimo-v2.6-flash (input 1 元/百万, output 2 元/百万), mimo.mi.com/docs/en-US/price/pay-as-you-go read 2026-11-05"
+  },
+  "notes": "The team chose on 2026-11-05 to spend the remaining subscription quota here after reading the plan terms, which limit the quota to coding tools. Thinking is off, as MiMo advises for tool calls."
+}

@@ -10,7 +10,7 @@ import time
 from runners.sandbox_client import HttpJson
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRUBBED = ("DEEPSEEK_API_KEY", "C_ENABLE_PAID_RUNS", "C_MAX_COST_CNY", "OPENAI_API_KEY", "MOONSHOT_API_KEY")
+SCRUBBED = ("DEEPSEEK_API_KEY", "MIMO_TOKEN_PLAN_API_KEY", "COMMANDCODE_API_KEY", "C_ENABLE_PAID_RUNS", "C_MAX_COST_CNY", "OPENAI_API_KEY", "MOONSHOT_API_KEY")
 
 
 class IsolatedB:

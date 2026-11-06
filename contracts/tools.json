@@ -94,9 +94,22 @@
       "name": "submit_refund",
       "parameters": {
         "$defs": {
-          "RefundLine": {
+          "RefundRequestLine": {
             "additionalProperties": false,
             "properties": {
+              "amount_cents": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Amount Cents"
+              },
               "item_id": {
                 "maxLength": 128,
                 "minLength": 1,
@@ -114,7 +127,7 @@
               "item_id",
               "quantity"
             ],
-            "title": "RefundLine",
+            "title": "RefundRequestLine",
             "type": "object"
           }
         },
@@ -134,7 +147,7 @@
           },
           "items": {
             "items": {
-              "$ref": "#/$defs/RefundLine"
+              "$ref": "#/$defs/RefundRequestLine"
             },
             "maxItems": 30,
             "minItems": 1,

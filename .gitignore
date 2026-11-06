@@ -61,6 +61,7 @@ incoming_delivery/
 # explicitly reviewed, non-model Mock demonstration batch needed by the
 # workbench integration view and browser tests.
 artifacts/*
+!artifacts/risk_runs/
 !artifacts/c_l0/
 artifacts/c_l0/*
 !artifacts/c_l0/runs/

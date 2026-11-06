@@ -97,7 +97,7 @@ def create_app(db_path=None, admin_token=None, *, initialize=True):
             if isinstance(value, list):
                 return [scrub(item) for item in value[:30]]
             if isinstance(value, dict):
-                return {key: scrub(item) if key in ("item_id", "quantity") else "[REDACTED]" for key, item in value.items()}
+                return {key: scrub(item) if key in ("item_id", "quantity", "amount_cents") else "[REDACTED]" for key, item in value.items()}
             if isinstance(value, float) and not math.isfinite(value):
                 return "[NON_FINITE]"
             return value
@@ -168,7 +168,7 @@ def create_app(db_path=None, admin_token=None, *, initialize=True):
     @app.get("/api/v1/sessions/{session_id}/observation", response_model=m.Case,
              dependencies=[Depends(session_auth)], responses=errors)
     def observation(session_id: str):
-        return store.state(session_id)["case"]
+        return store.observation(session_id)
 
     def endpoint(name, request_model):
         def call(session_id: str, body, request: Request,
@@ -181,6 +181,9 @@ def create_app(db_path=None, admin_token=None, *, initialize=True):
                 raise failure
             context["call_id"] = context["call_id"] or request.state.request_id
             args = body.model_dump()
+            for line in args.get("items", []):
+                if line.get("amount_cents") is None:
+                    line.pop("amount_cents", None)  # P2 requests stay byte-identical to the historical form.
             # Compare original validated parameters, before audit redaction can collapse distinct text.
             context["fingerprint"] = hashlib.sha256(dumps({"tool": name, "arguments": args}).encode()).hexdigest()
             # Free text and audit copies are redacted; transport credentials never enter facts.

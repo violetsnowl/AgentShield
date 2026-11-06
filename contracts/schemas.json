@@ -1270,6 +1270,10 @@
           {
             "pattern": "^bscale-sim-rr-synth-[0-9]{8}$",
             "type": "string"
+          },
+          {
+            "pattern": "^risk-(v1-f|v2-h)[0-9]-rr-synth-[0-9]{8}$",
+            "type": "string"
           }
         ],
         "title": "Fixture Id"
@@ -1443,6 +1447,23 @@
         "title": "Config Id",
         "type": "string"
       },
+      "control_profile": {
+        "anyOf": [
+          {
+            "enum": [
+              "P0",
+              "P1",
+              "P2"
+            ],
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Control Profile"
+      },
       "execution_source": {
         "default": "scripted_test",
         "enum": [
@@ -1517,6 +1538,10 @@
           },
           {
             "pattern": "^bscale-sim-rr-synth-[0-9]{8}$",
+            "type": "string"
+          },
+          {
+            "pattern": "^risk-(v1-f|v2-h)[0-9]-rr-synth-[0-9]{8}$",
             "type": "string"
           }
         ],
@@ -1734,6 +1759,10 @@
               },
               {
                 "pattern": "^bscale-sim-rr-synth-[0-9]{8}$",
+                "type": "string"
+              },
+              {
+                "pattern": "^risk-(v1-f|v2-h)[0-9]-rr-synth-[0-9]{8}$",
                 "type": "string"
               }
             ],
@@ -2197,6 +2226,23 @@
             "default": "bc-0.3-candidate",
             "title": "Contract Version",
             "type": "string"
+          },
+          "control_profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "P0",
+                  "P1",
+                  "P2"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Control Profile"
           },
           "episode_id": {
             "maxLength": 128,
@@ -3002,6 +3048,10 @@
               {
                 "pattern": "^bscale-sim-rr-synth-[0-9]{8}$",
                 "type": "string"
+              },
+              {
+                "pattern": "^risk-(v1-f|v2-h)[0-9]-rr-synth-[0-9]{8}$",
+                "type": "string"
               }
             ],
             "title": "Fixture Id"
@@ -3796,6 +3846,23 @@
             "title": "Contract Version",
             "type": "string"
           },
+          "control_profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "P0",
+                  "P1",
+                  "P2"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Control Profile"
+          },
           "episode_id": {
             "maxLength": 128,
             "minLength": 1,
@@ -4422,6 +4489,10 @@
               {
                 "pattern": "^bscale-sim-rr-synth-[0-9]{8}$",
                 "type": "string"
+              },
+              {
+                "pattern": "^risk-(v1-f|v2-h)[0-9]-rr-synth-[0-9]{8}$",
+                "type": "string"
               }
             ],
             "title": "Fixture Id"
@@ -4545,6 +4616,10 @@
           },
           {
             "pattern": "^bscale-sim-rr-synth-[0-9]{8}$",
+            "type": "string"
+          },
+          {
+            "pattern": "^risk-(v1-f|v2-h)[0-9]-rr-synth-[0-9]{8}$",
             "type": "string"
           }
         ],
@@ -5768,9 +5843,22 @@
   },
   "RefundRequest": {
     "$defs": {
-      "RefundLine": {
+      "RefundRequestLine": {
         "additionalProperties": false,
         "properties": {
+          "amount_cents": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Amount Cents"
+          },
           "item_id": {
             "maxLength": 128,
             "minLength": 1,
@@ -5788,7 +5876,7 @@
           "item_id",
           "quantity"
         ],
-        "title": "RefundLine",
+        "title": "RefundRequestLine",
         "type": "object"
       }
     },
@@ -5808,7 +5896,7 @@
       },
       "items": {
         "items": {
-          "$ref": "#/$defs/RefundLine"
+          "$ref": "#/$defs/RefundRequestLine"
         },
         "maxItems": 30,
         "minItems": 1,
@@ -5839,6 +5927,42 @@
     "title": "RefundRequest",
     "type": "object"
   },
+  "RefundRequestLine": {
+    "additionalProperties": false,
+    "properties": {
+      "amount_cents": {
+        "anyOf": [
+          {
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Amount Cents"
+      },
+      "item_id": {
+        "maxLength": 128,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9_.:-]+$",
+        "title": "Item Id",
+        "type": "string"
+      },
+      "quantity": {
+        "minimum": 1,
+        "title": "Quantity",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "item_id",
+      "quantity"
+    ],
+    "title": "RefundRequestLine",
+    "type": "object"
+  },
   "SessionPage": {
     "$defs": {
       "SessionStatus": {
@@ -5862,6 +5986,23 @@
             "default": "bc-0.3-candidate",
             "title": "Contract Version",
             "type": "string"
+          },
+          "control_profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "P0",
+                  "P1",
+                  "P2"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Control Profile"
           },
           "episode_id": {
             "maxLength": 128,
@@ -6083,6 +6224,23 @@
         "default": "bc-0.3-candidate",
         "title": "Contract Version",
         "type": "string"
+      },
+      "control_profile": {
+        "anyOf": [
+          {
+            "enum": [
+              "P0",
+              "P1",
+              "P2"
+            ],
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Control Profile"
       },
       "episode_id": {
         "maxLength": 128,
@@ -6534,6 +6692,23 @@
             "default": "bc-0.3-candidate",
             "title": "Contract Version",
             "type": "string"
+          },
+          "control_profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "P0",
+                  "P1",
+                  "P2"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Control Profile"
           },
           "episode_id": {
             "maxLength": 128,

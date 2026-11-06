@@ -256,6 +256,10 @@
               {
                 "pattern": "^bscale-sim-rr-synth-[0-9]{8}$",
                 "type": "string"
+              },
+              {
+                "pattern": "^risk-(v1-f|v2-h)[0-9]-rr-synth-[0-9]{8}$",
+                "type": "string"
               }
             ],
             "title": "Fixture Id"
@@ -404,6 +408,22 @@
             "title": "Config Id",
             "type": "string"
           },
+          "control_profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "P0",
+                  "P1",
+                  "P2"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Profile"
+          },
           "execution_source": {
             "default": "scripted_test",
             "enum": [
@@ -478,6 +498,10 @@
               },
               {
                 "pattern": "^bscale-sim-rr-synth-[0-9]{8}$",
+                "type": "string"
+              },
+              {
+                "pattern": "^risk-(v1-f|v2-h)[0-9]-rr-synth-[0-9]{8}$",
                 "type": "string"
               }
             ],
@@ -793,6 +817,10 @@
               },
               {
                 "pattern": "^bscale-sim-rr-synth-[0-9]{8}$",
+                "type": "string"
+              },
+              {
+                "pattern": "^risk-(v1-f|v2-h)[0-9]-rr-synth-[0-9]{8}$",
                 "type": "string"
               }
             ],
@@ -1640,7 +1668,7 @@
           },
           "items": {
             "items": {
-              "$ref": "#/components/schemas/RefundLine"
+              "$ref": "#/components/schemas/RefundRequestLine"
             },
             "maxItems": 30,
             "minItems": 1,
@@ -1669,6 +1697,41 @@
           "reason"
         ],
         "title": "RefundRequest",
+        "type": "object"
+      },
+      "RefundRequestLine": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_cents": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Cents"
+          },
+          "item_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Item Id",
+            "type": "string"
+          },
+          "quantity": {
+            "minimum": 1.0,
+            "title": "Quantity",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item_id",
+          "quantity"
+        ],
+        "title": "RefundRequestLine",
         "type": "object"
       },
       "SessionPage": {
@@ -1721,6 +1784,22 @@
             "default": "bc-0.3-candidate",
             "title": "Contract Version",
             "type": "string"
+          },
+          "control_profile": {
+            "anyOf": [
+              {
+                "enum": [
+                  "P0",
+                  "P1",
+                  "P2"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Profile"
           },
           "episode_id": {
             "maxLength": 128,

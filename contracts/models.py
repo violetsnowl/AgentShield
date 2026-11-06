@@ -3,7 +3,7 @@ from typing import Annotated, Any, Literal
 
 from contracts.fixture_ids import FIXTURE_IDS
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_serializer
 
 VERSION = "bc-0.3-candidate"
 ALLOCATION_VERSION = "largest-remainder-prefix-v1-development"
@@ -14,7 +14,10 @@ Count = Annotated[int, Field(strict=True, ge=1)]
 Cents = Annotated[int, Field(strict=True, ge=0)]
 ExecutionSource = Literal["scripted_test", "mock_agent", "observed_agent_execution"]
 BScaleDynamicFixtureId = Annotated[str, Field(pattern=r"^bscale-sim-rr-synth-[0-9]{8}$")]
-FixtureId = Literal.__getitem__(FIXTURE_IDS) | BScaleDynamicFixtureId
+RiskFixtureId = Annotated[str, Field(pattern=r"^risk-(v1-f|v2-h)[0-9]-rr-synth-[0-9]{8}$")]
+FixtureId = Literal.__getitem__(FIXTURE_IDS) | BScaleDynamicFixtureId | RiskFixtureId
+# Gateway control tier for one session. A session that names none behaves as P2, the historical gateway.
+ControlProfile = Literal["P0", "P1", "P2"]
 Sha256 = Annotated[str, Field(pattern=r"^[a-f0-9]{64}$")]
 
 
@@ -43,6 +46,7 @@ class CreateSession(Wire):
     experiment_id: Id = "development"
     config_id: Id = "scripted-http-v1"
     execution_source: ExecutionSource = "scripted_test"
+    control_profile: ControlProfile | None = None
 
 
 class SessionStatus(Wire):
@@ -58,6 +62,15 @@ class SessionStatus(Wire):
     explanation: str | None
     sources: Sources
     contract_version: str = VERSION
+    control_profile: ControlProfile | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_absent_profile(self, handler):
+        # Sessions that named no profile keep their exact historical bytes, so evidence digests still match.
+        data = handler(self)
+        if data.get("control_profile") is None:
+            data.pop("control_profile", None)
+        return data
 
 
 class CreatedSession(Wire):
@@ -97,9 +110,14 @@ class RefundLine(Wire):
     quantity: Count
 
 
+class RefundRequestLine(RefundLine):
+    # Only P0/P1 sessions accept a caller-stated amount; P2 computes it server-side and rejects this field.
+    amount_cents: Cents | None = None
+
+
 class RefundRequest(Wire):
     order_id: Id
-    items: Annotated[list[RefundLine], Field(min_length=1, max_length=30)]
+    items: Annotated[list[RefundRequestLine], Field(min_length=1, max_length=30)]
     confirmation_message_id: Id
     expected_version: Count
     reason: Text

@@ -263,6 +263,10 @@
             {
               "pattern": "^bscale-sim-rr-synth-[0-9]{8}$",
               "type": "string"
+            },
+            {
+              "pattern": "^risk-(v1-f|v2-h)[0-9]-rr-synth-[0-9]{8}$",
+              "type": "string"
             }
           ],
           "title": "Fixture Id"
@@ -1119,6 +1123,23 @@
           "default": "bc-0.3-candidate",
           "title": "Contract Version",
           "type": "string"
+        },
+        "control_profile": {
+          "anyOf": [
+            {
+              "enum": [
+                "P0",
+                "P1",
+                "P2"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Control Profile"
         }
       },
       "required": [

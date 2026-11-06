@@ -35,7 +35,18 @@ def _inline_refs(schema: dict[str, Any]) -> dict[str, Any]:
     return walk(schema)
 
 
-def model_tool_specs() -> list[dict[str, Any]]:
+def _apply_refund_profile(function: dict[str, Any], control_profile: str) -> None:
+    """P2 computes amounts server-side, so the model never sees the field. P0/P1 must state one per line."""
+    line = function["parameters"]["properties"]["items"]["items"]
+    if control_profile == "P2":
+        line["properties"].pop("amount_cents", None)
+        return
+    line["properties"]["amount_cents"] = {"type": "integer", "minimum": 1, "description": "Refund amount for this line, in CNY cents."}
+    line["required"] = sorted({*line.get("required", []), "amount_cents"})
+    function["description"] = "Refund the stated amount per item line to the original simulated channel."
+
+
+def model_tool_specs(control_profile: str = "P2") -> list[dict[str, Any]]:
     specs = json.loads(TOOLS_FILE.read_text(encoding="utf-8"))
     names = [spec["function"]["name"] for spec in specs]
     if sorted(names) != sorted(wire.TOOLS):
@@ -50,6 +61,8 @@ def model_tool_specs() -> list[dict[str, Any]]:
                 params["required"].remove(field)
         params.pop("title", None)
         function["parameters"] = params
+        if function["name"] == "submit_refund":
+            _apply_refund_profile(function, control_profile)
         if function["name"] in VERSION_HINTS:
             function["description"] += " " + VERSION_HINTS[function["name"]]
         out.append({"type": "function", "function": function})
@@ -88,4 +101,4 @@ def validate_call(name: str, arguments_text: str) -> dict[str, Any]:
     except ValidationError as error:
         fields = sorted({".".join(str(p) for p in issue["loc"]) or "(root)" for issue in error.errors()})
         raise LocalRejection("INVALID_ARGUMENTS", "Invalid or unexpected fields: " + ", ".join(fields)[:500]) from None
-    return model.model_dump(exclude_none=True) if name == "get_refund_history" else model.model_dump()
+    return model.model_dump(exclude_none=name in ("get_refund_history", "submit_refund"))

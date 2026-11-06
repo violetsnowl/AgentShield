@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ALLOWED = ("DEEPSEEK_API_KEY", "C_ENABLE_PAID_RUNS", "C_MAX_COST_CNY")
+ALLOWED = ("DEEPSEEK_API_KEY", "MIMO_TOKEN_PLAN_API_KEY", "COMMANDCODE_API_KEY", "C_ENABLE_PAID_RUNS", "C_MAX_COST_CNY")
 
 
 def load_runner_env(path: Path | None = None) -> dict[str, str]:
@@ -24,7 +24,7 @@ def load_runner_env(path: Path | None = None) -> dict[str, str]:
     return values
 
 
-def paid_authorization(values: dict[str, str]) -> tuple[bool, float | None, str]:
+def paid_authorization(values: dict[str, str], key_env: str = "DEEPSEEK_API_KEY") -> tuple[bool, float | None, str]:
     """Paid calls need an explicit opt-in, a positive CNY cap and a key. Default is off."""
     if values.get("C_ENABLE_PAID_RUNS", "false").lower() != "true":
         return False, None, "C_ENABLE_PAID_RUNS is not true"
@@ -34,6 +34,6 @@ def paid_authorization(values: dict[str, str]) -> tuple[bool, float | None, str]
         return False, None, "C_MAX_COST_CNY is not a number"
     if cap <= 0:
         return False, None, "C_MAX_COST_CNY must be positive"
-    if not values.get("DEEPSEEK_API_KEY"):
-        return False, cap, "DEEPSEEK_API_KEY missing"
+    if not values.get(key_env):
+        return False, cap, f"{key_env} missing"
     return True, cap, "authorized"

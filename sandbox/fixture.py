@@ -14,6 +14,7 @@ from contracts.fixture_ids import (
 from contracts.models import ALLOCATION_VERSION, VERSION, CaseContext, CanonicalBusinessSnapshot
 from sandbox.bscale_authorization import is_dynamic_fixture_id, load_dynamic_fixture
 from sandbox.fixture_models import DevelopmentFixture
+from sandbox.risk_tasks import is_risk_fixture_id, load_risk_fixture
 
 FIXTURE_ROOT = Path(__file__).parent / "fixtures"
 GENERATED_ROOT = FIXTURE_ROOT / "generated"
@@ -209,9 +210,10 @@ def _invalid_constant(_):
 
 
 def load_fixture(fixture_id):
-    if is_dynamic_fixture_id(fixture_id):
+    if is_dynamic_fixture_id(fixture_id) or is_risk_fixture_id(fixture_id):
         try:
-            data, content_hash = load_dynamic_fixture(fixture_id)
+            loader = load_risk_fixture if is_risk_fixture_id(fixture_id) else load_dynamic_fixture
+            data, content_hash = loader(fixture_id)
             fixture = validate_fixture(data)
             if fixture["fixture_id"] != fixture_id:
                 raise FixtureError("Dynamic B-SCALE fixture identity differs from its request")
@@ -315,4 +317,6 @@ def snapshot(sid, args):
     state["session"] = {"session_id": sid, "episode_id": f"episode-{sid}", "case_id": fixture["source_case_id"],
         "tenant_id": args["tenant_id"], "experiment_id": args["experiment_id"], "config_id": args["config_id"],
         "status": "active", "version": 1, "outcome": None, "explanation": None, "sources": sources, "contract_version": VERSION}
+    if args.get("control_profile"):
+        state["session"]["control_profile"] = args["control_profile"]
     return state, context
