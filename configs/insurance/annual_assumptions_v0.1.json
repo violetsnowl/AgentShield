@@ -1,0 +1,25 @@
+{
+  "schema": "AgentShield.annual_assumptions.v0.1",
+  "commercial_quote": false,
+  "notice": "研究假设，不是经验参数。依据和性质见 docs/decisions/ACTUARIAL_ANNUAL_V0.2.md 第 2 节。",
+  "annual_tasks": 100000,
+  "hours_per_year": 8760,
+  "hard_task_share": 0.05,
+  "gate_leak": 0.20,
+  "recovery_rate": 0.0,
+  "quiet_drift": {"annual_chance": 0.10, "unmonitored_hours": 720.0},
+  "loud_fault": {"annual_chance": 0.02, "unmonitored_hours": 24.0},
+  "monitoring": {"round_hours": 4.0, "response_hours": 0.5, "catch_share": 0.80},
+  "premium": {"risk_loading": 0.20, "expense_ratio": 0.15, "profit_ratio": 0.05, "case_cost": 80.0, "fixed_cost": 1000.0, "capital_rate": 0.08},
+  "candidates": {
+    "deductibles": [30000, 50000, 80000, 100000, 150000],
+    "shares": [0.8, 0.9, 1.0],
+    "limits": [300000, 500000, 1000000]
+  },
+  "older_contracts": {
+    "Core": {"deductible": 500, "share": 0.8, "occurrence_limit": 20000, "batch_limit": 150000, "annual_limit": 300000},
+    "Plus": {"deductible": 200, "share": 0.9, "occurrence_limit": 50000, "batch_limit": 300000, "annual_limit": 600000}
+  },
+  "enhanced_contract": {"deductible": 80000, "share": 0.9, "limit": 300000},
+  "portfolio_merchants": 50
+}

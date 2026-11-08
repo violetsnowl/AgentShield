@@ -101,10 +101,12 @@
 - `UI_DEMO_REDESIGN_2026-10-16.md` — 演示 UI 重构与规范豁免（面向评委的极简三页；含 A/B/C 测试映射与退役清单；已随主仓集成提交 `825378e` 进入 main）。
 - `PAGE1_RANDOM_SAMPLING_2026-10-16.md` — 第一页「随机抽样式 Agent 测试」交互重构（UI 结构、安全接口设计草案、B-SCALE→可执行案例缺口清单、拆分交付状态；已随本批合并至 main）。
 - `STABILITY_MODES_2026-10-17.md` — 稳定批次与双模式（轮询回填自我取消等三根因取证与修复、批次持久化恢复、真实/演示双模式与样本外推三态、验证数字）。
+- `ACTUARIAL_ANNUAL_V0.2.md` — 年度精算模型、基础档和增强档合同，判定规则先于结果写定。
 - `RISK_EXPERIMENT_V2.md` — 全险种风险实验 v2（P0/P1/P2 控制档位、十类风险任务、合同增量、探针与真实模型试跑结果及其边界）。
 - `RISK_TASKS_V2_PREREG.md` — 加难任务集预注册（七类任务、计分口径、运行规则；在模型运行前写定）。
 
 **docs/business/**
+- `COMMERCIAL_MODEL_V0.2.md` — 商业模式定案：厂商和商户付费，保险机构基准不付费。
 - `business_policy_A_candidate.md` — A0 业务规则候选与决策表（待双签）。
 - `BD_A_review_v0.1.md` — B/D→A 的业务审查（未签收）。
 - `QuoteResult_A_v0.1_candidate.md` — A 的 QuoteResult 候选接口说明。

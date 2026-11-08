@@ -79,6 +79,13 @@ def load_budget() -> dict:
     return json.loads(BUDGET_FILE.read_text(encoding="utf-8"))
 
 
+def add_to_budget(spent: float) -> None:
+    """Read the file again here: a batch running alongside may have added its own spend since this one started."""
+    budget = load_budget()
+    budget["spent_cny"] = round(budget["spent_cny"] + spent, 6)
+    BUDGET_FILE.write_text(json.dumps(budget, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def authorize_paid(allowance: float) -> dict:
     """Paid calls need an approved budget, an explicit per-batch allowance and a key on this machine."""
     budget = load_budget()
@@ -302,8 +309,7 @@ def main(argv=None) -> int:
                 ledger.write(json.dumps({"recorded_at": now(), "run": f"risk_runs/{batch_id}", "config_id": config["config_id"],
                                          "prompt_tokens": guard.prompt_tokens, "completion_tokens": guard.completion_tokens,
                                          "cost_cny": round(guard.spent, 6), "cost_basis": config["pricing"]["basis"]}) + "\n")
-            budget_record["spent_cny"] = round(budget_record["spent_cny"] + guard.spent, 6)
-            BUDGET_FILE.write_text(json.dumps(budget_record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            add_to_budget(guard.spent)
     summary = summarize([row for row in rows if row["run_status"] != "not_started"])
     (out_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("batch: " + batch_id)

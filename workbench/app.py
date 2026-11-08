@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 import httpx
 from pydantic import Field
 
+from actuarial.annual_summary import load_annual_summary
 from actuarial.research_scenario import load_research_scenario
 from contracts import models as m
 from experiments.claim_pack import ClaimPackError
@@ -235,6 +236,10 @@ def create_observer(base_url, admin_token, grant, *, origin="http://127.0.0.1:88
     @app.get("/observer/api/integration-runs", dependencies=[Depends(authorized)])
     def integration_runs():
         return results.catalog()
+
+    @app.get("/observer/api/annual-model", dependencies=[Depends(authorized)])
+    def annual_model():
+        return load_annual_summary()
 
     @app.get("/observer/api/research-scenario", dependencies=[Depends(authorized)])
     def research_scenario():

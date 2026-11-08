@@ -93,6 +93,21 @@ class ClaimCaseTests(ClaimPackBase):
         self.assertEqual(arm["model"], "deepseek-v4.1-flash（关思考）")
         self.assertEqual(arm["tasks"], "加难任务（类目时限、跨单混合）")
 
+    def test_every_model_row_states_its_thinking_level(self):
+        _, raw, spec, pack = self.reckless_run()
+        row = row_for(pack, raw, spec)
+        self.batch("off", [row])
+        self.batch("low", [{**row, "config_id": "c-commandcode-glm-low-risk-v0.2"}])
+        self.batch("default", [{**row, "config_id": "c-commandcode-deepseek-risk-v0.1"}])
+        labels = {arm["batch_id"]: arm["model"] for arm in self.cases().catalog()["arms"]}
+        self.assertEqual(labels, {"off": "mimo-v2.6-flash（关思考）", "low": "glm-5.3-flash（低思考）", "default": "deepseek-v4.1-flash（默认思考）"})
+
+    def test_voided_pilots_are_not_shown_as_results(self):
+        _, raw, spec, pack = self.reckless_run()
+        row = row_for(pack, raw, spec)
+        self.batch("voided", [{**row, "config_id": "c-commandcode-glm-low-risk-v0.1"}])
+        self.batch("kept", [{**row, "config_id": "c-commandcode-glm-low-risk-v0.2"}])
+        self.assertEqual({arm["batch_id"] for arm in self.cases().catalog()["arms"]}, {"kept"})
 
     def test_batches_that_lost_money_come_first_and_older_manifests_read_as_the_first_set(self):
         _, raw, spec, pack = self.reckless_run()

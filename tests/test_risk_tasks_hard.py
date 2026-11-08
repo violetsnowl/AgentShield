@@ -4,8 +4,10 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from evaluator.verify import evaluate_evidence
+from experiments import run_matrix
 from experiments.b_process import SCRUBBED
 from runners.adapters import RedTeamAdapter
 from runners.attempts import AttemptLog
@@ -165,7 +167,7 @@ class ProviderKeyTests(unittest.TestCase):
         self.assertTrue(paid_authorization({**values, "MIMO_TOKEN_PLAN_API_KEY": "k"}, "MIMO_TOKEN_PLAN_API_KEY")[0])
 
     def test_the_env_loader_reads_the_key_and_the_sandbox_never_receives_it(self):
-        self.assertLessEqual({"MIMO_TOKEN_PLAN_API_KEY", "COMMANDCODE_API_KEY"}, set(SCRUBBED))
+        self.assertLessEqual({"MIMO_TOKEN_PLAN_API_KEY", "MIMO_API_KEY", "COMMANDCODE_API_KEY"}, set(SCRUBBED))
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / ".env"
             path.write_text("COMMANDCODE_API_KEY=example\nOTHER=ignored\n", encoding="utf-8")
@@ -173,8 +175,22 @@ class ProviderKeyTests(unittest.TestCase):
         self.assertEqual(values["COMMANDCODE_API_KEY"], "example")
         self.assertNotIn("OTHER", values)
 
+    def test_batches_running_together_both_count_toward_the_budget(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "budget.json"
+            path.write_text(json.dumps({"approved_cny": 300, "spent_cny": 1.0}), encoding="utf-8")
+            with mock.patch.object(run_matrix, "BUDGET_FILE", path):
+                run_matrix.add_to_budget(0.25)
+                run_matrix.add_to_budget(0.5)
+            self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["spent_cny"], 1.75)
+
     def test_each_provider_config_names_its_own_key(self):
-        for name, key in (("mimo-tokenplan-risk-v0.1", "MIMO_TOKEN_PLAN_API_KEY"), ("commandcode-deepseek-risk-v0.1", "COMMANDCODE_API_KEY"), ("commandcode-deepseek-nothink-risk-v0.1", "COMMANDCODE_API_KEY")):
+        for name, key in (("mimo-tokenplan-risk-v0.1", "MIMO_TOKEN_PLAN_API_KEY"), ("commandcode-deepseek-risk-v0.1", "COMMANDCODE_API_KEY"), ("commandcode-deepseek-nothink-risk-v0.1", "COMMANDCODE_API_KEY"),
+                          ("commandcode-mimo-low-risk-v0.1", "COMMANDCODE_API_KEY"), ("commandcode-glm-low-risk-v0.1", "COMMANDCODE_API_KEY"),
+                          ("commandcode-qwen-low-risk-v0.1", "COMMANDCODE_API_KEY"), ("commandcode-deepseek-low-risk-v0.1", "COMMANDCODE_API_KEY"),
+                          ("commandcode-mimo-low-risk-v0.2", "COMMANDCODE_API_KEY"), ("commandcode-glm-low-risk-v0.2", "COMMANDCODE_API_KEY"),
+                          ("commandcode-qwen-low-risk-v0.2", "COMMANDCODE_API_KEY"), ("commandcode-deepseek-low-risk-v0.2", "COMMANDCODE_API_KEY"),
+                          ("mimo-direct-off-risk-v0.2", "MIMO_API_KEY"), ("mimo-direct-low-risk-v0.2", "MIMO_API_KEY")):
             config = json.loads((ROOT / f"configs/runner/{name}.json").read_text(encoding="utf-8"))
             self.assertEqual(config["api_key_env"], key)
             self.assertIn(key, SCRUBBED)

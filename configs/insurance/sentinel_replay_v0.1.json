@@ -1,0 +1,25 @@
+{
+  "schema": "AgentShield.sentinel_replay.v0.1",
+  "nature": "用已记录的真实运行回放判定规则，线上监测尚未实现",
+  "plan": {
+    "tasks_per_round": 10,
+    "alarm_at": 3,
+    "round_hours": 4.0
+  },
+  "sentinel_tasks": 60,
+  "healthy_failures": 1,
+  "drifted_failures": 43,
+  "healthy_alarm_chance": 0.0,
+  "healthy_alarms_per_year": 0.0,
+  "drifted_alarm_chance": 0.9996947144390204,
+  "usage": {
+    "healthy": {
+      "turns": 289,
+      "turns_with_reasoning": 289
+    },
+    "drifted": {
+      "turns": 303,
+      "turns_with_reasoning": 0
+    }
+  }
+}

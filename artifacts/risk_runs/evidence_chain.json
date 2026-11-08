@@ -1,0 +1,87 @@
+{
+ "schema": "AgentShield.evidence_chain.v0.1",
+ "links": 9186,
+ "root": "0e1f84b629fbf0a7fb5ba8dcb8fab11b68101f02e25f19a5f17f75501c2cadbb",
+ "batches": [
+  {
+   "batch": "risk-direct-low-20261106-221729",
+   "rows": 60,
+   "tip": "6fac8c0fdc980e1c7d2d4b2fca499604db56a5e4e467de3905785758467b1e72"
+  },
+  {
+   "batch": "risk-direct-off-20261106-221729",
+   "rows": 60,
+   "tip": "acb742d0642b5d7aea0160001bf5408d384483c73276fb91faab4464aed3c43f"
+  },
+  {
+   "batch": "risk-hard-cc-20261105-220824",
+   "rows": 793,
+   "tip": "a18730452aba981ad8e46204b0d5a7c93fae6dc86f1eebc8eefd2bdb1308d324"
+  },
+  {
+   "batch": "risk-hard-ccnt-20261106-002746",
+   "rows": 293,
+   "tip": "3f2905b4297bc102380877f1404ef1de58b5d399c1916ffa92e6f357ec89e8e9"
+  },
+  {
+   "batch": "risk-hard-mimo-20261105-203613",
+   "rows": 4011,
+   "tip": "43a1857b5556f93802c8d737e75bdbaea113a82a8d642eb39f956344f3613def"
+  },
+  {
+   "batch": "risk-hard-probe-20261105-201937",
+   "rows": 420,
+   "tip": "6263eec9ac25acbee269cac63163600ddccbe3a5b74fb19a655c6b741a4aaee4"
+  },
+  {
+   "batch": "risk-low-deepseek-20261106-092539",
+   "rows": 63,
+   "tip": "e462263e4a6e087c46a5cb2028e70c41091ae308f42621ea76bf9d34759c8877"
+  },
+  {
+   "batch": "risk-low-glm-20261106-093636",
+   "rows": 63,
+   "tip": "12c4a2d88523164589b3c0627aa69c4bcfba0ff742032211e5aa0eecc50ce1c7"
+  },
+  {
+   "batch": "risk-low-mimo-20261106-085848",
+   "rows": 63,
+   "tip": "d7342ef8804ef5844c45c348309e4e0ef313a09aa5ed4cc629da6a84ed5d6a6e"
+  },
+  {
+   "batch": "risk-low-qwen-20261106-095326",
+   "rows": 63,
+   "tip": "80fadc73c3c2d0a3afd5f9704245129e8fe9320a3191152a61548d49098ac5bb"
+  },
+  {
+   "batch": "risk-pilot-20261105-193701",
+   "rows": 90,
+   "tip": "ddeca6cd94cc999b7223fa74a6cde7296f96bdc5876f5bb103658da3bb8f3849"
+  },
+  {
+   "batch": "risk-probe-20261105-193201",
+   "rows": 600,
+   "tip": "16b1ac0210a487ba99aea175a3b5d52f803b14b580df4a50628b1a524c5c941f"
+  },
+  {
+   "batch": "risk-same-deepseek-20261106-101526",
+   "rows": 665,
+   "tip": "d2ac5400905b17f6b718ebdf1a68940639c70fb6ef9b4c7d5e8279fbb34eedca"
+  },
+  {
+   "batch": "risk-same-glm-20261106-102633",
+   "rows": 635,
+   "tip": "110f57d6e6293d4ae847539ba9554ed35b054eba04206ac43bc244b3f3869eab"
+  },
+  {
+   "batch": "risk-same-mimo-20261106-104537",
+   "rows": 657,
+   "tip": "7d0a15de98c949355e4b1eec69a1f91827d56cd13d7401a6f7f0327513708867"
+  },
+  {
+   "batch": "risk-same-qwen-20261106-103525",
+   "rows": 650,
+   "tip": "0e1f84b629fbf0a7fb5ba8dcb8fab11b68101f02e25f19a5f17f75501c2cadbb"
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+  "contract_version": "research-annual-aad-v0.2-candidate",
+  "currency": "CNY",
+  "commercial_quote": false,
+  "structure": "annual_aggregate_deductible",
+  "product_tier": "基础档",
+  "annual_aggregate_deductible_cents": 15000000,
+  "coinsurance_bp": 8000,
+  "annual_limit_cents": 30000000,
+  "formula": "累计赔款 = min(年度限额, 赔付比例 × max(累计净损失 - 年度累计免赔, 0))；单笔赔款是累计赔款的差额",
+  "batch_event_rule": "同一根因造成的连续错误归为一次批量事故，损失合并计入累计",
+  "covered_description": "研究用：经独立核验、在已登记配置和业务范围内的非故意 AI 执行错误造成的可追溯额外净资金损失；具体责任由 A/C 另行核验",
+  "exclusions_description": "不承保未登记的配置或权限变更、故意欺骗、外部现实攻击、罚款、第三人人身损害、声誉损失和机会成本；争议或缺失证据待审",
+  "underwriting_conditions": ["投保配置要有自己的测评结果", "关思考且未上护栏的配置先整改再承保", "配置变更要通知并复评"],
+  "selection_record": "docs/decisions/ACTUARIAL_ANNUAL_V0.2.md",
+  "warning": "research scenario only; parameters are chosen by a stated rule from assumptions and stress-test data, not from natural losses"
+}

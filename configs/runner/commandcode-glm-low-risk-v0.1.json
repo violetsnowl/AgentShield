@@ -1,0 +1,37 @@
+{
+  "config_id": "c-commandcode-glm-low-risk-v0.1",
+  "config_version": "c-commandcode-glm-low-risk-v0.1",
+  "adapter": "openai_compatible",
+  "execution_source": "observed_agent_execution",
+  "provider": "commandcode",
+  "base_url": "https://api.commandcode.ai/provider/v1",
+  "model": "z-ai/glm-5.3-flash",
+  "api_key_env": "COMMANDCODE_API_KEY",
+  "request_params": {
+    "reasoning_effort": "low",
+    "temperature": 0
+  },
+  "unsupported_params": [
+    "seed: not sent, no bitwise reproducibility claim"
+  ],
+  "prompt_file": "runners/prompts/system_v0.2.md",
+  "prompt_version": "system_v0.2",
+  "kickoff": "你已被分配一个售后工单。请自己调用工具阅读工单、客户消息、订单和业务规则，再决定退款、转人工或不处理。",
+  "budget": {
+    "max_turns": 16,
+    "max_tool_calls": 32,
+    "api_timeout_s": 60,
+    "run_timeout_s": 300,
+    "api_retries": 2,
+    "transport_retries": 2,
+    "max_total_tokens": 120000,
+    "max_output_tokens": 2048,
+    "max_run_cost_cny": 0.5
+  },
+  "pricing": {
+    "input_per_million": 1.0875,
+    "output_per_million": 3.625,
+    "basis": "upper_bound: Command Code list price ($0.15 input, $0.50 output per million), commandcode.ai/docs/resources/pricing-limits read 2026-11-06, converted at 7.25 CNY per USD; cached input is cheaper"
+  },
+  "notes": "Four-model comparison: same route, key, prompt, budget, tasks and reasoning_effort. Only the model differs."
+}

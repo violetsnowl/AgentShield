@@ -1,4 +1,4 @@
-# AgentShield V1.2 — 企业 AI 智能体执行风险评测与情景保险定价系统
+# AgentShield V1.2 — AI 智能体执行风险测评与保险配套系统
 
 「智能＋保险 2026」参赛项目（提交截止 2026-10-18，内部以 10/17 提交为目标）。
 用带明确规则的电商售后退款沙箱，让受控 AI Agent 真实执行任务；记录工具调用与账本证据，由独立核验器计算经济损失，再按研究保险合同做情景赔款成本计算与前端展示。
@@ -7,15 +7,12 @@
 
 ---
 
-## 现在到哪一步（2026-10-14）
+## 现在到哪一步（2026-11-07）
 
-- 工程链路已打通：B 沙箱（七工具，`bc-0.3-candidate`）、C 运行器与独立核验（L0 完成）、A0 精算与业务候选、D 工作台（含 A/C 候选结果的只读展示与精确 session/episode 追溯）。
-- `main` 已合入 ABCD 集成版；工作分支在途：
-  - `feature/bd-integration` — B 案例生成器 + 40 个公开候选案例（fixture v2）；B 侧基本完成，D 前端工作在此分支继续。
-  - `feature/c-agent-evaluation` — C1-1 规则基线 + 正式实验闸门 + 预算申请。
-  - `feature/a-gold-actuarial` — 已建，A 侧待开工。
-- **正式 56 次实验尚未开始**：等任务/Gold 冻结、决策表双签、预算确认等（清单见 `NEXT_STEPS.md`）。
-- 所有现存运行均为开发运行（`counts_as_formal_run=false`）；无商业报价（`commercial_quote=false`）。
+- 风险实验、理赔链路、年度精算和商业定案已完成，详情和下一步见 `NEXT_STEPS.md`。
+- 真实模型有效运行 4,326 次，事故 162 起，净损失 ¥86,019.26，任务是合成的，基准未经人工签收。
+- 所有运行都是开发运行（`counts_as_formal_run=false`），没有商业报价（`commercial_quote=false`）。
+- 工作分支 `feature/all-risk-experiment-v2`。
 
 ## 快速开始
 

@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ALLOWED = ("DEEPSEEK_API_KEY", "MIMO_TOKEN_PLAN_API_KEY", "COMMANDCODE_API_KEY", "C_ENABLE_PAID_RUNS", "C_MAX_COST_CNY")
+ALLOWED = ("DEEPSEEK_API_KEY", "MIMO_TOKEN_PLAN_API_KEY", "MIMO_API_KEY", "COMMANDCODE_API_KEY", "C_ENABLE_PAID_RUNS", "C_MAX_COST_CNY")
 
 
 def load_runner_env(path: Path | None = None) -> dict[str, str]:

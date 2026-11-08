@@ -19,15 +19,25 @@ from workbench.integration_results import _has_secret_key
 OBSERVED = "observed_agent_execution"
 TASK_SET_LABELS = {"v1": "基础任务", "v2": "加难任务"}
 PROFILE_ORDER = ("P0", "P1", "P2")
+DEFAULT_THINKING_CONFIG = "c-commandcode-deepseek-risk-v0.1"
+# These pilots cut off long decisions, so they stay on disk but are not results (RISK_EXPERIMENT_V2 section 14.5).
+VOIDED_CONFIG_SUFFIX = "-low-risk-v0.1"
 
 
 def case_id(batch: str, row: dict[str, Any]) -> str:
     return hashlib.sha256(f"{batch}/{run_name(row)}".encode("utf-8")).hexdigest()[:20]
 
 
+def _thinking_label(config_id: str) -> str:
+    if "-low-" in config_id:
+        return "低思考"
+    # This config asked to disable thinking; the route ignored it, so it ran at the default level.
+    return "默认思考" if config_id == DEFAULT_THINKING_CONFIG else "关思考"
+
+
 def _model_label(row: dict[str, Any]) -> str:
-    label = model_of(row.get("config_id")).split("/")[-1]
-    return label + "（关思考）" if "nothink" in str(row.get("config_id")) else label
+    config_id = str(row.get("config_id"))
+    return f"{model_of(config_id).split('/')[-1]}（{_thinking_label(config_id)}）"
 
 
 def _task_label(manifest: dict[str, Any]) -> str:
@@ -64,7 +74,7 @@ class ClaimCases:
                 continue
             rows = [row for row in latest_rows(folder.name, self.results_root)
                     if row.get("run_status") == "completed" and row.get("execution_source") == OBSERVED]
-            if rows:
+            if rows and not str(rows[0].get("config_id")).endswith(VOIDED_CONFIG_SUFFIX):
                 found.append((folder.name, json.loads((folder / "manifest.json").read_text(encoding="utf-8")), rows))
         return found
 

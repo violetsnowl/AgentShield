@@ -1,14 +1,18 @@
 """Load a runner config file and build the adapter, budget and pricing it describes."""
+from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
 from typing import Any
+
+import httpx
 
 from .adapters import MockAdapter, OpenAICompatibleAdapter, RedTeamAdapter, RuleBaselineAdapter
 from .env import load_runner_env, paid_authorization
 from .loop import Budget, Pricing
 
 ROOT = Path(__file__).resolve().parents[1]
+KEEPALIVE_S = 120.0
 
 
 class PaidRunsNotAuthorized(RuntimeError):
@@ -17,6 +21,15 @@ class PaidRunsNotAuthorized(RuntimeError):
 
 def file_sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+@lru_cache(maxsize=None)
+def _pooled_client(timeout_s: float) -> httpx.Client:
+    """One keep-alive pool per process: new connections to some providers fail far more often than reused ones.
+
+    It holds no key and no run state; the key travels with each request and reasoning stays in the adapter.
+    """
+    return httpx.Client(timeout=timeout_s, trust_env=False, limits=httpx.Limits(keepalive_expiry=KEEPALIVE_S))
 
 
 def load_config(path: Path) -> dict[str, Any]:
@@ -52,5 +65,6 @@ def build(config: dict[str, Any], scenario: str | None = None):
         provider=config["provider"], base_url=config["base_url"], model=config["model"],
         api_key=env[config["api_key_env"]], request_params=config.get("request_params", {}),
         max_output_tokens=budget.max_output_tokens, api_timeout_s=budget.api_timeout_s,
-        api_retries=budget.api_retries, unsupported_params=config.get("unsupported_params", []))
+        api_retries=budget.api_retries, unsupported_params=config.get("unsupported_params", []),
+        http_client=_pooled_client(budget.api_timeout_s))
     return adapter, budget, pricing, global_cap

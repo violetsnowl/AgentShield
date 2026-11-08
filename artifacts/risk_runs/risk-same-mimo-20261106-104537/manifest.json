@@ -1,0 +1,43 @@
+{
+  "batch_id": "risk-same-mimo-20261106-104537",
+  "started_at": "2026-11-06T20:23:15.737486+00:00",
+  "config_id": "c-commandcode-mimo-low-risk-v0.2",
+  "config_sha256": "228eb8dc19374d92dc42dfcf8b45beabb17673bc98f6038a9ef377acee1efe13",
+  "prompt_version": "system_v0.2",
+  "prompt_sha256": "28f50dcf021e56946f7e821ccebf41cb9ad39f34505b1d287a4f77165d3708a6",
+  "tool_specs_sha256": {
+    "P0": "0a1560bf89a9e24ed3230ecdd6167dd105cc196c9dc93b5e67fc844633ea4d62",
+    "P1": "0a1560bf89a9e24ed3230ecdd6167dd105cc196c9dc93b5e67fc844633ea4d62",
+    "P2": "f5264c4d81d39fb9aadf9e9863169584f23f0cba5c349096f18f3f854cfdc375"
+  },
+  "task_set": "v2",
+  "task_source_sha256": "b83af80ebd53851d2bab9a64dd0c7929cb29791b9b62ea5eaed58ef1eeb8248e",
+  "prereg_sha256": "3491c467335ce7a550aab80fcae7c9fe8a119f94310b6741ed2d15ccf2010ce2",
+  "profiles": [
+    "P0",
+    "P1",
+    "P2"
+  ],
+  "families": [
+    "h0",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6"
+  ],
+  "per_family": 30,
+  "seed": "agentshield-risk-tasks-v2",
+  "tasks": 210,
+  "cells": 630,
+  "workers": 2,
+  "runner_version": "c-runner-0.1-candidate",
+  "contract_version": "bc-0.3-candidate",
+  "git_head": "3b9e2406978c23bbebb756408322f21e404038ff",
+  "paid": true,
+  "allowance_cny": 3.0,
+  "budget_approval": "2026-11-05 用户在会话中回复“批准，开工”，批准上限 ¥300 的风险实验模型费用",
+  "counts_as_formal_run": false,
+  "experiment_nature": "pressure test on synthetic tasks; not a natural accident rate"
+}

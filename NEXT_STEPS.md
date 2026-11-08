@@ -1,58 +1,35 @@
-# 当前停止点与下一步（2026-10-16）
+# 当前停止点与下一步（2026-11-07）
 
-> 本文件是全项目唯一的“状态真源”，只保留当前状态与下一步。被替换的旧停止点原文已迁入 `docs/archive/stop_points_2026-10-14.md`（保留原样）。**不要再把历史说明堆回本文件**；每次更新：改写“当前状态”，把上一版降级进归档。
+> 本文件是全项目唯一的“状态真源”，只保留当前状态与下一步。上一版原文在 `docs/archive/stop_points_2026-10-16_final.md`。
 
 ## 当前状态
 
-- `main`：ABCD 集成版与 2026-10-14 文档系统整理此前已合入；**本轮 `feature/bd-integration` 直接合并 main（用户批准，2026-10-15）**——含批A（`bd5546f`）、批B（`6e83d01`/`b60b287`）、**D 线全站推平**（`417e9b8`）与收尾提交（见 `git log`）。
-- **2026-10-16 深夜：主仓大集成与 bd→main 同步**：用户账号推送的单笔集成提交 `825378e`（含 ABCD 全部成果；本分支早期 6 个提交内容并合、历史经 merge `746f214` 保留）已并入 bd；本批「第一页随机抽样重构」（feat `e6275dc` + 文档提交紧随其后）已推送 `feature/bd-integration` 并合并至 main（实时值以 `git ls-remote` 为准）。
-- 计划书 V1.2（工作基线）已入库：`AgentShield_v1.2_Plan.md`（根目录）。
-- **D 线（前端）设计定稿已完成**：走完全流程「产品档案 → 信息架构 → 视觉方向 → 结构发散 → 设计契约 → 全站推平」。方向=机场导视（黄只做导视／黑白灰承载内容／2px 墨框构件／黑底栏目头）；结构=**出口牌**（四区末端停靠条：`‹ 回看 ｜ 前往下一站 →`，Ⅳ 区收尾「走完了 · 回到 Ⅰ」）；字体自托管 Noto Sans SC 400/500/700/900（简中+latin，离线可用、无外网依赖）。设计档案：根 `PRODUCT.md`、根 `DESIGN.md`、`frontend/design/`（信息架构稿）、`.impeccable/`（方向契约与决策草图、完工审查截图）。
-- **完工审查链（独立子代理）**：初审（fix，7 项）→ 修复批 → 判决①（fix，5 项）→ 修复批 → 判决②（fix，3 项）→ 修复批；第三轮判决被中断未计入。最终除「移动端首屏折线/信息密度」留作观察级外，其余审查项全部关闭；审查证据存 `.impeccable/review/`。
-- **批C（IA v3 三页信息架构）（2026-10-15 夜；已完成）**：信息架构由四区改为**三页**——`Ⅰ Agent 测试 → Ⅱ 风险评估 → Ⅲ 保险方案`（视觉主题与出口牌沿用，出口牌登为三站）；**单一运行选择器**（`#run`：本机会话 / 已交付历史运行两组）；**运行↔结果严格绑定**（无交付对应时结果卡显示「暂无核验结果 / 暂无理算结果」，不显示其他运行数字；仅存在于交付目录的运行选中后自动跳转第一页并展开证据，可「← 返回上一位置」）；运行详情与详细执行证据默认折叠；旧深链接兼容（lab/evidence/risk/cost）。案例显示名与导航决策档：`docs/decisions/IA_V3_case_display_names.md`、`docs/decisions/IA_V3_navigation.md`；测试迁移映射：`docs/validation/IA_V3_test_migration_map.md`；手册已按三页重写；启动回归脚本（`check_startup.py/.mjs`）修复后保留并已跑通（Q5 决议）。**已随 `25b82ee` 提交并推送 `feature/bd-integration`（2026-10-16，用户授权）；main 未合并。**
-- **批C·修复批（IA v3 风险 / 保险定向修复，2026-10-16 凌晨；已完成）**：P0-1~P0-6 全部落实——风险评估页：核验待审核 ≠ 任务升级（`task_outcome=escalated` 实时计数；人工工单为独立维度）、核验损失覆盖警示先行（“当前只有 1/15 次运行具有已核验损失结果……”）、运行来源卡与模型表现脱钩（真实模型/Mock/规则基线分开）；保险页：主体改为 A4 真实 Core / Plus 候选（null 参数一律「待定」，旧 A0 单事件工程理算移入下方“不代表 Core / Plus 保险报价”折叠区）；A4 数据经 `frontend/src/data/a4Products.ts` 加载器只读接入（未来换 B/A 正式接口仅替换该函数）。验证：单测 7 文件 59 项、全量电池 11/11（核心 1766 / stage04 142 / bcp2 21）、说明文档 `FRONTEND_RISK_INSURANCE_FIXES.md`；截图 `artifacts/pro_bd_sprint/05/ia3-shots-20261015/`。**已随 `25b82ee` 提交并推送 `feature/bd-integration`；main 未合并。**
-- **D 线 UI-first 收口轮（2026-10-16；已完成并推送）**：以评委/普通用户视角做体验收口（基线 `25b82ee`）——① 顶部灰条改**默认收起的紧凑运行条**（中文案例名｜来源｜状态 + 「切换运行」「展开详情 ▾」，用原生 `<details>`；错误/失权/离线状态徽标不被折叠；运行选择器/筛选/导入/保存回放/完整身份 ID 全部移入展开区）；② 第一页 StartCard 重排为 ①业务案例 ②运行测试 ③连接状态 三步 + ④拟用配置折叠，「查看已有真实运行 →」入口显式化；③ 技术噪音下沉（证据 schema/快照时间行移入运行详情；页脚版本行瘦身；运行来源中文化）；④ 风险页去重复范围标注、B-SCALE 文案修正（B 已完成独立模拟总体，尚未接入只读接口）、口径说明收页底折叠、`categoryOf` 无法归类改「未归类 · 待审」；⑤ 保险页新增 **Core vs Plus 对比区**（两案共同点 / 差异表（免赔·限额·附加责任）/ 为何暂无保费），卡片徽章中文化（「方案参数待审」「研究候选 · 非商业报价」），Plus 定位行直接引用 A4 原句。验证：单测 59、typecheck、build、全量电池 11/11（核心 1922 / stage04 142 / bcp2 21，产物 `receive-*-20261016-124650`）、启动回归脚本行同步修复（`#area=test`、规则基线标签、openRunBar）；截图 before/after `artifacts/pro_bd_sprint/05/ui-round-shots-20261016/`（1366/1440/390 三档 + 灰条收起/展开）；手册运行条章节待下一轮同步。**已提交 `9071713` 并推送 `feature/bd-integration`（2026-10-16，用户授权）；main 未合并、待用户指示。**
-- **演示 UI 重构批（2026-10-16 晚；已提交 `33b4e61` 并推送 `feature/bd-integration`）**：按用户《面向评委的极简演示版》提示词全站重排——01=案例摘要＋本次执行结果（主事实=已提交退款；核验面板与完整执行记录两折叠）；02=动态结论（riskVerdict）＋三个核心事实＋三步证据链＋审计折叠；03=Core/Plus 两卡（含「参考保费」行）＋测算/工程示例折叠；顶栏=品牌｜三导航｜演示记录选择器，页脚=免责＋开发工具（刷新/创建会话/导入/保存回放）。删除常驻运行条、出口牌、灰置「启动 Agent」按钮、拟用配置、筛选/分页/复制身份、移动端专门适配；默认演示记录=交付目录首个真实模型运行（只读、证据默认不展开）。规范豁免、保留底线与 A/B/C 测试映射见 `docs/decisions/UI_DEMO_REDESIGN_2026-10-16.md`；验证：单测 62、核心浏览器 1797～1955（计数随请求条数漂移）、stage04 121、bcp2 23、启动回归两轮、全量电池 11/11。**main 未合并、等待用户验收。**
-- **第一页随机抽样重构（2026-10-16 深夜；已提交 feat `e6275dc` + 文档提交，推送 `feature/bd-integration` 并合并至 main）**：第一页新增「＋新建一次测试」（Agent 选择器仅列 configs/runner 5 份已注册配置并标注付费/免费/模拟；「随机抽样并运行」按未接通接口保持禁用+准确原因）与「测试记录」双标签列表（本机测试记录/历史测试；data-sid 行选中；本机列 C/A 未接入、历史未核验显示待核验/null 不记零）；普通界面无事项类别/案例挑选（#fixture 仅在开发工具折叠）。验证：前端单测 66、核心浏览器 2608（P1 17 项全绿；A1 数据缺失期以开发驱动 DEV-SKIP 3 组，正式复跑待 A1 交付目录拷入）、stage04 160、启动回归两轮、typecheck/build。决策记录 `docs/decisions/PAGE1_RANDOM_SAMPLING_2026-10-16.md`（含安全接口设计草案与 B-SCALE 缺口清单）。**B-SCALE 数据与 A1 交付目录仍不在本机；真实抽样执行未实现（拆分交付状态见记录 §6）。**
-- 验证底线（2026-10-16 UI 收口轮）：后端 unittest 125、契约检查 3 项、前端单测 7 文件 59 项、typecheck、build、核心浏览器 1922 项、stage04 142、bcp2 21 —— **全部 0 失败**（产物：`artifacts/pro_bd_sprint/05/receive-*-20261016-124650`）。
-- 工作分支：`feature/c-agent-evaluation`（待 P0 准入解除）；`feature/a-gold-actuarial`（已建，待 A 开工）。
-- 所有现存运行均为开发运行（`counts_as_formal_run=false`）；无正式 Gold；无商业报价。
+- 工作分支 `feature/all-risk-experiment-v2`。公开远端停在 `3b9e240`，第二阶段之后的改动都还在本地。
+- 风险实验：`docs/decisions/RISK_EXPERIMENT_V2.md`。真实模型有效运行 4,326 次，事故 162 起，净损失 ¥86,019.26。
+- 年度精算与合同：`docs/decisions/ACTUARIAL_ANNUAL_V0.2.md` 第 10 节。基础档累计免赔 ¥10 万、增强档 ¥8 万，都赔 90%、年度限额 ¥30 万。
+- 商业模式：`docs/business/COMMERCIAL_MODEL_V0.2.md`。厂商和商户付费，保险机构基准不付费。
+- 证据完整性：`python -m experiments.evidence_chain --verify`。
+- 哨兵回放：`python -m experiments.sentinel`，线上监测尚未实现。
 
-## 在途分支的收尾事项（合并前）
+## 复现
 
-**B 案例库与 A/C 收尾（随本轮合入主线，责任不变）**
-- A：按 `artifacts/b_case_generator/A_GOLD_HANDOFF.md` 审核 40 个补充候选，提供可公开的 A1 manifest/schema 映射；**不得声称本库替代 A1**。
-- C：按 `artifacts/b_case_generator/C_RUNNER_HANDOFF.md` 独立确认 schema v2 的期初历史不归因到本 episode，再冻结运行清单。
-- D：继续把所有候选标为开发待审；正式损失/赔款仅在 A/C 正式结果到位后展示。本轮不得自动进入正式 Gold、收费模型或真实支付。
+```bash
+python -m experiments.annual_calibration
+python -m experiments.annual_report
+python -m experiments.finance_model
+python -m experiments.sentinel
+python -m experiments.authorization_list
+python -m experiments.evidence_chain
+```
 
-**`feature/c-agent-evaluation`（C1-1，2026-10-14）**
-- 收尾事项见分支内 `docs/handoff/C_C1_CHECKPOINT.md` 的「下一阶段阻塞」；核心依赖同下方 P0。
+## 下一步
 
-## P0：正式实验（56 次真实 + 28 次基线）的准入条件 —— 缺一不可
+1. 更新答辩 PPT 和口播稿，按计划书新稿。
+2. 团队抽样复核理赔材料，签收基准。这一步只能由成员完成。
 
-- [ ] 正式任务与 Gold 冻结、留出隔离（负责人 A/D；当前 40 个公开候选待审，见「在途分支的收尾事项」）
-- [ ] 规则基线决策表 A/D 双签（依赖 `docs/business/business_policy_A_candidate.md` 第 2 节）
-- [ ] 研究预算确认（C 的申请上限 ¥6.056316 = 7 次预试 + 56 次正式；未确认前不调用付费接口，明细见 `feature/c-agent-evaluation` 的 `experiments/fixtures/cost_pretrial_estimate.json`）
-- [ ] B 增加 `rule_baseline` 的 `execution_source` 枚举（C1 请求，属契约变更走契约 PR）
-- [ ] 义务定义（obligation spec）就绪 —— 否则核验只能输出 `needs_review`、无法出损失数字
-- [ ] A/C/BD 共同确认：正式清单、配置配对、样本计数、观测终点 H 与追回规则
-- [ ] 历史证据的规范 JSON 哈希与 CRLF 交付字节差异口径（A/C/BD 共同定案）
+## 还没做
 
-## P1：团队验收与可移植性
-
-- 第二台机器 / 第二操作者独立安装与复跑（记录环境、命令、退出码）。
-- 网页冷启动 / 刷新离线方案；A 离线理算验收。
-- 三个历史真实模型开发运行的 `needs_review` 补人工审核（净损失与赔付保持 `null`，不得由 D 猜测）。
-- 移动端 <760 专项（**观察级**，用户已定为次要：首屏折线到三格带、顶栏+运行条占比约 45%、导航单行横滑体验）。
-- 导航项副标题密度（**观察级**，用户留作观察项；可一键精简为「编号＋区名」）。
-- （旧）两处 ACL 受限旧库的核查（见归档停止点原文）。
-
-## 禁止自行扩展（持续有效）
-
-不自动进入正式实验；不调用收费模型或真实支付；不在浏览器重算保险；不放宽观察者鉴权；不改写历史证据；不代签。
-
-## 版本锚点
-
-- 基线标签：`baseline-20261013`（初始导入提交）。
-- D 线全站推平：`417e9b8`；收尾提交与合并：见 `git log`（2026-10-15）。
-- 分支与提交的实时状态：`git ls-remote origin` / `git log --oneline --all --decorate`。
+- 线上哨兵监测和配置指纹监测。
+- 支付渠道对账单这类第三方来源。证据哈希链只能说明记录事后没被改过。
+- 规则基线批次的基准和网关同源，所以规则基线的 0 信息量很低，第三页不用它定价。
+- 工作台的研究情景模式保留了早期 Core、Plus，已标明只作对照。

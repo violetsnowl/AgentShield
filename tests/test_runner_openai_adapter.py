@@ -1,10 +1,15 @@
 """OpenAI-compatible adapter against a local httpx MockTransport: no network, no key, no cost."""
 import json
+from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 import httpx
 
 from runners.adapters.openai_compat import OpenAICompatibleAdapter
+from runners.config import build
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def adapter(handler, retries=2):
@@ -60,6 +65,17 @@ class AdapterTests(unittest.TestCase):
     def test_length_cutoff_is_an_error_not_a_finish(self):
         turn = adapter(lambda r: completion({"role": "assistant", "content": "半句"}, "length")).next_turn([], [], {})
         self.assertEqual((turn.status, turn.error_code), ("error", "OUTPUT_TRUNCATED_LENGTH"))
+
+
+class SharedPoolTests(unittest.TestCase):
+    def test_runs_share_connections_but_never_reasoning(self):
+        config = json.loads((ROOT / "configs/runner/commandcode-glm-low-risk-v0.2.json").read_text(encoding="utf-8"))
+        env = {"C_ENABLE_PAID_RUNS": "true", "C_MAX_COST_CNY": "5", "COMMANDCODE_API_KEY": "sk-test-not-real"}
+        with patch("runners.config.load_runner_env", return_value=env):
+            first, second = build(config)[0], build(config)[0]
+        self.assertIs(first._client, second._client)
+        self.assertIsNot(first._private_reasoning, second._private_reasoning)
+        self.assertNotIn("sk-test-not-real", str(dict(first._client.headers)))
 
 
 if __name__ == "__main__":

@@ -149,7 +149,7 @@ def _indemnity(loss: Mapping[str, Any], claim: Mapping[str, Any], contract: Mapp
 
 def _open_items(spec: Mapping[str, Any], loss: Mapping[str, Any], claim: Mapping[str, Any]) -> list[str]:
     items = ["本案来自合成任务和模拟支付渠道，不是真实客户的损失。",
-             "赔款按研究合同试算，不是商业报价，也不是正式理赔结论。"]
+             "赔款按早期单次研究合同试算，不是商业报价，也不是正式理赔结论。校准后的年度合同下，这笔净损失先计入当年累计免赔，累计超过免赔额后才赔付。"]
     if str(spec.get("review_status", "")).endswith("not_signed"):
         items.append("应退金额由业务规则自动生成，尚未经人工签收。")
     if claim["coverage_status"] == "needs_review":
@@ -229,7 +229,7 @@ def conclusion(pack: Mapping[str, Any]) -> str:
         return f"核验确认净损失 {yuan(net)}，属于除外责任，不予赔付。"
     if payout == 0:
         return f"核验确认净损失 {yuan(net)}，低于免赔额，不予赔付。"
-    return f"核验确认净损失 {yuan(net)}，按研究合同试算赔款 {yuan(payout)}，自留 {yuan(summary['retained_loss_cents'])}。"
+    return f"核验确认净损失 {yuan(net)}，按早期单次合同试算赔款 {yuan(payout)}，自留 {yuan(summary['retained_loss_cents'])}。"
 
 
 STYLE = """

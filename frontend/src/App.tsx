@@ -11,6 +11,7 @@ import { CASE_GROUP_LABELS, caseDisplay } from './caseNames';
 import type { CaseGroup } from './caseNames';
 import { loadRunnerConfigs, agentConfigLabel } from './data/runnerConfigs';
 import type { RunnerConfig } from './data/runnerConfigs';
+import { AnnualModelPanel } from './AnnualModelPanel';
 import { ClaimCasesPanel } from './ClaimCasesPanel';
 import { computeRiskMetrics } from './riskMetrics';
 import type { RiskRunInput } from './riskMetrics';
@@ -85,7 +86,7 @@ function ScenarioIntro({ scenario, scenarioState, scenarioError, offlineFile, on
       <div><dt>业务结构</dt><dd>{scenario.categories.map(category => category.label).join(' / ')}</dd></div>
       <div><dt>研究假设</dt><dd>事故概率 {(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}% · 平均事故损失 {money(scenario.categories[0].average_accident_loss_cents)}</dd></div>
       <div><dt>研究性风险测算</dt><dd>{money(scenario.expected_annual_economic_loss_cents)}（详见「02 风险结论」）</dd></div>
-      <div><dt>保险方案</dt><dd>Core / Plus 两档研究方案，含模拟合同生成（详见「03 保险方案」）</dd></div>
+      <div><dt>保险方案</dt><dd>早期 Core / Plus 研究方案，已被校准后的基础档和增强档取代（详见「03 保险方案」）</dd></div>
     </dl>
     <p className="scenario-note">{scenario.assumption_notice}</p>
   </section>;
@@ -409,7 +410,7 @@ function InsurancePlans({ mode, batch, scenario, scenarioState, scenarioError, o
     const generated = scenario.plans.find(plan => plan.product_id === contractProduct) ?? null;
     if (generated) return <InsuranceContract scenario={scenario} plan={generated} onClose={() => setContractProduct(null)}/>;
     return <section className="plan-section" aria-label="研究保险方案">
-      <div className="verdict"><h2>年度研究保险方案</h2><p>研究假设 · 非实际经验报价；两档参考保费由研究情景与 A-P0 单次理赔公式计算。</p></div>
+      <div className="verdict"><h2>年度研究保险方案</h2><p>早期研究方案，已被下方校准后的年度方案取代。这两档的保费由研究假设和单次理赔公式计算，不再使用，只作对照。</p></div>
       <p className="mode-banner" role="status"><Badge>研究情景</Badge><span className="cell-note">固定研究演示 · 不依赖运行结果</span></p>
       <div className="plan-grid">{scenario.plans.map(plan => <ResearchPlanCard key={plan.product_id} plan={plan} onGenerate={() => setContractProduct(plan.product_id)}/>)}</div>
     </section>;
@@ -462,7 +463,7 @@ function InsurancePlans({ mode, batch, scenario, scenarioState, scenarioError, o
   const samplingNote = samplingInsuranceNote(adviceRows, planResults[0]?.result.reasons ?? []);
   const p0Sample = mode === 'agent' ? (readyDetails.find(detail => detail.p0_claim_comparison !== null) ?? null) : null;
   return <section className="plan-section" aria-label="保险方案">
-    <div className="verdict"><h2>{mode === 'agent' ? '样本外推参考保费（研究）' : '抽取检验 · 保险测算'}</h2><p>{mode === 'agent' ? '按本批次核定的 Core / Plus 单事件赔款做小样本外推；未核定时保持「数据不足」。' : '按本批次核验与保险责任认定结果测算；核验未完成时保持「数据不足」。'}</p></div>
+    <div className="verdict"><h2>{mode === 'agent' ? '样本外推参考保费（研究）' : '抽取检验 · 保险测算'}</h2><p>{mode === 'agent' ? '按早期 Core / Plus 单事件合同做小样本外推，只作对照；未核定时保持「数据不足」。' : '按本批次核验与保险责任认定结果测算；核验未完成时保持「数据不足」。'}</p></div>
     {banner}
     {samplingBlocked && <Empty title={samplingNote.title}>{samplingNote.body}</Empty>}
     {!samplingBlocked && mode === 'agent' && advice && <AdviceCard advice={advice}/>}
@@ -1161,6 +1162,7 @@ export default function App() {
       {state === 'ready' && area === 'risk' && mode === 'agent' && !fileReplay && <ClaimCasesPanel/>}
       {state === 'ready' && area === 'risk' && <RiskOverview mode={mode} batch={pageBatch} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} offlineFile={offline && replaySource === 'file'} details={runDetails} onRetryDetails={retryRunDetails}/>}
       {state === 'ready' && area === 'insurance' && <InsurancePlans mode={mode} batch={pageBatch} scenario={researchScenario} scenarioState={scenarioState} scenarioError={scenarioError} onRetryScenario={loadScenario} offlineFile={offline && replaySource === 'file'} details={runDetails} onRetryDetails={retryRunDetails}/>}
+      {state === 'ready' && area === 'insurance' && !fileReplay && <AnnualModelPanel/>}
       <footer className="site-foot">
         <p>模拟资金 · 开发运行 · 非商业报价。</p>
         <details className="dev-tools" open={devToolsOpen} onToggle={event => setDevToolsOpen(event.currentTarget.open)}><summary>开发工具 · 调试入口（演示默认不展开；用于固定案例回归）</summary>
