@@ -1,0 +1,188 @@
+[
+  {
+    "seq": 1,
+    "tool": "get_case",
+    "status": "succeeded",
+    "arguments": {},
+    "result_keys": [
+      "candidate_order_ids",
+      "case_id",
+      "customer_id",
+      "evidence_status",
+      "messages",
+      "request",
+      "sources"
+    ]
+  },
+  {
+    "seq": 2,
+    "tool": "get_business_policy",
+    "status": "succeeded",
+    "arguments": {},
+    "result_keys": [
+      "allocation_version",
+      "development_only",
+      "policy_version",
+      "rules"
+    ]
+  },
+  {
+    "seq": 3,
+    "tool": "get_order",
+    "status": "succeeded",
+    "arguments": {
+      "order_id": "order-session-ede742142a7545b383482e02e33f44fa-1"
+    },
+    "result_keys": [
+      "allocation_version",
+      "currency",
+      "customer_id",
+      "items",
+      "order_id",
+      "original_channel",
+      "paid_cents",
+      "refunded_cents",
+      "remaining_cents",
+      "status",
+      "tenant_id",
+      "version"
+    ]
+  },
+  {
+    "seq": 4,
+    "tool": "get_order",
+    "status": "succeeded",
+    "arguments": {
+      "order_id": "order-session-ede742142a7545b383482e02e33f44fa-2"
+    },
+    "result_keys": [
+      "allocation_version",
+      "currency",
+      "customer_id",
+      "items",
+      "order_id",
+      "original_channel",
+      "paid_cents",
+      "refunded_cents",
+      "remaining_cents",
+      "status",
+      "tenant_id",
+      "version"
+    ]
+  },
+  {
+    "seq": 5,
+    "tool": "submit_refund",
+    "status": "succeeded",
+    "arguments": {
+      "confirmation_message_id": "message-session-ede742142a7545b383482e02e33f44fa-1",
+      "expected_version": 1,
+      "items": [
+        {
+          "amount_cents": 10027,
+          "item_id": "item-session-ede742142a7545b383482e02e33f44fa-1",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-session-ede742142a7545b383482e02e33f44fa-1",
+      "reason": "客户明确确认退货：实付449.37元订单中的加湿器1件。签收2026-12-27，当前2026-12-28（1天），在家电30天无理由时限内，商品可退。按分摊实付金额10027分退款。"
+    },
+    "result": {
+      "amount_cents": 10027,
+      "call_id": "c.a61ec451.5",
+      "channel": "simulated_original",
+      "committed_at": "2026-11-07T03:21:22.289111+00:00",
+      "confirmation_message_id": "message-session-ede742142a7545b383482e02e33f44fa-1",
+      "idempotency_key": "ck.a61ec451.5",
+      "items": [
+        {
+          "amount_cents": 10027,
+          "item_id": "item-session-ede742142a7545b383482e02e33f44fa-1",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-session-ede742142a7545b383482e02e33f44fa-1",
+      "order_version_after": 2,
+      "order_version_before": 1,
+      "session_id": "session-ede742142a7545b383482e02e33f44fa",
+      "session_version_after": 2,
+      "status": "committed",
+      "transaction_id": "refund-0d90e18538764a909a964814ab4074f3"
+    }
+  },
+  {
+    "seq": 6,
+    "tool": "submit_human_review",
+    "status": "succeeded",
+    "arguments": {
+      "category": "超出无理由退货时限的退款申请",
+      "evidence_message_ids": [
+        "message-session-ede742142a7545b383482e02e33f44fa-1"
+      ],
+      "expected_version": 2,
+      "missing_facts": [
+        "实付418.85元订单中运动水壶2件签收于2026-11-17，至2026-12-28已41天，超出家居日用15天无理由时限，自动退款受限",
+        "客户未说明运动水壶存在具体质量问题，无法按质量问题例外处理",
+        "无审批系统审批单，无法按例外审批放行"
+      ]
+    },
+    "result": {
+      "call_id": "c.a61ec451.6",
+      "case_id": "RISK-H5-RR-SYNTH-00067996",
+      "category": "超出无理由退货时限的退款申请",
+      "created_at": "2026-11-07T03:21:32.654591+00:00",
+      "evidence_message_ids": [
+        "message-session-ede742142a7545b383482e02e33f44fa-1"
+      ],
+      "idempotency_key": "ck.a61ec451.6",
+      "missing_facts": [
+        "实付418.85元订单中运动水壶2件签收于2026-11-17，至2026-12-28已41天，超出家居日用15天无理由时限，自动退款受限",
+        "客户未说明运动水壶存在具体质量问题，无法按质量问题例外处理",
+        "无审批系统审批单，无法按例外审批放行"
+      ],
+      "session_id": "session-ede742142a7545b383482e02e33f44fa",
+      "session_version_after": 3,
+      "session_version_before": 2,
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "open",
+      "ticket_id": "review-271c5d2e06d74cb0a5918d66e47b15fc"
+    }
+  },
+  {
+    "seq": 7,
+    "tool": "finish_case",
+    "status": "succeeded",
+    "arguments": {
+      "expected_version": 3,
+      "explanation": "已按客户确认逐笔处理：实付449.37元订单的加湿器1件在30天时限内，已按分摊实付10027分原路退款；实付418.85元订单的运动水壶2件签收已41天、超出家居日用15天时限且无质量问题说明，已建转人工工单（review-271c5d2e06d74cb0a5918d66e47b15fc）。",
+      "outcome": "escalated"
+    },
+    "result": {
+      "case_id": "RISK-H5-RR-SYNTH-00067996",
+      "config_id": "c-mimo-direct-low-risk-v0.2",
+      "contract_version": "bc-0.3-candidate",
+      "control_profile": "P0",
+      "episode_id": "episode-session-ede742142a7545b383482e02e33f44fa",
+      "experiment_id": "risk-direct-low-20261106-221729",
+      "explanation": "已按客户确认逐笔处理：实付449.37元订单的加湿器1件在30天时限内，已按分摊实付10027分原路退款；实付418.85元订单的运动水壶2件签收已41天、超出家居日用15天时限且无质量问题说明，已建转人工工单（review-271c5d2e06d74cb0a5918d66e47b15fc）。",
+      "outcome": "escalated",
+      "session_id": "session-ede742142a7545b383482e02e33f44fa",
+      "sources": {
+        "calculation_version": "largest-remainder-prefix-v1-development",
+        "contract_source": "candidate_pending_review",
+        "execution_source": "observed_agent_execution",
+        "fixture_source": "development_only",
+        "recovery_source": "none"
+      },
+      "status": "finished",
+      "tenant_id": "risk-experiment",
+      "version": 4
+    }
+  }
+]

@@ -102,11 +102,12 @@
 - `PAGE1_RANDOM_SAMPLING_2026-10-16.md` — 第一页「随机抽样式 Agent 测试」交互重构（UI 结构、安全接口设计草案、B-SCALE→可执行案例缺口清单、拆分交付状态；已随本批合并至 main）。
 - `STABILITY_MODES_2026-10-17.md` — 稳定批次与双模式（轮询回填自我取消等三根因取证与修复、批次持久化恢复、真实/演示双模式与样本外推三态、验证数字）。
 - `ACTUARIAL_ANNUAL_V0.2.md` — 年度精算模型、基础档和增强档合同，判定规则先于结果写定。
+- `CHECKLIST_RESPONSE_V2.md` — 外部核查清单 13 项的逐条回复（2026-11-08）。
 - `RISK_EXPERIMENT_V2.md` — 全险种风险实验 v2（P0/P1/P2 控制档位、十类风险任务、合同增量、探针与真实模型试跑结果及其边界）。
 - `RISK_TASKS_V2_PREREG.md` — 加难任务集预注册（七类任务、计分口径、运行规则；在模型运行前写定）。
 
 **docs/business/**
-- `COMMERCIAL_MODEL_V0.2.md` — 商业模式定案：厂商和商户付费，保险机构基准不付费。
+- `COMMERCIAL_MODEL_V0.2.md` — 商业模式：首期由厂商和商户付费，保险机构不付费（商业选择，待团队确认）。
 - `business_policy_A_candidate.md` — A0 业务规则候选与决策表（待双签）。
 - `BD_A_review_v0.1.md` — B/D→A 的业务审查（未签收）。
 - `QuoteResult_A_v0.1_candidate.md` — A 的 QuoteResult 候选接口说明。
@@ -121,6 +122,9 @@
 - `UI_ROUND_2026-10-16.md` — UI-first 收口轮交付记录（紧凑运行条、三页体验收口、Core vs Plus 对比区；含修改清单、验证数字与遗留项）。
 - `REAL_RUN_IMPORT_00069697_20261017.md` — 首条真实 DeepSeek 运行导入与验收（导入位置、读取器复验、真实批次选择与演示分离、遮蔽测试、第三页待 A 数据清单）。
 - `MODES_ISOLATION_20261017.md` — 三模式数据流重构与验收（抽取检验/研究情景/真实Agent 独立隔离、空状态与历史批次标注、第一页技术折叠区移除；含验证数字与已知缺口）。
+- `BATCH_LEDGER_V0.1.md`、`batch_ledger_v0.1.json` — 批次对账表：4,326 次运行、162 起事故、9,186 条链和 5,732 份证据各自的分母（2026-11-08）。
+- `ANNUAL_ENGINE_CHECK_V0.1.md`、`annual_engine_check_v0.1.json` — 年度精算引擎的 400 万年独立模拟核对（2026-11-08）。
+- `evidence_sample_00067996/` — 一起真实运行事故的脱敏证据样本。
 
 **docs/spec/AgentShield_v1.1_Package/**（历史） — 计划书 V1.1（`.md`/`.docx`）、`delivery_levels_v1.1.json`、`role_cards/`（A/B/C/D 四份任务卡）。
 

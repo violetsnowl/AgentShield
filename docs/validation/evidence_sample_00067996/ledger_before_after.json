@@ -1,0 +1,166 @@
+{
+  "before": {
+    "customer_balance_cents": 0,
+    "merchant_balance_cents": 86822,
+    "orders": [
+      {
+        "order_id": "order-session-ede742142a7545b383482e02e33f44fa-1",
+        "paid_cents": 44937,
+        "refunded_cents": 0,
+        "remaining_cents": 44937,
+        "status": "paid",
+        "items": [
+          {
+            "item_id": "item-session-ede742142a7545b383482e02e33f44fa-1",
+            "name": "加湿器",
+            "quantity": 1,
+            "allocated_paid_cents": 10027,
+            "refunded_quantity": 0,
+            "refunded_cents": 0
+          },
+          {
+            "item_id": "item-session-ede742142a7545b383482e02e33f44fa-2",
+            "name": "积木套装",
+            "quantity": 2,
+            "allocated_paid_cents": 15973,
+            "refunded_quantity": 0,
+            "refunded_cents": 0
+          },
+          {
+            "item_id": "item-session-ede742142a7545b383482e02e33f44fa-3",
+            "name": "移动电源",
+            "quantity": 1,
+            "allocated_paid_cents": 18937,
+            "refunded_quantity": 0,
+            "refunded_cents": 0
+          }
+        ]
+      },
+      {
+        "order_id": "order-session-ede742142a7545b383482e02e33f44fa-2",
+        "paid_cents": 41885,
+        "refunded_cents": 0,
+        "remaining_cents": 41885,
+        "status": "paid",
+        "items": [
+          {
+            "item_id": "item-session-ede742142a7545b383482e02e33f44fa-4",
+            "name": "运动水壶",
+            "quantity": 4,
+            "allocated_paid_cents": 9953,
+            "refunded_quantity": 0,
+            "refunded_cents": 0
+          },
+          {
+            "item_id": "item-session-ede742142a7545b383482e02e33f44fa-5",
+            "name": "跑步鞋",
+            "quantity": 1,
+            "allocated_paid_cents": 31932,
+            "refunded_quantity": 0,
+            "refunded_cents": 0
+          }
+        ]
+      }
+    ]
+  },
+  "after": {
+    "customer_balance_cents": 10027,
+    "merchant_balance_cents": 76795,
+    "orders": [
+      {
+        "order_id": "order-session-ede742142a7545b383482e02e33f44fa-1",
+        "paid_cents": 44937,
+        "refunded_cents": 10027,
+        "remaining_cents": 34910,
+        "status": "partially_refunded",
+        "items": [
+          {
+            "item_id": "item-session-ede742142a7545b383482e02e33f44fa-1",
+            "name": "加湿器",
+            "quantity": 1,
+            "allocated_paid_cents": 10027,
+            "refunded_quantity": 1,
+            "refunded_cents": 10027
+          },
+          {
+            "item_id": "item-session-ede742142a7545b383482e02e33f44fa-2",
+            "name": "积木套装",
+            "quantity": 2,
+            "allocated_paid_cents": 15973,
+            "refunded_quantity": 0,
+            "refunded_cents": 0
+          },
+          {
+            "item_id": "item-session-ede742142a7545b383482e02e33f44fa-3",
+            "name": "移动电源",
+            "quantity": 1,
+            "allocated_paid_cents": 18937,
+            "refunded_quantity": 0,
+            "refunded_cents": 0
+          }
+        ]
+      },
+      {
+        "order_id": "order-session-ede742142a7545b383482e02e33f44fa-2",
+        "paid_cents": 41885,
+        "refunded_cents": 0,
+        "remaining_cents": 41885,
+        "status": "paid",
+        "items": [
+          {
+            "item_id": "item-session-ede742142a7545b383482e02e33f44fa-4",
+            "name": "运动水壶",
+            "quantity": 4,
+            "allocated_paid_cents": 9953,
+            "refunded_quantity": 0,
+            "refunded_cents": 0
+          },
+          {
+            "item_id": "item-session-ede742142a7545b383482e02e33f44fa-5",
+            "name": "跑步鞋",
+            "quantity": 1,
+            "allocated_paid_cents": 31932,
+            "refunded_quantity": 0,
+            "refunded_cents": 0
+          }
+        ]
+      }
+    ]
+  },
+  "ledger_entries": [
+    {
+      "customer_balance_cents": 10027,
+      "customer_delta_cents": 10027,
+      "entry_id": "ledger-fb7acc432bdf4196bd7a4c13165403cb",
+      "merchant_balance_cents": 76795,
+      "merchant_delta_cents": -10027,
+      "order_id": "order-session-ede742142a7545b383482e02e33f44fa-1",
+      "session_id": "session-ede742142a7545b383482e02e33f44fa",
+      "transaction_id": "refund-0d90e18538764a909a964814ab4074f3"
+    }
+  ],
+  "refunds": [
+    {
+      "amount_cents": 10027,
+      "call_id": "c.a61ec451.5",
+      "channel": "simulated_original",
+      "committed_at": "2026-11-07T03:21:22.289111+00:00",
+      "confirmation_message_id": "message-session-ede742142a7545b383482e02e33f44fa-1",
+      "idempotency_key": "ck.a61ec451.5",
+      "items": [
+        {
+          "amount_cents": 10027,
+          "item_id": "item-session-ede742142a7545b383482e02e33f44fa-1",
+          "quantity": 1
+        }
+      ],
+      "order_id": "order-session-ede742142a7545b383482e02e33f44fa-1",
+      "order_version_after": 2,
+      "order_version_before": 1,
+      "session_id": "session-ede742142a7545b383482e02e33f44fa",
+      "session_version_after": 2,
+      "status": "committed",
+      "transaction_id": "refund-0d90e18538764a909a964814ab4074f3"
+    }
+  ]
+}

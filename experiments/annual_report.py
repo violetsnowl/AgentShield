@@ -112,7 +112,9 @@ def model_for(evidence: dict[str, Any], tier: dict[str, Any], scene: Scenario, m
     return AnnualLossModel(lam, severity_points(evidence, scene.severity_scale), batch_events(evidence, tier, scene, monitored, rate)), lam
 
 
-def choose(evidence: dict[str, Any], assumptions: dict[str, Any], scene: Scenario, basis: PremiumBasis, measure: str = "mean") -> dict[str, Any]:
+def choose(evidence: dict[str, Any], assumptions: dict[str, Any], scene: Scenario, basis: PremiumBasis, measure: str = "mean",
+           cut: str = "cte99_cut") -> dict[str, Any]:
+    """The rule: CTE99 falls at least 40%, then the lowest mean spend. `measure` and `cut` must use the same premium."""
     model, _ = model_for(evidence, evidence["tiers"][REFERENCE_TIER], scene, False)
     bare = model.uninsured()
     rows = []
@@ -122,13 +124,13 @@ def choose(evidence: dict[str, Any], assumptions: dict[str, Any], scene: Scenari
                 row = model.evaluate(AggregateTerms(float(deductible), share, float(limit)), basis)
                 rows.append({"deductible": deductible, "share": share, "limit": limit, "cte99_cut": 1 - row["cte99"] / bare["cte99"],
                              "cte99_cut_with_capital": 1 - row["cte99_with_capital"] / bare["cte99"], **row})
-    passing = [row for row in rows if row["cte99_cut"] >= TARGET_CUT]
+    passing = [row for row in rows if row[cut] >= TARGET_CUT]
     if passing:
         floor = min(row[measure] for row in passing)
         chosen = max((row for row in passing if row[measure] - floor <= TIE_YUAN), key=lambda row: (row["deductible"], -row[measure]))
         how = "按规则选出"
     else:
-        chosen = max(rows, key=lambda row: row["cte99_cut"])
+        chosen = max(rows, key=lambda row: row[cut])
         how = "没有方案达到 40%，取降幅最大"
     return {"uninsured": bare, "rows": rows, "passing": len(passing), "chosen": chosen, "how": how}
 
@@ -295,14 +297,17 @@ def build(evidence: dict[str, Any], assumptions: dict[str, Any], *, years: int =
     scene = Scenario.from_assumptions(assumptions)
     basis = PremiumBasis(**assumptions["premium"])
     selection = choose(evidence, assumptions, scene, basis)
-    with_capital = choose(evidence, assumptions, scene, basis, "mean_with_capital")
+    # The same rule at the reference price, where both the 40% test and the mean spend include the capital loading.
+    with_capital = choose(evidence, assumptions, scene, basis, "mean_with_capital", "cte99_cut_with_capital")
     terms = terms_of(assumptions["base_contract"])
     enhanced = terms_of(assumptions["enhanced_contract"])
     merchants = assumptions["portfolio_merchants"]
     return {"schema": "AgentShield.annual_results.v0.2", "commercial_quote": False, "base_contract": assumptions["base_contract"],
             "rule_result": {key: selection["chosen"][key] for key in ("deductible", "share", "limit")},
             "selection": {"how": selection["how"], "passing": selection["passing"], "candidates": len(selection["rows"]), "uninsured": selection["uninsured"], "chosen": selection["chosen"], "rows": selection["rows"],
-                          "chosen_with_capital": {key: with_capital["chosen"][key] for key in ("deductible", "share", "limit")}},
+                          "chosen_with_capital": {key: with_capital["chosen"][key] for key in ("deductible", "share", "limit")},
+                          "with_capital": {"how": with_capital["how"], "passing": with_capital["passing"], "cut": with_capital["chosen"]["cte99_cut_with_capital"],
+                                           "mean": with_capital["chosen"]["mean_with_capital"], "premium": with_capital["chosen"]["premium_with_capital"]}},
             "tiers": tier_table(evidence, scene, basis, terms), "structures": structure_table(evidence, assumptions, scene, basis, terms, enhanced, years),
             "sensitivity": sensitivity(evidence, scene, basis, terms), "evidence_ladder": evidence_ladder(evidence, scene, basis, terms),
             "latency": latency_table(evidence, scene), "sentinel": sentinel_table(evidence, scene, assumptions["monitoring"]["round_hours"]),

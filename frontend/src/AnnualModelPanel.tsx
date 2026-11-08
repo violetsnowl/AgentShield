@@ -3,7 +3,7 @@ import { api } from './api';
 import { contractLine, enhancedPremium, parseAnnualSummary, percent, premiumRange, tierPremium, yuan } from './annualModel';
 import type { AnnualSummary } from './annualModel';
 
-/** 第三页：校准后的年度方案。Core、Plus 留在页面上作对照。 */
+/** 第三页：按测评参数测算的年度方案（情景测算）。Core、Plus 留在页面上作对照。 */
 export function AnnualModelPanel() {
   const [summary, setSummary] = useState<AnnualSummary | null>(null);
   const [error, setError] = useState('');
@@ -17,7 +17,7 @@ export function AnnualModelPanel() {
   if (error !== '') return <section className="real-batch" aria-label="年度方案"><p className="notice error" role="alert">{error}</p></section>;
   if (summary === null) return <div className="loading" role="status"><span className="spinner"/>正在读取年度测算…</div>;
   return <section className="real-batch" aria-label="年度方案" data-testid="annual-model">
-    <div className="scenario-heading"><div><p className="eyebrow">校准后的方案</p>{summary.contracts.map(contract => <h2 key={contract.contract_version}>{contractLine(contract)}</h2>)}</div></div>
+    <div className="scenario-heading"><div><p className="eyebrow">按测评参数测算的方案</p>{summary.contracts.map(contract => <h2 key={contract.contract_version}>{contractLine(contract)}</h2>)}</div></div>
     <p className="fine-print">{summary.nature}。保费写成区间：下限不计资本成本，上限是计入资本成本的参考价，都不含再保；支出按下限计算。不是商业报价。两个按次免赔方案只作对照。</p>
     <div className="table-scroll"><table className="rec-table"><thead><tr><th>合同结构</th><th className="number">保费</th><th className="number">平均年度支出</th><th className="number">99% 分位</th><th className="number">最坏 1% 年份平均</th></tr></thead>
       <tbody>{summary.structures.map(row => <tr key={row.label}><td>{row.label}</td><td className="number">{premiumRange(row.premium_yuan, row.premium_capital_yuan)}</td><td className="number">{yuan(row.mean_yuan)}</td><td className="number">{yuan(row.p99_yuan)}</td><td className="number">{yuan(row.cte99_yuan)}</td></tr>)}</tbody></table></div>

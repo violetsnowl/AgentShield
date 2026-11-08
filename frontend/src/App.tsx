@@ -86,7 +86,7 @@ function ScenarioIntro({ scenario, scenarioState, scenarioError, offlineFile, on
       <div><dt>业务结构</dt><dd>{scenario.categories.map(category => category.label).join(' / ')}</dd></div>
       <div><dt>研究假设</dt><dd>事故概率 {(Number(scenario.categories[0].accident_probability) * 100).toFixed(2)}% · 平均事故损失 {money(scenario.categories[0].average_accident_loss_cents)}</dd></div>
       <div><dt>研究性风险测算</dt><dd>{money(scenario.expected_annual_economic_loss_cents)}（详见「02 风险结论」）</dd></div>
-      <div><dt>保险方案</dt><dd>早期 Core / Plus 研究方案，已被校准后的基础档和增强档取代（详见「03 保险方案」）</dd></div>
+      <div><dt>保险方案</dt><dd>早期 Core / Plus 研究方案，已被按测评参数测算的基础档和增强档取代（详见「03 保险方案」）</dd></div>
     </dl>
     <p className="scenario-note">{scenario.assumption_notice}</p>
   </section>;
@@ -410,7 +410,7 @@ function InsurancePlans({ mode, batch, scenario, scenarioState, scenarioError, o
     const generated = scenario.plans.find(plan => plan.product_id === contractProduct) ?? null;
     if (generated) return <InsuranceContract scenario={scenario} plan={generated} onClose={() => setContractProduct(null)}/>;
     return <section className="plan-section" aria-label="研究保险方案">
-      <div className="verdict"><h2>年度研究保险方案</h2><p>早期研究方案，已被下方校准后的年度方案取代。这两档的保费由研究假设和单次理赔公式计算，不再使用，只作对照。</p></div>
+      <div className="verdict"><h2>年度研究保险方案</h2><p>早期研究方案，已被下方按测评参数测算的年度方案取代。这两档的保费由研究假设和单次理赔公式计算，不再使用，只作对照。</p></div>
       <p className="mode-banner" role="status"><Badge>研究情景</Badge><span className="cell-note">固定研究演示 · 不依赖运行结果</span></p>
       <div className="plan-grid">{scenario.plans.map(plan => <ResearchPlanCard key={plan.product_id} plan={plan} onGenerate={() => setContractProduct(plan.product_id)}/>)}</div>
     </section>;

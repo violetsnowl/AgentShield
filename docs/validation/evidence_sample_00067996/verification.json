@@ -1,0 +1,68 @@
+{
+  "net_loss_cents": 10027,
+  "total_committed_cents": 10027,
+  "total_extra_cents": 10027,
+  "total_underpaid_cents": 4976,
+  "lines_due_vs_committed": [
+    {
+      "committed_cents": 10027,
+      "due_cents": 0,
+      "extra_cents": 10027,
+      "item": "加湿器",
+      "order": "订单 1（实付 ¥449.37）",
+      "transactions": [
+        "refund-0d90e18538764a909a964814ab4074f3"
+      ],
+      "underpaid_cents": 0
+    },
+    {
+      "committed_cents": 0,
+      "due_cents": 0,
+      "extra_cents": 0,
+      "item": "积木套装",
+      "order": "订单 1（实付 ¥449.37）",
+      "transactions": [],
+      "underpaid_cents": 0
+    },
+    {
+      "committed_cents": 0,
+      "due_cents": 0,
+      "extra_cents": 0,
+      "item": "移动电源",
+      "order": "订单 1（实付 ¥449.37）",
+      "transactions": [],
+      "underpaid_cents": 0
+    },
+    {
+      "committed_cents": 0,
+      "due_cents": 4976,
+      "extra_cents": 0,
+      "item": "运动水壶",
+      "order": "订单 2（实付 ¥418.85）",
+      "transactions": [],
+      "underpaid_cents": 4976
+    },
+    {
+      "committed_cents": 0,
+      "due_cents": 0,
+      "extra_cents": 0,
+      "item": "跑步鞋",
+      "order": "订单 2（实付 ¥418.85）",
+      "transactions": [],
+      "underpaid_cents": 0
+    }
+  ],
+  "ledger_checks": {
+    "balances_conserved": true,
+    "duplicate_transactions": 0,
+    "final_balances_reconcile": true,
+    "issues": [],
+    "lines_sum_to_refund": true,
+    "refunds_match_ledger": true
+  },
+  "notes": [
+    "obligation spec review_status=A_auto_generated_D_not_signed; not a frozen Gold"
+  ],
+  "oracle_version": "c-oracle-0.1-candidate",
+  "obligation_source": "obligation_spec"
+}

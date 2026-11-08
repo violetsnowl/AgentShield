@@ -115,11 +115,16 @@ def scenarios() -> dict[str, list[dict[str, float]]]:
 
 
 def market() -> list[dict[str, float]]:
-    """Top-down cap: online retail divided by the sales behind one standard merchant, so the count cannot exceed the market."""
+    """Standard-merchant equivalents: online retail of physical goods divided by the sales behind one standard merchant.
+
+    This is a conversion, not a count of customers and not an upper bound: a higher real refund rate per sale gives more equivalents.
+    """
     # The same merchants pay for monitoring, so they buy cover at the monitored premium.
     results = json.loads(ANNUAL_RESULTS.read_text(encoding="utf-8"))
     watched = next(row["insured"] for row in results["tiers"] if row["tier"] == "B" and row["monitored"])
     physical_goods_retail = 13.09e12  # refunds of goods; the 15.97 trillion total includes services
+    # Paid amount of the 100,000 orders in synthetic_merchant_v1.sqlite3 (yuan), scaled from its 6,105 agent-handled refund requests
+    # to 100,000 tasks a year: one refund task per about 16,773 yuan of sales. Both figures come from the simulated population.
     standard_merchant_sales = 102400661.08 * (100000 / 6105)
     equivalents = physical_goods_retail / standard_merchant_sales
     out = []

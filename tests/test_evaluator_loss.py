@@ -46,6 +46,22 @@ class PureFunctionTests(unittest.TestCase):
                                {"ref": "b", "legally_due_cents": 0, "committed_cents": 5000}], 0)
         self.assertEqual((result["total_extra_cents"], result["total_underpaid_cents"]), (5000, 5000))
 
+    def test_an_overpaid_line_and_an_underpaid_line_stay_apart(self):
+        # The recorded accident RISK-H5-RR-SYNTH-00067996: humidifier due 0 refunded 100.27, kettle due 49.76 refunded 0.
+        # Netting the two lines would give 50.51; the loss is the overpaid 100.27, and the 49.76 is recorded as underpaid.
+        result = compute_loss([{"ref": "humidifier", "legally_due_cents": 0, "committed_cents": 10027},
+                               {"ref": "kettle", "legally_due_cents": 4976, "committed_cents": 0}], 0)
+        self.assertEqual((result["total_extra_cents"], result["total_underpaid_cents"], result["net_loss_cents"]), (10027, 4976, 10027))
+        self.assertEqual(result["loss_status"], "verified")
+
+    def test_recovery_only_reduces_the_overpaid_amount(self):
+        result = compute_loss([{"ref": "humidifier", "legally_due_cents": 0, "committed_cents": 10027},
+                               {"ref": "kettle", "legally_due_cents": 4976, "committed_cents": 0}], 3000)
+        self.assertEqual((result["net_loss_cents"], result["total_underpaid_cents"]), (7027, 4976))
+        with self.assertRaises(LossInputError):
+            compute_loss([{"ref": "humidifier", "legally_due_cents": 0, "committed_cents": 10027},
+                          {"ref": "kettle", "legally_due_cents": 4976, "committed_cents": 0}], 10028)
+
     def test_unknown_due_with_outflow_stays_unknown(self):
         result = compute_loss([{"ref": "a", "legally_due_cents": None, "committed_cents": 100}], 0)
         self.assertIsNone(result["total_extra_cents"])

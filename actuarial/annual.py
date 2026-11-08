@@ -10,7 +10,7 @@ Nothing here is a commercial quote; see docs/decisions/ACTUARIAL_ANNUAL_V0.2.md.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import exp, log, sqrt
+from math import ceil, exp, log, sqrt
 import random
 from typing import Any, Mapping, Sequence
 
@@ -233,16 +233,62 @@ class AnnualLossModel:
         second = sum((index * step) ** 2 * chance for index, chance in grid.items())
         size = int((lam * self.mean_severity + tail_sds * sqrt(lam * second) + 40 * max(grid) * step) / step) + 2
         ordinary = compound_poisson(lam, grid, size)
-        for event in batch_events:
-            ordinary = add_atoms(ordinary, [(chance, round(amount / step)) for chance, amount in event])
-        self.density = ordinary
-        self.truncated = 1.0 - sum(ordinary)
+        self.grid, self.ordinary_density = grid, ordinary
+        self.batch_atoms = [[(chance, round(amount / step)) for chance, amount in event] for event in batch_events]
+        density = ordinary
+        for atoms in self.batch_atoms:
+            density = add_atoms(density, atoms)
+        self.density = density
+        self.truncated = 1.0 - sum(density)
 
     def outcomes(self) -> list[tuple[float, float]]:
         return [(index * self.step, mass) for index, mass in enumerate(self.density) if mass > 0]
 
     def uninsured(self) -> dict[str, float]:
         return tail_stats(self.outcomes())
+
+    def _claim_points(self, deductible: float) -> tuple[int, int | None]:
+        """Grid indices that claim: every index from `full` on, and half of `half`, the one point within half a step of the deductible."""
+        full = ceil((deductible + self.step / 2) / self.step - 1e-9)
+        half = full - 1
+        return full, (half if half >= 0 and deductible - self.step / 2 < half * self.step < deductible + self.step / 2 else None)
+
+    @staticmethod
+    def _claim_chance(density: Sequence[float], tail: Sequence[float], shift: int, full: int, half: int | None) -> float:
+        """Chance that a year from `density`, moved up by `shift` grid steps, claims; the deductible point counts half."""
+        start = full - shift
+        if start <= 0:
+            return tail[0]
+        chance = tail[start] if start < len(tail) else 0.0
+        if half is not None and 0 <= half - shift < len(density):
+            chance += 0.5 * density[half - shift]
+        return chance
+
+    def claim_year_cases(self, deductible: float) -> float:
+        """E[K * 1{loss > deductible}]: the events reviewed in claim years, K being the ordinary events plus the batch events of the year.
+
+        For the Poisson count N of ordinary events, E[N g(L)] = lam * E[g(L + X)] with X one more independent severity (the Mecke
+        identity), so that part is lam times the claim chance of a year with one more loss added. Each batch event is weighed by its
+        own atoms on the distribution of all the other losses. Mass on the deductible counts half, as in `trigger_chance`.
+        """
+        full, half = self._claim_points(deductible)
+
+        def tails(density: Sequence[float]) -> list[float]:
+            out = [0.0] * (len(density) + 1)
+            for index in range(len(density) - 1, -1, -1):
+                out[index] = out[index + 1] + density[index]
+            return out
+
+        tail = tails(self.density)
+        cases = self.lam * sum(chance * self._claim_chance(self.density, tail, shift, full, half) for shift, chance in self.grid.items() if chance > 0)
+        for position, atoms in enumerate(self.batch_atoms):
+            others = self.ordinary_density
+            for other, extra in enumerate(self.batch_atoms):
+                if other != position:
+                    others = add_atoms(others, extra)
+            other_tail = tails(others)
+            cases += sum(chance * self._claim_chance(others, other_tail, shift, full, half) for chance, shift in atoms if chance > 0)
+        return cases
 
     def evaluate(self, terms: AggregateTerms, basis: PremiumBasis, *, handling: float | None = None, service_fee: float = 0.0) -> dict[str, float]:
         outcomes = self.outcomes()
@@ -251,8 +297,9 @@ class AnnualLossModel:
         # Mass sitting exactly on the deductible stands for losses either side of it.
         trigger = sum(mass * (0.5 if abs(loss - terms.deductible) < self.step / 2 else 1.0) for loss, mass in outcomes if loss >= terms.deductible - self.step / 2 and (terms.paid(loss) > 0 or abs(loss - terms.deductible) < self.step / 2))
         if handling is None:
-            # Paying under an aggregate deductible means checking the whole year, so the cost follows claim years, not paid amounts.
-            handling = basis.case_cost * trigger * (self.lam + 1.0)
+            # Paying under an aggregate deductible means checking every event of a claim year, so the cost is the events of claim
+            # years, not the claim chance times the events of an average year: claim years have more events than average.
+            handling = basis.case_cost * self.claim_year_cases(terms.deductible)
         premium = basis.premium(expected, handling, service_fee)
         spend = tail_stats([(premium + loss - terms.paid(loss), mass) for loss, mass in outcomes])
         tail_paid = tail_stats(paid)["cte99"]

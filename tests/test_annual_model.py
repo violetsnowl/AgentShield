@@ -179,9 +179,61 @@ class PremiumTests(unittest.TestCase):
         self.assertAlmostEqual(basis.premium_with_capital(1000.0, 101000.0, 0.0), (1000.0 + 8000.0 + 1000.0) / 0.8)
 
     def test_handling_follows_the_years_with_a_claim(self):
+        # Almost only the batch event pushes this year past the deductible, and it comes regardless of the count, so a claim
+        # year has about the average 10 ordinary events plus the batch event.
         model = AnnualLossModel(10.0, [(1000.0, 1.0)], [[(0.1, 50000.0)]], step=50.0)
         row = model.evaluate(AggregateTerms(30000.0, 0.9, 300000.0), PremiumBasis())
-        self.assertAlmostEqual(row["handling"], 80.0 * row["trigger_chance"] * 11.0)
+        self.assertAlmostEqual(row["handling"], 80.0 * row["trigger_chance"] * 11.0, delta=1e-3)
+
+    def test_claim_year_cases_match_a_full_enumeration(self):
+        lam, severity, batch, deductible = 1.3, [(100.0, 0.6), (300.0, 0.4)], [(0.2, 500.0)], 400.0
+        model = AnnualLossModel(lam, severity, [batch], step=50.0)
+        sums = {0: 1.0}
+        exact = 0.0
+        for n in range(60):
+            chance_n = math.exp(-lam) * lam ** n / math.factorial(n)
+            for occurs, b_chance, b_steps in ((0, 0.8, 0), (1, 0.2, 10)):
+                for steps, mass in sums.items():
+                    total = steps + b_steps
+                    weight = 1.0 if total > 8 else 0.5 if total == 8 else 0.0
+                    exact += chance_n * b_chance * mass * weight * (n + occurs)
+            grown = {}
+            for steps, mass in sums.items():
+                for amount, share in severity:
+                    grown[steps + int(amount / 50)] = grown.get(steps + int(amount / 50), 0.0) + mass * share
+            sums = grown
+        self.assertAlmostEqual(model.claim_year_cases(deductible), exact, places=9)
+        row = model.evaluate(AggregateTerms(deductible, 0.9, 10000.0), PremiumBasis())
+        self.assertAlmostEqual(row["handling"], 80.0 * exact, places=6)
+
+    def test_two_batch_events_below_the_deductible_are_weighed_on_the_other_losses(self):
+        # Each batch event alone stays under the deductible, so whether a year claims depends on the other batch event and the
+        # ordinary losses. Using the full distribution for a batch event, or leaving the other batch event out, fails here.
+        lam, severity, deductible = 0.9, [(100.0, 0.5), (200.0, 0.5)], 400.0
+        batch = [[(0.3, 300.0)], [(0.25, 150.0), (0.15, 250.0)]]
+        model = AnnualLossModel(lam, severity, batch, step=50.0)
+        sums = {0: 1.0}
+        outcomes = [((0, 0), 0.7 * 0.6), ((6, 1), 0.3 * 0.6), ((3, 1), 0.7 * 0.25), ((5, 1), 0.7 * 0.15), ((9, 2), 0.3 * 0.25), ((11, 2), 0.3 * 0.15)]
+        exact = 0.0
+        for n in range(60):
+            chance_n = math.exp(-lam) * lam ** n / math.factorial(n)
+            for (b_steps, events), b_chance in outcomes:
+                for steps, mass in sums.items():
+                    total = steps + b_steps
+                    weight = 1.0 if total > 8 else 0.5 if total == 8 else 0.0
+                    exact += chance_n * b_chance * mass * weight * (n + events)
+            grown = {}
+            for steps, mass in sums.items():
+                for amount, share in severity:
+                    grown[steps + int(amount / 50)] = grown.get(steps + int(amount / 50), 0.0) + mass * share
+            sums = grown
+        self.assertAlmostEqual(model.claim_year_cases(deductible), exact, places=9)
+
+    def test_claim_years_carry_more_events_than_an_average_year(self):
+        # Without batch events, a year claims only when it has many events, so the old shortcut lam * P(claim) undercounts.
+        model = AnnualLossModel(20.0, [(1000.0, 1.0)], step=50.0)
+        row = model.evaluate(AggregateTerms(25000.0, 0.9, 300000.0), PremiumBasis())
+        self.assertGreater(row["handling"], 80.0 * row["trigger_chance"] * 20.0 * 1.2)
 
     def test_mass_on_the_deductible_counts_as_half_a_claim(self):
         model = AnnualLossModel(0.0, [(100.0, 1.0)], [[(0.4, 1000.0)]], step=50.0)

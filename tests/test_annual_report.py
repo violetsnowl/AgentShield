@@ -265,6 +265,18 @@ class SelectionTests(unittest.TestCase):
         row = next(item for item in self.results["monitoring_value"] if item["tier"] == "B" and item["frequency_basis"] == "likely")
         self.assertAlmostEqual(row["base"], total)
 
+    def test_the_reference_price_rule_tests_and_ranks_on_the_same_price(self):
+        selection = self.results["selection"]
+        rows = selection["rows"]
+        passing = [row for row in rows if row["cte99_cut_with_capital"] >= annual_report.TARGET_CUT]
+        self.assertEqual(selection["with_capital"]["passing"], len(passing))
+        best = min(row["mean_with_capital"] for row in passing)
+        chosen = selection["chosen_with_capital"]
+        match = [row for row in passing if all(row[key] == chosen[key] for key in ("deductible", "share", "limit"))]
+        self.assertEqual(len(match), 1)
+        self.assertLessEqual(match[0]["mean_with_capital"] - best, annual_report.TIE_YUAN)
+        self.assertGreaterEqual(selection["with_capital"]["cut"], annual_report.TARGET_CUT)
+
     def test_likely_year_uses_the_priced_premium(self):
         likely = self.results["likely"]
         self.assertAlmostEqual(likely["premium"], self.results["structures"]["aggregate"]["premium_with_capital"])
