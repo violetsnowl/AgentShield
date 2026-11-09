@@ -107,7 +107,7 @@
 - `RISK_TASKS_V2_PREREG.md` — 加难任务集预注册（七类任务、计分口径、运行规则；在模型运行前写定）。
 
 **docs/business/**
-- `COMMERCIAL_MODEL_V0.2.md` — 商业模式：首期由厂商和商户付费，保险机构不付费（商业选择，待团队确认）。
+- `COMMERCIAL_MODEL_V0.2.md` — 商业模式：首期由厂商和商户付费，保险机构不付费（团队已确认，2026-11-08）。
 - `business_policy_A_candidate.md` — A0 业务规则候选与决策表（待双签）。
 - `BD_A_review_v0.1.md` — B/D→A 的业务审查（未签收）。
 - `QuoteResult_A_v0.1_candidate.md` — A 的 QuoteResult 候选接口说明。
