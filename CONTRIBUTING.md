@@ -58,6 +58,8 @@
 - **行尾风格是混合的**：`frontend/src/App.tsx`、`style.css`、`frontend/tests/browser.mjs`、`stage04-browser.mjs` 为 CRLF；`frontend/src/riskMetrics.ts`、`frontend/tests/riskMetrics.test.ts`、`artifacts/pro_bd_sprint/05/support/check_startup.mjs` 等为 LF。批量重写文件前先比对原文件 EOL 并保持一致；提交前用 `git diff --cached --ignore-cr-at-eol --stat` 自查——某文件行数骤降 = EOL 被整文件翻转，须转回原风格再提交。
 - **gitignore 目录内的 tracked 文件**（如 `artifacts/pro_bd_sprint/05/support/check_startup.mjs`）：`git add <path>` 会被整体拒绝（提示 "paths are ignored"，同批其它文件也不入暂存）——须 `git add -f` 且单独一条命令。
 - **折叠（`<details>`）改造后的浏览器检查迁移**：关闭的 details 内元素对 Playwright 不可见（click/selectOption/innerText 失效；textContent/count 不受影响）。做法：幂等 helper 先 `evaluate(node => { node.open = true; })` 展开再交互；helper 插入点须落在语句行之前，避开多行 `Promise.all([...])` 内部。
+- **换行符不会自动转换**（2026-11 增补）：`.gitattributes` 是 `* -text`，Windows 工具写出的 CRLF 会原样入库。2026-11-08 有一份 README 被写成 CRLF 后测试失败，按字节转回 LF 后解决。改文件前先看原文件的行尾。
+- **推送时 TLS 中断或报 “remote end hung up”**（2026-11 增补）：改用 `git -c http.postBuffer=524288000 -c http.version=HTTP/1.1 push`，仍失败就重试几次。2026-11-08 的几次推送都是这样推上去的。
 - **新增 UI 文案与既有文案重名会触发 Playwright strict-mode 冲突**（如对比表单元格 vs 卡片标题）：等待/定位改用 `getByRole('heading'|'cell'|'button', { name })` 等角色化选择器。
 
 ## 硬性禁区（与计划书一致）
